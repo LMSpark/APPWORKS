@@ -68,6 +68,13 @@
       "hidden": true
     },
     {
+      "path": "/features/integration/mp-open/ui/catalog-page",
+      "title": "小程序模板目录",
+      "scope": "app",
+      "source": "src/views/features/integration/mp-open/ui/catalog-page.vue",
+      "hidden": true
+    },
+    {
       "path": "/features/integration/api-management/ui/api-management-page",
       "title": "外部服务管理",
       "scope": "enterprise",

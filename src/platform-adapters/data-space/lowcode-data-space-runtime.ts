@@ -10,7 +10,7 @@ import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowc
 import { isRecord } from '@spark-appworks/spark-utils'
 import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type PageRuntimeSource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
-import {DataSet,parseRuntimeDataSetPlanFile} from '@spark-appworks/spark-data'
+import {DataSet,parseRuntimeDataSetPlanFile,type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {readRuntimeDataSetPlan} from './runtime-data-set-plan-file'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
@@ -247,9 +247,45 @@ const MP_APPLICATION_WORKING_PLAN = Object.freeze({
  nodeId: 'B9EB9A416B3AFC711E3787399368D247',
  scenarioId: 'B9EB9A416B3AFC711E3787399368D247',
  routePath: '/features/integration/mp-open/ui/application-page',
- modelId: '42a0f810-edb8-46a1-9174-f6141d212c6d',
- modelName: 'base_channel_miniapp_template_application',
+ models: [{id: '42a0f810-edb8-46a1-9174-f6141d212c6d',name: 'base_channel_miniapp_template_application'}],
 })
+
+const MP_TEMPLATE_CATALOG_WORKING_PLAN = Object.freeze({
+ projectId: MP_APPLICATION_WORKING_PLAN.projectId,
+ nodeId: '3F1AB1BEE8CDF6A4DE28F44A933CDCF5',
+ scenarioId: '3F1AB1BEE8CDF6A4DE28F44A933CDCF5',
+ routePath: '/features/integration/mp-open/ui/catalog-page',
+ models: [
+  {id: '6b62d736-17ba-44fe-a93d-52a80fc124ea',name: 'base_channel_miniapp_template'},
+  {id: '3104bca0-9393-4124-9eec-ca122be7a359',name: 'base_enterprise_channel_account'},
+ ],
+})
+
+const nativeWorkingPlans = [MP_APPLICATION_WORKING_PLAN, MP_TEMPLATE_CATALOG_WORKING_PLAN]
+
+/** 在正式绑定前配置目录和安装候选，确保不同用途继承同表 owner 及字段权限。 */
+function configureMiniappTemplateViews(dataSet: DataSet): void {
+ const model = MP_TEMPLATE_CATALOG_WORKING_PLAN.models[0]
+ const table = model ? dataSet.getTable(model.name) : undefined
+ const fields = ['id', 'provider', 'display_name', 'catalog_visible', 'active']
+ if (!table || fields.some(field => !table.columns.some(column => column.name === field))) {
+  throw new Error('NATIVE_DATASET_PLAN_MODEL: 小程序模板目录缺少正式字段')
+ }
+ for (const [channel, provider] of [['Wechat','WECHAT_OPEN'],['Douyin','DOUYIN_OPEN']] as const) {
+  const providerFilter: DataViewFilterTree = {field: 'provider',operator: 'eq',value: provider}
+  const scopes: ReadonlyArray<readonly [string, DataViewFilterTree]> = [
+   [`catalog${channel}`, providerFilter],
+   [`installable${channel}`, {logic: 'and', filters: [providerFilter,
+    {field: 'catalog_visible',operator: 'eq',value: true}, {field: 'active',operator: 'eq',value: true}]}],
+  ]
+  for (const [viewId, scopeFilter] of scopes) {
+   if (table.getView(viewId)) throw new Error('NATIVE_DATASET_PLAN_MODEL: 小程序模板视图身份冲突')
+   table.getOrCreateView(viewId).applyViewConfig({scopeFilter,
+    queryConfig: {fields, pagination: 'paged', allPages: false, autoQuery: false},
+    sortExpression: [{field:'id',direction:'asc'}], page: 1, pageSize: 10, allowDelete: false})
+  }
+ }
+}
 
 /** 原生页明确选用已知应用工作 Plan，实例 guard 约束导航变更期间迟到的已派发读取。 */
 type NativeWorkingPlanSource = Readonly<{nodeId: string; routePath: string; assertCurrent: () => void}>
@@ -286,12 +322,12 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
  }
  const workingSource = command.workingSource
  if (workingSource) {
-  const expected = MP_APPLICATION_WORKING_PLAN
   if (source.mode !== 'design' || source.sourceRevision !== 'working' || source.scenarioIds.length !== 1) {
    throw new Error('NATIVE_DATASET_PLAN_SOURCE_CONFLICT: 工作 Plan 只适用于本次原生主场景')
   }
-  if (projectId !== expected.projectId || scenarioId !== expected.scenarioId
-    || workingSource.nodeId !== expected.nodeId || workingSource.routePath !== expected.routePath) {
+  const expected = nativeWorkingPlans.find(entry => projectId === entry.projectId && scenarioId === entry.scenarioId
+    && workingSource.nodeId === entry.nodeId && workingSource.routePath === entry.routePath)
+  if (!expected) {
    throw new Error('NATIVE_DATASET_PLAN_IDENTITY: 工作 Plan 与正式应用及入口身份不一致')
   }
   const execution = readLowcodeExecutionProject()
@@ -309,10 +345,12 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
   assertCurrent()
   if (text === null) throw new Error('DATASET_PLAN_FILE_MISSING: 后端独立 Dataset 文件不存在')
   const plan = parseRuntimeDataSetPlanFile(text, scenarioId)
-  if (plan.models.length !== 1 || plan.models[0]?.id !== expected.modelId || plan.models[0].metaName !== expected.modelName) {
+  if (plan.models.length !== expected.models.length
+    || !expected.models.every(model => plan.models.some(actual => actual.id === model.id && actual.metaName === model.name))) {
    throw new Error('NATIVE_DATASET_PLAN_MODEL: 工作 Plan 未绑定本入口的正式模型')
   }
   return assembleLowcodeRuntimeDataSetPlan({projectId, scenarioId, text, assertCurrent,
+   ...(expected === MP_TEMPLATE_CATALOG_WORKING_PLAN ? {configureViews: configureMiniappTemplateViews} : {}),
    ...(command.getPage ? {getPage: command.getPage} : {})})
  }
  if (projectId === APPLICATION_CATALOG_PROJECT_ID) {
@@ -357,6 +395,7 @@ export async function assembleLowcodeRuntimeDataSetPlan(input: Readonly<{
  scenarioId: string
  text: string
  assertCurrent: () => void
+ configureViews?: (dataSet: DataSet) => void
  getPage?: ApiModelRuleHost['getPage']
 }>): Promise<DataSet> {
  const plan = parseRuntimeDataSetPlanFile(input.text, input.scenarioId)
@@ -368,7 +407,7 @@ export async function assembleLowcodeRuntimeDataSetPlan(input: Readonly<{
   dataSpace.design.readModelBatch({...formalInput, metaNames: [...new Set(plan.models.map(model => model.metaName))]}),
  ])
  input.assertCurrent()
- const result = new LowcodeDataSpaceAssembler(dataSpace.runtime, lowcodeHttp).assembleRuntimePlan({plan, space, models})
+ const result = new LowcodeDataSpaceAssembler(dataSpace.runtime, lowcodeHttp).assembleRuntimePlan({plan, space, models, ...(input.configureViews ? {configureViews: input.configureViews} : {})})
  try {
   registerApiModelRules(result.dataSet,{...(input.getPage?{getPage:input.getPage}:{}),assertCurrent:input.assertCurrent})
   registerNavigationHostModelRules(result.dataSet)

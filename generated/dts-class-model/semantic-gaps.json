@@ -24161,17 +24161,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "@spark-appworks/spark-data:query/formal-owner/row-permission",
-      "moduleName": "@spark-appworks/spark-data:query/formal-owner/row-permission",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-data:query/formal-owner/row-permission 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/row-permission.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/row-permission.ts"
-    },
-    {
       "kind": "model",
       "className": "DataSpaceMissingAuthPolicy",
       "reason": "missing-jsdoc",
@@ -24181,6 +24170,17 @@
       "declarationLine": 1,
       "sourceFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-data:query/formal-owner/row-permission",
+      "moduleName": "@spark-appworks/spark-data:query/formal-owner/row-permission",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-data:query/formal-owner/row-permission 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/row-permission.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/row-permission.ts"
     },
     {
       "kind": "model",
@@ -24456,17 +24456,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "@spark-appworks/spark-data:query/formal-owner/save-guard",
-      "moduleName": "@spark-appworks/spark-data:query/formal-owner/save-guard",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-data:query/formal-owner/save-guard 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/save-guard.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/save-guard.ts"
-    },
-    {
       "kind": "model",
       "className": "DataSpaceMutationOperation",
       "reason": "missing-jsdoc",
@@ -24476,6 +24465,17 @@
       "declarationLine": 1,
       "sourceFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-data:query/formal-owner/save-guard",
+      "moduleName": "@spark-appworks/spark-data:query/formal-owner/save-guard",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-data:query/formal-owner/save-guard 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/save-guard.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/save-guard.ts"
     },
     {
       "kind": "module",
@@ -24500,17 +24500,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "@spark-appworks/spark-data:query/formal-owner/save-result",
-      "moduleName": "@spark-appworks/spark-data:query/formal-owner/save-result",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-data:query/formal-owner/save-result 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/save-result.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/save-result.ts"
-    },
-    {
       "kind": "model",
       "className": "DataSpaceSavePlan",
       "reason": "missing-jsdoc",
@@ -24520,6 +24509,17 @@
       "declarationLine": 1,
       "sourceFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-data:query/formal-owner/save-result",
+      "moduleName": "@spark-appworks/spark-data:query/formal-owner/save-result",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-data:query/formal-owner/save-result 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/save-result.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/save-result.ts"
     },
     {
       "kind": "model",
@@ -30513,17 +30513,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "@spark-appworks/spark-project-model:page/content/runtime-content",
-      "moduleName": "@spark-appworks/spark-project-model:page/content/runtime-content",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "@spark-appworks/spark-project-model:page/content/runtime-content 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts"
-    },
-    {
       "kind": "model",
       "className": "PageContentState",
       "reason": "missing-jsdoc",
@@ -30533,6 +30522,17 @@
       "declarationLine": 1,
       "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-project-model:page/content/runtime-content",
+      "moduleName": "@spark-appworks/spark-project-model:page/content/runtime-content",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-project-model:page/content/runtime-content 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts"
     },
     {
       "kind": "attribute",
@@ -36522,17 +36522,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:platform-adapters/api/core/lowcode-query-items",
-      "moduleName": "app:platform-adapters/api/core/lowcode-query-items",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:platform-adapters/api/core/lowcode-query-items 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/platform-adapters/api/core/lowcode-query-items.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/api/core/lowcode-query-items.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/api/core/lowcode-query-items.ts"
-    },
-    {
       "kind": "model",
       "className": "LowcodeQueryItemsOptions",
       "reason": "missing-jsdoc",
@@ -36542,6 +36531,17 @@
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/api/core/lowcode-query-items.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:platform-adapters/api/core/lowcode-query-items",
+      "moduleName": "app:platform-adapters/api/core/lowcode-query-items",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:platform-adapters/api/core/lowcode-query-items 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/platform-adapters/api/core/lowcode-query-items.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/api/core/lowcode-query-items.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/api/core/lowcode-query-items.ts"
     },
     {
       "kind": "attribute",
@@ -47060,17 +47060,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition",
-      "moduleName": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts"
-    },
-    {
       "kind": "model",
       "className": "Row",
       "reason": "missing-jsdoc",
@@ -47080,6 +47069,17 @@
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+      "moduleName": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts"
     },
     {
       "kind": "model",
@@ -47177,17 +47177,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "module",
-      "className": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph",
-      "moduleName": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
-    },
-    {
       "kind": "model",
       "className": "Row",
       "reason": "missing-jsdoc",
@@ -47197,6 +47186,17 @@
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph",
+      "moduleName": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
     },
     {
       "kind": "model",
@@ -64343,17 +64343,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:platform-adapters/resources/structured-config/workflow-definition/output/operation-output",
-      "moduleName": "app:platform-adapters/resources/structured-config/workflow-definition/output/operation-output",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:platform-adapters/resources/structured-config/workflow-definition/output/operation-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts"
-    },
-    {
       "kind": "model",
       "className": "Row",
       "reason": "missing-jsdoc",
@@ -64363,6 +64352,17 @@
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:platform-adapters/resources/structured-config/workflow-definition/output/operation-output",
+      "moduleName": "app:platform-adapters/resources/structured-config/workflow-definition/output/operation-output",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:platform-adapters/resources/structured-config/workflow-definition/output/operation-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts"
     },
     {
       "kind": "model",
@@ -64553,17 +64553,6 @@
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/output-fields.ts"
     },
     {
-      "kind": "module",
-      "className": "app:platform-adapters/resources/structured-config/workflow-definition/output/query-output",
-      "moduleName": "app:platform-adapters/resources/structured-config/workflow-definition/output/query-output",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:platform-adapters/resources/structured-config/workflow-definition/output/query-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts"
-    },
-    {
       "kind": "model",
       "className": "Row",
       "reason": "missing-jsdoc",
@@ -64573,6 +64562,17 @@
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:platform-adapters/resources/structured-config/workflow-definition/output/query-output",
+      "moduleName": "app:platform-adapters/resources/structured-config/workflow-definition/output/query-output",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:platform-adapters/resources/structured-config/workflow-definition/output/query-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts"
     },
     {
       "kind": "attribute",
@@ -67745,17 +67745,6 @@
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts"
     },
     {
-      "kind": "module",
-      "className": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
-      "moduleName": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts"
-    },
-    {
       "kind": "model",
       "className": "FlowRunExecUsers",
       "reason": "missing-jsdoc",
@@ -67765,6 +67754,17 @@
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
+      "moduleName": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts"
     },
     {
       "kind": "attribute",
@@ -67827,17 +67827,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
-      "moduleName": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts"
-    },
-    {
       "kind": "model",
       "className": "FlowRunHandleNodeOption",
       "reason": "missing-jsdoc",
@@ -67847,6 +67836,17 @@
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
+      "moduleName": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts"
     },
     {
       "kind": "attribute",
@@ -73062,17 +73062,6 @@
       "sourceFile": "src/services/smart-bid/content-tree-structure.ts"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/adoption/adoption-basis-checks",
-      "moduleName": "app:services/smart-bid/content/adoption/adoption-basis-checks",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/adoption/adoption-basis-checks 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/adoption/adoption-basis-checks.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts"
-    },
-    {
       "kind": "model",
       "className": "BasisIssue",
       "reason": "missing-jsdoc",
@@ -73082,6 +73071,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/adoption/adoption-basis-checks",
+      "moduleName": "app:services/smart-bid/content/adoption/adoption-basis-checks",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/adoption/adoption-basis-checks 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/adoption/adoption-basis-checks.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts"
     },
     {
       "kind": "attribute",
@@ -76133,17 +76133,6 @@
       "sourceFile": "src/services/smart-bid/content/references/calculation-table-generator.ts"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/commercial/approved-price-review",
-      "moduleName": "app:services/smart-bid/content/references/commercial/approved-price-review",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/commercial/approved-price-review 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/approved-price-review.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts"
-    },
-    {
       "kind": "model",
       "className": "Proof",
       "reason": "missing-jsdoc",
@@ -76153,6 +76142,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/commercial/approved-price-review",
+      "moduleName": "app:services/smart-bid/content/references/commercial/approved-price-review",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/commercial/approved-price-review 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/approved-price-review.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts"
     },
     {
       "kind": "method",
@@ -76426,17 +76426,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/commercial/bid-security-review",
-      "moduleName": "app:services/smart-bid/content/references/commercial/bid-security-review",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/commercial/bid-security-review 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/bid-security-review.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts"
-    },
-    {
       "kind": "model",
       "className": "Proof",
       "reason": "missing-jsdoc",
@@ -76446,6 +76435,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/commercial/bid-security-review",
+      "moduleName": "app:services/smart-bid/content/references/commercial/bid-security-review",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/commercial/bid-security-review 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/bid-security-review.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts"
     },
     {
       "kind": "method",
@@ -76952,17 +76952,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/commercial/fixed-fact-use",
-      "moduleName": "app:services/smart-bid/content/references/commercial/fixed-fact-use",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/commercial/fixed-fact-use 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/fixed-fact-use.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts"
-    },
-    {
       "kind": "model",
       "className": "Target",
       "reason": "missing-jsdoc",
@@ -76972,6 +76961,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/commercial/fixed-fact-use",
+      "moduleName": "app:services/smart-bid/content/references/commercial/fixed-fact-use",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/commercial/fixed-fact-use 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/fixed-fact-use.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts"
     },
     {
       "kind": "attribute",
@@ -77151,17 +77151,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/commercial/person-appointment-review",
-      "moduleName": "app:services/smart-bid/content/references/commercial/person-appointment-review",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/commercial/person-appointment-review 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/person-appointment-review.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts"
-    },
-    {
       "kind": "model",
       "className": "PersonScope",
       "reason": "missing-jsdoc",
@@ -77171,6 +77160,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/commercial/person-appointment-review",
+      "moduleName": "app:services/smart-bid/content/references/commercial/person-appointment-review",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/commercial/person-appointment-review 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/person-appointment-review.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts"
     },
     {
       "kind": "attribute",
@@ -77373,17 +77373,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation",
-      "moduleName": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts"
-    },
-    {
       "kind": "model",
       "className": "Rounding",
       "reason": "missing-jsdoc",
@@ -77393,6 +77382,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation",
+      "moduleName": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts"
     },
     {
       "kind": "model",
@@ -77478,17 +77478,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/configuration/configuration-disable-impact",
-      "moduleName": "app:services/smart-bid/content/references/configuration/configuration-disable-impact",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/configuration/configuration-disable-impact 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -77498,6 +77487,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/configuration/configuration-disable-impact",
+      "moduleName": "app:services/smart-bid/content/references/configuration/configuration-disable-impact",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/configuration/configuration-disable-impact 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts"
     },
     {
       "kind": "attribute",
@@ -77702,17 +77702,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/configuration/configuration-release-decision",
-      "moduleName": "app:services/smart-bid/content/references/configuration/configuration-release-decision",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/configuration/configuration-release-decision 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/configuration/configuration-release-decision.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -77722,6 +77711,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/configuration/configuration-release-decision",
+      "moduleName": "app:services/smart-bid/content/references/configuration/configuration-release-decision",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/configuration/configuration-release-decision 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/configuration/configuration-release-decision.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts"
     },
     {
       "kind": "attribute",
@@ -77970,17 +77970,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/followup/tender-followup-notice",
-      "moduleName": "app:services/smart-bid/content/references/followup/tender-followup-notice",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/followup/tender-followup-notice 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/followup/tender-followup-notice.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -77990,6 +77979,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/followup/tender-followup-notice",
+      "moduleName": "app:services/smart-bid/content/references/followup/tender-followup-notice",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/followup/tender-followup-notice 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/followup/tender-followup-notice.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts"
     },
     {
       "kind": "attribute",
@@ -78443,17 +78443,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict",
-      "moduleName": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts"
-    },
-    {
       "kind": "model",
       "className": "Occupancy",
       "reason": "missing-jsdoc",
@@ -78463,6 +78452,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict",
+      "moduleName": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts"
     },
     {
       "kind": "attribute",
@@ -78653,17 +78653,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/resource-use/resource-original-file",
-      "moduleName": "app:services/smart-bid/content/references/resource-use/resource-original-file",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/resource-use/resource-original-file 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-original-file.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts"
-    },
-    {
       "kind": "model",
       "className": "OriginalFileIdentity",
       "reason": "missing-jsdoc",
@@ -78673,6 +78662,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/resource-use/resource-original-file",
+      "moduleName": "app:services/smart-bid/content/references/resource-use/resource-original-file",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/resource-use/resource-original-file 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-original-file.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts"
     },
     {
       "kind": "attribute",
@@ -79161,17 +79161,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/resource-use/resource-use-decision",
-      "moduleName": "app:services/smart-bid/content/references/resource-use/resource-use-decision",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/resource-use/resource-use-decision 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-use-decision.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -79181,6 +79170,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/resource-use/resource-use-decision",
+      "moduleName": "app:services/smart-bid/content/references/resource-use/resource-use-decision",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/resource-use/resource-use-decision 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-use-decision.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts"
     },
     {
       "kind": "attribute",
@@ -79725,17 +79725,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/response/original-form-mapping",
-      "moduleName": "app:services/smart-bid/content/references/response/original-form-mapping",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/response/original-form-mapping 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/response/original-form-mapping.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts"
-    },
-    {
       "kind": "model",
       "className": "Cell",
       "reason": "missing-jsdoc",
@@ -79745,6 +79734,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/response/original-form-mapping",
+      "moduleName": "app:services/smart-bid/content/references/response/original-form-mapping",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/response/original-form-mapping 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/response/original-form-mapping.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts"
     },
     {
       "kind": "attribute",
@@ -79949,17 +79949,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/response/qualification-review",
-      "moduleName": "app:services/smart-bid/content/references/response/qualification-review",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/response/qualification-review 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/response/qualification-review.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/response/qualification-review.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -79969,6 +79958,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/response/qualification-review",
+      "moduleName": "app:services/smart-bid/content/references/response/qualification-review",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/response/qualification-review 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/response/qualification-review.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/response/qualification-review.ts"
     },
     {
       "kind": "attribute",
@@ -80136,17 +80136,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/response/response-assignment",
-      "moduleName": "app:services/smart-bid/content/references/response/response-assignment",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/response/response-assignment 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/response/response-assignment.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/response/response-assignment.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -80156,6 +80145,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/response/response-assignment",
+      "moduleName": "app:services/smart-bid/content/references/response/response-assignment",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/response/response-assignment 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/response/response-assignment.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/response/response-assignment.ts"
     },
     {
       "kind": "attribute",
@@ -80782,17 +80782,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/references/response/response-task",
-      "moduleName": "app:services/smart-bid/content/references/response/response-task",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/references/response/response-task 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/references/response/response-task.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/response/response-task.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/response/response-task.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -80802,6 +80791,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/response/response-task.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/references/response/response-task",
+      "moduleName": "app:services/smart-bid/content/references/response/response-task",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/references/response/response-task 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/references/response/response-task.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/response/response-task.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/response/response-task.ts"
     },
     {
       "kind": "attribute",
@@ -81546,17 +81546,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/delivery-selection-digest",
-      "moduleName": "app:services/smart-bid/content/review/delivery-selection-digest",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/delivery-selection-digest 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/delivery-selection-digest.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts"
-    },
-    {
       "kind": "model",
       "className": "GroupScope",
       "reason": "missing-jsdoc",
@@ -81566,6 +81555,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/delivery-selection-digest",
+      "moduleName": "app:services/smart-bid/content/review/delivery-selection-digest",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/delivery-selection-digest 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/delivery-selection-digest.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts"
     },
     {
       "kind": "attribute",
@@ -82245,17 +82245,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/finding/review-finding-recheck",
-      "moduleName": "app:services/smart-bid/content/review/finding/review-finding-recheck",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/finding/review-finding-recheck 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/finding/review-finding-recheck.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -82265,6 +82254,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/finding/review-finding-recheck",
+      "moduleName": "app:services/smart-bid/content/review/finding/review-finding-recheck",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/finding/review-finding-recheck 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/finding/review-finding-recheck.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts"
     },
     {
       "kind": "attribute",
@@ -83038,17 +83038,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/production/disclosed-output-registration",
-      "moduleName": "app:services/smart-bid/content/review/production/disclosed-output-registration",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/production/disclosed-output-registration 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/production/disclosed-output-registration.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts"
-    },
-    {
       "kind": "model",
       "className": "Publication",
       "reason": "missing-jsdoc",
@@ -83058,6 +83047,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/production/disclosed-output-registration",
+      "moduleName": "app:services/smart-bid/content/review/production/disclosed-output-registration",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/production/disclosed-output-registration 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/production/disclosed-output-registration.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts"
     },
     {
       "kind": "attribute",
@@ -83896,17 +83896,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/production/production-request",
-      "moduleName": "app:services/smart-bid/content/review/production/production-request",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/production/production-request 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/production/production-request.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/production/production-request.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/production/production-request.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -83916,6 +83905,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/production/production-request.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/production/production-request",
+      "moduleName": "app:services/smart-bid/content/review/production/production-request",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/production/production-request 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/production/production-request.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/production/production-request.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/production/production-request.ts"
     },
     {
       "kind": "attribute",
@@ -84616,17 +84616,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/review-coverage",
-      "moduleName": "app:services/smart-bid/content/review/review-coverage",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/review-coverage 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/review-coverage.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/review-coverage.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts"
-    },
-    {
       "kind": "model",
       "className": "Target",
       "reason": "missing-jsdoc",
@@ -84636,6 +84625,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/review-coverage",
+      "moduleName": "app:services/smart-bid/content/review/review-coverage",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/review-coverage 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/review-coverage.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/review-coverage.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts"
     },
     {
       "kind": "attribute",
@@ -84790,17 +84790,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/submission-attempt-recovery",
-      "moduleName": "app:services/smart-bid/content/review/submission-attempt-recovery",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/submission-attempt-recovery 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission-attempt-recovery.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -84810,6 +84799,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/submission-attempt-recovery",
+      "moduleName": "app:services/smart-bid/content/review/submission-attempt-recovery",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/submission-attempt-recovery 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission-attempt-recovery.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts"
     },
     {
       "kind": "attribute",
@@ -84931,17 +84931,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/submission-package-members",
-      "moduleName": "app:services/smart-bid/content/review/submission-package-members",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/submission-package-members 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission-package-members.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission-package-members.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts"
-    },
-    {
       "kind": "model",
       "className": "ObservedMember",
       "reason": "missing-jsdoc",
@@ -84951,6 +84940,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/submission-package-members",
+      "moduleName": "app:services/smart-bid/content/review/submission-package-members",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/submission-package-members 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission-package-members.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission-package-members.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts"
     },
     {
       "kind": "attribute",
@@ -85000,17 +85000,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/submission-reconciliation",
-      "moduleName": "app:services/smart-bid/content/review/submission-reconciliation",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/submission-reconciliation 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission-reconciliation.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts"
-    },
-    {
       "kind": "model",
       "className": "Effect",
       "reason": "missing-jsdoc",
@@ -85020,6 +85009,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/submission-reconciliation",
+      "moduleName": "app:services/smart-bid/content/review/submission-reconciliation",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/submission-reconciliation 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission-reconciliation.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts"
     },
     {
       "kind": "attribute",
@@ -85094,17 +85094,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/submission-zip-inventory",
-      "moduleName": "app:services/smart-bid/content/review/submission-zip-inventory",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/submission-zip-inventory 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission-zip-inventory.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts"
-    },
-    {
       "kind": "model",
       "className": "ZipInventoryLimits",
       "reason": "missing-jsdoc",
@@ -85114,6 +85103,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/submission-zip-inventory",
+      "moduleName": "app:services/smart-bid/content/review/submission-zip-inventory",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/submission-zip-inventory 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission-zip-inventory.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts"
     },
     {
       "kind": "attribute",
@@ -85389,17 +85389,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/submission/authority-grant-decision",
-      "moduleName": "app:services/smart-bid/content/review/submission/authority-grant-decision",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/submission/authority-grant-decision 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission/authority-grant-decision.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts"
-    },
-    {
       "kind": "model",
       "className": "GrantScope",
       "reason": "missing-jsdoc",
@@ -85409,6 +85398,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/submission/authority-grant-decision",
+      "moduleName": "app:services/smart-bid/content/review/submission/authority-grant-decision",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/submission/authority-grant-decision 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission/authority-grant-decision.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts"
     },
     {
       "kind": "attribute",
@@ -85766,17 +85766,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/submission/bid-handoff-evidence",
-      "moduleName": "app:services/smart-bid/content/review/submission/bid-handoff-evidence",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/submission/bid-handoff-evidence 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -85786,6 +85775,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/submission/bid-handoff-evidence",
+      "moduleName": "app:services/smart-bid/content/review/submission/bid-handoff-evidence",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/submission/bid-handoff-evidence 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts"
     },
     {
       "kind": "attribute",
@@ -86014,17 +86014,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/submission/channel-receipt-pairing",
-      "moduleName": "app:services/smart-bid/content/review/submission/channel-receipt-pairing",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/submission/channel-receipt-pairing 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts"
-    },
-    {
       "kind": "model",
       "className": "Scope",
       "reason": "missing-jsdoc",
@@ -86034,6 +86023,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/submission/channel-receipt-pairing",
+      "moduleName": "app:services/smart-bid/content/review/submission/channel-receipt-pairing",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/submission/channel-receipt-pairing 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts"
     },
     {
       "kind": "attribute",
@@ -86568,17 +86568,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:services/smart-bid/content/review/submission/submission-opening-disposition",
-      "moduleName": "app:services/smart-bid/content/review/submission/submission-opening-disposition",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:services/smart-bid/content/review/submission/submission-opening-disposition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission/submission-opening-disposition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts"
-    },
-    {
       "kind": "model",
       "className": "ObjectScope",
       "reason": "missing-jsdoc",
@@ -86588,6 +86577,17 @@
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:services/smart-bid/content/review/submission/submission-opening-disposition",
+      "moduleName": "app:services/smart-bid/content/review/submission/submission-opening-disposition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:services/smart-bid/content/review/submission/submission-opening-disposition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission/submission-opening-disposition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts"
     },
     {
       "kind": "attribute",
@@ -103935,17 +103935,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/application/smart-bid/authority/published-enterprise-owner",
-      "moduleName": "app:views/features/application/smart-bid/authority/published-enterprise-owner",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/application/smart-bid/authority/published-enterprise-owner 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/application/smart-bid/authority/published-enterprise-owner.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts"
-    },
-    {
       "kind": "model",
       "className": "PublishedEnterpriseBinding",
       "reason": "missing-jsdoc",
@@ -103955,6 +103944,17 @@
       "declarationLine": 1,
       "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/application/smart-bid/authority/published-enterprise-owner",
+      "moduleName": "app:views/features/application/smart-bid/authority/published-enterprise-owner",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/application/smart-bid/authority/published-enterprise-owner 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/application/smart-bid/authority/published-enterprise-owner.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts"
     },
     {
       "kind": "attribute",
@@ -106858,17 +106858,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
-    },
-    {
       "kind": "model",
       "className": "DataSpaceParametersEditorProps",
       "reason": "missing-jsdoc",
@@ -106879,6 +106868,17 @@
       "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
       "componentName": "DataSpaceParametersEditor",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
     },
     {
       "kind": "attribute",
@@ -107003,17 +107003,6 @@
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
-      "moduleName": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
-    },
-    {
       "kind": "model",
       "className": "RegisterObjectType",
       "reason": "missing-jsdoc",
@@ -107023,6 +107012,17 @@
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
+      "moduleName": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
     },
     {
       "kind": "module",
@@ -107364,17 +107364,6 @@
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
-      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts"
-    },
-    {
       "kind": "model",
       "className": "RuleTarget",
       "reason": "missing-jsdoc",
@@ -107384,6 +107373,17 @@
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
+      "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts"
     },
     {
       "kind": "attribute",
@@ -107677,17 +107677,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "module",
-      "className": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
-      "moduleName": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue"
-    },
-    {
       "kind": "model",
       "className": "Id",
       "reason": "missing-jsdoc",
@@ -107697,6 +107686,17 @@
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
+      "moduleName": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue"
     },
     {
       "kind": "module",

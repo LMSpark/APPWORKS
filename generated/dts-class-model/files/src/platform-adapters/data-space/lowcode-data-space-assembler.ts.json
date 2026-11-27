@@ -327,6 +327,10 @@
                   "items": {
                     "$ref": "#/$defs/FormalModel"
                   }
+                },
+                "configureViews": {
+                  "type": "object",
+                  "title": "(dataSet: DataSet) => void"
                 }
               },
               "required": [
@@ -345,7 +349,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T20:53:32.362Z",
+  "generatedAt": "2026-11-27T07:22:10.739Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -600,7 +604,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        plan: SparkData.RuntimeDataSetPlanFile;\n        space: FormalSpace;\n        models: readonly FormalModel[];\n    }"
+                        "name": "{\n        plan: SparkData.RuntimeDataSetPlanFile;\n        space: FormalSpace;\n        models: readonly FormalModel[];\n        configureViews?: (dataSet: DataSet) => void;\n    }"
                       }
                     ]
                   }

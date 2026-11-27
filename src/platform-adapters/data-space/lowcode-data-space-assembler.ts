@@ -265,6 +265,7 @@ export class LowcodeDataSpaceAssembler {
    plan: SparkData.RuntimeDataSetPlanFile
    space: FormalSpace
    models: readonly FormalModel[]
+   configureViews?: (dataSet: DataSet) => void
  }>): LowcodeDataSpaceAssembly {
    const plan = input.plan
    if (input.space.dataSpaceId !== plan.scenarioId || input.space.name !== plan.name && !plan.name.trim()) {
@@ -306,6 +307,7 @@ export class LowcodeDataSpaceAssembler {
    const dataSet = DataSet.fromJson(compiled.metadata)
    try {
      dataSet.setSharedHttpClient(this.http)
+     input.configureViews?.(dataSet)
      for (const model of input.models) {
        const table = dataSet.getTable(model.metaName)
        if (!table) continue

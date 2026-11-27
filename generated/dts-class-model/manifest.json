@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1530,
+  "scannedFileCount": 1531,
   "files": {
     "backend-api-contracts/common.ts": {
       "file": "files/backend-api-contracts/common.ts.json",
@@ -23367,6 +23367,19 @@
         "modulePath": "views/features/integration/mp-open/ui/application-page",
         "jsdoc": "app 的 views/features/integration/mp-open/ui/application-page 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
         "jsdocSource": "inferred",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/mp-open/ui/catalog-page.vue": {
+      "file": "files/src/views/features/integration/mp-open/ui/catalog-page.vue.json",
+      "module": {
+        "name": "app:views/features/integration/mp-open/ui/catalog-page",
+        "sourcePath": "src/views/features/integration/mp-open/ui/catalog-page.vue",
+        "sourceFile": "src/views/features/integration/mp-open/ui/catalog-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/mp-open/ui/catalog-page",
+        "jsdoc": "@module app:views/features/integration/mp-open/ui/catalog-page\n职责：按微信、抖音渠道展示当前授权的小程序模板目录，以正式记录键稳定分页。\n边界：当前 PageRuntime 装配正式工作 Plan，标准表格消费当前目录视图及字段读取权限。安装候选使用独立命名视图和服务端过滤条件。\nAI用途：恢复模板目录原生入口时使用当前导航授权和目录视图。选页和渠道切换由现有宿主掌管。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },

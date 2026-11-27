@@ -812,6 +812,71 @@ describe('D99 application entry explicitly reads its working Dataset Plan', () =
         order: 0, orderType: '', raw: {}}]}])
   })
 
+
+  const catalogScenario = '3F1AB1BEE8CDF6A4DE28F44A933CDCF5'
+  const catalogPath = '/features/integration/mp-open/ui/catalog-page'
+  const templateModel = {...planModel, id:'6b62d736-17ba-44fe-a93d-52a80fc124ea', metaName:'base_channel_miniapp_template'}
+  const accountModel = {...planModel, id:'3104bca0-9393-4124-9eec-ca122be7a359', metaName:'base_enterprise_channel_account'}
+  const catalogCommand = {projectId,scenarioId:catalogScenario,workingSource:{nodeId:catalogScenario,routePath:catalogPath,assertCurrent(){}}}
+  const catalogFields = ['id','provider','display_name','catalog_visible','active']
+
+  function mockCatalogPlan(models = [templateModel, accountModel]) {
+    const modelFields = [templateModel, accountModel].flatMap(model =>
+      (model === templateModel ? catalogFields : ['id']).map((name, order) => ({id: `${model.id}:${name}`,
+        dataModelId:model.id, name, asName:'', fieldType:name === 'id' ? 'bigint' : 'string', isPKey:name === 'id',
+        isOutput:true, order, orderType:'', group:0, type:'dataModel', description:''})))
+    mocks.readTextFile.mockResolvedValue(plan({scenarioId:catalogScenario,name:'模板目录',models,modelFields,
+      source:{dataSetId:catalogScenario,exportedFrom:'data-space-design',graphFile:`${catalogScenario}.json`}}))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:catalogScenario,name:'模板目录'})
+    mocks.readModelBatch.mockResolvedValue([templateModel,accountModel].map(model => ({...model,
+      sourceName:model.metaName,sourceId:'fixture-database',primaryKey:'id',businessMain:false,raw:{},
+      fields:modelFields.filter(field=>field.dataModelId===model.id).map(field=>({...field,modelId:model.id,
+        canonicalName:field.name,type:field.fieldType,primaryKey:field.isPKey,output:true,computed:false,raw:{}}))})))
+  }
+
+  it('admits the catalog by exact identity and binds distinct server-filtered views', async () => {
+    mockCatalogPlan([accountModel,templateModel])
+    const dataSet = await loadLowcodeRuntimeScenario(catalogCommand)
+    try {
+      const table = dataSet.getTable(templateModel.metaName)!
+      const catalog = table.getView('catalogWechat')!
+      const candidate = table.getView('installableWechat')!
+      const douyin = table.getView('catalogDouyin')!
+      expect(catalog.primaryKey).toBe('id')
+      expect(candidate).not.toBe(catalog)
+      expect(catalog.scopeFilter).toEqual({field:'provider',operator:'eq',value:'WECHAT_OPEN'})
+      expect(douyin.scopeFilter).toEqual({field:'provider',operator:'eq',value:'DOUYIN_OPEN'})
+      expect(candidate.scopeFilter).toEqual({logic:'and',filters:[{field:'provider',operator:'eq',value:'WECHAT_OPEN'},
+        {field:'catalog_visible',operator:'eq',value:true},{field:'active',operator:'eq',value:true}]})
+      expect(catalog.queryConfig.fields).toEqual(catalogFields)
+      expect(catalog.sortExpression).toEqual([{field:'id',direction:'asc'}])
+      expect(catalog.pageSize).toBe(10)
+      expect(mocks.request).not.toHaveBeenCalled()
+      expect(mocks.verifyNativeApplicationPlan).toHaveBeenCalledWith(expect.objectContaining({nodeId:catalogScenario,routePath:catalogPath}))
+      expect(mocks.readTextFile).toHaveBeenCalledWith(expect.objectContaining({fileName:`${catalogScenario}.dataset.json`}))
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects a catalog Plan when one of the two formal model identities is wrong', async () => {
+    mockCatalogPlan([templateModel, {...accountModel, metaName:'base_other_account'}])
+    await expect(loadLowcodeRuntimeScenario(catalogCommand)).rejects.toThrow('NATIVE_DATASET_PLAN_MODEL')
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+  })
+
+  it('rejects an application-node identifier combined with the catalog route', async () => {
+    await expect(loadLowcodeRuntimeScenario({...catalogCommand,workingSource:{...catalogCommand.workingSource,nodeId:scenarioId}}))
+      .rejects.toThrow('NATIVE_DATASET_PLAN_IDENTITY')
+    expect(mocks.verifyNativeApplicationPlan).not.toHaveBeenCalled()
+    expect(mocks.readTextFile).not.toHaveBeenCalled()
+  })
+
+  it('rejects a catalog with revoked navigation before reading the working file', async () => {
+    mocks.verifyNativeApplicationPlan.mockRejectedValue(new Error('NATIVE_DATASET_PLAN_NAVIGATION_UNAUTHORIZED'))
+    await expect(loadLowcodeRuntimeScenario(catalogCommand)).rejects.toThrow('NATIVE_DATASET_PLAN_NAVIGATION_UNAUTHORIZED')
+    expect(mocks.readTextFile).not.toHaveBeenCalled()
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+  })
+
   it('binds the one historical model through its current scoped working file and formal metadata', async () => {
     const native = new NativePageRuntimeSession()
     const runtime = native.acquire({

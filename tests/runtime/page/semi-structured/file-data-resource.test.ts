@@ -1,5 +1,6 @@
 import {File as NodeFile} from 'node:buffer'
 import {DataSet} from '@spark-appworks/spark-data'
+import {createDynamicRouter} from '@spark-appworks/spark-app'
 import type {LowcodeBinaryFileUploadReceipt} from '@/platform-adapters/api'
 import {FILE_DATA_COLUMNS, FILE_DATA_RESOURCE_ID, FILE_DATA_TABLE, FILE_DATA_VIEWS, FileDataResource} from '@/platform-adapters/resources/semi-structured/file-data/file-data-resource'
 
@@ -9,6 +10,7 @@ import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {RendererTable,Spark,SparkPageRenderer,registerAllRenderers} from '@spark-appworks/spark-component'
 import FileManager from '@/views/FileDataManager/FileManager/index.vue'
+import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
 import configText from '../../../../config/pages/semi-structured/file-manager/pagedata.json?raw'
 
@@ -173,11 +175,18 @@ it('consumes the file catalog tool and verifies the original row again after con
   const activeStubs={...stubs}
   for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete activeStubs[key]
   config.global.stubs=activeStubs
-  const nodeId='EDF7DE3E5723E127F98B2A119BE81BF9'
-  const router=createRouter({history:createMemoryHistory(),routes:[
-    {path:'/apps/app/file',component:FileManager,meta:{nodeId,blueprintScenarioId:nodeId,systemPageIdentityState:'resolved'}},
-  ]})
-  await router.push('/apps/app/file')
+  const path = '/FileDataManager/FileManager/index'
+  const registered = getVuePageEntry(path)
+  if (!registered?.navigationId || !registered.dataSpaceId) throw new Error('文件管理缺少正式导航或场景登记')
+  const {title, navigationId, dataSpaceId} = registered
+  expect(dataSpaceId).toBe(formal.scenarioId)
+  const router = createRouter({history: createMemoryHistory(), routes: []})
+  const dynamic = createDynamicRouter({router, applicationPathPrefix: '/apps/:projectId', pageComponent: FileManager,
+    componentMap: {[path]: FileManager}, loadNavigation: async () => ({id: 'root', title: 'app', projectId: 'app', childPlacement: 'header',
+      items: [{id: navigationId, title, itemKind: 'system-page', path, blueprintScenarioId: dataSpaceId}]})})
+  await dynamic.registerRoutes()
+  await router.push(`/apps/app${path}`)
+  expect(router.currentRoute.value.meta).toMatchObject({nodeId: navigationId, blueprintScenarioId: dataSpaceId})
   let confirm:((value:boolean)=>void)|undefined
   const wrapper=mount(defineComponent({setup(){
     const service=provideTestPageService(router)

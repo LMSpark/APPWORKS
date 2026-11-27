@@ -4,6 +4,8 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {DataSet, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
 import {Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {createDynamicRouter} from '@spark-appworks/spark-app'
+import {getSystemPageIdentityCompanions} from '@/registries/vue-page-registry'
 import * as scenarioLoader from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import * as lowcode from '@/platform-adapters/lowcode-runtime'
 import {buildFlowRunDetailRoute, buildFlowRunPageRoute, FLOW_MONITOR_SCENARIO_ID, FLOW_WORKBENCH_SCENARIO_ID} from '@/platform-adapters/resources/system/workflow/manage'
@@ -42,16 +44,30 @@ it.each(['pending', 'processed', 'shared', 'started'] as const)('opens the origi
     return ds
   })
   const principal = vi.spyOn(lowcode, 'readLowcodePrincipal').mockReturnValue({userId: 'U1'} as ReturnType<typeof lowcode.readLowcodePrincipal>)
-  const path = '/apps/APP/workbench'
+  const companion = getSystemPageIdentityCompanions().find(item => item.path.endsWith('/flow-workbench-todo-panel'))
+  if (!companion) throw new Error('缺少流程待办伴随登记')
+  const path = `/apps/APP${companion.path}`
   const index = ['pending', 'processed', 'shared', 'started'].indexOf(tab) + 1
   const target = tab === 'pending'
     ? buildFlowRunPageRoute({wfid: 'WF1', flowid: 'DEF1', stepid: 'STEP1'}, {projectId: 'APP'})
     : buildFlowRunDetailRoute({wfid: `WF${index}`, flowid: `DEF${index}`}, {projectId: 'APP'})
   const router = createRouter({history: createMemoryHistory(), routes: [
-    {path, component: FlowWorkbenchTodoPanel, meta: {nodeId: FLOW_MONITOR_SCENARIO_ID, blueprintScenarioId: FLOW_MONITOR_SCENARIO_ID, systemPageIdentityState: 'resolved'}},
     {path: target.path, component: {template: '<div>办理目标</div>'}},
   ]})
+  const monitor = {template: '<main>监控宿主</main>'}
+  const dynamic = createDynamicRouter({
+    router, pageComponent: monitor, applicationPathPrefix: '/apps/:projectId',
+    componentMap: {[companion.path]: FlowWorkbenchTodoPanel, [companion.hostPath]: monitor},
+    systemPageIdentityCompanions: [companion],
+    loadNavigation: async () => ({id: 'ROOT', projectId: 'APP', title: 'APP', childPlacement: 'header',
+      items: [{id: FLOW_MONITOR_SCENARIO_ID, title: '流程监控', itemKind: 'system-page',
+        path: companion.hostPath, blueprintScenarioId: FLOW_MONITOR_SCENARIO_ID}]}),
+  })
+  await dynamic.registerRoutes()
   await router.push(path)
+  expect(router.currentRoute.value.meta).toMatchObject({
+    nodeId: FLOW_MONITOR_SCENARIO_ID, blueprintScenarioId: FLOW_MONITOR_SCENARIO_ID, companionScenarioId: scene,
+  })
   registerAllRenderers()
   const originalStubs = config.global.stubs
   const stubs = {...originalStubs}

@@ -150,6 +150,9 @@
         },
         "hostPath": {
           "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
         }
       },
       "required": [
@@ -397,7 +400,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T20:59:02.048Z",
+  "generatedAt": "2026-11-27T21:17:12.970Z",
   "models": {
     "SystemPageInstanceView": {
       "name": "SystemPageInstanceView",
@@ -573,11 +576,11 @@
       "jsdoc": "伴随页借用宿主路径上的导航节点，自身路径单独注册为系统页宿主。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    path: string;\n    hostPath: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    path: string;\n    hostPath: string;\n    /** 已登记的伴随页业务主场景；省略时消费原宿主已解析的正式场景。 */\n    scenarioId?: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    path: string;\n    hostPath: string;\n}>",
+            "typeText": "Readonly<{\n    path: string;\n    hostPath: string;\n    /** 已登记的伴随页业务主场景；省略时消费原宿主已解析的正式场景。 */\n    scenarioId?: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -590,6 +593,12 @@
             },
             {
               "name": "hostPath",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "jsdoc": "已登记的伴随页业务主场景；省略时消费原宿主已解析的正式场景。",
               "readable": true,
               "writable": false
             }

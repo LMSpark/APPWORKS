@@ -74,7 +74,7 @@ function canonicalSystemPageRouteKey(input: SystemPageRouteKeyInput): string {
 function ownerFingerprint(owner: SystemPageIdentityOwner): string {
   return JSON.stringify([
     owner.scope, owner.projectId ?? null, owner.path, owner.nodeId, owner.pageId,
-    owner.permissionMode ?? null, stableValue(owner.explicitQuery), owner.blueprintScenarioId ?? null,
+    owner.permissionMode ?? null, stableValue(owner.explicitQuery), owner.blueprintScenarioId ?? null, owner.companionScenarioId ?? null,
   ])
 }
 

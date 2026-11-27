@@ -799,6 +799,78 @@ describe('DynamicRouter formal routes and runtime calls', () => {
   })
 })
 
+const scenarioBoundary = vi.hoisted(() => ({load: vi.fn()}))
+vi.mock('@/platform-adapters/data-space/lowcode-data-space-runtime', async importOriginal => ({
+  ...await importOriginal<typeof import('@/platform-adapters/data-space/lowcode-data-space-runtime')>(),
+  loadLowcodeRuntimeScenario: scenarioBoundary.load,
+}))
+
+describe('system page main scenario admission', () => {
+  it.each([
+    {name: 'authorized matching scene', registered: 'FORM-A', companion: undefined, expected: 'FORM-A', reads: ['FORM-A']},
+    {name: 'different authorized scene', registered: 'FORM-B', companion: undefined, expected: 'FORM-A', reads: []},
+    {name: 'missing scene with URL field', registered: undefined, companion: undefined, expected: 'FORM-A', reads: []},
+    {name: 'explicit companion scene', registered: 'FORM-A', companion: 'FORM-C', expected: 'FORM-C', reads: ['FORM-C']},
+    {name: 'different companion scene', registered: 'FORM-A', companion: 'FORM-D', expected: 'FORM-C', reads: []},
+  ])('admits only the declared main scene for $name', async ({registered, companion, expected, reads}) => {
+    const {useFeaturePageRuntime} = await import('@/views/features/shared/runtime/use-feature-page-runtime')
+    const {getSystemPageIdentityCompanions} = await import('@/registries/vue-page-registry')
+    expect(getSystemPageIdentityCompanions().some(item => item.hostPath.length > 0)).toBe(true)
+    scenarioBoundary.load.mockReset()
+    const {DataViewArrayQuery} = await import('@spark-appworks/spark-data')
+    scenarioBoundary.load.mockImplementation(async ({scenarioId}: {scenarioId: string}) => {
+      const dataSet = DataSet.fromJson({scenarioId, tables: {Items: {
+        resourceType: 'static-data', resourceId: 'array', modelBinding: {modelId: 'ITEMS-MODEL', modelName: 'Items'},
+        columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {autoLoad: false}},
+      }}})
+      const view = dataSet.getView('Items')!
+      view.bindQueryExecutor(new DataViewArrayQuery(view, [], () => {}))
+      return dataSet
+    })
+    const page = defineComponent({
+      setup() {
+        const state = useFeaturePageRuntime({scenarioId: expected, modelName: 'Items', componentType: 'feature-scenario-probe', title: '验证页'})
+        return () => h('main', state.ready.value ? 'READY' : state.error.value || 'LOADING')
+      },
+    })
+    const router = createRouter({history: createMemoryHistory(), routes: []})
+    const dynamic = createDynamicRouter({
+      router, pageComponent: page, applicationPathPrefix: '/apps/:projectId',
+      componentMap: {'/main': page, '/companion': page},
+      systemPageIdentityCompanions: companion === undefined ? [] : [{path: '/companion', hostPath: '/main', scenarioId: companion}],
+      loadNavigation: async () => ({id: 'ROOT', projectId: 'APP', title: 'APP', childPlacement: 'header',
+        items: [{id: 'NODE', title: '该用户的正式入口', itemKind: 'system-page', path: '/main',
+          ...(registered === undefined ? {} : {blueprintScenarioId: registered})}]})
+    })
+    await dynamic.registerRoutes()
+    const path = `/apps/APP/${companion === undefined ? 'main' : 'companion'}`
+    await router.push(`${path}?scenarioId=FORM-A&__sparkNavigationId=NODE`)
+    const verify = dynamic.getSystemPageInstance(router.currentRoute.value)
+    if (!verify) throw new Error('缺少已授权原生宿主实例')
+    const wrapper = mount(verify.view, {global: {plugins: [router]}})
+    try {
+      await vi.waitFor(() => expect(wrapper.text()).not.toBe('LOADING'))
+      expect(scenarioBoundary.load.mock.calls.map(([input]) => input.scenarioId)).toEqual(reads)
+      if (companion !== undefined) expect(router.currentRoute.value.meta).toMatchObject({
+        nodeId: 'NODE', blueprintScenarioId: registered, companionScenarioId: companion,
+      })
+      if (reads.length > 0) expect(wrapper.text()).toBe('READY')
+      else expect(wrapper.text()).toContain('主场景')
+    } finally {
+      wrapper.unmount()
+      dynamic.closeSystemPageInstance(verify.instanceId)
+    }
+  })
+})
+
+it('retains the separately registered scene for the flow workbench identity companion', async () => {
+  const {getSystemPageIdentityCompanions} = await import('@/registries/vue-page-registry')
+  expect(getSystemPageIdentityCompanions().find(item => item.path.endsWith('/flow-workbench-todo-panel'))).toMatchObject({
+    hostPath: '/features/system/flow-monitor/ui/flow-monitor-page', scenarioId: 'A5BADCEE11D2438CB9E75C2453A220A6',
+  })
+})
+
+
 it('leaves the initial URL to Vue Router when public root exists during first registration', async () => {
   const router = createRouter({ history: createMemoryHistory(), routes: [] })
   const replace = vi.spyOn(router, 'replace')

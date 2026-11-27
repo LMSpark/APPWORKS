@@ -147,6 +147,8 @@ export type DynamicRouterOptions = {
 export type SystemPageIdentityCompanion = Readonly<{
   path: string
   hostPath: string
+  /** 已登记的伴随页业务主场景；省略时消费原宿主已解析的正式场景。 */
+  scenarioId?: string
 }>
 
 /** 当前切换的正式目标，供动态路由登记后交还原导航守卫提交。 */
@@ -514,7 +516,9 @@ constructor(options: DynamicRouterOptions) {
       seen.add(path)
       if (!this.staticComponentMap.has(path)) throw new Error(`伴随页缺少组件：${path}`)
       if (!this.staticComponentMap.has(hostPath)) throw new Error(`伴随页宿主缺少组件：${hostPath}`)
-      return {path, hostPath}
+      const scenarioId = companion.scenarioId?.trim()
+      if (scenarioId === '') throw new Error(`伴随页主场景无效：${path}`)
+      return {path, hostPath, ...(scenarioId === undefined ? {} : {scenarioId})}
     })
   }
 
@@ -553,6 +557,7 @@ constructor(options: DynamicRouterOptions) {
           ...(tree.projectId === undefined ? {} : {projectId: tree.projectId}),
           node,
           pageId: companion.path,
+          ...(companion.scenarioId === undefined ? {} : {companionScenarioId: companion.scenarioId}),
           component,
         }))
       }

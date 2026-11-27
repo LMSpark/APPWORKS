@@ -301,7 +301,7 @@ describe('reference job page through SPARK data', () => {
     const host = defineComponent({setup() {
       const runtime = useFeaturePageRuntime({scenarioId: JOB_SCENARIO, modelName: 'Base_JobInfo',
         componentType: 'preserved-feature-test', title: '测试目录', preserveRuntime: () => busy.value})
-      return () => h('button', {disabled: busy.value, onClick: runtime.loadCurrentRoute},
+      return () => h('button', {disabled: busy.value, 'data-runtime-ready': String(runtime.ready.value), onClick: runtime.loadCurrentRoute},
         runtime.reloadBlocked.value ? '切换到当前导航' : runtime.ready.value ? '目录已加载' : runtime.error.value)
     }})
     const {wrapper, router, observed} = await open(false, host)
@@ -309,6 +309,7 @@ describe('reference job page through SPARK data', () => {
     const original = [...observed][0]!
     await router.push(`/apps/OTHER${JOB_PATH}`)
     await vi.waitFor(() => expect(wrapper.text()).toBe('切换到当前导航'))
+    expect(wrapper.get('button').attributes('data-runtime-ready')).toBe('false')
     expect(original.destroyed).toBe(false)
     expect(observed.size).toBe(1)
     busy.value = false

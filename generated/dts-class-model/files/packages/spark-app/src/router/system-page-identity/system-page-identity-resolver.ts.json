@@ -69,6 +69,9 @@
         "blueprintScenarioId": {
           "type": "string"
         },
+        "companionScenarioId": {
+          "type": "string"
+        },
         "component": {
           "type": "object",
           "title": "Component"
@@ -103,6 +106,9 @@
           "$ref": "../../navigation/runtime-navigation.ts.json#/$defs/RuntimeNavigationItem"
         },
         "pageId": {
+          "type": "string"
+        },
+        "companionScenarioId": {
           "type": "string"
         },
         "component": {
@@ -272,7 +278,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T17:02:34.868Z",
+  "generatedAt": "2026-11-27T21:28:08.578Z",
   "models": {
     "SystemPageIdentityScope": {
       "name": "SystemPageIdentityScope",
@@ -302,11 +308,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    nodeId: string;\n    title: string;\n    pageId: string;\n    description?: string;\n    icon?: string;\n    permissionMode?: RuntimeNavigationItem['permissionMode'];\n    explicitQuery: LocationQuery;\n    blueprintScenarioId?: string;\n    component: Component;\n}>",
+        "declarationTypeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    nodeId: string;\n    title: string;\n    pageId: string;\n    description?: string;\n    icon?: string;\n    permissionMode?: RuntimeNavigationItem['permissionMode'];\n    explicitQuery: LocationQuery;\n    blueprintScenarioId?: string;\n    /** 已登记的伴随页主场景。正式宿主节点及蓝图场景仍由授权导航确定。 */\n    companionScenarioId?: string;\n    component: Component;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    nodeId: string;\n    title: string;\n    pageId: string;\n    description?: string;\n    icon?: string;\n    permissionMode?: RuntimeNavigationItem['permissionMode'];\n    explicitQuery: LocationQuery;\n    blueprintScenarioId?: string;\n    component: Component;\n}>",
+            "typeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    nodeId: string;\n    title: string;\n    pageId: string;\n    description?: string;\n    icon?: string;\n    permissionMode?: RuntimeNavigationItem['permissionMode'];\n    explicitQuery: LocationQuery;\n    blueprintScenarioId?: string;\n    /** 已登记的伴随页主场景。正式宿主节点及蓝图场景仍由授权导航确定。 */\n    companionScenarioId?: string;\n    component: Component;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -368,6 +374,12 @@
               "writable": false
             },
             {
+              "name": "companionScenarioId",
+              "jsdoc": "已登记的伴随页主场景。正式宿主节点及蓝图场景仍由授权导航确定。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "component",
               "readable": true,
               "writable": false
@@ -381,11 +393,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    node: RuntimeNavigationItem;\n    pageId: string;\n    component: Component;\n}>",
+        "declarationTypeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    node: RuntimeNavigationItem;\n    pageId: string;\n    /** 从已匹配的伴随页登记传入，供页面装配核对实际请求的主场景。 */\n    companionScenarioId?: string;\n    component: Component;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    node: RuntimeNavigationItem;\n    pageId: string;\n    component: Component;\n}>",
+            "typeText": "Readonly<{\n    scope: SystemPageIdentityScope;\n    path: string;\n    projectId?: string;\n    node: RuntimeNavigationItem;\n    pageId: string;\n    /** 从已匹配的伴随页登记传入，供页面装配核对实际请求的主场景。 */\n    companionScenarioId?: string;\n    component: Component;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -413,6 +425,12 @@
             },
             {
               "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "companionScenarioId",
+              "jsdoc": "从已匹配的伴随页登记传入，供页面装配核对实际请求的主场景。",
               "readable": true,
               "writable": false
             },

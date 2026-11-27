@@ -24,6 +24,8 @@ export type SystemPageIdentityOwner = Readonly<{
   permissionMode?: RuntimeNavigationItem['permissionMode']
   explicitQuery: LocationQuery
   blueprintScenarioId?: string
+  /** 已登记的伴随页主场景。正式宿主节点及蓝图场景仍由授权导航确定。 */
+  companionScenarioId?: string
   component: Component
 }>
 
@@ -33,6 +35,8 @@ export type SystemPageIdentityOwnerInput = Readonly<{
   projectId?: string
   node: RuntimeNavigationItem
   pageId: string
+  /** 从已匹配的伴随页登记传入，供页面装配核对实际请求的主场景。 */
+  companionScenarioId?: string
   component: Component
 }>
 
@@ -109,6 +113,7 @@ function applyResolvedOwner(route: RouteLocationNormalizedLoaded, result: Resolv
     delete route.meta['icon']
     delete route.meta['permissionMode']
     delete route.meta['blueprintScenarioId']
+    delete route.meta['companionScenarioId']
     return
   }
   route.meta['systemPageIdentityState'] = 'resolved'
@@ -120,6 +125,7 @@ function applyResolvedOwner(route: RouteLocationNormalizedLoaded, result: Resolv
   route.meta['icon'] = result.owner.icon
   route.meta['permissionMode'] = result.owner.permissionMode
   route.meta['blueprintScenarioId'] = result.owner.blueprintScenarioId
+  route.meta['companionScenarioId'] = result.owner.companionScenarioId
 }
 
 export class SystemPageIdentityResolver {
@@ -250,6 +256,7 @@ export class SystemPageIdentityResolver {
       ...(input.node.permissionMode === undefined ? {} : { permissionMode: input.node.permissionMode }),
       explicitQuery,
       ...(input.node.blueprintScenarioId === undefined ? {} : { blueprintScenarioId: input.node.blueprintScenarioId }),
+      ...(input.companionScenarioId === undefined ? {} : {companionScenarioId: input.companionScenarioId}),
       component: input.component,
     }
   }
@@ -276,6 +283,7 @@ function sameOwnerBinding(left: SystemPageIdentityOwner, right: SystemPageIdenti
   return left.scope === right.scope && left.path === right.path && left.projectId === right.projectId
     && left.nodeId === right.nodeId && left.pageId === right.pageId && left.component === right.component
     && left.permissionMode === right.permissionMode && left.blueprintScenarioId === right.blueprintScenarioId
+    && left.companionScenarioId === right.companionScenarioId
     && sameExplicitQuery(left.explicitQuery, right.explicitQuery)
 }
 

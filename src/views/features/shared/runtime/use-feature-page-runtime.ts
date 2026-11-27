@@ -68,31 +68,45 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   const target = computed(() => ({
     projectId: resolveExecutionProjectId(route.path),
     scenario: route.meta['blueprintScenarioId'],
-    companionScenario: options.workingPlanRoute ? route.meta['companionScenarioId'] : undefined,
+    companionScenario: route.meta['companionScenarioId'],
     workingPlanPath: options.workingPlanRoute ? route.path : undefined,
     nodeId: route.meta['nodeId'],
     state: route.meta['systemPageIdentityState'],
   }))
   let active = true, generation = 0
+  let currentBinding: typeof target.value | undefined
   const isCurrent = (runtime: ReturnType<NativePageRuntimeSession['acquire']>, own: number) =>
     active && own === generation && session.isCurrent(runtime)
 
   async function loadCurrentRoute(): Promise<void> {
+    const binding = target.value
+    const {projectId, nodeId: nodeIdRaw, state, scenario, companionScenario} = binding
     if (session.runtime && options.preserveRuntime?.()) {
+      const sameBinding = currentBinding !== undefined && currentBinding.projectId === projectId
+        && currentBinding.nodeId === nodeIdRaw && currentBinding.state === state
+        && currentBinding.scenario === scenario && currentBinding.companionScenario === companionScenario
+      if (!sameBinding) {
+        generation++
+        ready.value = false
+        loading.value = false
+        sparkRemove(PAGE_RUNTIME)
+      }
       reloadBlocked.value = true
       return
     }
     reloadBlocked.value = false
-    const binding = target.value
-    const {projectId, nodeId: nodeIdRaw, state, scenario, companionScenario} = binding
     const nodeId = typeof nodeIdRaw === 'string' ? nodeIdRaw.trim() : ''
     const own = ++generation
-    ready.value = false; loading.value = true; error.value = ''; session.dispose()
+    ready.value = false; loading.value = true; error.value = ''; session.dispose(); currentBinding = undefined
     let current: ReturnType<NativePageRuntimeSession['acquire']> | undefined
     try {
       const navigationId = options.navigationId ?? nodeId
       if (!projectId || !nodeId || nodeId !== navigationId || state !== 'resolved') {
         throw new Error(`${title}入口缺少正式导航身份或数据空间绑定`)
+      }
+      const actualScenario = companionScenario ?? scenario
+      if (typeof actualScenario !== 'string' || actualScenario !== scenarioId) {
+        throw new Error(`${title}主场景与正式导航入口不符：${nodeId} 需要 ${scenarioId}`)
       }
       if (peers.some(peer => !peer || peer === scenarioId) || new Set(peers).size !== peers.length) {
         throw new Error(`${title}伙伴数据空间身份无效或重复`)
@@ -114,6 +128,7 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
             if (!active || own !== generation || target.value !== binding) throw new Error('工作 Plan 原实例已失效')
           }}} : {})}),
       })
+      currentBinding = binding
       await current.load()
       if (!isCurrent(current, own)) return
       const modelName = toValue(options.modelName)
@@ -143,7 +158,7 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       sparkProvide(PAGE_RUNTIME, current)
       ready.value = true
     } catch (cause) {
-      if (current && session.isCurrent(current)) session.dispose()
+      if (current && isCurrent(current, own)) session.dispose()
       if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
     } finally {
       if (active && own === generation) loading.value = false

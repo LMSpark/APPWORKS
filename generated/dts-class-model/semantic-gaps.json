@@ -5482,7 +5482,7 @@
       "chainBreak": "DynamicRouter.getPageRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 148,
+      "declarationLine": 150,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5494,7 +5494,7 @@
       "chainBreak": "DynamicRouter.systemPageRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 149,
+      "declarationLine": 151,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5506,7 +5506,7 @@
       "chainBreak": "DynamicRouter.getSystemPageInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 150,
+      "declarationLine": 152,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5518,7 +5518,7 @@
       "chainBreak": "DynamicRouter.getSystemPageInstanceById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 151,
+      "declarationLine": 153,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5530,7 +5530,7 @@
       "chainBreak": "DynamicRouter.closeSystemPageInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 152,
+      "declarationLine": 154,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5542,7 +5542,7 @@
       "chainBreak": "DynamicRouter.resetSystemPageInstances 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 153,
+      "declarationLine": 155,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5554,7 +5554,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeView 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 154,
+      "declarationLine": 156,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5566,7 +5566,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeNames 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 155,
+      "declarationLine": 157,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5578,7 +5578,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 156,
+      "declarationLine": 158,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5590,7 +5590,7 @@
       "chainBreak": "DynamicRouter.closePageRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 157,
+      "declarationLine": 159,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5602,7 +5602,7 @@
       "chainBreak": "DynamicRouter.assertPageRuntimesClean 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 158,
+      "declarationLine": 160,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5614,7 +5614,7 @@
       "chainBreak": "DynamicRouter.disposePageRuntimes 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 159,
+      "declarationLine": 161,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5626,7 +5626,7 @@
       "chainBreak": "DynamicRouter.markPageConfigPending 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 160,
+      "declarationLine": 162,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -6515,7 +6515,7 @@
       "chainBreak": "SystemPageIdentityOwner.component 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 19,
+      "declarationLine": 21,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "interface"
     },
@@ -6526,7 +6526,7 @@
       "chainBreak": "SystemPageIdentityOwnerInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 21,
+      "declarationLine": 23,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "typeAlias"
     },
@@ -6538,7 +6538,7 @@
       "chainBreak": "SystemPageIdentityOwnerInput.scope 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 22,
+      "declarationLine": 24,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "interface"
     },
@@ -6550,7 +6550,7 @@
       "chainBreak": "SystemPageIdentityOwnerInput.path 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 23,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "interface"
     },
@@ -6562,7 +6562,7 @@
       "chainBreak": "SystemPageIdentityOwnerInput.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 24,
+      "declarationLine": 26,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "interface"
     },
@@ -6574,7 +6574,7 @@
       "chainBreak": "SystemPageIdentityOwnerInput.node 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 25,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "interface"
     },
@@ -6586,7 +6586,7 @@
       "chainBreak": "SystemPageIdentityOwnerInput.pageId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 26,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "interface"
     },
@@ -6598,7 +6598,7 @@
       "chainBreak": "SystemPageIdentityOwnerInput.component 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 27,
+      "declarationLine": 31,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "interface"
     },
@@ -6609,7 +6609,7 @@
       "chainBreak": "SystemPageIdentityResolver 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 29,
+      "declarationLine": 33,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6621,7 +6621,7 @@
       "chainBreak": "SystemPageIdentityResolver.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 31,
+      "declarationLine": 35,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6633,7 +6633,7 @@
       "chainBreak": "SystemPageIdentityResolver.forRouter 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 32,
+      "declarationLine": 36,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6645,7 +6645,7 @@
       "chainBreak": "SystemPageIdentityResolver.replaceOwners 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 33,
+      "declarationLine": 37,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6657,7 +6657,7 @@
       "chainBreak": "SystemPageIdentityResolver.revision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 34,
+      "declarationLine": 38,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6669,7 +6669,7 @@
       "chainBreak": "SystemPageIdentityResolver.getInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 37,
+      "declarationLine": 41,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6681,7 +6681,7 @@
       "chainBreak": "SystemPageIdentityResolver.getInstanceById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 38,
+      "declarationLine": 42,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6693,7 +6693,7 @@
       "chainBreak": "SystemPageIdentityResolver.closeInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 39,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6705,7 +6705,7 @@
       "chainBreak": "SystemPageIdentityResolver.resetInstances 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 42,
+      "declarationLine": 46,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6717,7 +6717,7 @@
       "chainBreak": "SystemPageIdentityResolver.createOwner 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 43,
+      "declarationLine": 47,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6729,7 +6729,7 @@
       "chainBreak": "SystemPageIdentityResolver.hostRouteName 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 44,
+      "declarationLine": 48,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6741,7 +6741,7 @@
       "chainBreak": "SystemPageIdentityResolver.hostRouteMeta 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 45,
+      "declarationLine": 49,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },
@@ -6753,7 +6753,7 @@
       "chainBreak": "SystemPageIdentityResolver.resolveComponent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
-      "declarationLine": 46,
+      "declarationLine": 50,
       "sourceFile": "packages/spark-app/src/router/system-page-identity/system-page-identity-resolver.ts",
       "declarationKind": "class"
     },

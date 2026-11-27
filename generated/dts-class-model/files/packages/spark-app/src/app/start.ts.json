@@ -91,6 +91,9 @@
               },
               "hostPath": {
                 "type": "string"
+              },
+              "scenarioId": {
+                "type": "string"
               }
             },
             "required": [
@@ -239,7 +242,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.527Z",
+  "generatedAt": "2026-11-27T21:16:58.000Z",
   "models": {
     "SparkOptions": {
       "name": "SparkOptions",

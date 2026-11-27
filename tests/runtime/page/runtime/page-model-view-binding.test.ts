@@ -3,7 +3,7 @@ import {flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {DataSet, buildDataViewKey, resolveDataViewKey, resolveDataViewMember, diagnoseDataViewKey, DataMember} from '@spark-appworks/spark-data'
-import {createProjectBlueprintRecord, PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import {createProjectBlueprintRecord, PageRuntime, PageTool, ProjectWorkspace, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import { DataSpaceRuntimeApi } from '@spark-appworks/spark-data'
 import { LowcodeApiError, type DataSpaceDesignApi } from '@/platform-adapters/api'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
@@ -13,6 +13,7 @@ import DisplayText from '../../../../packages/spark-component/src/components/dis
 import {LowcodeDataSpaceAssembler} from '../../../../src/platform-adapters/data-space/lowcode-data-space-assembler'
 import {assembleLowcodeRuntimeNavigation, lowcodeApi, readLowcodePageFiles} from '../../../../src/platform-adapters/lowcode-runtime'
 import * as scenarioRuntime from '../../../../src/platform-adapters/data-space/lowcode-data-space-runtime'
+import {createPageToolFileResourceExecutor} from '../../../../src/services/project/page-tool-file-dataview'
 import blueprintConfig from '../../../../config/pages/application/project-blueprint/pagedata.json'
 
 const calls: PageRuntime[] = []
@@ -197,7 +198,12 @@ it.each([true, false])('reuses one tool through URL spaces, rendering, queries a
   vi.spyOn(lowcodeApi, 'readRequestScope').mockReturnValue({token: 'SCOPE', headers: {'X-AppId': 'APP'}})
   vi.spyOn(scenarioRuntime, 'loadLowcodeRuntimeScenario').mockImplementation(async ({projectId, scenarioId}) => {
     expect([projectId, scenarioId]).toEqual(['APP', blueprintConfig.scenarioId])
-    return DataSet.fromJson({scenarioId, tables: {ProjectToolFile: blueprintConfig.tables.ProjectToolFile}})
+    const workspace = new ProjectWorkspace({projectId, blueprint: {}})
+    return assembler.assemble({
+      config: new ScenarioViewConfig(scenarioId, JSON.stringify({scenarioId, tables: {ProjectToolFile: blueprintConfig.tables.ProjectToolFile}})),
+      space: {dataSpaceId: scenarioId, name: 'Blueprint'}, models: [], relations: [],
+      fileExecutors: {ProjectToolFile: createPageToolFileResourceExecutor({appId: projectId, workspace, assertCurrent: () => {}})},
+    }).dataSet
   })
   const workingRead = vi.spyOn(lowcodeApi.design, 'readTextFile').mockImplementation(async locator => {
     expect(locator).toMatchObject({appType: 'designfile', customPath: 'APP/orders-tool'})

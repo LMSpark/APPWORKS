@@ -166,9 +166,10 @@ export function getVuePageOptions(): VuePageOption[] {
 }
 
 /** 借用宿主导航身份的伴随页，交给动态路由按宿主节点登记。 */
-export function getSystemPageIdentityCompanions(): Array<Readonly<{ path: string; hostPath: string }>> {
+export function getSystemPageIdentityCompanions(): Array<Readonly<{ path: string; hostPath: string; scenarioId?: string }>> {
   return Object.entries(VUE_PAGE_REGISTRY).flatMap(([path, entry]) => (
-    entry.identityHost === undefined ? [] : [{ path, hostPath: entry.identityHost }]
+    entry.identityHost === undefined ? [] : [{ path, hostPath: entry.identityHost,
+      ...(entry.dataSpaceId === undefined ? {} : {scenarioId: entry.dataSpaceId}) }]
   ))
 }
 

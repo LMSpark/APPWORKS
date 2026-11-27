@@ -8114,6 +8114,65 @@ describe('metadata invalidation ownership', () => {
     expect(saved.tables['AgentWorkflowFiles']).not.toHaveProperty('modelBinding')
   })
 
+  it.each(['DataTableBindingDefinition', 'DataViewDefinition'])('keeps a confirmed resource receipt when %s readback fails', async tableName => {
+    const f = fixture(), {wrapper} = await page()
+    await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()
+    const view = f.sessions[0]!.metadataDataSet.getView(tableName, 'default')!
+    const refresh = vi.spyOn(view, 'requestRefresh').mockRejectedValueOnce(new Error('隔离资源回读失败'))
+    try {
+      await sourceButton(wrapper, 'add-file-resource-agent-workflow-files').trigger('click'); await flushPromises()
+      expect(refresh).toHaveBeenCalledOnce()
+      expect(f.fileWrites).toHaveLength(1)
+      const reopened = await f.open('A')
+      expect(reopened.definitionDataSet?.getView('AgentWorkflowFiles', 'definition')).toBeDefined()
+      expect(wrapper.text()).toContain('隔离资源回读失败')
+      expect(wrapper.text()).toContain('文件资源绑定已确认')
+    } finally {refresh.mockRestore()}
+  })
+
+  it.each(['missing', 'partial'])('requires the original resource registration receipt (%s)', async coverage => {
+    const f = fixture(), {wrapper} = await page()
+    await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()
+    const dataSet = f.sessions[0]!.metadataDataSet
+    const originalSave = dataSet.saveChanges.bind(dataSet)
+    const readback = vi.spyOn(dataSet.getView('DataTableBindingDefinition', 'default')!, 'requestRefresh')
+    const save = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      if (coverage === 'missing') return {success: true}
+      const result = await originalSave(options)
+      if (!result.data) throw Error('Expected the original resource save receipt')
+      return {...result, data: {...result.data, viewResults: result.data.viewResults.filter(item => item.tableName === 'DataTableBindingDefinition')}}
+    })
+    try {
+      await sourceButton(wrapper, 'add-file-resource-agent-workflow-files').trigger('click'); await flushPromises()
+      expect(save).toHaveBeenCalledOnce()
+      expect(f.fileWrites).toHaveLength(coverage === 'partial' ? 1 : 0)
+      expect(readback).not.toHaveBeenCalled()
+      expect(wrapper.text()).toContain(coverage === 'partial' ? '文件资源绑定仅部分确认' : '缺少文件资源绑定保存回执')
+      expect(wrapper.text()).not.toContain('文件资源绑定已确认')
+    } finally {save.mockRestore(); readback.mockRestore()}
+  })
+
+  it('keeps later named-view edits outside the original file resource registration', async () => {
+    const f = fixture(), {wrapper} = await page()
+    await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()
+    const view = f.sessions[0]!.metadataDataSet.getView('DataViewDefinition', 'default')!
+    const add = view.addRow.bind(view)
+    const stage = vi.spyOn(view, 'addRow').mockImplementationOnce(async values => {
+      const originalRow = await add(values)
+      await add({dataSetId: 'A', tableName: 'OrdersAlias', viewId: 'laterNamed'})
+      return originalRow
+    })
+    try {
+      await sourceButton(wrapper, 'add-file-resource-agent-workflow-files').trigger('click'); await flushPromises()
+      expect(f.fileWrites).toHaveLength(1)
+      const reopened = await f.open('A')
+      expect(reopened.definitionDataSet?.getView('AgentWorkflowFiles', 'definition')).toBeDefined()
+      expect(reopened.definitionDataSet?.getView('OrdersAlias', 'laterNamed')).toBeUndefined()
+      expect([...view.dirtyTracking.pendingCreateIds]).toHaveLength(1)
+      expect(view.rows.find(row => row['viewId'] === 'laterNamed')?.['tableName']).toBe('OrdersAlias')
+    } finally {stage.mockRestore()}
+  })
+
   it('registers ProjectToolVersion into the explicit 7AB target through formal definition DataViews', async () => {
     const f = fixture(), {wrapper} = await page(`?scenarioId=${LOWCODE_APPLICATION_CATALOG_FORM_KEY}`)
     await wrapper.get('[data-design-node="models"]').trigger('click'); await flushPromises()

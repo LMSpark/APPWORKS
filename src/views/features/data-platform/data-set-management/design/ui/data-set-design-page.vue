@@ -802,6 +802,12 @@ function addModelNode(): void {
   try {const id = layoutEdit.value?.addNode(); if (id) {selectedId.value = `unbound:${id}`; error.value = ''; changed()}}
   catch (cause) {error.value = readError(cause)}
 }
+async function stageFileResourceRow(view: DataView, values: DataRow): Promise<string | number> {
+  const row = await view.addRow(values)
+  const id = view.getPkKey(row)
+  if (id === undefined || !view.dirtyTracking.pendingCreateIds.has(id)) throw Error('文件资源新增缺少原草稿身份')
+  return id
+}
 async function addFileResourceBinding(resource: LowcodeFileResourceDefinition): Promise<void> {
   const current = session.value
   const dataSet = current?.metadataDataSet
@@ -829,32 +835,51 @@ async function addFileResourceBinding(resource: LowcodeFileResourceDefinition): 
     if (key !== undefined) {selectedId.value = JSON.stringify(['DataTableBindingDefinition', key]); changed()}
     return
   }
-  if (bindings.rows.some(row => row['dataSetId'] === current.targetId && row['tableName'] === resource.tableName)) {
-    error.value = `${resource.label}表名已占用`
-    return
-  }
   if (bindings.addActionState() !== 'enabled' || definitions.addActionState() !== 'enabled') {
     error.value = '正式绑定或数据视图定义查询未授权新增'
     return
   }
   busy.value = true
   error.value = ''
+  const isCurrent = () => active && session.value === current
+  const viewEntries = Object.entries(resource.views)
+  const bindingIds: Array<string | number> = []
+  const definitionIds: Array<string | number> = []
   let saveStarted = false
+  let writeConfirmed = false
   try {
-    await bindings.addRow({dataSetId: current.targetId, tableName: resource.tableName, resourceType: 'file',
-      configuration: {resourceType: 'file', resourceId: resource.resourceId, columns: structuredClone(resource.columns)}})
-    for (const [viewId, viewConfig] of Object.entries(resource.views)) {
-      await definitions.addRow({dataSetId: current.targetId, tableName: resource.tableName, viewId, ...structuredClone(viewConfig)})
+    bindingIds.push(await stageFileResourceRow(bindings, {dataSetId: current.targetId, tableName: resource.tableName, resourceType: 'file',
+      configuration: {resourceType: 'file', resourceId: resource.resourceId, columns: structuredClone(resource.columns)}}))
+    for (const [viewId, viewConfig] of viewEntries) {
+      if (!isCurrent()) return
+      definitionIds.push(await stageFileResourceRow(definitions, {...structuredClone(viewConfig), dataSetId: current.targetId, tableName: resource.tableName, viewId}))
     }
+    if (!isCurrent()) return
+    const targets = [{tableName: bindings.tableName, viewId: bindings.viewId, ids: bindingIds},
+      {tableName: definitions.tableName, viewId: definitions.viewId, ids: definitionIds}].filter(target => target.ids.length > 0)
     saveStarted = true
-    const saved = await dataSet.saveChanges({views: [
-      {tableName: 'DataTableBindingDefinition', viewId: 'default'}, {tableName: 'DataViewDefinition', viewId: 'default'},
-    ]})
-    if (!saved.success) throw saved.error ?? new Error(saved.message ?? '文件资源绑定保存未确认')
-    const bindingReadback = await bindings.requestRefresh()
-    if (!bindingReadback.success) throw bindingReadback.error ?? new Error(bindingReadback.message ?? '文件资源绑定回读失败')
-    const definitionReadback = await definitions.requestRefresh()
-    if (!definitionReadback.success) throw definitionReadback.error ?? new Error(definitionReadback.message ?? '文件资源视图回读失败')
+    const saved = await dataSet.saveChanges({views: targets})
+    if (!isCurrent()) return
+    if (!saved.data) throw saved.error ?? Error(saved.message ?? '缺少文件资源绑定保存回执')
+    const receipts = saved.data.viewResults
+    const relatedReceipts = receipts.filter(item => targets.some(target => item.tableName === target.tableName && item.viewId === target.viewId))
+    const complete = receipts.length === targets.length && targets.every(target => {
+      const matches = relatedReceipts.filter(item => item.tableName === target.tableName && item.viewId === target.viewId)
+      const receipt = matches[0]
+      return matches.length === 1 && receipt?.createdCount === target.ids.length && receipt.savedCount === 0
+        && receipt.deletedCount === 0 && receipt.failedCount === 0 && receipt.failedEditingRows === 0
+        && (!receipt.createdIdentities || target.ids.every(id => receipt.createdIdentities?.some(identity => identity.submittedId === id)))
+    })
+    if (!complete && relatedReceipts.some(item => item.createdCount > 0)) throw Error('文件资源绑定仅部分确认，请核对原绑定与命名视图')
+    if (!saved.success || !complete) throw saved.error ?? Error(saved.message ?? '缺少文件资源绑定保存回执')
+    writeConfirmed = true
+    if (saved.data.followUpError) throw saved.data.followUpError
+    const bindingReadback = await bindings.requestRefresh({defer: false})
+    if (!isCurrent()) return
+    if (bindingReadback.refreshStatus !== 'read') throw bindingReadback.error ?? Error(bindingReadback.message ?? '文件资源绑定回读失败')
+    const definitionReadback = await definitions.requestRefresh({defer: false})
+    if (!isCurrent()) return
+    if (definitionReadback.refreshStatus !== 'read') throw definitionReadback.error ?? Error(definitionReadback.message ?? '文件资源视图回读失败')
     const rows = bindings.rows.filter(row => row['dataSetId'] === current.targetId && row['tableName'] === resource.tableName)
     const bindingRow = rows[0]
     const bindingReadable = bindingRow && ['dataSetId', 'tableName', 'resourceType', 'configuration'].every(field =>
@@ -862,19 +887,21 @@ async function addFileResourceBinding(resource: LowcodeFileResourceDefinition): 
     if (rows.length !== 1 || !bindingReadable || bindingRow?.['resourceType'] !== 'file' || !isRecord(bindingRow?.['configuration'])
       || bindingRow['configuration']['resourceId'] !== resource.resourceId
       || JSON.stringify(bindingRow['configuration']['columns']) !== JSON.stringify(resource.columns)
-      || Object.keys(resource.views).some(viewId => !definitions.rows.some(row => row['dataSetId'] === current.targetId
-        && row['tableName'] === resource.tableName && row['viewId'] === viewId))) {
-      throw new Error('文件资源绑定已提交但 DataView 回读未确认完整资源声明、列与视图')
+      || viewEntries.some(([viewId]) => definitions.rows.filter(row => row['dataSetId'] === current.targetId
+        && row['tableName'] === resource.tableName && row['viewId'] === viewId && definitions.getPkKey(row) !== undefined
+        && ['dataSetId', 'tableName', 'viewId'].every(field => definitions.fieldAccess(row, field).read === 'visible')).length !== 1)) {
+      throw new Error('DataView 未回读到完整资源声明、列与命名视图')
     }
     const key = bindings.getPkKey(bindingRow!)
     if (key === undefined) throw new Error('文件资源绑定回读缺少正式 DataView 行身份')
     selectedId.value = JSON.stringify(['DataTableBindingDefinition', key])
     changed()
   } catch (cause) {
-    if (!saveStarted) {bindings.discardPendingChanges(); definitions.discardPendingChanges()}
-    error.value = readError(cause)
+    if (!isCurrent()) return
+    if (!saveStarted) {bindings.discardPendingChanges(bindingIds); definitions.discardPendingChanges(definitionIds)}
+    error.value = writeConfirmed ? `文件资源绑定已确认，后续处理失败：${readError(cause)}` : readError(cause)
   }
-  finally {busy.value = false; changed()}
+  finally {if (isCurrent()) {busy.value = false; changed()}}
 }
 function removeUnboundNode(): void {
   if (definitionPending.value || parameterOpen.value || !unboundSelectedId.value) return

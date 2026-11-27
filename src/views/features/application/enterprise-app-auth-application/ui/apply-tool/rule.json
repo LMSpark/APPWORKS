@@ -1,0 +1,59 @@
+[
+  {
+    "id": "apply-app-auth",
+    "type": "r-section",
+    "props": {"class": "apply-app-auth", "bordered": false, "gridColumns": 1, "gridGap": 12},
+    "children": [
+      {"type": "r-alert", "props": {"alertType": "error", "closable": false, "onBeforeRender": "bindListError"}},
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "C06D41607B6258106F35A0A319B71804@Base_AppSystemList@published",
+          "autoColumns": false, "stripe": true, "showRowIndex": true, "showDataViewMeta": false,
+          "pagination": {"pageSizes": [10, 20]},
+          "filter": {
+            "autoQuery": false, "queryOnReset": true, "firstPageOnSearch": true,
+            "showExpressionEditor": false, "showDataViewMeta": false,
+            "children": [
+              {"type": "r-text", "props": {
+                "field": "AppName", "label": "应用名称", "placeholder": "搜索应用名称", "filterTrim": true, "clearable": true,
+                "filterAlternatives": [{"field": "AppDesc", "operator": "contains"}, {"field": "AppName", "operator": "contains"}]
+              }}
+            ]
+          },
+          "actions": {"wrap": false, "gap": 4, "children": [
+            {"type": "r-button", "props": {"dataViewKey": "C06D41607B6258106F35A0A319B71804@Base_AppSystemList@published", "label": "申请", "link": true, "buttonType": "primary", "onBeforeRender": "bindApplyAction", "onClick": "openApply"}}
+          ]}
+        },
+        "children": [
+          {"type": "r-text", "props": {"field": "displayName", "label": "应用名称", "readonly": true, "minWidth": 240, "sortable": false, "showOverflowTooltip": true}},
+          {"type": "r-text", "props": {"field": "publisher_ent", "label": "发布企业", "readonly": true, "width": 140, "showOverflowTooltip": true, "emptyText": "-"}},
+          {"type": "r-text", "props": {"field": "Memo", "label": "备注", "readonly": true, "minWidth": 160, "showOverflowTooltip": true}}
+        ]
+      }
+    ]
+  },
+  {
+    "id": "apply-app-auth-dialog",
+    "type": "r-dialog",
+    "props": {
+      "modelValue": true, "title": "申请应用授权", "width": 520, "appendToBody": true,
+      "onBeforeRender": "bindDialog", "on": {"update:modelValue": "onDialogChange"},
+      "footer": {"children": [
+        {"type": "r-button", "props": {"label": "取消", "onBeforeRender": "bindCancel", "onClick": "cancelApply"}},
+        {"type": "r-button", "props": {"label": "提交申请", "buttonType": "primary", "onBeforeRender": "bindSubmit", "onClick": "submitApply"}}
+      ]}
+    },
+    "children": [
+      {"type": "r-text-display", "props": {"tag": "p", "class": "apply-app-auth__app", "onBeforeRender": "bindAppName"}},
+      {"type": "r-alert", "props": {"alertType": "error", "closable": false, "onBeforeRender": "bindApplyError"}},
+      {
+        "type": "r-form",
+        "props": {"dataViewKey": "02215DFBCA2079FBC076CEF7D91FBF6E@enterprise_app_auth@default", "autoColumns": false, "showDataViewMeta": false, "gridColumns": 1, "onBeforeRender": "bindApplyForm"},
+        "children": [
+          {"type": "r-textarea", "props": {"field": "review_comment", "label": "申请说明", "rows": 4, "maxlength": 500, "showWordLimit": true, "placeholder": "请填写申请说明（可选）"}}
+        ]
+      }
+    ]
+  }
+]

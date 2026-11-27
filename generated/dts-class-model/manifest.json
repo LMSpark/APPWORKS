@@ -20284,7 +20284,7 @@
         "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
         "packageName": "app",
         "modulePath": "views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content",
-        "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content\n职责：列出其他企业已发布的应用（C06D 应用主表常驻范围：已发布且排除本企业发布），按行发起应用授权申请。\n边界：列表、关键字筛选与分页均由绑定DataView承接；申请在 0221 的 enterprise_app_auth 视图新增一行并只提交该行，取消或明确失败撤销新增。",
+        "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content\n职责：独立页和内嵌页共用申请工具，在本次调用读取已发布应用和提交申请。\n边界：导航仍校验 47DA，候选归 C06D，新增申请归本调用的 0221。关闭仅撤销尚未提交的原草稿。\nAI用途：复用同一个申请宿主接入入口，保存和核验均保留原 DataView 和原记录键。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -20297,7 +20297,7 @@
         "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
         "packageName": "app",
         "modulePath": "views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
-        "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page\n职责：申请应用授权的独立路由；借“我的申请”导航身份，在同一运行实例装配 0221 与 C06D 场景后承载申请内容。\n边界：主场景 47DA 只用于导航身份校验与装配；已发布应用列表经 C06D 应用主表视图，新增申请经 0221 视图完成。",
+        "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page\n职责：保留申请应用授权的正式独立路由。\n边界：复用内嵌入口的申请工具和运行时装配，每次调用独立加载正式视图。\nAI用途：接续申请交付时保留原路由并在共用申请宿主核对数据合同。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

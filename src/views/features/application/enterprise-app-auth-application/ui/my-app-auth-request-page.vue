@@ -11,13 +11,14 @@
     <p v-if="error" role="alert">{{ error }}</p>
     <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
   </RendererSection>
-  <RendererDialog v-if="ready && applyOpen" :model-value="true" title="申请应用授权" :width="960" :append-to-body="true" @update:model-value="closeApply">
-    <ApplyAppAuthContent :embedded="true" @applied="closeApply" />
+  <RendererDialog v-if="ready && applyMounted" :model-value="applyOpen" title="申请应用授权" :width="960" :append-to-body="true"
+    :destroy-on-close="false" :close-disabled="applyBusy" @update:model-value="setApplyOpen">
+    <ApplyAppAuthContent ref="applyContent" :embedded="true" @applied="finishApply" @busy-change="applyBusy = $event" />
   </RendererDialog>
 </template>
 
 <script setup lang="ts">
-import {computed, ref, toRaw, watch} from 'vue'
+import {computed, ref, toRaw, useTemplateRef, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, isDataRow, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {PageTool} from '@spark-appworks/spark-project-model'
@@ -54,10 +55,17 @@ const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePa
   queryContext: () => ({entShortName: readAppAuthSession().entShortName}),
 })
 const applyOpen = ref(false), busy = ref(false), actionError = ref(''), revision = ref(0)
+const applyMounted = ref(false), applyBusy = ref(false)
+const applyContent = useTemplateRef('applyContent')
 const REAPPLY_FROM = new Set(['REJECTED', 'CANCELLED', 'REVOKED', 'FAILED'])
 
 const listView = computed(() => ready.value ? session.runtime?.resolveView(viewKey.value) : undefined)
-watch(ready, value => {if (!value) applyOpen.value = false})
+watch(ready, value => {
+  if (value) return
+  applyOpen.value = false
+  applyMounted.value = false
+  applyBusy.value = false
+})
 
 function status(view: DataView, row: DataRow): string {
   const value = row['auth_status']
@@ -86,7 +94,10 @@ const rendererHost = computed(() => {
       canReapply: (row: unknown) => {revision.value; return isDataRow(row) && canReapply({row: toRaw(row), dataSource: view})},
       formatRequestedAt,
     }
-    if (command === 'requests.apply' && !busy.value) applyOpen.value = true
+    if (command === 'requests.apply' && !busy.value) {
+      applyMounted.value = true
+      applyOpen.value = true
+    }
     if (command === 'requests.cancel' && isDataRow(input)) await operate(input, cancel)
     if (command === 'requests.reapply' && isDataRow(input)) await operate(input, reapply)
     return undefined
@@ -130,7 +141,10 @@ async function operate(row: DataRow, operation: Operation): Promise<void> {
     busy.value = false; revision.value++
   }
 }
-function closeApply(): void {
+function setApplyOpen(value: boolean): void {
+  if (!value && applyOpen.value && applyContent.value?.closeDraft() !== false) finishApply()
+}
+function finishApply(): void {
   applyOpen.value = false
   void listView.value?.refresh()
 }

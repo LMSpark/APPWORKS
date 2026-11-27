@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, type Component} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
-import ElementPlus from 'element-plus'
+import ElementPlus, {ElDialog} from 'element-plus'
 import {SparkNodeTree} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererButton, RendererDialog, RendererForm, RendererTable, Spark, SparkPageRenderer, registerAllRenderers} from '@spark-appworks/spark-component'
@@ -64,12 +64,12 @@ afterEach(() => {
   config.global.stubs = originalStubs
 })
 
+const loadPageRuntime = PageRuntime.prototype.load
 async function open(component: Component, scenario: string) {
   const observed = new Set<PageRuntime>()
-  const load = PageRuntime.prototype.load
   vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function(this: PageRuntime) {
     observed.add(this)
-    return load.call(this)
+    return loadPageRuntime.call(this)
   })
   const router = createRouter({history: createMemoryHistory(), routes: [
     {path: `/apps/:projectId${BASE}/page`, component, meta: {blueprintScenarioId: scenario, nodeId: scenario, systemPageIdentityState: 'resolved'}},
@@ -278,14 +278,60 @@ describe('我的申请', () => {
 })
 
 describe('申请应用授权', () => {
-  it('内嵌于我的申请：只列别家已发布的应用，关键字按名称或描述匹配，提交只新增一行', async () => {
-    const {rows} = await open(MyPage, MY)
+  const publishedKey = `${REVIEW}@Base_AppSystemList@published`
+  const applyKey = `${APPLY}@enterprise_app_auth@default`
+  function outerApplyDialog(wrapper: VueWrapper) {
+    const dialog = wrapper.findAllComponents(RendererDialog).find(item =>
+      item.props('title') === '申请应用授权' && item.props('width') === 960)
+    if (!dialog) throw new Error('缺少内嵌申请外层弹窗')
+    return dialog
+  }
+
+  it('独立路由与内嵌入口各自调用同一申请工具，表格读 C06D，表单编辑本次 0221', async () => {
+    const embedded = await open(MyPage, MY)
+    const parent = embedded.wrapper.getComponent(SparkPageRenderer).props('pageRuntime')
     await click('申请应用授权')
-    const published = `${REVIEW}@Base_AppSystemList@published`
-    expect(rows(published)).toEqual(['APP-X', 'APP-Y', 'APP-Z'])
+    const renderer = outerApplyDialog(embedded.wrapper).getComponent(SparkPageRenderer)
+    const child = renderer.props('pageRuntime')
+    expect(embedded.observed.size).toBe(2)
+    expect(child.instanceId).not.toBe(parent.instanceId)
+    const requests = child.resolveView(applyKey)
+    const parentRequests = parent.resolveView(applyKey)
+    if (!requests || !parentRequests) throw new Error('缺少 0221 申请视图')
+    expect(requests).not.toBe(parentRequests)
+    expect(renderer.getComponent(RendererTable).props('dataViewKey')).toBe(publishedKey)
+    await click('申请')
+    const form = renderer.getComponent(RendererForm)
+    expect(form.props('dataViewKey')).toBe(applyKey)
+    const added = requests.rows[0]
+    if (!added) throw new Error('子调用缺少原新增申请')
+    expect(form.props('contextRowId')).toBe(requests.getPkKey(added))
+    expect(parentRequests.rows).toHaveLength(0)
+    const direct = await open(ApplyPage, MY)
+    const directRenderer = direct.wrapper.getComponent(SparkPageRenderer)
+    const independent = directRenderer.props('pageRuntime')
+    expect(direct.observed.size).toBe(1)
+    expect(independent.instanceId).not.toBe(child.instanceId)
+    expect(independent.resolveView(applyKey)?.rows).toEqual([])
+    expect(directRenderer.getComponent(RendererTable).props('dataViewKey')).toBe(publishedKey)
+    expect(independent.call.mainScenarioId).toBe(MY)
+    expect(child.call.mainScenarioId).toBe(MY)
+    expect(child.tool.pageId).toBe('apply-app-auth-page')
+    expect(independent.materialize()).toEqual(child.materialize())
+    expect(http.saves).toHaveLength(0)
+  })
+
+  it('内嵌于我的申请：只列别家已发布的应用，关键字按名称或描述匹配，提交只新增一行', async () => {
+    const {wrapper} = await open(MyPage, MY)
+    await click('申请应用授权')
+    const child = outerApplyDialog(wrapper).getComponent(SparkPageRenderer).props('pageRuntime')
+    const published = child.resolveView(publishedKey)
+    const requests = child.resolveView(applyKey)
+    if (!published || !requests) throw new Error('缺少申请工具的正式视图')
+    expect(published.rows.map(row => row['rowid'])).toEqual(['APP-X', 'APP-Y', 'APP-Z'])
     await type('搜索应用名称', '资源')
     await click('查询', buttons('查询').length - 1)
-    expect(rows(published)).toEqual(['APP-Y'])
+    expect(published.rows.map(row => row['rowid'])).toEqual(['APP-Y'])
     await click('申请')
     expect(document.body.textContent).toContain('应用：资源计划[erp]')
     await type('请填写申请说明（可选）', '请开通')
@@ -296,8 +342,61 @@ describe('申请应用授权', () => {
     expect(save?.added).toHaveLength(1)
     expect(save?.added[0]).toMatchObject({app_id: 'APP-Y', review_comment: '请开通', operator: 'U1'})
     expect(save?.added[0]).not.toHaveProperty('auth_status')
-    expect(rows(`${APPLY}@enterprise_app_auth@default`)).toEqual([])
+    expect(requests.rows).toEqual([])
     expect(document.body.textContent).not.toContain('应用：资源计划[erp]')
+  })
+
+  it('内嵌申请关闭外层后清掉未提交草稿，再打开仍能选择应用', async () => {
+    const {wrapper} = await open(MyPage, MY)
+    await click('申请应用授权')
+    await click('申请')
+    const outer = outerApplyDialog(wrapper)
+    outer.getComponent(ElDialog).vm.$emit('update:modelValue', false)
+    await settle()
+    expect(http.saves).toHaveLength(0)
+    await click('申请应用授权')
+    expect(document.body.textContent).not.toContain('上一次申请尚未提交或取消')
+    expect(buttons('申请').length).toBeGreaterThan(0)
+    await click('申请')
+    outerApplyDialog(wrapper).getComponent(ElDialog).vm.$emit('update:modelValue', false)
+    await settle()
+    expect(outerApplyDialog(wrapper).props('modelValue')).toBe(false)
+    expect(http.saves).toHaveLength(0)
+  })
+
+  it('内嵌申请已写入而回执丢失，关闭外层再打开仍持有原批次，不能发起第二笔', async () => {
+    const {wrapper, observed} = await open(MyPage, MY)
+    await click('申请应用授权')
+    const outer = outerApplyDialog(wrapper)
+    const renderer = outer.getComponent(SparkPageRenderer)
+    const original = renderer.props('pageRuntime')
+    const view = original.resolveView(applyKey)
+    const dataSet = original.getDataSet(APPLY)
+    if (!view || !dataSet) throw new Error('缺少原申请运行视图')
+    await click('申请')
+    const originalId = renderer.getComponent(RendererForm).props('contextRowId')
+    if (typeof originalId !== 'string' && typeof originalId !== 'number') throw new Error('缺少原申请行键')
+    http.failAfterWrite = true
+    await click('提交申请')
+    const batchId = dataSet.saveJournal.batchId
+    expect(batchId).toEqual(expect.any(String))
+    expect(view.hasUnconfirmedSaveFor([originalId])).toBe(true)
+    expect(http.saves).toHaveLength(1)
+    outer.getComponent(ElDialog).vm.$emit('update:modelValue', false)
+    await settle()
+    expect(outerApplyDialog(wrapper).props('modelValue')).toBe(false)
+    await click('申请应用授权')
+    const reopened = outerApplyDialog(wrapper)
+    expect(reopened.props('modelValue')).toBe(true)
+    const current = reopened.getComponent(SparkPageRenderer).props('pageRuntime')
+    expect(current).toBe(original)
+    expect(observed.size).toBe(2)
+    expect(current.resolveView(applyKey)).toBe(view)
+    expect(current.getDataSet(APPLY)?.saveJournal.batchId).toBe(batchId)
+    expect(view.hasUnconfirmedSaveFor([originalId])).toBe(true)
+    expect(document.body.textContent).toContain('保存结果未知')
+    expect(buttons('申请').filter(button => !button.disabled)).toHaveLength(0)
+    expect(http.saves).toHaveLength(1)
   })
 
   it('独立入口借我的申请身份装配 0221 与 C06D；取消与明确失败撤销新增，结果未知保留并提示核对', async () => {

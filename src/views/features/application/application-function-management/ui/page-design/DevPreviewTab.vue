@@ -53,8 +53,7 @@ import { DisplayAlert,DisplayEmpty,FieldSwitch,RendererButton,RendererForm,Spark
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {PageTool, ScenarioDefinitionDocument, ScenarioViewConfig, type PageRuntime} from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '@spark-appworks/spark-component/runtime'
-import { assembleLowcodeRuntimeScenario } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
-import { lowcodeApi } from '@/platform-adapters/lowcode-runtime'
+import { assembleLowcodeRuntimeScenario, readLowcodeExecutionProject } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import { buildApplicationPath, buildConfigPageNavigationPath } from '@/services/application-scope'
 import { resolvePageToolCall } from './use-page-design'
 import type { DevState } from '../blueprint-state/useDevState'
@@ -298,10 +297,16 @@ async function refresh():Promise<void> {
   let runtime:PageRuntime | undefined
   try {
     const {pageId,workspace,projectId,mainScenarioId,navigationTarget} = target
+    const execution = readLowcodeExecutionProject()
+    if (execution.projectId !== projectId) throw Error('场景预览需要当前运行应用与编辑项目一致')
+    const assertScope = () => {
+      assertTargetCurrent(target,current)
+      execution.assertCurrent()
+    }
     const active = props.state.project.getActivePage()
     if (!active || active.pageId !== pageId) throw new Error('请先选择一个配置页面')
     const fileViews=await Promise.all(props.state.pageFileNames.map(fileName=>props.state.loadPageToolFileDataView({pageId,fileName})))
-    assertTargetCurrent(target,current)
+    assertScope()
     const tool = new PageTool({pageId})
     for(let index=0;index<props.state.pageFileNames.length;index++){
       const fileName=props.state.pageFileNames[index]!
@@ -322,10 +327,7 @@ async function refresh():Promise<void> {
       ...(mainScenarioId ? {mainScenarioId} : {}),
       ...(call.scenarioInputs === undefined ? {} : {scenarioInputs:call.scenarioInputs}),
       loadScenario:async scenarioId=>{
-      assertTargetCurrent(target,current)
-      const scope=lowcodeApi.readRequestScope()
-      if(scope.headers['X-AppId']!==projectId)throw new Error('场景预览需要当前运行应用与编辑项目一致')
-      const assertScope=():void=>{assertTargetCurrent(target,current);if(lowcodeApi.readRequestScope().token!==scope.token)throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景预览请求代次已失效')}
+      assertScope()
       const definitions=await workspace.loadScenarioDefinitions({scenarioId})
       assertScope()
       const document=await ScenarioDefinitionDocument.open(definitions,scenarioId)
@@ -334,7 +336,7 @@ async function refresh():Promise<void> {
       return assembleLowcodeRuntimeScenario({projectId,scenarioId,config,assertCurrent:assertScope,getPage:()=>runtime})
     }})
     await runtime.load()
-    assertTargetCurrent(target,current)
+    assertScope()
     if(!previewSession.isCurrent(runtime))return
     runtime.materialize()
     const path=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId))

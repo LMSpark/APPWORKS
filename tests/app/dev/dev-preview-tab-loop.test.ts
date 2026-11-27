@@ -172,6 +172,41 @@ describe('DevPreviewTab live refresh', () => {
     wrapper.unmount()
   })
 
+
+  it.each(['same-application identity change', 'same-identity credential renewal'] as const)('keeps the original scope of preview files during %s', async reason => {
+    const {state} = await createPreviewState()
+    const load = state.loadPageToolFileDataView.bind(state)
+    const file = await load({pageId: 'cascade-demo', fileName: 'rule.json'})
+    let release = () => {}
+    const delayed = new Promise<typeof file>(resolve => {release = () => resolve(file)})
+    const loadFile = vi.spyOn(state, 'loadPageToolFileDataView').mockReturnValueOnce(delayed)
+    const wrapper = mount(DevPreviewTab, {
+      props: {state, refreshToken: 0},
+      global: {stubs: {ElAlert: true, ElButton: ButtonStub, ElEmpty: true, ElIcon: true, ElSwitch: SwitchStub, Loading: true, DisplayIcon: true, SparkPageRenderer: RendererStub}},
+    })
+    try {
+      await flushPromises()
+      expect(loadFile.mock.calls.length).toBeGreaterThanOrEqual(3)
+      const old = lowcodeApi.session.get()
+      if (!old) throw Error('preview session missing')
+      const originalScope = lowcodeApi.readRequestScope()
+      const renewed = reason === 'same-identity credential renewal'
+      if (renewed) lowcodeApi.session.save({...old, accessExpiresAt: old.accessExpiresAt + 30_000})
+      else lowcodeApi.session.save({...old, identity: {...old.identity, userId: 'NEXT-PREVIEW-USER'}})
+      const currentScope = lowcodeApi.readRequestScope()
+      expect(currentScope.headers['X-AppId']).toBe(originalScope.headers['X-AppId'])
+      expect(currentScope.token === originalScope.token).toBe(renewed)
+      release()
+      await flushPromises()
+      expect(wrapper.findComponent(RendererStub).exists()).toBe(renewed)
+      expect(wrapper.find('.error-panel').exists()).toBe(!renewed)
+      if (!renewed) {
+        await wrapper.setProps({refreshToken: 1})
+        await flushPromises()
+        expect(wrapper.findComponent(RendererStub).exists()).toBe(true)
+      }
+    } finally {release();wrapper.unmount()}
+  })
   it('only refreshes on tab requests when the DataView auto-refresh switch is enabled',async()=>{
     const {state}=await createPreviewState()
     const wrapper=mount(DevPreviewTab,{

@@ -28,7 +28,7 @@ export type DataSetCommandExecution = Readonly<{
 const boundCommandViews = new WeakSet<DataView>()
 const commandDispatchGuards = new WeakMap<DataView, (key: unknown) => void>()
 
-/** 在已装配的原命令视图执行一笔临时命令，只撤销经生命周期检查证实未派发的该行。 */
+/** 在已装配的原命令视图执行一笔临时命令；首次建立本地可写结果。只清理已证明未派发或未应用的原草稿。 */
 export async function submitDataSetCommand(view: DataView, input: DataRow, execution: DataSetCommandExecution = {}): Promise<DataRow> {
   const dataSet = view.dataSet
   if (!dataSet || !boundCommandViews.has(view)) throw Error('DATA_SET_COMMAND_VIEW_IDENTITY: 写命令需要原绑定视图')
@@ -77,12 +77,12 @@ export async function submitDataSetCommand(view: DataView, input: DataRow, execu
     if (!receipt) throw Error('DATA_SET_COMMAND_RECEIPT: 缺少原命令行')
     return receipt
   } catch (error) {
-    if (attempt.stoppedBeforeDispatch && !view.destroyed && draft && ownsDraft()) {
+    if (!view.destroyed && draft && ownsDraft()) {
       const {key} = draft
       const [record, other] = dataSet.saveJournal.views
       if (!other && record?.state === 'not-applied' && record.tableName === view.tableName && record.viewId === view.viewId
         && record.ids.length === 1 && record.ids[0] === key) dataSet.discardSaveJournalNotApplied()
-      else view.discardPendingChanges([key])
+      else if (attempt.stoppedBeforeDispatch) view.discardPendingChanges([key])
     }
     throw error
   } finally {

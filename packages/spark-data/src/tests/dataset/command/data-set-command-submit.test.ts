@@ -51,6 +51,33 @@ async function addInput(view: ReturnType<typeof setup>['view'], values: Record<s
 }
 
 describe('DataSet command submit helper', () => {
+  it('initializes the first bound command result before staging, then accepts the one original receipt', async () => {
+    const f = setup()
+    try {
+      await expect(submitDataSetCommand(f.view, {ServerName: 'first command'}))
+        .resolves.toMatchObject({rowid: 'K1', ServerName: 'first command'})
+      expect(f.submit).toHaveBeenCalledTimes(1)
+      expect(f.verify).not.toHaveBeenCalled()
+      expect(f.dataSet.saveJournal).toMatchObject({completed: true})
+    } finally {
+      f.dataSet.destroy()
+    }
+  })
+
+  it('clears only the original temporary command after a confirmed rejection', async () => {
+    const f = setup()
+    try {
+      f.submit.mockRejectedValueOnce(Error('Command was rejected'))
+      await expect(submitDataSetCommand(f.view, {ServerName: 'rejected command'})).rejects.toThrow('Command was rejected')
+      expect(f.view.rows).toEqual([])
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+      await expect(submitDataSetCommand(f.view, {ServerName: 'new command'})).resolves.toMatchObject({rowid: 'K2'})
+      expect(f.submit).toHaveBeenCalledTimes(2)
+    } finally {
+      f.dataSet.destroy()
+    }
+  })
+
   it('rejects a concurrent command before staging while the original submit is in flight', async () => {
     let entered!: () => void, release!: () => void
     const started = new Promise<void>(resolve => {entered = resolve})

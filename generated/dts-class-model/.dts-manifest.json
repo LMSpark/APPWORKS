@@ -3949,7 +3949,7 @@
     "src/platform-adapters/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/platform-adapters/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-27T07:22:10.744Z"
+      "sourceModifiedAt": "2026-11-27T07:56:24.055Z"
     },
     "src/platform-adapters/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/platform-adapters/data-space/lowcode-model-relation-adapter.ts",
@@ -4320,6 +4320,11 @@
       "sourceFile": "src/platform-adapters/resources/integration/api-management/runtime-bindings.ts",
       "shardFile": "files/src/platform-adapters/resources/integration/api-management/runtime-bindings.ts.json",
       "sourceModifiedAt": "2026-11-23T08:03:44.239Z"
+    },
+    "src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts": {
+      "sourceFile": "src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts",
+      "shardFile": "files/src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts.json",
+      "sourceModifiedAt": "2026-11-27T07:56:24.148Z"
     },
     "src/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection.ts": {
       "sourceFile": "src/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
@@ -7401,6 +7406,11 @@
       "shardFile": "files/src/views/features/integration/mp-open/ui/catalog-page.vue.json",
       "sourceModifiedAt": "2026-11-27T07:22:11.591Z"
     },
+    "src/views/features/integration/mp-open/ui/channels-page.vue": {
+      "sourceFile": "src/views/features/integration/mp-open/ui/channels-page.vue",
+      "shardFile": "files/src/views/features/integration/mp-open/ui/channels-page.vue.json",
+      "sourceModifiedAt": "2026-11-27T07:56:25.572Z"
+    },
     "src/views/features/integration/report/ui/report-create-dialog.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-create-dialog.vue",
       "shardFile": "files/src/views/features/integration/report/ui/report-create-dialog.vue.json",
@@ -7469,7 +7479,7 @@
     "src/views/features/shared/runtime/use-feature-page-runtime.ts": {
       "sourceFile": "src/views/features/shared/runtime/use-feature-page-runtime.ts",
       "shardFile": "files/src/views/features/shared/runtime/use-feature-page-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-27T05:28:58.250Z"
+      "sourceModifiedAt": "2026-11-27T07:56:25.645Z"
     },
     "src/views/features/shared/table/feature-table-actions.ts": {
       "sourceFile": "src/views/features/shared/table/feature-table-actions.ts",

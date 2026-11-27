@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/resources/integration/mp-open/channels-accounts-resource",
+    "sourcePath": "src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts",
+    "sourceFile": "src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/resources/integration/mp-open/channels-accounts-resource",
+    "jsdoc": "@module app:platform-adapters/resources/integration/mp-open/channels-accounts-resource\n职责：把专用视频号授权账号列表绑定为独立的只读 DataView。\n边界：按正式应用和场景发出一次查询。仅映射安全投影，不用模型行替代服务拒绝，不产生管理或挂载权限。\nAI用途：视频号页面读取专用账号时复用本资源，表格消费命名视图和它自身的读取状态。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ChannelAccountWorkspace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ChannelAccountWorkspace",
+      "properties": {
+        "dataSet": {
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+        },
+        "http": {
+          "$ref": "../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../../../../../packages/spark-data/src/query/formal-table-contract.ts.json#/$defs/DataSpaceRequestScope"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-27T07:56:24.148Z",
+  "models": {
+    "ChannelAccountWorkspace": {
+      "name": "ChannelAccountWorkspace",
+      "jsdoc": "专用账号查询依赖同一已获授权的应用场景及短生命周期传输身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前 PageRuntime 装配的正式空间，用于限定投影视图的归属。 */\n    dataSet: DataSet;\n    /** 宿主现有网关传输，由资源 owner 使用。 */\n    http: HttpClientBase;\n    /** 返回已登录用户的执行头，资源在当前调用域内派发。 */\n    readScope: () => DataSpaceRequestScope;\n    /** 确认派发前和回包后仍由原应用、同一登录身份及场景实例接纳。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前 PageRuntime 装配的正式空间，用于限定投影视图的归属。 */\n    dataSet: DataSet;\n    /** 宿主现有网关传输，由资源 owner 使用。 */\n    http: HttpClientBase;\n    /** 返回已登录用户的执行头，资源在当前调用域内派发。 */\n    readScope: () => DataSpaceRequestScope;\n    /** 确认派发前和回包后仍由原应用、同一登录身份及场景实例接纳。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "当前 PageRuntime 装配的正式空间，用于限定投影视图的归属。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "jsdoc": "宿主现有网关传输，由资源 owner 使用。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "jsdoc": "返回已登录用户的执行头，资源在当前调用域内派发。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "确认派发前和回包后仍由原应用、同一登录身份及场景实例接纳。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

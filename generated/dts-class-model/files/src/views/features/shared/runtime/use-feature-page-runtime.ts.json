@@ -89,6 +89,12 @@
             "type": "string"
           }
         },
+        "independentInitialReads": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "workingPlanRoute": {
           "type": "string"
         }
@@ -125,18 +131,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T05:28:58.250Z",
+  "generatedAt": "2026-11-27T07:56:25.645Z",
   "models": {
     "FeaturePageRuntimeOptions": {
       "name": "FeaturePageRuntimeOptions",
       "jsdoc": "一个原生功能页的正式数据身份及组件上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 正式工具定义；与主场景共用同一运行实例。 */\n    tool?: PageTool | ((navigationId: string) => PageTool);\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: MaybeRefOrGetter<string>;\n    /** 主视图命名键；默认 default。 */\n    viewId?: MaybeRefOrGetter<string>;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n    /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */\n    optionModels?: readonly string[];\n    /** 同一运行实例一并装配的其他正式数据空间，组件以完整视图键消费；不改变主场景。 */\n    peerScenarioIds?: readonly string[];\n    /** 与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。 */\n    optionViews?: readonly string[];\n    /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */\n    queryContext?: () => Readonly<Record<string, string>>;\n    /** 明确选用本次原生导航的已验证工作 Plan。 */\n    workingPlanRoute?: string;\n    /** 列表和详情可在首次读取前为自己的主视图声明投影或正式键过滤。 */\n    prepareView?: (view: DataView) => void;\n    /** 当前实例仍持有未完成的业务操作时，暂停替换运行实例。 */\n    preserveRuntime?: () => boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 正式工具定义；与主场景共用同一运行实例。 */\n    tool?: PageTool | ((navigationId: string) => PageTool);\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: MaybeRefOrGetter<string>;\n    /** 主视图命名键；默认 default。 */\n    viewId?: MaybeRefOrGetter<string>;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n    /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */\n    optionModels?: readonly string[];\n    /** 同一运行实例一并装配的其他正式数据空间，组件以完整视图键消费；不改变主场景。 */\n    peerScenarioIds?: readonly string[];\n    /** 与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。 */\n    optionViews?: readonly string[];\n    /** 已明确为并列的数据区分别呈现 DataView 查询状态。复合入口默认要求所有视图成功。 */\n    independentInitialReads?: boolean;\n    /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */\n    queryContext?: () => Readonly<Record<string, string>>;\n    /** 明确选用本次原生导航的已验证工作 Plan。 */\n    workingPlanRoute?: string;\n    /** 列表和详情可在首次读取前为自己的主视图声明投影或正式键过滤。 */\n    prepareView?: (view: DataView) => void;\n    /** 当前实例仍持有未完成的业务操作时，暂停替换运行实例。 */\n    preserveRuntime?: () => boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 正式工具定义；与主场景共用同一运行实例。 */\n    tool?: PageTool | ((navigationId: string) => PageTool);\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: MaybeRefOrGetter<string>;\n    /** 主视图命名键；默认 default。 */\n    viewId?: MaybeRefOrGetter<string>;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n    /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */\n    optionModels?: readonly string[];\n    /** 同一运行实例一并装配的其他正式数据空间，组件以完整视图键消费；不改变主场景。 */\n    peerScenarioIds?: readonly string[];\n    /** 与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。 */\n    optionViews?: readonly string[];\n    /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */\n    queryContext?: () => Readonly<Record<string, string>>;\n    /** 明确选用本次原生导航的已验证工作 Plan。 */\n    workingPlanRoute?: string;\n    /** 列表和详情可在首次读取前为自己的主视图声明投影或正式键过滤。 */\n    prepareView?: (view: DataView) => void;\n    /** 当前实例仍持有未完成的业务操作时，暂停替换运行实例。 */\n    preserveRuntime?: () => boolean;\n}>",
+            "typeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 正式工具定义；与主场景共用同一运行实例。 */\n    tool?: PageTool | ((navigationId: string) => PageTool);\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: MaybeRefOrGetter<string>;\n    /** 主视图命名键；默认 default。 */\n    viewId?: MaybeRefOrGetter<string>;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n    /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */\n    optionModels?: readonly string[];\n    /** 同一运行实例一并装配的其他正式数据空间，组件以完整视图键消费；不改变主场景。 */\n    peerScenarioIds?: readonly string[];\n    /** 与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。 */\n    optionViews?: readonly string[];\n    /** 已明确为并列的数据区分别呈现 DataView 查询状态。复合入口默认要求所有视图成功。 */\n    independentInitialReads?: boolean;\n    /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */\n    queryContext?: () => Readonly<Record<string, string>>;\n    /** 明确选用本次原生导航的已验证工作 Plan。 */\n    workingPlanRoute?: string;\n    /** 列表和详情可在首次读取前为自己的主视图声明投影或正式键过滤。 */\n    prepareView?: (view: DataView) => void;\n    /** 当前实例仍持有未完成的业务操作时，暂停替换运行实例。 */\n    preserveRuntime?: () => boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -199,6 +205,12 @@
             {
               "name": "optionViews",
               "jsdoc": "与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "independentInitialReads",
+              "jsdoc": "已明确为并列的数据区分别呈现 DataView 查询状态。复合入口默认要求所有视图成功。",
               "readable": true,
               "writable": false
             },

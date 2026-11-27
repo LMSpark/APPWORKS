@@ -12,6 +12,7 @@ import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource
 import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
 import {DataSet,parseRuntimeDataSetPlanFile,type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {readRuntimeDataSetPlan} from './runtime-data-set-plan-file'
+import {bindWechatChannelsAccounts} from '@/platform-adapters/resources/integration/mp-open/channels-accounts-resource'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
 import {createLowcodeFileResourceExecutors} from '../resources/repository/file-resource-registry'
@@ -261,7 +262,28 @@ const MP_TEMPLATE_CATALOG_WORKING_PLAN = Object.freeze({
  ],
 })
 
-const nativeWorkingPlans = [MP_APPLICATION_WORKING_PLAN, MP_TEMPLATE_CATALOG_WORKING_PLAN]
+const MP_CHANNELS_WORKING_PLAN = Object.freeze({
+ projectId: MP_APPLICATION_WORKING_PLAN.projectId,
+ nodeId: '0BBCD14A992018D72F7D0131BBEE6700',
+ scenarioId: '0BBCD14A992018D72F7D0131BBEE6700',
+ routePath: '/features/integration/mp-open/ui/channels-page',
+ models: [
+  {id:'9959230d-3516-4eda-834d-0a28240520d8',name:'base_channel_operator_account'},
+  {id:'94e2d837-f384-44f6-b3dc-8fe5b8dec4fa',name:'base_enterprise_channel_account'},
+ ],
+})
+const nativeWorkingPlans = [MP_APPLICATION_WORKING_PLAN, MP_TEMPLATE_CATALOG_WORKING_PLAN, MP_CHANNELS_WORKING_PLAN]
+
+/** 运营号视图继承正式模型来源，独立于专用账号投影。 */
+function configureChannelOperators(dataSet: DataSet): void {
+ const table = dataSet.getTable('base_channel_operator_account')
+ const fields = ['id','operator_uid','display_name','bind_mode','status','updated_at']
+ if (!table || table.getView('operators') || fields.some(field => !table.columns.some(column => column.name===field))) {
+  throw Error('NATIVE_DATASET_PLAN_MODEL: 视频号运营号缺少正式字段或视图身份冲突')
+ }
+ table.getOrCreateView('operators').applyViewConfig({queryConfig:{fields,pagination:'paged',allPages:false,autoQuery:false},
+  sortExpression:[{field:'id',direction:'asc'}],page:1,pageSize:10,allowDelete:false})
+}
 
 /** 在正式绑定前配置目录和安装候选，确保不同用途继承同表 owner 及字段权限。 */
 function configureMiniappTemplateViews(dataSet: DataSet): void {
@@ -349,9 +371,16 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
     || !expected.models.every(model => plan.models.some(actual => actual.id === model.id && actual.metaName === model.name))) {
    throw new Error('NATIVE_DATASET_PLAN_MODEL: 工作 Plan 未绑定本入口的正式模型')
   }
-  return assembleLowcodeRuntimeDataSetPlan({projectId, scenarioId, text, assertCurrent,
-   ...(expected === MP_TEMPLATE_CATALOG_WORKING_PLAN ? {configureViews: configureMiniappTemplateViews} : {}),
-   ...(command.getPage ? {getPage: command.getPage} : {})})
+  const configureViews = expected === MP_TEMPLATE_CATALOG_WORKING_PLAN ? configureMiniappTemplateViews
+   : expected === MP_CHANNELS_WORKING_PLAN ? configureChannelOperators : undefined
+  const dataSet = await assembleLowcodeRuntimeDataSetPlan({projectId, scenarioId, text, assertCurrent,
+   ...(configureViews ? {configureViews} : {}), ...(command.getPage ? {getPage: command.getPage} : {})})
+  try {
+   assertCurrent()
+   if (expected === MP_CHANNELS_WORKING_PLAN) bindWechatChannelsAccounts({dataSet,http:lowcodeHttp,
+    readScope:()=>lowcodeApi.readRequestScope(),assertCurrent})
+   return dataSet
+  } catch (cause) {dataSet.destroy(); throw cause}
  }
  if (projectId === APPLICATION_CATALOG_PROJECT_ID) {
   if (source.mode !== 'design') throw new Error('CATALOG_SCENARIO_SOURCE_CONFLICT: 目录场景只接纳仓内设计来源')

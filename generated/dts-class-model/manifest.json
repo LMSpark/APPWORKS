@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1531,
+  "scannedFileCount": 1533,
   "files": {
     "backend-api-contracts/common.ts": {
       "file": "files/backend-api-contracts/common.ts.json",
@@ -14655,6 +14655,19 @@
         "symbols": []
       }
     },
+    "src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts": {
+      "file": "files/src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts.json",
+      "module": {
+        "name": "app:platform-adapters/resources/integration/mp-open/channels-accounts-resource",
+        "sourcePath": "src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts",
+        "sourceFile": "src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts",
+        "packageName": "app",
+        "modulePath": "platform-adapters/resources/integration/mp-open/channels-accounts-resource",
+        "jsdoc": "@module app:platform-adapters/resources/integration/mp-open/channels-accounts-resource\n职责：把专用视频号授权账号列表绑定为独立的只读 DataView。\n边界：按正式应用和场景发出一次查询。仅映射安全投影，不用模型行替代服务拒绝，不产生管理或挂载权限。\nAI用途：视频号页面读取专用账号时复用本资源，表格消费命名视图和它自身的读取状态。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection.ts": {
       "file": "files/src/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection.ts.json",
       "module": {
@@ -23379,6 +23392,19 @@
         "packageName": "app",
         "modulePath": "views/features/integration/mp-open/ui/catalog-page",
         "jsdoc": "@module app:views/features/integration/mp-open/ui/catalog-page\n职责：按微信、抖音渠道展示当前授权的小程序模板目录，以正式记录键稳定分页。\n边界：当前 PageRuntime 装配正式工作 Plan，标准表格消费当前目录视图及字段读取权限。安装候选使用独立命名视图和服务端过滤条件。\nAI用途：恢复模板目录原生入口时使用当前导航授权和目录视图。选页和渠道切换由现有宿主掌管。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/mp-open/ui/channels-page.vue": {
+      "file": "files/src/views/features/integration/mp-open/ui/channels-page.vue.json",
+      "module": {
+        "name": "app:views/features/integration/mp-open/ui/channels-page",
+        "sourcePath": "src/views/features/integration/mp-open/ui/channels-page.vue",
+        "sourceFile": "src/views/features/integration/mp-open/ui/channels-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/mp-open/ui/channels-page",
+        "jsdoc": "@module app:views/features/integration/mp-open/ui/channels-page\n职责：展示视频号已授权账号与运营号，各自呈现本次正式读取、空结果及失败。\n边界：专用账号走独立的服务授权 DataView，运营号走正式模型，两个区域消费同一授权 PageRuntime。\nAI用途：恢复视频号渠道只读入口，保持列表许可和后续挂载动作的合同相互独立。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

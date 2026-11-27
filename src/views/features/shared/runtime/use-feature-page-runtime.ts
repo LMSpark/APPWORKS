@@ -35,6 +35,8 @@ type FeaturePageRuntimeOptions = Readonly<{
   peerScenarioIds?: readonly string[]
   /** 与主视图同批读取的完整视图键（可属伙伴空间）；任一失败即入口失败。 */
   optionViews?: readonly string[]
+  /** 已明确为并列的数据区分别呈现 DataView 查询状态。复合入口默认要求所有视图成功。 */
+  independentInitialReads?: boolean
   /** 主视图及各选项视图首次查询前写入的查询参数；每次装配时取值，抛错即入口失败。 */
   queryContext?: () => Readonly<Record<string, string>>
   /** 明确选用本次原生导航的已验证工作 Plan。 */
@@ -132,10 +134,12 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       if (context) for (const item of views) item.queryContext = {...item.queryContext, ...context}
       await Promise.all(views.map(item => item.refresh()))
       if (!isCurrent(current, own)) return
-      const failed = views.find(item => item.loadingError)
-      if (failed?.loadingError) throw failed.loadingError
-      const incomplete = views.find(item => item.requestState !== RequestState.Loaded)
-      if (incomplete) throw new Error(`${title}视图 ${incomplete.tableName}@${incomplete.viewId} 查询未完成`)
+      if (!options.independentInitialReads) {
+        const failed = views.find(item => item.loadingError)
+        if (failed?.loadingError) throw failed.loadingError
+        const incomplete = views.find(item => item.requestState !== RequestState.Loaded)
+        if (incomplete) throw new Error(`${title}视图 ${incomplete.tableName}@${incomplete.viewId} 查询未完成`)
+      }
       sparkProvide(PAGE_RUNTIME, current)
       ready.value = true
     } catch (cause) {

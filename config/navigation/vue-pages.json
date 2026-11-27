@@ -75,6 +75,13 @@
       "hidden": true
     },
     {
+      "path": "/features/integration/mp-open/ui/channels-page",
+      "title": "视频号渠道",
+      "scope": "app",
+      "source": "src/views/features/integration/mp-open/ui/channels-page.vue",
+      "hidden": true
+    },
+    {
       "path": "/features/integration/api-management/ui/api-management-page",
       "title": "外部服务管理",
       "scope": "enterprise",

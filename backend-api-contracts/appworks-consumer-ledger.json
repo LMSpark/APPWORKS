@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 239,
+  "consumerCount": 243,
   "directUnmatchedCount": 114,
   "consumers": [
     {
@@ -709,13 +709,13 @@
     {
       "expression": "/api/users",
       "sourceFile": "packages/spark-utils/src/tests/http-client-base.test.ts",
-      "sourceLine": 20,
+      "sourceLine": 22,
       "scope": "tooling"
     },
     {
       "expression": "/api/users",
       "sourceFile": "packages/spark-utils/src/tests/http-client-base.test.ts",
-      "sourceLine": 22,
+      "sourceLine": 24,
       "scope": "tooling"
     },
     {
@@ -961,55 +961,73 @@
     {
       "expression": "/api/File/v2/UploadFile",
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 217,
+      "sourceLine": 245,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/v2/stat",
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 219,
+      "sourceLine": 247,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/v2/UploadFile",
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 255,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/v2/stat",
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 227,
+      "sourceLine": 255,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 265,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/v2/UploadFile",
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 233,
+      "sourceLine": 279,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/File/v2/stat",
+      "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 279,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/v2/UploadFile",
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
-      "sourceLine": 237,
-      "scope": "app-composition"
-    },
-    {
-      "expression": "/api/File/UploadFile",
-      "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
-      "sourceLine": 120,
+      "sourceLine": 285,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/v2/UploadFile",
-      "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
-      "sourceLine": 165,
+      "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.test.ts",
+      "sourceLine": 289,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/UploadFile",
+      "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
+      "sourceLine": 123,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/File/v2/UploadFile",
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
       "sourceLine": 169,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/File/UploadFile",
+      "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
+      "sourceLine": 173,
       "scope": "app-composition"
     },
     {
@@ -1370,6 +1388,12 @@
       "expression": "/api/Db/testConnection",
       "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "sourceLine": 835,
+      "scope": "app-composition"
+    },
+    {
+      "expression": "/api/wechat-open/channels/accounts",
+      "sourceFile": "src/platform-adapters/resources/integration/mp-open/channels-accounts-resource.ts",
+      "sourceLine": 14,
       "scope": "app-composition"
     },
     {

@@ -24,7 +24,8 @@ const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runti
   catalogRuntime: undefined as unknown as DataSpaceRuntimeApi}))
 vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
-  lowcodeCatalogDataSpace: {get runtime() {return state.catalogRuntime}, design: {
+  readLowcodeCatalogRuntimeRequestScope: () => ({token:'scope',headers:{}}),
+  lowcodeCatalogRuntimeDataSpace: {get runtime() {return state.catalogRuntime}, design: {
     readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId,name:'PDF'}),
     readModelBatch: async ({dataSpaceId}: {dataSpaceId: string}) => topicModels(dataSpaceId), readRelations: async () => [],
   }},

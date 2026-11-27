@@ -41,7 +41,9 @@ vi.mock('@/platform-adapters/lowcode-runtime', () => {
     },
   }},
  }
- return {...module,get lowcodeHttp(){return state.http},get lowcodeCatalogDataSpace(){return {
+ return {...module,get lowcodeHttp(){return state.http},
+ readLowcodeCatalogRuntimeRequestScope: module.lowcodeApi.readAuthenticatedRequestScope,
+ get lowcodeCatalogRuntimeDataSpace(){return {
   runtime:new DataSpaceRuntimeApi({http:state.http,readScope:module.lowcodeApi.readAuthenticatedRequestScope}),
   design:module.lowcodeApi.dataSpace.design,
  }}}

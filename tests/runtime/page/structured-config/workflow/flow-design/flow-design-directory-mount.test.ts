@@ -120,7 +120,7 @@ it('runs the approval design tool in the original directory and keeps each save 
   } finally {releaseDirectory(); wrapper.unmount(); load.mockReset()}
 })
 
-it('keeps node authorization bound to the current formal selection while candidates load', async () => {
+it.each(['removed', 'refreshed', 'authorization response'])('keeps node authorization bound to the original formal selection (%s)', async change => {
   const catalog = catalogFixture(), design = buildFlowDesignScenario()
   design.http.records['WFM_FLOW_NODE']!.push({rowid: 'N2', FLOWID: 'FM-1', TITLE: 'Second', TYPEID: 11, MEMO: ''})
   design.http.records['FunctionNodeAuth'] = [
@@ -143,6 +143,8 @@ it('keeps node authorization bound to the current formal selection while candida
   let awaitingCandidates = false
   let releaseOldSelection: () => void = () => undefined
   const oldSelection = new Promise<void>(resolve => {releaseOldSelection = resolve})
+  let releaseStaleNode: () => void = () => undefined
+  const staleNode = new Promise<void>(resolve => {releaseStaleNode = resolve})
   try {
     await vi.waitFor(() => expect(button('设计')).toBeDefined())
     await button('设计')!.trigger('click')
@@ -164,31 +166,87 @@ it('keeps node authorization bound to the current formal selection while candida
     await vi.waitFor(() => expect(body.text()).toContain('subject-only-N2'))
     expect(body.text()).not.toContain('subject-only-N1')
 
+    const readsNodeAuth = (read: (typeof design.http.reads)[number] | undefined, id: string) =>
+      read?.table === 'FunctionNodeAuth' && expect.objectContaining({
+        Table: expect.arrayContaining([expect.objectContaining({
+          Filter: expect.objectContaining({Filters: expect.arrayContaining([
+            expect.objectContaining({Field: 'FunCodeID', ValueFun: {Type: 'GetConstValue', Value: id}}),
+          ])}),
+        })]),
+      }).asymmetricMatch(read.data)
     const authReads = () => design.http.reads.filter(read => read.table === 'FunctionNodeAuth').length
     let oldSelectionStarted = false
     design.http.beforeDefinitionRead = async table => {
-      if (table !== '_Base_FunctionNode' || oldSelectionStarted) return
+      if (oldSelectionStarted) return
+      if (change === 'authorization response'
+        ? !readsNodeAuth(design.http.reads.at(-1), 'N1')
+        : table !== '_Base_FunctionNode') return
       oldSelectionStarted = true
       await oldSelection
     }
     select('N1')
     await vi.waitFor(() => expect(oldSelectionStarted).toBe(true))
     select('N2')
-    await vi.waitFor(() => expect(body.text()).toContain('subject-only-N2'))
+    if (change !== 'authorization response') await vi.waitFor(() => expect(body.text()).toContain('subject-only-N2'))
     select('N1')
     await vi.waitFor(() => expect(body.text()).toContain('subject-only-N1'))
     await flushPromises()
+    const auth = design.ds.getView('FunctionNodeAuth', 'nodeAuth')!
+    const assertAcceptedN1 = change === 'authorization response' ? auth.captureReadResult() : undefined
     const afterReselect = authReads()
     releaseOldSelection()
     await flushPromises()
+    assertAcceptedN1?.()
     expect(authReads()).toBe(afterReselect)
     expect(body.text()).not.toContain('subject-only-N2')
 
-    const auth = design.ds.getView('FunctionNodeAuth', 'nodeAuth')!
+    let staleNodeStarted = false
+    const staleReadTable = change === 'authorization response' ? 'FunctionNodeAuth' : '_Base_FunctionNode'
+    design.http.beforeDefinitionRead = async table => {
+      if (table !== staleReadTable || (table === 'FunctionNodeAuth' && !readsNodeAuth(design.http.reads.at(-1), 'N2'))) return
+      staleNodeStarted = true
+      await staleNode
+    }
+    select('N2')
+    await vi.waitFor(() => expect(staleNodeStarted).toBe(true))
+    design.nodes.autoCurrentFirst = false
+    design.nodes.selection.setCurrentRow(null)
+    await flushPromises()
+    const originalNode = design.nodes.rows.find(row => design.nodes.getPkKey(row) === 'N2')!
+    const serverNodes = design.http.records['WFM_FLOW_NODE']!
+    const previousServerNode = serverNodes.find(row => row['rowid'] === 'N2')!
+    if (change === 'removed') design.http.records['WFM_FLOW_NODE'] = serverNodes.filter(row => row['rowid'] !== 'N2')
+    else previousServerNode['TITLE'] = 'Second from a new read'
+    expect((await design.nodes.requestRefresh({defer: false})).refreshStatus).toBe('read')
+    expect(design.nodes.rows.includes(originalNode)).toBe(false)
+    expect(graph.props('current')).toEqual({kind: 'node', id: 'N2'})
+    const beforeStaleNode = design.http.reads.length
+    releaseStaleNode(); await flushPromises()
+    const staleAuthReads = design.http.reads.slice(beforeStaleNode)
+      .filter(read => read.table === 'FunctionNodeAuth' && !readsNodeAuth(read, 'N1'))
+    expect(staleAuthReads).toEqual([])
+    expect(body.text()).not.toContain('subject-only-N2')
+    expect(design.http.saves).toHaveLength(0)
+
+    delete design.http.beforeDefinitionRead
+    if (change === 'removed') {
+      design.http.records['WFM_FLOW_NODE']!.push(previousServerNode)
+      expect((await design.nodes.requestRefresh({defer: false})).refreshStatus).toBe('read')
+    }
+    select('N2')
+    await vi.waitFor(() => expect(body.text()).toContain('subject-only-N2'))
+    select('N1')
+    await vi.waitFor(() => expect(body.text()).toContain('subject-only-N1'))
+
+    const canvasNode = (label: string) => graph.findAll('.vue-flow__node').find(node => node.text().includes(label))
+    await vi.waitFor(() => expect(canvasNode('Start')).toBeDefined())
+    await canvasNode('Start')!.trigger('click')
+    await vi.waitFor(() => expect(design.nodes.currentRow?.['rowid']).toBe('N1'))
     auth.updateEditingValue('AUTH1', 'QID', 'unsubmitted-subject-N1')
     const beforeDirtySwitch = authReads()
-    select('N2')
+    await canvasNode('Second')!.trigger('click')
     await vi.waitFor(() => expect(body.text()).toContain('必须先保存或明确放弃修改'))
+    expect(design.nodes.currentRow?.['rowid']).toBe('N1')
     expect(graph.props('current')).toEqual({kind: 'node', id: 'N1'})
     expect(auth.queryContext['selectedNodeId']).toBe('N1')
     expect(auth.getEditingRow('AUTH1')?.['QID']).toBe('unsubmitted-subject-N1')
@@ -208,5 +266,5 @@ it('keeps node authorization bound to the current formal selection while candida
     expect(body.text()).not.toContain('subject-only-N2')
     expect(authReads()).toBe(beforeDirtySwitch)
     expect(design.http.saves).toHaveLength(0)
-  } finally {releaseCandidates(); releaseOldSelection(); wrapper.unmount(); load.mockReset()}
+  } finally {releaseCandidates(); releaseOldSelection(); releaseStaleNode(); wrapper.unmount(); load.mockReset()}
 })

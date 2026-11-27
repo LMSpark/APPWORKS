@@ -126,7 +126,9 @@ const host = computed(() => {
       case 'approvalDesign.selectEdge': if (isGraphId(input)) onGraphSelect({kind: 'edge', id: input}); break
       case 'approvalDesign.selectGraph':
         if (isRecord(input) && (input['kind'] === 'node' || input['kind'] === 'edge') && isGraphId(input['id'])) {
-          onGraphSelect({kind: input['kind'], id: input['id']})
+          const accepted = onGraphSelect({kind: input['kind'], id: input['id']})
+          const control = input['control']
+          if (!accepted && isRecord(control) && typeof control['cancel'] === 'boolean') control['cancel'] = true
         }
         break
       case 'approvalDesign.move':
@@ -162,17 +164,19 @@ function applyGraphSelection(selection: Pick<GraphSelection, 'kind' | 'id'> | nu
   const viewKey = prepared.value?.nodeViewKey
   const view = viewKey ? sparkConsume(PAGE_RUNTIME)?.resolveView(viewKey) : undefined
   if (view?.dirtyTracking.isPendingCreate(selection.id)) return
-  void refreshNodeAuth(String(selection.id), nodeAuthSelectionVersion)
+  void refreshNodeAuth(selection.id, nodeAuthSelectionVersion)
 }
 
-function onGraphSelect(event: Pick<GraphSelection, 'kind' | 'id'>): void {
+function onGraphSelect(event: Pick<GraphSelection, 'kind' | 'id'>): boolean {
   const previous = graphSelection.value
-  if (previous?.kind === event.kind && previous.id === event.id && nodeAuthViewKey.value) return
+  if (previous?.kind === event.kind && previous.id === event.id && nodeAuthViewKey.value) return true
   try {
     assertNodeAuthCanChangeSelection()
     applyGraphSelection(event)
+    return true
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : String(cause)
+    return false
   }
 }
 
@@ -208,22 +212,33 @@ async function cancelChanges():Promise<void>{
  try{const runtime=sparkConsume(PAGE_RUNTIME);if(!runtime)throw Error('缺少原实例');cancelFlowDesignChanges({runtime,flowModelId:loadedTarget.value});applyGraphSelection(null);error.value='';if(loadedTarget.value!==flowModelId.value)await load(true)}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
 }
 
-async function refreshNodeAuth(nodeId: string, selectionVersion: number): Promise<void> {
-  if (loadedTarget.value !== flowModelId.value || !nodeId.trim()) return
+async function refreshNodeAuth(selectedId: string | number, selectionVersion: number): Promise<void> {
+  const nodeId = String(selectedId).trim()
+  if (loadedTarget.value !== flowModelId.value || !nodeId) return
   const isSelected = () => selectionVersion === nodeAuthSelectionVersion && selectedNodeId.value === nodeId
   const targetId = loadedTarget.value
   try {
     const command = currentCommand()
+    const nodeKey = prepared.value?.nodeViewKey
+    const nodeView = nodeKey ? command.runtime.resolveView(nodeKey) : undefined
+    const row = nodeView?.rows.find(item => nodeView.getPkKey(item) === selectedId)
+    if (!nodeKey || !nodeView || !row) throw Error('未读取到原流程节点')
+    const assertNodeRead = nodeView.captureReadRow(row, [nodeView.primaryKey])
+    const assertCurrent = () => {
+      command.assertCurrent()
+      if (!isSelected() || prepared.value?.nodeViewKey !== nodeKey || command.runtime.resolveView(nodeKey) !== nodeView) {
+        throw Error('原节点配置目标已变化')
+      }
+      assertNodeRead()
+    }
     const viewKey = await syncFlowDesignNodeAuthView({
       runtime: command.runtime,
       flowModelId: command.flowModelId,
       selectedNodeId: nodeId,
-      assertCurrent: () => {
-        command.assertCurrent()
-        if (!isSelected()) throw Error('原节点配置目标已变化')
-      },
+      assertCurrent,
     })
-    if (isSelected()) nodeAuthViewKey.value = viewKey
+    assertCurrent()
+    nodeAuthViewKey.value = viewKey
   } catch (cause) {
     if (isSelected() && active && loadedTarget.value === targetId && flowModelId.value === targetId) {
       error.value = cause instanceof Error ? cause.message : String(cause)

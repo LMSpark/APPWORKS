@@ -12,10 +12,12 @@ type MockView = {
   loadingError: Error | null
   assertResultReplacementAllowed: () => void
   refresh: ReturnType<typeof vi.fn>
+  captureReadResult: ReturnType<typeof vi.fn>
 }
 
 function createView(): MockView {
-  return {destroyed: false, queryContext: {}, loadingError: null, assertResultReplacementAllowed() {}, refresh: vi.fn(async () => undefined)}
+  return {destroyed: false, queryContext: {}, loadingError: null, assertResultReplacementAllowed() {},
+    refresh: vi.fn(async () => undefined), captureReadResult: vi.fn()}
 }
 
 describe('defaultFlowDesignNodeAuthRow', () => {
@@ -49,6 +51,7 @@ describe('syncFlowDesignNodeAuthView', () => {
     })
     expect(nodeAuth.queryContext).toMatchObject({FLOWID: 'FM-1', pageID: 'FM-1', selectedNodeId: 'N-9'})
     expect(nodeAuth.refresh).toHaveBeenCalledOnce()
+    expect(nodeAuth.captureReadResult).toHaveBeenCalledOnce()
     expect(key).toContain('FunctionNodeAuth')
   })
 })

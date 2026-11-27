@@ -46,6 +46,7 @@ export async function syncFlowDesignNodeAuthView(command: SyncFlowDesignNodeAuth
   await view.refresh()
   command.assertCurrent?.()
   if (view.loadingError) throw view.loadingError
+  view.captureReadResult()
   return buildDataViewKey('FunctionNodeAuth', 'nodeAuth', FLOW_DESIGN_SCENARIO_ID)
 }
 

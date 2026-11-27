@@ -4,6 +4,7 @@ import {computed, nextTick, ref} from 'vue'
 import ElementPlus, {ElMenu} from 'element-plus'
 import type {NavigationContext, RuntimeNavigationItem} from '@spark-appworks/spark-app'
 import {NAV_KEY} from '@spark-appworks/spark-app'
+import {RendererMenu} from '@spark-appworks/spark-component'
 import NavHeaderBar from '@/layout/NavHeaderBar.vue'
 
 const wrappers: VueWrapper[] = []
@@ -265,4 +266,36 @@ describe('NavHeaderBar Element Plus responsive menu behavior', () => {
     expect(document.body.textContent).not.toContain('新入口丙')
     expect(document.body.querySelector('.el-menu--popup-container')).toBeNull()
   })
+})
+
+it('keeps a routable header parent and child selectable when its placement is flat', async () => {
+  const child: RuntimeNavigationItem = {id: 'child', title: '子入口', itemKind: 'page', path: '/child'}
+  const parent: RuntimeNavigationItem = {id: 'parent', title: '父入口', itemKind: 'system-page',
+    path: '/parent', childPlacement: 'flat', children: [child]}
+  const {nav, navigateTo} = navigationContext()
+  const wrapper = mountNav([parent], nav)
+  await title(wrapper, '父入口').trigger('click')
+  expect(navigateTo).toHaveBeenCalledWith(parent)
+  await title(wrapper, '父入口').trigger('mouseenter')
+  await waitForMenuPopper()
+  bodyItem('子入口').dispatchEvent(new MouseEvent('click', {bubbles: true}))
+  await flushPromises()
+  expect(navigateTo).toHaveBeenCalledTimes(2)
+  expect(navigateTo).toHaveBeenLastCalledWith(child)
+})
+
+it('keeps a deep header descendant selectable through flat and inherited placement', () => {
+  const grandchild: RuntimeNavigationItem = {id: 'grandchild', title: '深层入口', itemKind: 'page', path: '/grandchild'}
+  const child: RuntimeNavigationItem = {id: 'child', title: '中间入口', itemKind: 'page', path: '/child',
+    childPlacement: 'parent', children: [grandchild]}
+  const root: RuntimeNavigationItem = {id: 'root', title: '根入口', itemKind: 'system-page', path: '/root',
+    childPlacement: 'flat', children: [child]}
+  const {nav, navigateTo} = navigationContext()
+  const menu = mountNav([root], nav).getComponent(RendererMenu)
+
+  expect(menu.props('items')).toMatchObject([{index: 'root', children: [
+    {index: 'child', titleSelectable: true, children: [{index: 'grandchild'}]},
+  ]}])
+  menu.props('onSelect')?.('grandchild', {index: 'grandchild', label: '深层入口'})
+  expect(navigateTo).toHaveBeenCalledExactlyOnceWith(grandchild)
 })

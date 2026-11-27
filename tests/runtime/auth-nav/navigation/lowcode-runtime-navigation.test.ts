@@ -1138,6 +1138,87 @@ describe('lowcode project navigation projection', () => {
   })
 })
 
+it.each(['cfg', 'vue'] as const)('keeps a %s parent and its authorized child independently routable', async kind => {
+  const parentTarget = kind === 'cfg' ? 'cfg:parent-tool' : 'vue:parent-page'
+  const parentPath = kind === 'cfg' ? '/__page/PARENT' : '/parent-page'
+  const parent = record({nodeId: 'PARENT', name: 'Parent', title: '父页', target: parentTarget, scenarioId: 'PARENT-FORM'})
+  const child = record({nodeId: 'CHILD', parentNodeId: 'PARENT', name: 'Child', title: '子页',
+    target: 'cfg:child-tool', scenarioId: 'CHILD-FORM'})
+  const projection = (allowed: boolean) => assembleLowcodeRuntimeNavigation({
+    applicationName: '父子用例', projectId: 'PROJECT-1', navigationRootId: 'ROOT',
+    records: [parent, child],
+    authorization: {items: [{
+      id: 'PARENT', target: parentTarget, targetKind: kind === 'cfg' ? 'route' : 'vue', formKey: 'PARENT-FORM',
+      children: allowed ? [{id: 'CHILD', target: 'cfg:child-tool', targetKind: 'route',
+        formKey: 'CHILD-FORM', children: []}] : [],
+    }], contexts: []},
+  })
+  let menu = projection(true)
+  const parentNode = menu.items[0]
+  expect(parentNode).toMatchObject({id: 'PARENT', blueprintScenarioId: 'PARENT-FORM',
+    itemKind: kind === 'cfg' ? 'page' : 'system-page',
+    path: kind === 'cfg' ? `${parentPath}?scenarioId=PARENT-FORM` : parentPath})
+  expect(parentNode?.children?.[0]).toMatchObject({id: 'CHILD', itemKind: 'page', blueprintScenarioId: 'CHILD-FORM'})
+  expect(menu.homePath).toBe(kind === 'cfg' ? `${parentPath}?scenarioId=PARENT-FORM`
+    : `${parentPath}?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=PARENT`)
+
+  const page = defineComponent({setup: () => () => h('main', 'page')})
+  const router = createRouter({history: createMemoryHistory(), routes: []})
+  const tools = new Set<string>(), scenes: string[] = []
+  const dynamic = createDynamicRouter({
+    readPageFile: async ({pageId, fileName}) => {
+      tools.add(pageId)
+      return fileName === 'rule.json' ? '[]' : ''
+    },
+    loadScenario: async ({scenarioId}) => {
+      scenes.push(scenarioId)
+      return DataSet.fromJson({scenarioId, tables: {}})
+    },
+    router, pageComponent: page, applicationPathPrefix: '/apps/:projectId', loadNavigation: async () => menu,
+    componentMap: {'/parent-page': page},
+  })
+  await dynamic.registerRoutes()
+  const parentUrl = `/apps/PROJECT-1${menu.homePath}`
+  const childUrl = '/apps/PROJECT-1/__page/CHILD?scenarioId=CHILD-FORM'
+  expect(router.resolve(parentUrl).matched).toHaveLength(1)
+  expect(router.resolve(childUrl).matched).toHaveLength(1)
+  const originalParentPath = router.resolve(parentUrl).matched[0]?.path
+  await router.push(parentUrl)
+  const openParent = async () => {
+    if (kind === 'cfg') {
+      const runtime = dynamic.getPageRuntime(router.currentRoute.value)
+      if (!runtime) throw new Error('缺少父配置实例')
+      await runtime.load()
+      return runtime.instanceId
+    }
+    const instance = dynamic.getSystemPageInstance(router.currentRoute.value)
+    if (!instance) throw new Error('缺少父原生实例')
+    return instance.instanceId
+  }
+  const parentInstanceId = await openParent()
+  await router.push(childUrl)
+  const childRuntime = dynamic.getPageRuntime(router.currentRoute.value)
+  if (!childRuntime) throw new Error('缺少子配置实例')
+  await childRuntime.load()
+  expect(childRuntime.instanceId).not.toBe(parentInstanceId)
+  expect(scenes).toEqual(kind === 'cfg' ? ['PARENT-FORM', 'CHILD-FORM'] : ['CHILD-FORM'])
+  expect([...tools]).toEqual(kind === 'cfg' ? ['parent-tool', 'child-tool'] : ['child-tool'])
+  await router.push(parentUrl)
+  menu = projection(false)
+  await dynamic.refreshRoutes()
+  expect(router.currentRoute.value.fullPath).toBe(parentUrl)
+  dynamic.closePageRuntime(childRuntime.instanceId)
+  if (kind === 'cfg') dynamic.closePageRuntime(parentInstanceId)
+  else dynamic.closeSystemPageInstance(parentInstanceId)
+  const reopened = await openParent()
+  expect(reopened).not.toBe(parentInstanceId)
+  if (kind === 'cfg') dynamic.closePageRuntime(reopened)
+  else dynamic.closeSystemPageInstance(reopened)
+  expect(router.resolve(parentUrl).matched[0]?.path).toBe(originalParentPath)
+  expect(menu.items[0]?.children).toEqual([])
+  expect(router.getRoutes().some(route => route.path.endsWith('/__page/CHILD'))).toBe(false)
+})
+
 describe('D99 working Plan navigation admission uses formal node and current authorization', () => {
   const projectId = 'D99A1DCE9894698799101EFD70F8FC76'
   const nodeId = 'B9EB9A416B3AFC711E3787399368D247'

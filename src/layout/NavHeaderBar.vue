@@ -38,12 +38,11 @@ const nav = useNav()
 const visibleItems = computed(() => props.items.filter(item => !item.hidden))
 const activeMenuIndex = computed(() => nav?.activePath.value.at(-1)?.id ?? '')
 
-const menuItems = computed<MenuItem[]>(() => visibleItems.value.map(item => hasDropdown(item)
-  ? {...menuItem(item), titleSelectable: true, children: visibleChildren(item).map(menuItem)}
-  : menuItem(item)))
+const menuItems = computed<MenuItem[]>(() => visibleItems.value.map(menuItem))
 
 function menuItem(node: RuntimeNavigationItem): MenuItem {
   const badge = nav?.getBadge(node.id)
+  const children = dropdownChildren(node)
   return {
     index: node.id,
     label: node.title,
@@ -53,6 +52,7 @@ function menuItem(node: RuntimeNavigationItem): MenuItem {
     ...(isActive(node) ? {active: true} : {}),
     ...(isCurrentPage(node) ? {current: true} : {}),
     ...(node.dividerAfter ? {dividerAfter: true} : {}),
+    ...(children.length > 0 ? {titleSelectable: true, children: children.map(menuItem)} : {}),
   }
 }
 
@@ -64,29 +64,25 @@ function isCurrentPage(node: RuntimeNavigationItem): boolean {
   return isActive(node) && nav?.activePath.value.at(-1)?.id === node.id
 }
 
-function hasDropdown(item: RuntimeNavigationItem): boolean {
-  if (item.itemKind !== 'module' && item.itemKind !== 'system-directory') return false
+function dropdownChildren(item: RuntimeNavigationItem): RuntimeNavigationItem[] {
+  if (item.itemKind !== 'module' && item.itemKind !== 'system-directory'
+    && item.itemKind !== 'page' && item.itemKind !== 'system-page') return []
   const placement = item.childPlacement
-  return Boolean(item.children?.length && (placement === 'parent' || placement === 'flat'))
-}
-
-function visibleChildren(item: RuntimeNavigationItem): RuntimeNavigationItem[] {
+  if (placement !== 'parent' && placement !== 'flat') return []
   return (item.children ?? []).filter(child => !child.hidden && !child.disabled)
 }
 
-function findNode(id: string): RuntimeNavigationItem | undefined {
-  for (const item of visibleItems.value) {
+function findNode(items: readonly RuntimeNavigationItem[], id: string): RuntimeNavigationItem | undefined {
+  for (const item of items) {
     if (item.id === id) return item
-    if (hasDropdown(item)) {
-      const child = visibleChildren(item).find(candidate => candidate.id === id)
-      if (child) return child
-    }
+    const descendant = findNode(dropdownChildren(item), id)
+    if (descendant) return descendant
   }
   return undefined
 }
 
 function handleSelect(index: string): void {
-  const node = findNode(index)
+  const node = findNode(visibleItems.value, index)
   if (!node || node.disabled) return
   nav?.navigateTo(node)
 }

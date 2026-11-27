@@ -195,7 +195,7 @@ describe('AppSidebar navigation rendering', () => {
       },
     })
 
-    expect(wrapper.find('.el-menu').attributes('data-default-active')).toBe('/dev')
+    expect(wrapper.find('.el-menu').attributes('data-default-active')).toBe('platform-dev')
     expect(wrapper.findAll('.r-menu__separator')).toHaveLength(1)
     expect(wrapper.find('.r-menu__item--active').text()).toContain('开发工作台')
   })
@@ -269,4 +269,57 @@ describe('AppSidebar navigation rendering', () => {
     expect(wrapper.find('.el-menu-item-group[data-title="系统配置"]').exists()).toBe(false)
     expect(wrapper.text()).toContain('基本设置')
   })
+})
+
+it('lets a routable nested sidebar parent and its child each be selected', async () => {
+  const router = createRouter({history: createMemoryHistory(), routes: [
+    {path: '/parent', component: {template: '<div />'}},
+    {path: '/child', component: {template: '<div />'}},
+  ]})
+  await router.push('/parent')
+  const child: RuntimeNavigationItem = {id: 'child', itemKind: 'page', path: '/child', title: '子页'}
+  const parent: RuntimeNavigationItem = {id: 'parent', itemKind: 'system-page', path: '/parent', title: '父页', children: [child]}
+  const nav = createNavigationContext([parent])
+  const wrapper = mount(AppSidebar, {
+    props: {items: [parent]},
+    global: {plugins: [router], provide: {[NAV_KEY]: nav}, stubs: {ElMenu: ElMenuStub,
+      ElMenuItem: ElMenuItemStub, ElSubMenu: ElSubMenuStub, ElMenuItemGroup: ElMenuItemGroupStub, DisplayIcon: DisplayIconStub}},
+  })
+  try {
+    expect(wrapper.find('.el-menu').attributes('data-default-active')).toBe('parent')
+    expect(wrapper.find('[data-index="/child"]').text()).toContain('子页')
+    await wrapper.find('[data-index="parent"] .r-menu__label--selectable').trigger('click')
+    expect(nav.navigateTo).toHaveBeenCalledWith(parent)
+    await wrapper.find('[data-index="/child"]').trigger('click')
+    expect(nav.navigateTo).toHaveBeenLastCalledWith(child)
+  } finally {
+    wrapper.unmount()
+  }
+})
+
+it('keeps same-path system nodes distinct after the last child is revoked', async () => {
+  const router = createRouter({history: createMemoryHistory(), routes: [
+    {path: '/shared', component: {template: '<div />'}},
+  ]})
+  await router.push('/shared')
+  const child: RuntimeNavigationItem = {id: 'child', itemKind: 'page', path: '/child', title: '子页'}
+  const parent: RuntimeNavigationItem = {id: 'parent', itemKind: 'system-page', path: '/shared', title: '父页'}
+  const sibling: RuntimeNavigationItem = {id: 'sibling', itemKind: 'system-page', path: '/shared', title: '邻页'}
+  const nav = createNavigationContext([parent])
+  const wrapper = mount(AppSidebar, {
+    props: {items: [{...parent, children: [child]}, sibling]},
+    global: {plugins: [router], provide: {[NAV_KEY]: nav}, stubs: {ElMenu: ElMenuStub,
+      ElMenuItem: ElMenuItemStub, ElSubMenu: ElSubMenuStub, ElMenuItemGroup: ElMenuItemGroupStub, DisplayIcon: DisplayIconStub}},
+  })
+  try {
+    await wrapper.setProps({items: [parent, sibling]})
+    const entries = wrapper.findAll('.el-menu-item')
+    await entries.find(item => item.text() === '父页')?.trigger('click')
+    expect(nav.navigateTo).toHaveBeenLastCalledWith(parent)
+    await entries.find(item => item.text() === '邻页')?.trigger('click')
+    expect(nav.navigateTo).toHaveBeenLastCalledWith(sibling)
+    expect(wrapper.find('.el-menu').attributes('data-default-active')).toBe('parent')
+  } finally {
+    wrapper.unmount()
+  }
 })

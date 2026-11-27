@@ -521,10 +521,12 @@ function buildRuntimeNavigationItem(
   const children = sortBlueprintRecords(childrenByParent.get(record.nodeId) ?? [])
     .map(child => buildRuntimeNavigationItem(child, childrenByParent, authorizationById))
   const target = runtimeTargetProjection(record)
-  const itemKind: RuntimeNavigationItem['itemKind'] = children.length > 0
-    ? 'module'
-    : target.targetKind === 'vue'
-      ? 'system-page'
+  const navigationTarget = record.navigation?.target
+  const configPage = navigationTarget?.startsWith('cfg:') === true
+  const itemKind: RuntimeNavigationItem['itemKind'] = target.targetKind === 'vue'
+    ? 'system-page'
+    : children.length > 0 && !configPage
+      ? 'module'
       : target.targetKind === 'external'
         ? 'link'
         : target.targetKind === 'empty'
@@ -537,8 +539,8 @@ function buildRuntimeNavigationItem(
     itemKind,
     ...(target.path === undefined ? {} : { path: target.path }),
     ...(record.dataSpace?.scenarioId === undefined ? {} : { blueprintScenarioId: record.dataSpace.scenarioId }),
-    ...(record.navigation?.target?.startsWith('cfg:') === true ? { tool: {
-      projectId: record.projectId, pageId: ProjectModel.parseConfigToolPageId(record.navigation.target),
+    ...(configPage ? { tool: {
+      projectId: record.projectId, pageId: ProjectModel.parseConfigToolPageId(navigationTarget),
     } } : {}),
     ...(target.linkTarget === undefined ? {} : { linkTarget: target.linkTarget }),
     ...(record.navigation?.icon === undefined ? {} : { icon: record.navigation.icon }),

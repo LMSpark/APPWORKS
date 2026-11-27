@@ -51,7 +51,7 @@ const activeIndex = computed(() => {
   const activeNode = [...activePath]
     .reverse()
     .find((node) => typeof node.path === 'string' && node.path.length > 0)
-  return activeNode !== undefined ? menuIndex(activeNode) : route.path
+  return activeNode !== undefined ? menuNodeIndex(activeNode) : route.path
 })
 
 const nodesByIndex = computed(() => {
@@ -69,7 +69,11 @@ const menuItems = computed<MenuItem[]>(() => safeItems.value.map(toMenuItem))
 function toMenuItem(item: RuntimeNavigationItem): MenuItem {
   const children = visibleChildren(item)
   const base = { index: menuNodeIndex(item), label: item.title, ...(item.icon ? { icon: item.icon } : {}) }
-  if (shouldRenderAsSubMenu(item)) return { ...base, children: children.map(toMenuItem) }
+  if (shouldRenderAsSubMenu(item)) return {
+    ...base, children: children.map(toMenuItem),
+    ...(isActive(item) ? {active: true} : {}),
+    ...(isRoutablePage(item) && !item.disabled ? {titleSelectable: true} : {}),
+  }
   if (isDirectoryNode(item) && children.length > 0) return { ...base, group: true, children: children.map(toMenuItem) }
   return {
     ...base,
@@ -79,9 +83,10 @@ function toMenuItem(item: RuntimeNavigationItem): MenuItem {
   }
 }
 
-/** 子菜单与分组用节点 id，叶子用路径，与 activeIndex 一致。 */
+/** 原生页面始终使用正式节点身份，同一宿主路径可以服务多个节点。 */
 function menuNodeIndex(item: RuntimeNavigationItem): string {
-  return isDirectoryNode(item) && visibleChildren(item).length > 0 ? item.id : menuIndex(item)
+  if (item.itemKind === 'system-page') return item.id
+  return (isDirectoryNode(item) || isRoutablePage(item)) && visibleChildren(item).length > 0 ? item.id : menuIndex(item)
 }
 
 function menuIndex(item: RuntimeNavigationItem): string {
@@ -91,10 +96,15 @@ function menuIndex(item: RuntimeNavigationItem): string {
 function shouldRenderAsSubMenu(item: RuntimeNavigationItem): boolean {
   const children = visibleChildren(item)
   if (children.length === 0) return false
+  if (isRoutablePage(item)) return true
   if (!isDirectoryNode(item)) return false
   const placement = item.childPlacement
   if (placement === 'parent' || placement === 'flat') return true
   return children.some((child) => isDirectoryNode(child) && visibleChildren(child).length > 0)
+}
+
+function isRoutablePage(item: RuntimeNavigationItem): boolean {
+  return (item.itemKind === 'page' || item.itemKind === 'system-page') && Boolean(item.path?.trim())
 }
 
 function isDirectoryNode(item: RuntimeNavigationItem): boolean {

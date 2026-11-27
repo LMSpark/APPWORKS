@@ -3664,7 +3664,7 @@
     "src/platform-adapters/api/core/lowcode-client.ts": {
       "sourceFile": "src/platform-adapters/api/core/lowcode-client.ts",
       "shardFile": "files/src/platform-adapters/api/core/lowcode-client.ts.json",
-      "sourceModifiedAt": "2026-11-23T07:06:16.742Z"
+      "sourceModifiedAt": "2026-11-26T22:59:21.215Z"
     },
     "src/platform-adapters/api/core/lowcode-query-items.ts": {
       "sourceFile": "src/platform-adapters/api/core/lowcode-query-items.ts",

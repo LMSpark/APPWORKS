@@ -82,6 +82,10 @@
             false,
             true
           ]
+        },
+        "onTransportAttempt": {
+          "type": "object",
+          "title": "(started: boolean) => void"
         }
       },
       "required": [
@@ -91,7 +95,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T07:06:16.742Z",
+  "generatedAt": "2026-11-26T22:59:21.215Z",
   "models": {
     "LowcodeClient": {
       "name": "LowcodeClient",
@@ -145,11 +149,11 @@
       "jsdoc": "单次 lowcode 请求描述；path 为相对 API 路径，method 受底层 HttpClient 约束。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n    /** Override HttpClientBase retry defaults for this request only. */\n    retry?: number;\n    /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */\n    preserveHttpError?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n    /** Override HttpClientBase retry defaults for this request only. */\n    retry?: number;\n    /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */\n    preserveHttpError?: boolean;\n    /** Observe the transport boundary after request interceptors have completed. */\n    onTransportAttempt?: RequestConfig['onTransportAttempt'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n    /** Override HttpClientBase retry defaults for this request only. */\n    retry?: number;\n    /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */\n    preserveHttpError?: boolean;\n}>",
+            "typeText": "Readonly<{\n    path: string;\n    method: Method;\n    data?: unknown;\n    params?: Readonly<Record<string, unknown>>;\n    headers?: Readonly<Record<string, string>>;\n    authenticated?: boolean;\n    /** Override HttpClientBase retry defaults for this request only. */\n    retry?: number;\n    /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */\n    preserveHttpError?: boolean;\n    /** Observe the transport boundary after request interceptors have completed. */\n    onTransportAttempt?: RequestConfig['onTransportAttempt'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -194,6 +198,12 @@
             {
               "name": "preserveHttpError",
               "jsdoc": "Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "onTransportAttempt",
+              "jsdoc": "Observe the transport boundary after request interceptors have completed.",
               "readable": true,
               "writable": false
             }

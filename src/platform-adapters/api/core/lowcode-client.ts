@@ -19,6 +19,7 @@ export class LowcodeClient {
       ...(command.params === undefined ? {} : { params: { ...command.params } }),
       ...(command.headers === undefined ? {} : { headers: { ...command.headers } }),
       ...(command.retry === undefined ? {} : {retry: command.retry}),
+      ...(command.onTransportAttempt === undefined ? {} : {onTransportAttempt: command.onTransportAttempt}),
       ...(command.authenticated === false ? { meta: { lowcodeSkipAuth: true } } : {}),
     }
 
@@ -41,4 +42,6 @@ export type LowcodeClientCommand = Readonly<{
   retry?: number
   /** Preserve HTTP RequestError status/response instead of unwrapping an AjaxResult error body. */
   preserveHttpError?: boolean
+  /** Observe the transport boundary after request interceptors have completed. */
+  onTransportAttempt?: RequestConfig['onTransportAttempt']
 }>

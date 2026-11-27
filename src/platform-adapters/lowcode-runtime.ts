@@ -32,7 +32,7 @@ import {
   type LowcodeNavigationTargetKind,
 } from './resources/shared/navigation-authorization-wire'
 import {applicationDesignItems, lowcodeEnterpriseNavigation, withApplicationDesign} from './system-navigation'
-import {invalidateRuntimeFile, readRuntimeFile, type RuntimeFileCacheScope} from './runtime-file-cache'
+import {invalidateRuntimeFile, readRuntimeFile} from './runtime-file-cache'
 import {parsePageToolPublicationManifest} from '@/services/project/page-tool-publication'
 import {formatFileSnapshotName} from '@/platform-adapters/api/design/lowcode-file-identity'
 
@@ -815,8 +815,8 @@ type ScopedRuntimeFileReadOptions = Readonly<{
   projectId: string
   locator: LowcodePlatform.LowcodeFileLocator
   staleMessage: string
-  scope?: RuntimeFileCacheScope
-  readVersion: () => Promise<string>
+  /** 工作文件可用服务端版本复用原文。快照证明直接读取权威原字节。 */
+  readVersion?: () => Promise<string>
   readText: () => Promise<string>
 }>
 
@@ -830,14 +830,17 @@ async function readScopedRuntimeFile(options: ScopedRuntimeFileReadOptions): Pro
   }
   assertCurrent()
   try {
-    return await readRuntimeFile({
-      owner: runtimeFileCacheOwner(options.projectId),
-      locator: options.locator,
-      ...(options.scope === undefined ? {} : {scope: options.scope}),
-      assertCurrent,
-      readVersion: options.readVersion,
-      readText: options.readText,
-    })
+    const text = options.readVersion === undefined
+      ? await options.readText()
+      : await readRuntimeFile({
+        owner: runtimeFileCacheOwner(options.projectId),
+        locator: options.locator,
+        assertCurrent,
+        readVersion: options.readVersion,
+        readText: options.readText,
+      })
+    assertCurrent()
+    return text
   } catch (error) {
     assertCurrent()
     if (error instanceof LowcodePlatform.LowcodeApiError && error.code === 404) return null
@@ -1120,9 +1123,7 @@ export function createPageToolFilesIo(projectId:string){
       const locator={appType:'designfile',customPath:path,fileName:versionedName} as const
       return await readScopedRuntimeFile({
         projectId: appId, locator,
-        scope:{mode:'published',sourceRevision:`published:${versionedName}`,publicationRef:`${versionedName}@${fileName}`},
         staleMessage: '文件快照所属应用已失效',
-        readVersion:()=>Promise.resolve(`published:${versionedName}`),
         readText:async()=>{
           const bytes=await lowcodeApi.design.readFileBytes(locator)
           return new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes)

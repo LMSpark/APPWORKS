@@ -535,6 +535,46 @@ describe('logic-view design page', () => {
     expect(wrapper.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(1)
     expect(http.saves).toHaveLength(0)
   })
+
+  it('AW-03 verifies only an original parameter save and never dispatches a new draft', async () => {
+    const prepare = vi.spyOn(LowcodeLogicView, 'prepareEditor')
+    const {wrapper} = await openDesigner()
+    const page = prepare.mock.calls[0]![0]
+    const dataSet = page.getDataSet(LowcodeLogicView.parameterScenarioId)!
+    const params = dataSet.getView('_Base_ParamList', LowcodeLogicView.parameterViewId)!
+    expect(await params.editRowById('P1', {testvalue: 'unsubmitted draft'})).toBe(true)
+    await flushPromises()
+    expect(params.hasUnconfirmedSave).toBe(false)
+    expect(http.saves).toHaveLength(0)
+    const verify = wrapper.findAll('button').find(button => button.text() === '核验参数保存结果')
+    if (verify && verify.attributes('disabled') === undefined) await verify.trigger('click')
+    await flushPromises()
+    expect(http.saves).toHaveLength(0)
+    expect(params.getEditingRow('P1')?.['testvalue']).toBe('unsubmitted draft')
+  })
+  it('AW-03 verifies a lost parameter receipt and keeps a later draft without dispatch', async () => {
+    const prepare = vi.spyOn(LowcodeLogicView, 'prepareEditor')
+    const {wrapper} = await openDesigner()
+    const page = prepare.mock.calls[0]![0]
+    const dataSet = page.getDataSet(LowcodeLogicView.parameterScenarioId)!
+    const params = dataSet.getView('_Base_ParamList', LowcodeLogicView.parameterViewId)!
+    http.failAfterWrite = true
+    await editTestValue(wrapper, 'Already accepted')
+    expect(params.hasUnconfirmedSave).toBe(true)
+    const original = dataSet.saveJournal.batchId
+    expect(original).toBeTruthy()
+    const verifyOriginal = vi.spyOn(dataSet, 'verifySaveJournalAndRead')
+    expect(await params.editRowById('P1', {testvalue: 'later draft'})).toBe(true)
+    await flushPromises()
+    await wrapper.findAll('button').find(button => button.text() === '核验参数保存结果')!.trigger('click')
+    await flushPromises()
+    expect(http.saves).toHaveLength(1)
+    expect(params.hasUnconfirmedSave).toBe(false)
+    expect(params.getEditingRow('P1')?.['testvalue']).toBe('later draft')
+    expect(verifyOriginal).toHaveBeenCalledTimes(1)
+    expect(verifyOriginal.mock.calls[0]![0].batchId).toBe(original)
+    expect(verifyOriginal.mock.calls[0]![0].receiptViews[0]).toBe(params)
+  })
   it('confirms an accepted parameter save by exact readback without sending a second write', async () => {
     const prepare=vi.spyOn(LowcodeLogicView,'prepareEditor'),{wrapper} = await openDesigner(); http.failAfterWrite = true
     await editTestValue(wrapper, 'Accepted')

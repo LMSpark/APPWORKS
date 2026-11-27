@@ -170,6 +170,22 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
     finally {busy.value = false}
   }
 
+  async function verifyOriginalSave(viewKey: string): Promise<void> {
+    const view = runtime.value?.resolveView(viewKey)
+    const dataSet = view?.dataSet
+    if (!active || !view?.hasUnconfirmedSave || !dataSet || !ready.value || loading.value
+      || loadedScenario.value !== config.scenarioId.value || boundScope.value !== config.scopeId.value?.trim() || busy.value) return
+    const own = generation
+    busy.value = true; error.value = ''
+    try {
+      const {batchId} = dataSet.saveJournal
+      if (!batchId) throw new Error('缺少原保存批次')
+      const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [view], readbackViews: []})
+      if (result.settlement !== 'confirmed') throw result.journal.originalError ?? new Error('原保存未完整确认')
+    } catch (cause) {if (isCurrent(own)) error.value = cause instanceof Error ? cause.message : String(cause)}
+    finally {busy.value = false}
+  }
+
   function updateDesignField(view: DataView | undefined, field: string, value: unknown): void {
     if (!active || !view || view !== designView.value || busy.value) {error.value = '设计目标已变化或尚未读取完成'; return}
     const row = view.rows[0]
@@ -180,5 +196,5 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
     void view.editRowById(rowId, {[field]: value})
   }
 
-  return {runtime, designView, designError, loading, ready, busy, error, saveChanges, refreshDesign, updateDesignField}
+  return {runtime, designView, designError, loading, ready, busy, error, saveChanges, verifyOriginalSave, refreshDesign, updateDesignField}
 }

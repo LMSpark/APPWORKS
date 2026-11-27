@@ -14,7 +14,7 @@
           <p v-if="!parametersReady" role="status">正在读取视图参数…</p>
           <template v-else>
           <RendererTable :data-view-key="parameterKey" :children="parameterFields" :toolbar="parameterToolbar" :show-pagination="false" :show-data-view-meta="false" />
-          <RendererButton :data-view-key="parameterKey" label="核验参数保存结果" :disabled="busy || parameterState.mutating" @click="verifyParameters" />
+          <RendererButton :data-view-key="parameterKey" label="核验参数保存结果" :disabled="busy || parameterState.mutating || !parameterState.unknown" @click="verifyParameters" />
           <RendererButton :data-view-key="parameterKey" label="取消参数修改" :disabled="busy || parameterState.mutating || parameterState.unknown" @click="cancelParameters" />
           </template>
         </RendererTabPane>
@@ -77,7 +77,7 @@ useSystemPageDirtySource({get isDirty(){return nodeEditing.value||completeEditin
 const retainInput=()=>!(nodeEditing.value||completeEditing.value||publication.value?.pending)
 onBeforeRouteUpdate(retainInput)
 onBeforeRouteLeave(retainInput)
-const {runtime, designView, designError, loading, ready, busy, error, saveChanges, refreshDesign} = useStagedDesignPage({
+const {runtime, designView, designError, loading, ready, busy, error, saveChanges, verifyOriginalSave, refreshDesign} = useStagedDesignPage({
   pageId: 'logic-view-design-page',
   scenarioId,
   scopeId: viewId,
@@ -162,7 +162,7 @@ async function reload(): Promise<void> {
  }catch(cause){error.value=cause instanceof Error?cause.message:String(cause);triggerRef(publication)}
 }
 async function retryDesign(): Promise<void> {await refreshDesign()}
-async function verifyParameters(): Promise<void> {await saveChanges({viewKey: parameterKey})}
+async function verifyParameters(): Promise<void> {await verifyOriginalSave(parameterKey)}
 function cancelParameters(): void {
   const view = parameterView.value
   if (!view || parameterState.value.mutating || view.hasUnconfirmedSave) return
@@ -184,7 +184,8 @@ async function confirmDelete(): Promise<void> {
       const result = await view.removeRow(id)
       if (result === false || typeof result === 'object' && !result.success) throw new Error('参数删除未成功')
     }
-    await saveChanges({viewKey: parameterKey, ids: [id]})
+    if (view.hasUnconfirmedSave) await verifyOriginalSave(parameterKey)
+    else await saveChanges({viewKey: parameterKey, ids: [id]})
     if (!view.hasUnconfirmedSave && !view.dirtyTracking.pendingDeleteIds.has(id)) deleteId.value = undefined
   } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {parameterBusy.value = false; revision.value++}

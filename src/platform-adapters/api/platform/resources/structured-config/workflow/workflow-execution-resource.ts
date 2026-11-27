@@ -3,7 +3,7 @@
  * 职责：数据工作流的单节点/整流测试作为真实服务命令接入原DataSet保存链。
  * 边界：执行可能产生业务副作用；不重试、不伪造幂等或核验协议，不把失败节点当成功。
  */
-import type {BindCommandSubmitOptions,DataRow,DataView} from '@spark-appworks/spark-data'
+import {DataSetCommandAttempt,type BindCommandSubmitOptions,type DataRow,type DataView} from '@spark-appworks/spark-data'
 import {isRecord,type HttpClientBase} from '@spark-appworks/spark-utils'
 import {LowcodeClient} from '../../../../core/lowcode-client'
 import {LowcodeApiError} from '../../../../core/lowcode-api-error'
@@ -82,9 +82,15 @@ export class WorkflowExecutionResource{
    ||graph.nodeIds.some(id=>typeof id!=='string'||!id)||graph.requiredNodeIds.some(id=>!graph.nodeIds.includes(id))))throw Error('执行图捕获的目标或节点身份不符')
   if(graph&&mode==='node'&&!graph.nodeIds.includes(String(nodeId)))throw Error('测试节点不属于本次执行图')
   const data=mode==='node'?{workflowId,nodeId,inputParams:parsed}:{workflowId,startParams:parsed}
+  const attempt=new DataSetCommandAttempt()
   try{
    const result=await this.#client.requestResult({path:mode==='node'?'/api/Workflow/runSingleNodeTest':'/api/Workflow/runWorkflowTest',
-    method:'POST',data,headers:this.input.readScope().headers,retry:0,preserveHttpError:true})
+    method:'POST',data,headers:this.input.readScope().headers,retry:0,preserveHttpError:true,
+    onTransportAttempt:started=>{
+     if(!started)return
+     guard();prepared.assertCurrent()
+     attempt.dispatch()
+    }})
    guard();prepared.assertCurrent()
    const items=mode==='node'?[result]:result
    if(!rows(items)||!items.length)throw Error('执行结果不是预期的节点结果')
@@ -102,6 +108,7 @@ export class WorkflowExecutionResource{
    const presented=JSON.stringify(result,(key,value:unknown)=>key==='lingma_sys_key'||key==='lingma_sys_params'?undefined:value)
    return {...row,outcome,completeness,result:presented}
   }catch(cause){
+   if(!attempt.isDispatched())throw cause
    if(cause instanceof LowcodeApiError){
     const message=cause.message.replace(/^\[\d+\]\s*/u,'')
     if([401,403,404].includes(cause.code)||mode==='node'&&[ `节点不存在：${String(nodeId)}`,`节点不存在:${String(nodeId)}`].includes(message)

@@ -26,6 +26,31 @@ async function fixture(graph?:()=>Readonly<{workflowId:string;nodeIds:readonly s
  return {ds,http,resource,view,save,invalidate:()=>{scope='other'}}
 }
 describe('native data workflow execution resource',()=>{
+
+ it('keeps a blocked workflow request outside the actual transport',async()=>{
+  const f=await fixture()
+  await f.view.addRow({mode:'node',nodeId:'N',input:'{}'})
+  const remove=f.http.interceptors.request.use({beforeDispatch:()=>{throw Error('before transport')}})
+  try {
+   await expect(f.save()).rejects.toThrow('before transport')
+   expect(f.http.requests).toHaveLength(0)
+   expect(f.view.hasUnconfirmedSave).toBe(false)
+  } finally {remove()}
+  expect((await f.save()).success).toBe(true)
+  expect(f.http.requests).toHaveLength(1)
+ })
+ it('rechecks the captured workflow before actual transport if request interception changes scope',async()=>{
+  const f=await fixture()
+  await f.view.addRow({mode:'node',nodeId:'N',input:'{}'})
+  const remove=f.http.interceptors.request.use({beforeDispatch:()=>{f.invalidate()}})
+  try {
+   const attempt=await f.save().catch(cause=>cause)
+   expect(f.http.requests).toHaveLength(0)
+   expect(f.view.hasUnconfirmedSave).toBe(false)
+   expect(attempt).toMatchObject({message:expect.stringContaining('scope已失效')})
+  } finally {remove()}
+ })
+
  it('binds the already declared command view without constructing a table or requiring a target during assembly',async()=>{
   const f=await fixture();expect(Object.keys(f.ds.tables)).toEqual(['WorkflowExecution'])
   expect(f.ds.getView('WorkflowExecution')).toBe(f.view);expect(f.view.dataTable?.resourceId).toBe('workflow:execution-test')

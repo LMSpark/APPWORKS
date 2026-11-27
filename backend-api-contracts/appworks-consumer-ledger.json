@@ -1321,19 +1321,19 @@
     {
       "expression": "/api/Workflow/runSingleNodeTest",
       "sourceFile": "src/platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource.test.ts",
-      "sourceLine": 83,
+      "sourceLine": 108,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Workflow/runSingleNodeTest",
       "sourceFile": "src/platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
-      "sourceLine": 86,
+      "sourceLine": 87,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Workflow/runWorkflowTest",
       "sourceFile": "src/platform-adapters/api/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
-      "sourceLine": 86,
+      "sourceLine": 87,
       "scope": "app-composition"
     },
     {

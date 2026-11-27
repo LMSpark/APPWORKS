@@ -129,12 +129,17 @@ export class RegisteredInterfaceCallResource{
     if(intent.attempt.isFailed())throw Error('本次调用已失败；请放弃后重新调用')
     if(!intent.attempt.isPrepared())throw new RegisteredInterfaceCallUnknown('接口调用结果未知；不重新发送，可放弃后重新调用')
     intent.assertRead()
-    intent.attempt.dispatch()
     let value:unknown
     try{
      value=await this.#client.requestResult({path:intent.request.path,method:'POST',params:intent.request.params,data:intent.request.data,
-      headers:readScope().headers,retry:0})
+      headers:readScope().headers,retry:0,onTransportAttempt:started=>{
+       if(!started)return
+       guard()
+       intent.assertRead()
+       intent.attempt.dispatch()
+      }})
     }catch(cause){
+     if(!intent.attempt.isDispatched())throw cause
      if(cause instanceof LowcodeApiError){intent.attempt.fail();throw cause}
      intent.attempt.unknown()
      throw new RegisteredInterfaceCallUnknown(`接口调用结果未知，不重新发送：${cause instanceof Error?cause.message:String(cause)}`,{cause})

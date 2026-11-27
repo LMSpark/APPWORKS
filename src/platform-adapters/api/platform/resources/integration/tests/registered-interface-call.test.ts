@@ -36,7 +36,7 @@ const formal=(id:string,name:string,primaryKey:string,fields:string[]):Awaited<R
  sourceName:name,sourceId:'DB',sourceType:'表',primaryKey,businessMain:false,raw:{},
  fields:fields.map(field=>({id:field,modelId:id,name:field,canonicalName:field,type:'varchar',primaryKey:field===primaryKey,
   description:field,output:true,computed:false,order:0,orderType:'',raw:{}}))})
-async function fixture(configure:(http:InterfaceHttp)=>void=()=>undefined){
+async function fixture(configure:(http:InterfaceHttp)=>void=()=>undefined,assertCurrent=()=>undefined){
  const view={autoLoad:false,commitMode:'staged',queryConfig:{pagination:'none'}}
  const ifields=['rowid','ProviderID','Name','RequestType','resultPath'],pfields=['parid','pid','parname','parzdtype','testvalue']
  const ds=DataSet.fromJson({scenarioId:'EC84',tables:{
@@ -53,7 +53,7 @@ async function fixture(configure:(http:InterfaceHttp)=>void=()=>undefined){
  const readScope=()=>({token:'scope',headers:{}}),runtime=new DataSpaceRuntimeApi({http,readScope})
  const interfaces=ds.getView('Base_DataServiceInterface')!,parameters=ds.getView('_Base_ParamList')!,command=ds.getView('InterfaceCallRequest')!
  runtime.bindModelView(interfaces,formal('I','Base_DataServiceInterface','rowid',ifields));runtime.bindModelView(parameters,formal('P','_Base_ParamList','parid',pfields))
- const binding=new Api.RegisteredInterfaceCallResource({interfaces,parameters,http,readScope,assertCurrent:()=>undefined}).binding(command)
+ const binding=new Api.RegisteredInterfaceCallResource({interfaces,parameters,http,readScope,assertCurrent}).binding(command)
  bindDataSetCommandSubmit(command,binding)
  await interfaces.refresh();await command.refresh()
  const select=(id:string)=>{
@@ -152,4 +152,40 @@ it('treats a lost receipt as unknown, never resends it and allows abandoning it'
  const f=await fixture(http=>{http.failure='lost'});await f.command.addRow({interfaceId:'I1'})
  await expect(f.save()).rejects.toThrow('不重新发送');await expect(f.save()).rejects.toThrow('结果未知')
  expect(f.http.calls).toHaveLength(1);expect(f.command.hasUnconfirmedSave).toBe(true);expect(f.binding.allowAbandonUnconfirmed).toBe(true)
+})
+
+
+it('keeps a request interceptor rejection outside the registered interface dispatch',async()=>{
+ const f=await fixture()
+ await f.command.addRow({interfaceId:'I1'})
+ const remove=f.http.interceptors.request.use({beforeDispatch:()=>{
+  throw Error('interface request blocked before transport')
+ }})
+ try {
+  await expect(f.save()).rejects.toThrow('interface request blocked before transport')
+  expect(f.http.calls).toHaveLength(0)
+  expect(f.command.hasUnconfirmedSave).toBe(false)
+ } finally {
+  remove()
+ }
+ await f.save()
+ expect(f.http.calls).toHaveLength(1)
+})
+
+it('rechecks the original scope at the registered interface dispatch',async()=>{
+ let current=true
+ const f=await fixture(undefined,()=>{
+  if(!current)throw Error('interface scope changed before transport')
+ })
+ await f.command.addRow({interfaceId:'I1'})
+ const remove=f.http.interceptors.request.use({beforeDispatch:()=>{
+  current=false
+ }})
+ try {
+  await expect(f.save()).rejects.toThrow('interface scope changed before transport')
+  expect(f.http.calls).toHaveLength(0)
+  expect(f.command.hasUnconfirmedSave).toBe(false)
+ } finally {
+  remove()
+ }
 })

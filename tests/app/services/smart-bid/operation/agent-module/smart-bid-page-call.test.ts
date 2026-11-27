@@ -4,6 +4,7 @@ import {defineComponent,h} from 'vue'
 import {createMemoryHistory,createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {readFile} from 'node:fs/promises'
+import {PageRuntimePool} from '../../../../../../packages/spark-app/src/router/page-runtime-pool'
 import {resolve} from 'node:path'
 import {DataSet,DataSpaceQueryContext,DataSpaceQueryTable,bindDataSetCommandSubmit,ensureDataSetResourceView,type DataRow} from '@spark-appworks/spark-data'
 import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
@@ -46,11 +47,11 @@ vi.mock('@/services/ai/ai-turn-bridge',()=>({
 afterEach(()=>{vi.unstubAllGlobals();state.sent=false;state.forwarded.mockReset()})
 
 const cases=[
- {title:'制件与审定',directory:'authoring/page12',action:'提交签后件登记',success:'签后件登记已提交',operationId:'41',
+ {title:'制件与审定',directory:'authoring/page12',pageId:'smart-bid-authoring-page12',action:'提交签后件登记',success:'签后件登记已提交',operationId:'41',
   prompt:'登记制作完成的文件',inputs:{record:{selectionRef:'ORIGINAL'}},query:{signedRegistrationRef:'ORIGINAL'}},
- {title:'签署与递交',directory:'authoring/page13',action:'提交冻结',success:'交付选件冻结已提交',operationId:'48',
+ {title:'签署与递交',directory:'authoring/page13',pageId:'smart-bid-authoring-page13',action:'提交冻结',success:'交付选件冻结已提交',operationId:'48',
   prompt:'冻结交付清单',inputs:{selectionRef:'ORIGINAL'},query:{freezeSelectionRef:'ORIGINAL'}},
- {title:'任务与问题',directory:'collaboration/tasks/page15',action:'提交问题或检查覆盖登记',success:'问题登记已提交',operationId:'43',
+ {title:'任务与问题',directory:'collaboration/tasks/page15',pageId:'smart-bid-collaboration-page15',action:'提交问题或检查覆盖登记',success:'问题登记已提交',operationId:'43',
   prompt:'登记问题',inputs:{checkRef:'CHECK'},query:{findingRegistrationKey:'ORIGINAL',findingCheckRef:'CHECK'}},
 ]
 
@@ -66,7 +67,7 @@ it.each(cases.flatMap(page=>['empty','interrupted','mismatched','confirmed'].map
     headers:{'Content-Type':'application/json'},
    })
   }))
-  const scenarioId='SPACE',pageId=page.directory==='authoring/page13'?'smart-bid-authoring-page13':'TOOL'
+  const scenarioId='SPACE',pageId=page.pageId
   const dataSet=DataSet.fromJson({scenarioId,tables:{}})
   const view=ensureDataSetResourceView({dataSet,tableName:'SmartBidAction',resource:{resourceType:'command',resourceId:'smart-bid:action'},
    columns:[{name:'commandId',primary:true},...['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','receiptRef']
@@ -168,9 +169,18 @@ it.each(['empty','matched','wrong-digest','wrong-project','wrong-tool'] as const
   const path=`/apps/${applicationId}/submission`
   const query={projectId,scenarioId,attemptRef,requestKey,requestDigest:mode==='wrong-digest'?'0'.repeat(64):requestDigest}
   const entry=preparePublishedSmartBidPageCall({path,query,meta:{
-   title:'签署与递交',type:'config-page',nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,
+   title:mode==='matched'?'递交跟踪':'签署与递交',type:'config-page',nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,
    tool:{projectId:applicationId,pageId},
   }})
+  if(mode==='wrong-tool'){
+   expect(entry).toBeUndefined()
+   expect(original.executeQuery).not.toHaveBeenCalled()
+   expect(events.executeQuery).not.toHaveBeenCalled()
+   expect(save).not.toHaveBeenCalled()
+   expect(state.forwarded).not.toHaveBeenCalled()
+   dataSet.destroy()
+   return
+  }
   if(!entry)throw Error('Missing published SmartBid host')
   const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],mainScenarioId:scenarioId,
    scenarioInputs:entry.scenarioInputs,loadScenario:async()=>dataSet})
@@ -199,12 +209,11 @@ it.each(['empty','matched','wrong-digest','wrong-project','wrong-tool'] as const
     expect(alert).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(mode==='empty'?'"UNKNOWN"':'"DISPATCHED"'),'原递交记录')
    }else{
     expect(alert).not.toHaveBeenCalled()
-    expect(error).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(
-     mode==='wrong-tool'?'SMART_BID_PAGE_ACTION_COMMAND_REQUIRED':'SUBMISSION_REQUEST_READ_CONFLICT'))
+    expect(error).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('SUBMISSION_REQUEST_READ_CONFLICT'))
    }
-   expect(original.executeQuery).toHaveBeenCalledTimes(mode==='wrong-tool'?0:1)
+   expect(original.executeQuery).toHaveBeenCalledTimes(1)
    expect(events.executeQuery).toHaveBeenCalledTimes(mode==='matched'?1:0)
-   if(mode!=='wrong-tool')expect(original.view.queryContext).toMatchObject({projectId,attemptRef,requestKey})
+   expect(original.view.queryContext).toMatchObject({projectId,attemptRef,requestKey})
    if(mode==='matched')expect(events.view.queryContext).toMatchObject(exact)
    expect(save).not.toHaveBeenCalled()
    expect(state.sent).toBe(false)
@@ -214,15 +223,17 @@ it.each(['empty','matched','wrong-digest','wrong-project','wrong-tool'] as const
 
 const route={
  path:`/apps/${applicationId}/ai-operation`,
- meta:{title:'AI 作业与核验',type:'config-page',nodeId:'NODE',pageId:'TOOL',blueprintScenarioId:'SPACE',
-  tool:{projectId:applicationId,pageId:'TOOL'}},
+ meta:{title:'AI 作业与核验',type:'config-page',nodeId:'NODE',pageId:'smart-bid-authoring-page18',blueprintScenarioId:'SPACE',
+  tool:{projectId:applicationId,pageId:'smart-bid-authoring-page18'}},
  query:{projectId:'PROJECT',scenarioId:'SPACE'},
 }
 
 it('opens only the published AI operation route and leaves unrelated tools alone',()=>{
  const prepared=preparePublishedSmartBidPageCall(route)
  expect(prepared).toMatchObject({scenarioInputs:{SPACE:{projectId:'PROJECT'}}})
- expect(preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'其他页面'}})).toBeUndefined()
+ expect(preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'其他页面'}})).toMatchObject({scenarioInputs:{SPACE:{projectId:'PROJECT'}}})
+ expect(preparePublishedSmartBidPageCall(toolRoute('OTHER-TOOL','AI 作业与核验'))).toBeUndefined()
+ expect(preparePublishedSmartBidPageCall(toolRoute('OTHER-TOOL','签署与递交'))).toBeUndefined()
  expect(()=>preparePublishedSmartBidPageCall({...route,meta:{...route.meta,pageId:undefined}}))
   .toThrow('SMART_BID_PUBLICATION_IDENTITY_REQUIRED')
 })
@@ -239,16 +250,45 @@ it.each([
  })).toBeUndefined()
 })
 
-it.each(['知识目录与指南','ClassModel 登记','配置编审与启用','制件与审定','签署与递交','任务与问题'])
-('binds page title %s through the published runtime',title=>{
- const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title}})
- expect(prepared).toMatchObject({scenarioInputs:{SPACE:{projectId:'PROJECT'}}})
+function toolRoute(pageId:string,title:string){
+ return {...route,meta:{...route.meta,pageId,title,tool:{projectId:applicationId,pageId}}}
+}
+
+it.each([
+ ['smart-bid-knowledge-page16','签署与递交'],
+ ['smart-bid-knowledge-page17','配置编审与启用'],
+ ['smart-bid-configuration-page19','AI 作业与核验'],
+ ['smart-bid-authoring-page12','知识目录与指南'],
+ ['smart-bid-authoring-page13','正式递交的新名称'],
+ ['smart-bid-collaboration-page15','问题排查'],
+])('binds formal tool %s independently of the navigation title %s',(pageId,title)=>{
+ expect(preparePublishedSmartBidPageCall(toolRoute(pageId,title))).toMatchObject({scenarioInputs:{SPACE:{projectId:'PROJECT'}}})
+})
+
+it('keeps ordinary menus reachable and requires an explicit project before standard submission',async()=>{
+ for(const pageId of ['smart-bid-authoring-page12','smart-bid-collaboration-page15']){
+  expect(preparePublishedSmartBidPageCall({...toolRoute(pageId,'改名的菜单'),query:{}})).toBeUndefined()
+ }
+ const pageId='smart-bid-authoring-page13'
+ expect(()=>preparePublishedSmartBidPageCall({...toolRoute(pageId,'普通递交菜单'),query:{scenarioId:'OTHER'}}))
+  .toThrow('SMART_BID_PAGE_ACTION_PUBLICATION_REQUIRED')
+ expect(()=>preparePublishedSmartBidPageCall({...toolRoute(pageId,'普通递交菜单'),query:{projectId:'PROJECT'}}))
+  .toThrow('SMART_BID_PAGE_ACTION_PUBLICATION_REQUIRED')
+ const prepared=preparePublishedSmartBidPageCall({...toolRoute(pageId,'普通递交菜单'),query:{}})
+ if(!prepared)throw Error('Missing Page13 read host')
+ const runtime=new PageRuntime({pageId,scenarioIds:['SPACE'],mainScenarioId:'SPACE',
+  scenarioInputs:prepared.scenarioInputs,loadScenario:async()=>{throw Error('Missing project cannot load a scenario')}})
+ try{
+  const host=prepared.createHost(runtime)
+  if(!('invoke' in host))throw Error('Missing Page13 invocation')
+  await expect(host.invoke('smart-bid.dispatch',{operationId:'48',requestKey:'REQUEST',prompt:'冻结',inputs:{}},
+   new AbortController().signal)).rejects.toThrow('SMART_BID_PAGE_ACTION_PROJECT_REQUIRED')
+ }finally{runtime.dispose()}
 })
 
 it('derives the configuration scope from the authorized route without a project query',()=>{
  const prepared=preparePublishedSmartBidPageCall({
-  ...route,
-  meta:{...route.meta,title:'配置编审与启用'},
+  ...toolRoute('smart-bid-configuration-page19','配置编审与启用'),
   query:{scenarioId:'SPACE'},
  })
  expect(prepared).toMatchObject({scenarioInputs:{SPACE:{projectId:applicationId}}})
@@ -263,11 +303,44 @@ it('binds reused page 18 navigation by page identity instead of node title',()=>
  expect(prepared).toMatchObject({scenarioInputs:{SPACE:{projectId:'PROJECT'}}})
 })
 
+it('opens both authorized Page15 menu nodes as independent ordinary instances',async()=>{
+ const pageId='smart-bid-collaboration-page15',scenarioId='SPACE'
+ const tool={projectId:applicationId,pageId}
+ const items=['2D6E6B35F32B2B478F135FD0E65A6824','7804AC9D8D2C20019B82E0A745467D20'].map((id,index)=>({
+  id,title:index===0?'任务与警示':'检查问题',itemKind:'page' as const,tool,blueprintScenarioId:scenarioId,
+ }))
+ const router=createRouter({history:createMemoryHistory(),routes:items.map(item=>({
+  path:`/apps/${applicationId}/__page/${item.id}`,component:SparkPageRenderer,
+  meta:{type:'config-page',nodeId:item.id,pageId,tool,blueprintScenarioId:scenarioId,title:item.title},
+ }))})
+ const loadScenario=vi.fn(async()=>new DataSet({scenarioId,dataSetName:scenarioId,tables:{}}))
+ const pool=new PageRuntimePool({pageComponent:SparkPageRenderer,preparePageCall:preparePublishedSmartBidPageCall,
+  readPageFile:({fileName})=>readFile(resolve('src/views/features/application/smart-bid/collaboration/tasks/page15',fileName),'utf8'),
+  loadScenario,readNavTree:()=>({title:'投标',childPlacement:'header',items}),refreshRoutes:async()=>{}})
+ try{
+  const opened:PageRuntime[]=[]
+  for(const item of router.getRoutes()){
+   await router.push(item.path)
+   const runtime=pool.getPageRuntime(router.currentRoute.value)
+   if(!runtime)throw Error('Missing ordinary Page15 runtime')
+   await runtime.load()
+   expect(runtime.call.mainScenarioId).toBe(scenarioId)
+   expect(runtime.call.scenarioInputs).toBeUndefined()
+   opened.push(runtime)
+  }
+  expect(opened).toHaveLength(2)
+  expect(opened[0]?.instanceId).not.toBe(opened[1]?.instanceId)
+  expect(opened[0]?.getDataSet(scenarioId)).not.toBe(opened[1]?.getDataSet(scenarioId))
+  expect(loadScenario).toHaveBeenCalledTimes(2)
+  expect(state.forwarded).not.toHaveBeenCalled()
+ }finally{pool.disposePageRuntimes()}
+})
+
 it('preserves auxiliary scenario bindings for standard action pages',()=>{
- const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'},
+ const prepared=preparePublishedSmartBidPageCall({...toolRoute('smart-bid-authoring-page12','制件与审定'),
   query:{...route.query,additionalScenarioIds:'AUX'}})
  if(!prepared)throw Error('Missing standard action host')
- const runtime=new PageRuntime({pageId:'TOOL',scenarioIds:['SPACE','AUX'],mainScenarioId:'SPACE',
+ const runtime=new PageRuntime({pageId:'smart-bid-authoring-page12',scenarioIds:['SPACE','AUX'],mainScenarioId:'SPACE',
   scenarioInputs:prepared.scenarioInputs,loadScenario:async()=>{throw Error('Host binding cannot load a scenario')}})
  try{expect(prepared.createHost(runtime)).toMatchObject({runtime})}
  finally{runtime.dispose()}
@@ -278,10 +351,10 @@ it.each([
  {mainScenarioId:'SPACE',projectId:'OTHER',currentUserId:'FIXTURE_USER'},
  {mainScenarioId:'SPACE',projectId:'PROJECT',currentUserId:'OTHER'},
 ])('rejects a standard action runtime with mismatched $mainScenarioId $projectId $currentUserId',binding=>{
- const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'},
+ const prepared=preparePublishedSmartBidPageCall({...toolRoute('smart-bid-authoring-page12','制件与审定'),
   query:{...route.query,additionalScenarioIds:'AUX'}})
  if(!prepared)throw Error('Missing standard action host')
- const runtime=new PageRuntime({pageId:'TOOL',scenarioIds:['SPACE','AUX'],mainScenarioId:binding.mainScenarioId,
+ const runtime=new PageRuntime({pageId:'smart-bid-authoring-page12',scenarioIds:['SPACE','AUX'],mainScenarioId:binding.mainScenarioId,
   scenarioInputs:{SPACE:{projectId:binding.projectId,currentUserId:binding.currentUserId}},
   loadScenario:async()=>{throw Error('Host binding cannot load a scenario')}})
  try{expect(()=>prepared.createHost(runtime)).toThrow('SMART_BID_PAGE_ACTION_RUNTIME_CONFLICT')}
@@ -289,9 +362,9 @@ it.each([
 })
 
 it('rejects blank command identities on standard action pages',async()=>{
- const prepared=preparePublishedSmartBidPageCall({...route,meta:{...route.meta,title:'制件与审定'}})
+ const prepared=preparePublishedSmartBidPageCall(toolRoute('smart-bid-authoring-page12','制件与审定'))
  if(!prepared)throw Error('Missing standard action host')
- const runtime=new PageRuntime({pageId:'TOOL',scenarioIds:['SPACE'],mainScenarioId:'SPACE',
+ const runtime=new PageRuntime({pageId:'smart-bid-authoring-page12',scenarioIds:['SPACE'],mainScenarioId:'SPACE',
   scenarioInputs:prepared.scenarioInputs,loadScenario:async()=>{throw Error('Invalid command cannot load a scenario')}})
  try{
   const host=prepared.createHost(runtime)
@@ -337,7 +410,7 @@ it.each(['exact','wrong-project','invalid-time','cached-view'] as const)('checks
   tool.markLoaded()
   const path=`/apps/${app}/fixture`,query={projectId,scenarioId,deadlineRef}
   const entry=preparePublishedSmartBidPageCall({path,query,meta:{
-   title:'回执与截止核对',type:'config-page',nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,tool:{projectId:app,pageId},
+   title:'签署与递交',type:'config-page',nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,tool:{projectId:app,pageId},
   }})
   if(!entry)throw Error('Missing published deadline host')
   const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],mainScenarioId:scenarioId,

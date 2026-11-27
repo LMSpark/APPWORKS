@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call.ts",
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-page-call",
-    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/smart-bid-page-call\n职责：按发布导航标题和正式元信息选择 SmartBid 页面宿主，所有身份仍由导航和本次 PageRuntime 校验。\n边界：只接已具备正式宿主的页面；未映射标题继续走普通四文件页面，不猜工具身份。",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/smart-bid-page-call\n职责：按正式发布工具 ID 选择 SmartBid 页面宿主，所有身份仍由导航和本次 PageRuntime 校验。\n边界：只接已具备正式宿主的页面；未登记工具继续走普通四文件页面。",
     "jsdocSource": "leading-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-26T19:32:44.042Z",
+  "generatedAt": "2026-11-27T12:11:14.589Z",
   "models": {}
 }

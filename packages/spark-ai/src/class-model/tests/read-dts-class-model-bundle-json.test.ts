@@ -47,6 +47,41 @@ function expectTypeAliasModel(model: DtsTypeDeclarationModel | undefined, name: 
 }
 
 describe('readDtsClassModelBundleJson', () => {
+  it('excludes private class members from an exported instance alias', () => {
+    const tempRoot = resolve(tmpdir(), `spark-dts-class-alias-${String(process.pid)}-${String(Date.now())}`)
+    const absolutePath = resolve(tempRoot, 'class-model-emit/class-alias.d.ts')
+    try {
+      mkdirSync(dirname(absolutePath), {recursive: true})
+      writeFileSync(absolutePath, `
+        declare class Base {
+          private _receipt
+          private reset
+          #private
+          public _rowKey: string
+          get status(): string
+        }
+        export declare class DataSet extends Base {
+          private _saveCompletion
+          public saveRecord(): Promise<void>
+        }
+        export type DataSetAlias = DataSet
+        export type RecordAlias = { _saveCompletion: string }
+      `)
+      const {models} = projectDtsFileProjection({repoRoot: tempRoot, absolutePath})
+      const alias = expectTypeAliasModel(models['DataSetAlias'], 'DataSetAlias')
+      const publicNames = ['_rowKey', 'saveRecord', 'status']
+      expect.soft(Object.keys(alias.jsonSchema?.properties ?? {}).sort()).toEqual(publicNames)
+      expect.soft([...(alias.jsonSchema?.required ?? [])].sort()).toEqual(publicNames)
+      expect.soft(alias.typeAlias.members.attributes.map(member => member.name).sort()).toEqual(publicNames)
+      const record = expectTypeAliasModel(models['RecordAlias'], 'RecordAlias')
+      expect(record.jsonSchema).toMatchObject({
+        properties: {_saveCompletion: {type: 'string'}}, required: ['_saveCompletion'],
+      })
+    } finally {
+      rmSync(tempRoot, {recursive: true, force: true})
+    }
+  })
+
   it('keeps common readonly union members and branch correlations through bundle knowledge', async () => {
     const tempRoot = resolve(tmpdir(), `spark-dts-union-guide-${String(process.pid)}-${String(Date.now())}`)
     const absolutePath = resolve(tempRoot, 'class-model-emit/union-guide.d.ts')

@@ -7,6 +7,7 @@
 import ts from 'typescript'
 import { dirname, resolve } from 'node:path'
 import type { JsonSchema, JsonSchemaObject } from '@spark-appworks/spark-json-document'
+import { isPrivateMember } from '../declaration/dts-ast-utils'
 import { extractConstOrSingleEnumValue } from './json-schema-emit'
 
 type DeclarationLiteral = string | number | boolean | null
@@ -239,6 +240,7 @@ export class ClassModelDeclarationSchema {
       // JSON 只携带字符串成员名。相同字符串查回其它成员时，当前属性属于独立的符号键。
       if (this.checker.getPropertyOfType(type, property.name) !== property) continue
       const declaration = property.valueDeclaration ?? property.declarations?.[0]
+      if (declaration !== undefined && isPrivateMember(declaration)) continue
       const annotation = declaration !== undefined && (ts.isPropertySignature(declaration) || ts.isPropertyDeclaration(declaration))
         ? declaration.type : undefined
       properties[property.name] = this.schema(this.checker.getTypeOfSymbolAtLocation(property, site), annotation ?? site)

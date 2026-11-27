@@ -70,7 +70,6 @@
         "name": {
           "type": "string"
         },
-        "reader": true,
         "token": true,
         "read": {
           "type": "object",
@@ -83,7 +82,6 @@
       },
       "required": [
         "name",
-        "reader",
         "token",
         "read",
         "toString"
@@ -122,7 +120,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.472Z",
+  "generatedAt": "2026-11-27T22:36:40.000Z",
   "models": {
     "CapabilityReader": {
       "name": "CapabilityReader",
@@ -238,11 +236,6 @@
           "attributes": [
             {
               "name": "name",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "reader",
               "readable": true,
               "writable": true
             },

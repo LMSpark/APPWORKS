@@ -185,7 +185,6 @@
         "saveChangesConfig": {
           "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveChangesConfig"
         },
-        "_saveCompletionHandler": true,
         "layout": {
           "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetLayoutMetadata"
         },
@@ -196,17 +195,6 @@
           "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetAppServices"
         },
         "_pageRoute": true,
-        "_childCascadeIdx": true,
-        "_parentCascadeIdx": true,
-        "_fieldCascadeRuntime": true,
-        "_optionFillRuntime": true,
-        "_saveJournal": true,
-        "_saveJournalBatchSequence": true,
-        "_saveChangesInFlight": true,
-        "_saveDispatchOwner": true,
-        "_fieldCascadeListeners": true,
-        "_resourceChildRelationIdx": true,
-        "_resourceParentRelationIdx": true,
         "_activeViewSubs": {
           "type": "array",
           "items": {
@@ -259,6 +247,14 @@
           "type": "object",
           "title": "() => void"
         },
+        "bindFormalQueryGuard": {
+          "type": "object",
+          "title": "(guard: () => void) => void"
+        },
+        "formalQueryGuard": {
+          "type": "object",
+          "title": "() => void"
+        },
         "setSharedHttpClient": {
           "type": "object",
           "title": "(client: HttpClientBase) => void"
@@ -283,8 +279,6 @@
           "type": "object",
           "title": "(handlers: SparkData.ViewChangeHandlers) => () => void"
         },
-        "_subscribeViewChange": true,
-        "_subscribeOnView": true,
         "_subscribeNewView": {
           "type": "object",
           "title": "(view: SparkData.DataView) => void"
@@ -293,7 +287,6 @@
           "type": "object",
           "title": "(view: SparkData.DataView) => void"
         },
-        "_rebindActiveSubscriptions": true,
         "triggerAutoLoad": {
           "type": "object",
           "title": "() => void"
@@ -318,11 +311,6 @@
           "type": "object",
           "title": "(childTable: string) => SparkData.DataResourceRelation[]"
         },
-        "_buildViewCascadeIndex": true,
-        "_buildResourceRelationIndex": true,
-        "_rebuildDataLinks": true,
-        "_createTablesFromMetadata": true,
-        "_applyNormalizedMetadata": true,
         "replaceFromJson": {
           "type": "object",
           "title": "(json: SparkData.DataSetMetadata | Record<string, unknown> | string) => void"
@@ -351,8 +339,6 @@
           "type": "object",
           "title": "(metadata: SparkData.TableMetadata | Record<string, unknown>) => SparkData.DataTable"
         },
-        "_assertNotDestroyed": true,
-        "_attachNewTable": true,
         "assertCanRemoveTable": {
           "type": "object",
           "title": "(tableName: string) => void"
@@ -361,11 +347,6 @@
           "type": "object",
           "title": "(tableName: string) => void"
         },
-        "assertRemovableTable": true,
-        "_relationReferencesTable": true,
-        "_resolveResourceRelationIndex": true,
-        "_relationHasField": true,
-        "_resolveCascadeIndex": true,
         "getCascade": {
           "type": "object",
           "title": "(selector: SparkData.DataViewCascadeSelector) => SparkData.DataViewCascade | undefined"
@@ -382,7 +363,6 @@
           "type": "object",
           "title": "(selector: { parentTable: string; childTable: string; relationId?: string; parentField?: string; childField?: string; }) => void"
         },
-        "_assertCascadeShape": true,
         "addCascade": {
           "type": "object",
           "title": "(cascade: SparkData.DataViewCascade) => SparkData.DataViewCascade"
@@ -411,7 +391,6 @@
           "type": "object",
           "title": "() => void"
         },
-        "_destroyed": true,
         "destroyed": {
           "enum": [
             false,
@@ -426,7 +405,6 @@
           "type": "object",
           "title": "(tableName: string, viewId?: string) => SparkData.DataView | undefined"
         },
-        "_peerResolver": true,
         "bindPeerDataSets": {
           "type": "object",
           "title": "(resolver: (scenarioId: string) => SparkData.DataSet | undefined) => () => void"
@@ -435,10 +413,6 @@
           "type": "object",
           "title": "(source: Readonly<{ scope?: string; tableName: string; viewId?: string; }>) => SparkData.DataView | undefined"
         },
-        "saveJournalIds": true,
-        "saveJournalPendingSignature": true,
-        "createSaveJournal": true,
-        "selectSaveJournal": true,
         "prepareSaveJournal": {
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions) => SparkData.DataSetSaveJournal"
@@ -447,10 +421,6 @@
           "type": "object",
           "title": "(phases: readonly SparkData.DataSetSaveChangesOptions[]) => SparkData.DataSetSaveJournal"
         },
-        "saveJournalOptionSignature": true,
-        "saveJournalMatches": true,
-        "journalViewOptions": true,
-        "assertJournalViews": true,
         "cancelPreparedSaveJournal": {
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions, batchId?: string | null) => SparkData.DataSetSaveJournal"
@@ -463,8 +433,6 @@
           "type": "object",
           "title": "(batchId: string) => SparkData.DataSetSaveJournal"
         },
-        "settleSaveJournal": true,
-        "refreshSaveJournalCompletion": true,
         "saveJournal": {
           "type": "object",
           "properties": {
@@ -533,13 +501,10 @@
           "type": "object",
           "title": "(options: SparkData.DataSetSaveJournalReadOptions) => Promise<SparkData.DataSetSaveJournalReadResult>"
         },
-        "ownsSaveRecoveryView": true,
         "continueSaveJournal": {
           "type": "object",
           "title": "() => Promise<SparkData.DataSetPhasedSaveResult>"
         },
-        "originalJournalRecords": true,
-        "settleJournalRecovery": true,
         "retainSaveJournalDraft": {
           "type": "object",
           "title": "() => SparkData.DataSetSaveJournal"
@@ -548,21 +513,26 @@
           "type": "object",
           "title": "() => SparkData.DataSetSaveJournal"
         },
+        "saveRecord": {
+          "type": "object",
+          "title": "(view: SparkData.DataView, id: string | number) => Promise<SparkData.DataSetSaveChangesResult>"
+        },
+        "saveView": {
+          "type": "object",
+          "title": "(view: SparkData.DataView) => Promise<SparkData.DataSetViewSaveOutcome>"
+        },
         "saveChanges": {
           "type": "object",
           "title": "(options?: SparkData.DataSetSaveChangesOptions) => Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
         },
-        "saveWithJournal": true,
         "setSaveCompletionHandler": {
           "type": "object",
-          "title": "(handler?: DataSetSaveCompletionHandler) => () => void"
+          "title": "(handler?: DataSetSaveCompletionHandler, onRecovered?: DataSetSaveRecoveryHandler) => () => void"
         },
-        "executeSaveChanges": true,
         "saveChangesInPhases": {
           "type": "object",
           "title": "(phases: readonly SparkData.DataSetSaveChangesOptions[]) => Promise<SparkData.DataSetPhasedSaveResult>"
         },
-        "runSaveJournalPhases": true,
         "resolveUnconfirmedSaves": {
           "type": "object",
           "title": "(selected?: readonly SparkData.DataView[]) => Promise<SparkData.DataSetSaveResolution>"
@@ -575,16 +545,6 @@
           "type": "object",
           "title": "(options: DataSetDiscardAndReloadOptions) => Promise<void>"
         },
-        "assertScenarioSaveTargets": true,
-        "withCascadeSuspended": true,
-        "saveChangesInTransaction": true,
-        "resolveSaveChangesTransaction": true,
-        "collectTransactionOperations": true,
-        "buildTransactionOperationId": true,
-        "applySuccessfulTransactionOperations": true,
-        "syncTransactionCreatedRow": true,
-        "resolveSaveChangesTargets": true,
-        "getSaveChangesTableOrder": true,
         "toJson": {
           "type": "object",
           "title": "() => SparkData.DataSetMetadata"
@@ -600,44 +560,26 @@
         "version",
         "pageId",
         "saveChangesConfig",
-        "_saveCompletionHandler",
         "layout",
-        "_childCascadeIdx",
-        "_parentCascadeIdx",
-        "_fieldCascadeRuntime",
-        "_optionFillRuntime",
-        "_saveJournal",
-        "_saveJournalBatchSequence",
-        "_saveChangesInFlight",
-        "_saveDispatchOwner",
-        "_fieldCascadeListeners",
-        "_resourceChildRelationIdx",
-        "_resourceParentRelationIdx",
         "_activeViewSubs",
         "_activeOnSubs",
         "initAutoSelection",
+        "bindFormalQueryGuard",
+        "formalQueryGuard",
         "setSharedHttpClient",
         "setAppServices",
         "setPageRoute",
         "getRequestTemplateParams",
         "on",
         "onAnyViewChange",
-        "_subscribeViewChange",
-        "_subscribeOnView",
         "_subscribeNewView",
         "_unsubscribeView",
-        "_rebindActiveSubscriptions",
         "triggerAutoLoad",
         "getChildCascades",
         "getParentCascades",
         "resolveCascadeFilter",
         "getResourceChildRelations",
         "getResourceParentRelations",
-        "_buildViewCascadeIndex",
-        "_buildResourceRelationIndex",
-        "_rebuildDataLinks",
-        "_createTablesFromMetadata",
-        "_applyNormalizedMetadata",
         "replaceFromJson",
         "listSnapshots",
         "getSnapshot",
@@ -645,20 +587,12 @@
         "restoreSnapshot",
         "addTable",
         "addTableFromJson",
-        "_assertNotDestroyed",
-        "_attachNewTable",
         "assertCanRemoveTable",
         "removeTable",
-        "assertRemovableTable",
-        "_relationReferencesTable",
-        "_resolveResourceRelationIndex",
-        "_relationHasField",
-        "_resolveCascadeIndex",
         "getCascade",
         "addResourceRelation",
         "updateResourceRelation",
         "removeResourceRelation",
-        "_assertCascadeShape",
         "addCascade",
         "updateCascade",
         "removeCascade",
@@ -666,57 +600,31 @@
         "refreshFieldCascade",
         "onFieldCascadeChange",
         "destroy",
-        "_destroyed",
         "destroyed",
         "getTable",
         "getView",
-        "_peerResolver",
         "bindPeerDataSets",
         "resolveOptionView",
-        "saveJournalIds",
-        "saveJournalPendingSignature",
-        "createSaveJournal",
-        "selectSaveJournal",
         "prepareSaveJournal",
         "prepareSaveJournalPhases",
-        "saveJournalOptionSignature",
-        "saveJournalMatches",
-        "journalViewOptions",
-        "assertJournalViews",
         "cancelPreparedSaveJournal",
         "abandonPreparedSaveJournal",
         "releaseSettledSaveJournal",
-        "settleSaveJournal",
-        "refreshSaveJournalCompletion",
         "saveJournal",
         "settleConfirmedDetachedSaves",
         "verifySaveJournal",
         "verifySaveJournalAndRead",
-        "ownsSaveRecoveryView",
         "continueSaveJournal",
-        "originalJournalRecords",
-        "settleJournalRecovery",
         "retainSaveJournalDraft",
         "discardSaveJournalNotApplied",
+        "saveRecord",
+        "saveView",
         "saveChanges",
-        "saveWithJournal",
         "setSaveCompletionHandler",
-        "executeSaveChanges",
         "saveChangesInPhases",
-        "runSaveJournalPhases",
         "resolveUnconfirmedSaves",
         "abandonUnconfirmedSaves",
         "discardAndReload",
-        "assertScenarioSaveTargets",
-        "withCascadeSuspended",
-        "saveChangesInTransaction",
-        "resolveSaveChangesTransaction",
-        "collectTransactionOperations",
-        "buildTransactionOperationId",
-        "applySuccessfulTransactionOperations",
-        "syncTransactionCreatedRow",
-        "resolveSaveChangesTargets",
-        "getSaveChangesTableOrder",
         "toJson"
       ],
       "additionalProperties": false
@@ -1013,7 +921,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-24T10:10:45.280Z",
+  "generatedAt": "2026-11-27T22:36:40.000Z",
   "models": {
     "DataColumn": {
       "name": "DataColumn",
@@ -1226,11 +1134,6 @@
               "writable": true
             },
             {
-              "name": "_saveCompletionHandler",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "layout",
               "readable": true,
               "writable": true
@@ -1251,61 +1154,6 @@
               "writable": false
             },
             {
-              "name": "_childCascadeIdx",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_parentCascadeIdx",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_fieldCascadeRuntime",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_optionFillRuntime",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_saveJournal",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_saveJournalBatchSequence",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_saveChangesInFlight",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_saveDispatchOwner",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_fieldCascadeListeners",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_resourceChildRelationIdx",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_resourceParentRelationIdx",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "_activeViewSubs",
               "readable": true,
               "writable": true
@@ -1317,6 +1165,16 @@
             },
             {
               "name": "initAutoSelection",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "bindFormalQueryGuard",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "formalQueryGuard",
               "readable": true,
               "writable": true
             },
@@ -1351,27 +1209,12 @@
               "writable": true
             },
             {
-              "name": "_subscribeViewChange",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_subscribeOnView",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "_subscribeNewView",
               "readable": true,
               "writable": true
             },
             {
               "name": "_unsubscribeView",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_rebindActiveSubscriptions",
               "readable": true,
               "writable": true
             },
@@ -1402,31 +1245,6 @@
             },
             {
               "name": "getResourceParentRelations",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_buildViewCascadeIndex",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_buildResourceRelationIndex",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_rebuildDataLinks",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_createTablesFromMetadata",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_applyNormalizedMetadata",
               "readable": true,
               "writable": true
             },
@@ -1466,47 +1284,12 @@
               "writable": true
             },
             {
-              "name": "_assertNotDestroyed",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_attachNewTable",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "assertCanRemoveTable",
               "readable": true,
               "writable": true
             },
             {
               "name": "removeTable",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "assertRemovableTable",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_relationReferencesTable",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_resolveResourceRelationIndex",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_relationHasField",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_resolveCascadeIndex",
               "readable": true,
               "writable": true
             },
@@ -1527,11 +1310,6 @@
             },
             {
               "name": "removeResourceRelation",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "_assertCascadeShape",
               "readable": true,
               "writable": true
             },
@@ -1571,11 +1349,6 @@
               "writable": true
             },
             {
-              "name": "_destroyed",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "destroyed",
               "readable": true,
               "writable": true
@@ -1591,11 +1364,6 @@
               "writable": true
             },
             {
-              "name": "_peerResolver",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "bindPeerDataSets",
               "readable": true,
               "writable": true
@@ -1606,52 +1374,12 @@
               "writable": true
             },
             {
-              "name": "saveJournalIds",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "saveJournalPendingSignature",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "createSaveJournal",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "selectSaveJournal",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "prepareSaveJournal",
               "readable": true,
               "writable": true
             },
             {
               "name": "prepareSaveJournalPhases",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "saveJournalOptionSignature",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "saveJournalMatches",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "journalViewOptions",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "assertJournalViews",
               "readable": true,
               "writable": true
             },
@@ -1667,16 +1395,6 @@
             },
             {
               "name": "releaseSettledSaveJournal",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "settleSaveJournal",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "refreshSaveJournalCompletion",
               "readable": true,
               "writable": true
             },
@@ -1701,22 +1419,7 @@
               "writable": true
             },
             {
-              "name": "ownsSaveRecoveryView",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "continueSaveJournal",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "originalJournalRecords",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "settleJournalRecovery",
               "readable": true,
               "writable": true
             },
@@ -1731,12 +1434,17 @@
               "writable": true
             },
             {
-              "name": "saveChanges",
+              "name": "saveRecord",
               "readable": true,
               "writable": true
             },
             {
-              "name": "saveWithJournal",
+              "name": "saveView",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "saveChanges",
               "readable": true,
               "writable": true
             },
@@ -1746,17 +1454,7 @@
               "writable": true
             },
             {
-              "name": "executeSaveChanges",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "saveChangesInPhases",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "runSaveJournalPhases",
               "readable": true,
               "writable": true
             },
@@ -1772,56 +1470,6 @@
             },
             {
               "name": "discardAndReload",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "assertScenarioSaveTargets",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "withCascadeSuspended",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "saveChangesInTransaction",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "resolveSaveChangesTransaction",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "collectTransactionOperations",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "buildTransactionOperationId",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "applySuccessfulTransactionOperations",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "syncTransactionCreatedRow",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "resolveSaveChangesTargets",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "getSaveChangesTableOrder",
               "readable": true,
               "writable": true
             },

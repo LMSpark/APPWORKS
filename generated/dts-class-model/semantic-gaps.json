@@ -1,5 +1,5 @@
 {
-  "gapCount": 9150,
+  "gapCount": 9094,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -24161,17 +24161,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "DataSpaceMissingAuthPolicy",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSpaceMissingAuthPolicy 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/row-permission.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "@spark-appworks/spark-data:query/formal-owner/row-permission",
       "moduleName": "@spark-appworks/spark-data:query/formal-owner/row-permission",
@@ -24181,6 +24170,17 @@
       "declarationFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
       "declarationLine": 1,
       "sourceFile": "packages/spark-data/src/query/formal-owner/row-permission.ts"
+    },
+    {
+      "kind": "model",
+      "className": "DataSpaceMissingAuthPolicy",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataSpaceMissingAuthPolicy 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/row-permission.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/row-permission.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -24456,17 +24456,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "DataSpaceMutationOperation",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSpaceMutationOperation 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/save-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "@spark-appworks/spark-data:query/formal-owner/save-guard",
       "moduleName": "@spark-appworks/spark-data:query/formal-owner/save-guard",
@@ -24476,6 +24465,17 @@
       "declarationFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
       "declarationLine": 1,
       "sourceFile": "packages/spark-data/src/query/formal-owner/save-guard.ts"
+    },
+    {
+      "kind": "model",
+      "className": "DataSpaceMutationOperation",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataSpaceMutationOperation 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/save-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/save-guard.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",
@@ -24500,17 +24500,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "DataSpaceSavePlan",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSpaceSavePlan 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/query/formal-owner/save-result.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "@spark-appworks/spark-data:query/formal-owner/save-result",
       "moduleName": "@spark-appworks/spark-data:query/formal-owner/save-result",
@@ -24520,6 +24509,17 @@
       "declarationFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
       "declarationLine": 1,
       "sourceFile": "packages/spark-data/src/query/formal-owner/save-result.ts"
+    },
+    {
+      "kind": "model",
+      "className": "DataSpaceSavePlan",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataSpaceSavePlan 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/query/formal-owner/save-result.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-data/src/query/formal-owner/save-result.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -30525,17 +30525,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "PageContentState",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PageContentState 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
-      "declarationLine": 1,
-      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "@spark-appworks/spark-project-model:page/content/runtime-content",
       "moduleName": "@spark-appworks/spark-project-model:page/content/runtime-content",
@@ -30545,6 +30534,17 @@
       "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
       "declarationLine": 1,
       "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts"
+    },
+    {
+      "kind": "model",
+      "className": "PageContentState",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PageContentState 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-project-model/src/page/content/runtime-content.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-project-model/src/page/content/runtime-content.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -35002,18 +35002,6 @@
     {
       "kind": "attribute",
       "className": "CapabilityName",
-      "memberName": "reader",
-      "reason": "missing-jsdoc",
-      "chainBreak": "CapabilityName.reader 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-utils/src/capability/core.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-utils/src/capability/core.ts",
-      "declarationLine": 31,
-      "sourceFile": "packages/spark-utils/src/capability/core.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "CapabilityName",
       "memberName": "token",
       "reason": "missing-jsdoc",
       "chainBreak": "CapabilityName.token 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -36534,17 +36522,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "LowcodeQueryItemsOptions",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeQueryItemsOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/api/core/lowcode-query-items.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/api/core/lowcode-query-items.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/api/core/lowcode-query-items.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:platform-adapters/api/core/lowcode-query-items",
       "moduleName": "app:platform-adapters/api/core/lowcode-query-items",
@@ -36554,6 +36531,17 @@
       "declarationFile": "src/platform-adapters/api/core/lowcode-query-items.ts",
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/api/core/lowcode-query-items.ts"
+    },
+    {
+      "kind": "model",
+      "className": "LowcodeQueryItemsOptions",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeQueryItemsOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/api/core/lowcode-query-items.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/api/core/lowcode-query-items.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/api/core/lowcode-query-items.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -47072,17 +47060,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "Row",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition",
       "moduleName": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition",
@@ -47092,6 +47069,17 @@
       "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -47189,17 +47177,6 @@
       "declarationKind": "class"
     },
     {
-      "kind": "model",
-      "className": "Row",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph",
       "moduleName": "app:platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph",
@@ -47209,6 +47186,17 @@
       "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -54118,18 +54106,6 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "_applyNormalizedMetadata",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._applyNormalizedMetadata 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "_appServices",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet._appServices 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -54142,321 +54118,9 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "_assertCascadeShape",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._assertCascadeShape 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_assertNotDestroyed",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._assertNotDestroyed 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_attachNewTable",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._attachNewTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_buildResourceRelationIndex",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._buildResourceRelationIndex 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_buildViewCascadeIndex",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._buildViewCascadeIndex 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_childCascadeIdx",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._childCascadeIdx 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_createTablesFromMetadata",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._createTablesFromMetadata 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_destroyed",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._destroyed 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_fieldCascadeListeners",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._fieldCascadeListeners 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_fieldCascadeRuntime",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._fieldCascadeRuntime 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_optionFillRuntime",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._optionFillRuntime 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "_pageRoute",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet._pageRoute 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_parentCascadeIdx",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._parentCascadeIdx 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_peerResolver",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._peerResolver 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_rebindActiveSubscriptions",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._rebindActiveSubscriptions 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_rebuildDataLinks",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._rebuildDataLinks 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_relationHasField",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._relationHasField 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_relationReferencesTable",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._relationReferencesTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_resolveCascadeIndex",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._resolveCascadeIndex 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_resolveResourceRelationIndex",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._resolveResourceRelationIndex 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_resourceChildRelationIdx",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._resourceChildRelationIdx 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_resourceParentRelationIdx",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._resourceParentRelationIdx 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_saveChangesInFlight",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._saveChangesInFlight 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_saveCompletionHandler",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._saveCompletionHandler 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_saveDispatchOwner",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._saveDispatchOwner 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_saveJournal",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._saveJournal 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_saveJournalBatchSequence",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._saveJournalBatchSequence 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -54481,30 +54145,6 @@
       "memberName": "_subscribeNewView",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet._subscribeNewView 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_subscribeOnView",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._subscribeOnView 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "_subscribeViewChange",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet._subscribeViewChange 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -54598,18 +54238,6 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "applySuccessfulTransactionOperations",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.applySuccessfulTransactionOperations 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "assertCanRemoveTable",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.assertCanRemoveTable 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -54622,33 +54250,9 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "assertJournalViews",
+      "memberName": "bindFormalQueryGuard",
       "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.assertJournalViews 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "assertRemovableTable",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.assertRemovableTable 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "assertScenarioSaveTargets",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.assertScenarioSaveTargets 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "DataSet.bindFormalQueryGuard 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -54670,33 +54274,9 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "buildTransactionOperationId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.buildTransactionOperationId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "cancelPreparedSaveJournal",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.cancelPreparedSaveJournal 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "collectTransactionOperations",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.collectTransactionOperations 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -54721,18 +54301,6 @@
       "memberName": "continueSaveJournal",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.continueSaveJournal 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "createSaveJournal",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.createSaveJournal 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -54802,9 +54370,9 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "executeSaveChanges",
+      "memberName": "formalQueryGuard",
       "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.executeSaveChanges 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "DataSet.formalQueryGuard 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -54898,18 +54466,6 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "getSaveChangesTableOrder",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.getSaveChangesTableOrder 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "getSnapshot",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.getSnapshot 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -54949,18 +54505,6 @@
       "memberName": "initAutoSelection",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.initAutoSelection 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "journalViewOptions",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.journalViewOptions 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -55030,30 +54574,6 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "originalJournalRecords",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.originalJournalRecords 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "ownsSaveRecoveryView",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.ownsSaveRecoveryView 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "pageId",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.pageId 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -55093,18 +54613,6 @@
       "memberName": "refreshFieldCascade",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.refreshFieldCascade 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "refreshSaveJournalCompletion",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.refreshSaveJournalCompletion 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -55198,30 +54706,6 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "resolveSaveChangesTargets",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.resolveSaveChangesTargets 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "resolveSaveChangesTransaction",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.resolveSaveChangesTransaction 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "resolveUnconfirmedSaves",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.resolveUnconfirmedSaves 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -55270,18 +54754,6 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "runSaveJournalPhases",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.runSaveJournalPhases 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "saveChanges",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.saveChanges 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -55318,18 +54790,6 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "saveChangesInTransaction",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.saveChangesInTransaction 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
       "memberName": "saveJournal",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.saveJournal 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -55342,9 +54802,9 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "saveJournalIds",
+      "memberName": "saveRecord",
       "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.saveJournalIds 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "DataSet.saveRecord 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -55354,45 +54814,9 @@
     {
       "kind": "attribute",
       "className": "DataSet",
-      "memberName": "saveJournalMatches",
+      "memberName": "saveView",
       "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.saveJournalMatches 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "saveJournalOptionSignature",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.saveJournalOptionSignature 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "saveJournalPendingSignature",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.saveJournalPendingSignature 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "saveWithJournal",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.saveWithJournal 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "DataSet.saveView 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -55417,18 +54841,6 @@
       "memberName": "schemaVersion",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.schemaVersion 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "selectSaveJournal",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.selectSaveJournal 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -55489,42 +54901,6 @@
       "memberName": "settleConfirmedDetachedSaves",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.settleConfirmedDetachedSaves 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "settleJournalRecovery",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.settleJournalRecovery 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "settleSaveJournal",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.settleSaveJournal 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "syncTransactionCreatedRow",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.syncTransactionCreatedRow 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -55633,18 +55009,6 @@
       "memberName": "viewCascades",
       "reason": "missing-jsdoc",
       "chainBreak": "DataSet.viewCascades 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationLine": 10,
-      "sourceFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataSet",
-      "memberName": "withCascadeSuspended",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSet.withCascadeSuspended 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/database/dataset-extensions.ts",
       "declarationLine": 10,
@@ -64355,17 +63719,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Row",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:platform-adapters/resources/structured-config/workflow-definition/output/operation-output",
       "moduleName": "app:platform-adapters/resources/structured-config/workflow-definition/output/operation-output",
@@ -64375,6 +63728,17 @@
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts",
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/operation-output.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -64565,17 +63929,6 @@
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/output-fields.ts"
     },
     {
-      "kind": "model",
-      "className": "Row",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:platform-adapters/resources/structured-config/workflow-definition/output/query-output",
       "moduleName": "app:platform-adapters/resources/structured-config/workflow-definition/output/query-output",
@@ -64585,6 +63938,17 @@
       "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts",
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/resources/structured-config/workflow-definition/output/query-output.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -67757,17 +67121,6 @@
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-auto-submit.ts"
     },
     {
-      "kind": "model",
-      "className": "FlowRunExecUsers",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowRunExecUsers 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
       "moduleName": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users",
@@ -67777,6 +67130,17 @@
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts"
+    },
+    {
+      "kind": "model",
+      "className": "FlowRunExecUsers",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowRunExecUsers 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-exec-users.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -67839,17 +67203,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "FlowRunHandleNodeOption",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FlowRunHandleNodeOption 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
       "moduleName": "app:platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options",
@@ -67859,6 +67212,17 @@
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
       "declarationLine": 1,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts"
+    },
+    {
+      "kind": "model",
+      "className": "FlowRunHandleNodeOption",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FlowRunHandleNodeOption 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-handle-options.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -73074,17 +72438,6 @@
       "sourceFile": "src/services/smart-bid/content-tree-structure.ts"
     },
     {
-      "kind": "model",
-      "className": "BasisIssue",
-      "reason": "missing-jsdoc",
-      "chainBreak": "BasisIssue 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/adoption/adoption-basis-checks.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/adoption/adoption-basis-checks",
       "moduleName": "app:services/smart-bid/content/adoption/adoption-basis-checks",
@@ -73094,6 +72447,17 @@
       "declarationFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts"
+    },
+    {
+      "kind": "model",
+      "className": "BasisIssue",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BasisIssue 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/adoption/adoption-basis-checks.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/adoption/adoption-basis-checks.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -76145,17 +75509,6 @@
       "sourceFile": "src/services/smart-bid/content/references/calculation-table-generator.ts"
     },
     {
-      "kind": "model",
-      "className": "Proof",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Proof 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/approved-price-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/commercial/approved-price-review",
       "moduleName": "app:services/smart-bid/content/references/commercial/approved-price-review",
@@ -76165,6 +75518,17 @@
       "declarationFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Proof",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Proof 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/approved-price-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/approved-price-review.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "method",
@@ -76438,17 +75802,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Proof",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Proof 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/bid-security-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/commercial/bid-security-review",
       "moduleName": "app:services/smart-bid/content/references/commercial/bid-security-review",
@@ -76458,6 +75811,17 @@
       "declarationFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Proof",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Proof 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/bid-security-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/bid-security-review.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "method",
@@ -76964,17 +76328,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Target",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Target 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/fixed-fact-use.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/commercial/fixed-fact-use",
       "moduleName": "app:services/smart-bid/content/references/commercial/fixed-fact-use",
@@ -76984,6 +76337,17 @@
       "declarationFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Target",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Target 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/fixed-fact-use.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/fixed-fact-use.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -77163,17 +76527,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "PersonScope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PersonScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/person-appointment-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/commercial/person-appointment-review",
       "moduleName": "app:services/smart-bid/content/references/commercial/person-appointment-review",
@@ -77183,6 +76536,17 @@
       "declarationFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts"
+    },
+    {
+      "kind": "model",
+      "className": "PersonScope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PersonScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/person-appointment-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/person-appointment-review.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -77385,17 +76749,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Rounding",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Rounding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation",
       "moduleName": "app:services/smart-bid/content/references/commercial/price-sheet-recalculation",
@@ -77405,6 +76758,17 @@
       "declarationFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Rounding",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Rounding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/commercial/price-sheet-recalculation.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "model",
@@ -77490,17 +76854,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/configuration/configuration-disable-impact",
       "moduleName": "app:services/smart-bid/content/references/configuration/configuration-disable-impact",
@@ -77510,6 +76863,17 @@
       "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-disable-impact.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -77714,17 +77078,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/configuration/configuration-release-decision.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/configuration/configuration-release-decision",
       "moduleName": "app:services/smart-bid/content/references/configuration/configuration-release-decision",
@@ -77734,6 +77087,17 @@
       "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/configuration/configuration-release-decision.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/configuration/configuration-release-decision.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -77982,17 +77346,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/followup/tender-followup-notice.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/followup/tender-followup-notice",
       "moduleName": "app:services/smart-bid/content/references/followup/tender-followup-notice",
@@ -78002,6 +77355,17 @@
       "declarationFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/followup/tender-followup-notice.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/followup/tender-followup-notice.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -78455,17 +77819,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "Occupancy",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Occupancy 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict",
       "moduleName": "app:services/smart-bid/content/references/resource-use/resource-allocation-conflict",
@@ -78475,6 +77828,17 @@
       "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Occupancy",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Occupancy 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-allocation-conflict.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -78665,17 +78029,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "OriginalFileIdentity",
-      "reason": "missing-jsdoc",
-      "chainBreak": "OriginalFileIdentity 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-original-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/resource-use/resource-original-file",
       "moduleName": "app:services/smart-bid/content/references/resource-use/resource-original-file",
@@ -78685,6 +78038,17 @@
       "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts"
+    },
+    {
+      "kind": "model",
+      "className": "OriginalFileIdentity",
+      "reason": "missing-jsdoc",
+      "chainBreak": "OriginalFileIdentity 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-original-file.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-original-file.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -79173,17 +78537,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-use-decision.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/resource-use/resource-use-decision",
       "moduleName": "app:services/smart-bid/content/references/resource-use/resource-use-decision",
@@ -79193,6 +78546,17 @@
       "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/resource-use/resource-use-decision.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/resource-use/resource-use-decision.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -79737,17 +79101,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Cell",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Cell 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/response/original-form-mapping.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/response/original-form-mapping",
       "moduleName": "app:services/smart-bid/content/references/response/original-form-mapping",
@@ -79757,6 +79110,17 @@
       "declarationFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Cell",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Cell 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/response/original-form-mapping.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/response/original-form-mapping.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -79961,17 +79325,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/response/qualification-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/response/qualification-review",
       "moduleName": "app:services/smart-bid/content/references/response/qualification-review",
@@ -79981,6 +79334,17 @@
       "declarationFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/response/qualification-review.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/response/qualification-review.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/response/qualification-review.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -80148,17 +79512,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/response/response-assignment.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/response/response-assignment",
       "moduleName": "app:services/smart-bid/content/references/response/response-assignment",
@@ -80168,6 +79521,17 @@
       "declarationFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/response/response-assignment.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/response/response-assignment.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/response/response-assignment.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -80794,17 +80158,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/references/response/response-task.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/references/response/response-task.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/references/response/response-task.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/references/response/response-task",
       "moduleName": "app:services/smart-bid/content/references/response/response-task",
@@ -80814,6 +80167,17 @@
       "declarationFile": "src/services/smart-bid/content/references/response/response-task.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/references/response/response-task.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/references/response/response-task.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/references/response/response-task.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/references/response/response-task.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -81558,17 +80922,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "GroupScope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "GroupScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/delivery-selection-digest.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/delivery-selection-digest",
       "moduleName": "app:services/smart-bid/content/review/delivery-selection-digest",
@@ -81578,6 +80931,17 @@
       "declarationFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts"
+    },
+    {
+      "kind": "model",
+      "className": "GroupScope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "GroupScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/delivery-selection-digest.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/delivery-selection-digest.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -82257,17 +81621,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/finding/review-finding-recheck.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/finding/review-finding-recheck",
       "moduleName": "app:services/smart-bid/content/review/finding/review-finding-recheck",
@@ -82277,6 +81630,17 @@
       "declarationFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/finding/review-finding-recheck.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/finding/review-finding-recheck.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -83050,17 +82414,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "Publication",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Publication 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/production/disclosed-output-registration.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/production/disclosed-output-registration",
       "moduleName": "app:services/smart-bid/content/review/production/disclosed-output-registration",
@@ -83070,6 +82423,17 @@
       "declarationFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Publication",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Publication 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/production/disclosed-output-registration.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/production/disclosed-output-registration.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -83908,17 +83272,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/production/production-request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/production/production-request.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/production/production-request.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/production/production-request",
       "moduleName": "app:services/smart-bid/content/review/production/production-request",
@@ -83928,6 +83281,17 @@
       "declarationFile": "src/services/smart-bid/content/review/production/production-request.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/production/production-request.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/production/production-request.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/production/production-request.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/production/production-request.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -84628,17 +83992,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Target",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Target 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/review-coverage.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/review-coverage.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/review-coverage",
       "moduleName": "app:services/smart-bid/content/review/review-coverage",
@@ -84648,6 +84001,17 @@
       "declarationFile": "src/services/smart-bid/content/review/review-coverage.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Target",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Target 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/review-coverage.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/review-coverage.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/review-coverage.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -84802,17 +84166,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission-attempt-recovery.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/submission-attempt-recovery",
       "moduleName": "app:services/smart-bid/content/review/submission-attempt-recovery",
@@ -84822,6 +84175,17 @@
       "declarationFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission-attempt-recovery.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission-attempt-recovery.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -84943,17 +84307,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "ObservedMember",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ObservedMember 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission-package-members.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission-package-members.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/submission-package-members",
       "moduleName": "app:services/smart-bid/content/review/submission-package-members",
@@ -84963,6 +84316,17 @@
       "declarationFile": "src/services/smart-bid/content/review/submission-package-members.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts"
+    },
+    {
+      "kind": "model",
+      "className": "ObservedMember",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ObservedMember 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission-package-members.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission-package-members.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission-package-members.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -85012,17 +84376,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Effect",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Effect 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission-reconciliation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/submission-reconciliation",
       "moduleName": "app:services/smart-bid/content/review/submission-reconciliation",
@@ -85032,6 +84385,17 @@
       "declarationFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Effect",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Effect 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission-reconciliation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission-reconciliation.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -85106,17 +84470,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "ZipInventoryLimits",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ZipInventoryLimits 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission-zip-inventory.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/submission-zip-inventory",
       "moduleName": "app:services/smart-bid/content/review/submission-zip-inventory",
@@ -85126,6 +84479,17 @@
       "declarationFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts"
+    },
+    {
+      "kind": "model",
+      "className": "ZipInventoryLimits",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ZipInventoryLimits 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission-zip-inventory.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission-zip-inventory.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -85401,17 +84765,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "GrantScope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "GrantScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission/authority-grant-decision.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/submission/authority-grant-decision",
       "moduleName": "app:services/smart-bid/content/review/submission/authority-grant-decision",
@@ -85421,6 +84774,17 @@
       "declarationFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts"
+    },
+    {
+      "kind": "model",
+      "className": "GrantScope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "GrantScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission/authority-grant-decision.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission/authority-grant-decision.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -85778,17 +85142,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/submission/bid-handoff-evidence",
       "moduleName": "app:services/smart-bid/content/review/submission/bid-handoff-evidence",
@@ -85798,6 +85151,17 @@
       "declarationFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission/bid-handoff-evidence.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -86026,17 +85390,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "Scope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/submission/channel-receipt-pairing",
       "moduleName": "app:services/smart-bid/content/review/submission/channel-receipt-pairing",
@@ -86046,6 +85399,17 @@
       "declarationFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Scope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Scope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission/channel-receipt-pairing.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -86580,17 +85944,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "ObjectScope",
-      "reason": "missing-jsdoc",
-      "chainBreak": "ObjectScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/services/smart-bid/content/review/submission/submission-opening-disposition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:services/smart-bid/content/review/submission/submission-opening-disposition",
       "moduleName": "app:services/smart-bid/content/review/submission/submission-opening-disposition",
@@ -86600,6 +85953,17 @@
       "declarationFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
       "declarationLine": 1,
       "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts"
+    },
+    {
+      "kind": "model",
+      "className": "ObjectScope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ObjectScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/services/smart-bid/content/review/submission/submission-opening-disposition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/services/smart-bid/content/review/submission/submission-opening-disposition.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -94303,50 +93667,6 @@
       "declarationFile": "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts",
       "declarationLine": 1,
       "sourceFile": "src/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model.ts"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content",
-      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
-      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog",
-      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
-      "moduleName": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
-      "reason": "weak-module-jsdoc",
-      "chainBreak": "app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
-      "fixHint": "在 src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue"
     },
     {
       "kind": "module",
@@ -103947,17 +103267,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "PublishedEnterpriseBinding",
-      "reason": "missing-jsdoc",
-      "chainBreak": "PublishedEnterpriseBinding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/application/smart-bid/authority/published-enterprise-owner.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:views/features/application/smart-bid/authority/published-enterprise-owner",
       "moduleName": "app:views/features/application/smart-bid/authority/published-enterprise-owner",
@@ -103967,6 +103276,17 @@
       "declarationFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
       "declarationLine": 1,
       "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts"
+    },
+    {
+      "kind": "model",
+      "className": "PublishedEnterpriseBinding",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PublishedEnterpriseBinding 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/application/smart-bid/authority/published-enterprise-owner.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/application/smart-bid/authority/published-enterprise-owner.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -106870,6 +106190,17 @@
       "declarationKind": "interface"
     },
     {
+      "kind": "module",
+      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
+      "reason": "inferred-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
+      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
+    },
+    {
       "kind": "model",
       "className": "DataSpaceParametersEditorProps",
       "reason": "missing-jsdoc",
@@ -106880,17 +106211,6 @@
       "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
       "componentName": "DataSpaceParametersEditor",
       "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "module",
-      "className": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "moduleName": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props",
-      "reason": "inferred-module-jsdoc",
-      "chainBreak": "app:views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props 的模块级语义链断开：文件入口没有 JSDoc；当前只能使用路径、组件目录和导出 symbol 推导。",
-      "fixHint": "在 src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.props.ts"
     },
     {
       "kind": "attribute",
@@ -107015,17 +106335,6 @@
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue"
     },
     {
-      "kind": "model",
-      "className": "RegisterObjectType",
-      "reason": "missing-jsdoc",
-      "chainBreak": "RegisterObjectType 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
       "moduleName": "app:views/features/data-platform/database-management/table-and-view/ui/register-dialog",
@@ -107035,6 +106344,17 @@
       "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue"
+    },
+    {
+      "kind": "model",
+      "className": "RegisterObjectType",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RegisterObjectType 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",
@@ -107376,17 +106696,6 @@
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue"
     },
     {
-      "kind": "model",
-      "className": "RuleTarget",
-      "reason": "missing-jsdoc",
-      "chainBreak": "RuleTarget 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
       "moduleName": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
@@ -107396,6 +106705,17 @@
       "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts"
+    },
+    {
+      "kind": "model",
+      "className": "RuleTarget",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RuleTarget 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "attribute",
@@ -107689,17 +107009,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "model",
-      "className": "Id",
-      "reason": "missing-jsdoc",
-      "chainBreak": "Id 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
-      "declarationLine": 1,
-      "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
       "moduleName": "app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor",
@@ -107709,6 +107018,17 @@
       "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue"
+    },
+    {
+      "kind": "model",
+      "className": "Id",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Id 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",
@@ -108590,12 +107910,24 @@
     {
       "kind": "attribute",
       "className": "ReportSaveRequest",
+      "memberName": "kind",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ReportSaveRequest.kind 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/report/ui/report-save.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/report/ui/report-save.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/views/features/integration/report/ui/report-save.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "ReportSaveRequest",
       "memberName": "targets",
       "reason": "missing-jsdoc",
       "chainBreak": "ReportSaveRequest.targets 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/integration/report/ui/report-save.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/integration/report/ui/report-save.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "src/views/features/integration/report/ui/report-save.ts",
       "declarationKind": "interface"
     },

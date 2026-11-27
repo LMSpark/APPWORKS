@@ -34,14 +34,10 @@ export function hasReadonlyModifier(node: ts.Node): boolean {
     && (ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.ReadonlyKeyword) ?? false)
 }
 
-/** 判断类元素是否为私有成员（private 关键字或 # 前缀）。仅对 ClassElement 有效。 */
-export function isPrivateMember(member: ts.ClassElement): boolean {
-  const modifiers = ts.canHaveModifiers(member) ? ts.getModifiers(member) : undefined
-  if (modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.PrivateKeyword) === true) return true
-  if (ts.isPropertyDeclaration(member) && ts.isIdentifier(member.name)) {
-    return member.name.text.startsWith('#')
-  }
-  return false
+/** 按声明的 private 修饰符或 ECMAScript 私有名称识别私有成员。 */
+export function isPrivateMember(member: ts.Declaration): boolean {
+  if ((ts.getCombinedModifierFlags(member) & ts.ModifierFlags.Private) !== 0) return true
+  return ts.isClassElement(member) && member.name !== undefined && ts.isPrivateIdentifier(member.name)
 }
 
 /** 判断类属性声明是否为私有成员（private 关键字或 # 前缀）。 */

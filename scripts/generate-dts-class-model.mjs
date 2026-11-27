@@ -500,15 +500,22 @@ function fingerprint(content) {
   return createHash('sha256').update(content).digest('hex')
 }
 
-/** 只有可发射源码进入候选清单，环境声明或配置变化使既有快照失效。 */
+/** 环境声明、配置和投影规则发生变化时，重新生成所有分片。 */
 function readClassModelEmitInputs(command) {
   const { parsed } = parseClassModelEmitProject(command)
   const emitPaths = new Set()
-  const configuration = [command.configPath, 'tsconfig.typecheck.json', 'tsconfig.json', 'pnpm-lock.yaml']
+  const inputPaths = [command.configPath, 'tsconfig.typecheck.json', 'tsconfig.json', 'pnpm-lock.yaml',
+    'scripts/generate-dts-class-model.mjs', 'scripts/lib/class-model-incremental-build.mjs']
     .map(file => resolve(command.repoRoot, file))
+  // 规则的函数体变化也可能改变未重新 emit 的消费者分片。
+  for (const directory of ['scripts/lib/class-model', 'packages/spark-ai/src/class-model/class-model']) {
+    for (const entry of readdirSync(resolve(command.repoRoot, directory), {recursive: true, withFileTypes: true})) {
+      if (entry.isFile() && /\.(?:mjs|ts)$/u.test(entry.name)) inputPaths.push(resolve(entry.parentPath, entry.name))
+    }
+  }
   for (const absolutePath of parsed.fileNames) {
     if (/\.d\.(?:ts|mts|cts)$/u.test(absolutePath)) {
-      configuration.push(absolutePath)
+      inputPaths.push(absolutePath)
       continue
     }
     const repoRelativePath = normalizeRepoPath(absolutePath, command.repoRoot)
@@ -518,7 +525,7 @@ function readClassModelEmitInputs(command) {
       // skip paths that cannot map to ClassModel emit virtual keys
     }
   }
-  const inputs = configuration.sort().map(file => [normalizeRepoPath(file, command.repoRoot), fingerprint(readFileSync(file))])
+  const inputs = inputPaths.sort().map(file => [normalizeRepoPath(file, command.repoRoot), fingerprint(readFileSync(file))])
   return {
     emitSourcePaths: [...emitPaths].sort((left, right) => left.localeCompare(right)),
     inputFingerprint: fingerprint(JSON.stringify([1, ts.version, command.emitBackend, inputs])),

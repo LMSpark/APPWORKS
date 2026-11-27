@@ -26,7 +26,7 @@ function filterFields(filter: PagedataFilter | undefined): string[] {
 }
 
 /** 正式模型字段取各视图投影与常驻范围字段，排除场景计算列。 */
-function formalModels(scenarioId: string): FormalModel[] {
+export function formalModels(scenarioId: string): FormalModel[] {
   const config = configs[scenarioId]
   if (!config) return []
   return Object.entries(config.tables).map(([name, table]) => {

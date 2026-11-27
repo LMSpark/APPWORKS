@@ -147,12 +147,13 @@ describe('authenticated application catalog DataView', () => {
     } finally {dataSet.destroy()}
   })
 
-  it('projects every visible application through one formal DataView and releases the owner', async () => {
+  it('projects every visible application while an application is selected and releases the discovery owner', async () => {
     lowcodeApi.session.save({accessToken: 'catalog-test-access', refreshToken: 'catalog-test-refresh',
       accessExpiresAt: Date.now() + 60_000, refreshExpiresAt: Date.now() + 120_000,
       identity: {userId: 'USER-1', account: 'test', displayName: 'Test', enterpriseId: 'ENT-1', enterpriseShortName: 'Enterprise', role: null, raw: {}},
       enterprise: {id: 'ENT-1', name: 'Enterprise', code: 'ENT', shortName: 'Enterprise', shortCode: 'ENT', raw: {}},
     })
+    lowcodeApi.application.save({application: {id: 'CURRENT', name: 'Current'}, navigationRootId: 'ROOT'})
     queryRows = [
       {rowid: 'APP-1', AppDesc: '财务管理', AppName: 'finance', Memo: '财务模块'},
       {rowid: 'APP-2', AppDesc: '采购管理', AppName: 'procurement', Memo: ''},
@@ -176,6 +177,8 @@ describe('authenticated application catalog DataView', () => {
       {id: 'APP-2', name: '采购管理', code: 'procurement', description: ''},
     ])
     expect(formalQueryRequests()).toHaveLength(1)
+    expect(formalQueryRequests()[0]?.config.headers).not.toHaveProperty('X-AppId')
+    expect(lowcodeApi.application.get()?.application.id).toBe('CURRENT')
     expect(destroy).toHaveBeenCalledTimes(2)
   })
 

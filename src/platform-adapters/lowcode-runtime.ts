@@ -71,7 +71,7 @@ export const lowcodeRealtime = new LowcodeRealtimeApi({
   },
 })
 
-/** 未进入应用时（企业级、平台级）的数据空间请求入口：只携带登录身份，不带应用头。 */
+/** 应用发现及由调用方核验目标的目录请求只依赖正式登录身份，可以在已选应用中使用。 */
 export const lowcodeCatalogDataSpace = new LowcodePlatform.DataSpaceApi({
   http: lowcodeHttp,
   readScope: () => lowcodeApi.readAuthenticatedRequestScope(),

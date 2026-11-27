@@ -1,12 +1,16 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { DataSet } from '@spark-appworks/spark-data'
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import appConfig from '../../../../config/pages/application/project-blueprint/pagedata.json'
+import { DataSpaceDesignApi } from '@/platform-adapters/api'
+import { loadLowcodeRuntimeScenario } from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 import { createPageFileResourceView } from '../../../../src/services/project/page-tool-file-dataview'
 import * as runtime from '../../../../src/platform-adapters/lowcode-runtime'
+import { formalModels, MY } from '../../application/enterprise-app-auth/enterprise-app-auth.fixture'
+import { installRepositoryScenarioTestFetch } from '../../../support/helpers/authenticated-lowcode-session'
 
 const { hasLowcodeSession, lowcodeApi, readLowcodePrincipal } = runtime
 
@@ -108,6 +112,191 @@ function deferredFixture<T>() {
   const promise = new Promise<T>(resolve => { resolveValue = resolve })
   return { promise, resolve: resolveValue }
 }
+
+describe('authenticated catalog runtime application generation', () => {
+  const command = { projectId: 'homepage', scenarioId: MY }
+  const dataSets: DataSet[] = []
+  const queryResponse = (label: string): HttpResponse<unknown> => ({
+    status: 200, statusText: 'OK', headers: {}, data: { Code: 200, Result: {
+      primaryKeyField: 'rowid',
+      data: { Items: [{ rowid: 'S0', val: 'PENDING', txt: label, ordIdx: 0 }], Count: 1 },
+    } },
+  })
+
+  async function openStatusView() {
+    const dataSet = await loadLowcodeRuntimeScenario(command)
+    dataSets.push(dataSet)
+    const view = dataSet.getView('app_auth_status', 'default')
+    if (view === undefined) throw new Error('status view missing from the registered scenario')
+    return view
+  }
+
+  beforeEach(() => {
+    transport.mockReset()
+    lowcodeApi.application.clear()
+    lowcodeApi.session.clear()
+    lowcodeApi.session.save(sessionFixture())
+    installRepositoryScenarioTestFetch()
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readSpaceDefinition')
+      .mockImplementation(async input => ({ dataSpaceId: input.dataSpaceId, name: 'status fixture' }))
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch')
+      .mockImplementation(async input => formalModels(input.dataSpaceId))
+    transport.mockImplementation(async config => {
+      if (config.url !== '/api/DataOperation/GetData') throw new Error('unexpected catalog transport')
+      expect(config.headers).toMatchObject({ 'x-FormKey': MY, Authorization: expect.stringMatching(/^Bearer /u) })
+      expect(config.headers).not.toHaveProperty('X-AppId')
+      return queryResponse('待审批')
+    })
+  })
+
+  afterEach(() => {
+    for (const dataSet of dataSets.splice(0)) dataSet.destroy()
+    lowcodeApi.application.clear()
+    lowcodeApi.session.clear()
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  it('rejects old queries before dispatch both in an application and on returning to the catalog', async () => {
+    const previous = await openStatusView()
+    expect(await previous.requestRefresh()).toMatchObject({ success: true })
+    expect(previous.rows.map(row => row['txt'])).toEqual(['待审批'])
+    transport.mockClear()
+
+    selectApplicationFixture('APP-A')
+    await expect(loadLowcodeRuntimeScenario(command)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(await previous.requestRefresh()).toMatchObject({ success: false })
+    runtime.enterLowcodeApplicationCatalog()
+    expect(await previous.requestRefresh()).toMatchObject({ success: false })
+    expect(transport).toHaveBeenCalledTimes(0)
+
+    const reopened = await openStatusView()
+    expect(reopened).not.toBe(previous)
+    expect(await reopened.requestRefresh()).toMatchObject({ success: true })
+    expect(reopened.rows.map(row => row['txt'])).toEqual(['待审批'])
+    expect(transport).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects an already dispatched query after selecting and leaving an application', async () => {
+    const view = await openStatusView()
+    const dispatched = deferredFixture<void>()
+    const response = deferredFixture<HttpResponse<unknown>>()
+    transport.mockImplementationOnce(() => {
+      dispatched.resolve()
+      return response.promise
+    })
+    const reading = view.requestRefresh()
+    await dispatched.promise
+    selectApplicationFixture('APP-A')
+    runtime.enterLowcodeApplicationCatalog()
+    response.resolve(queryResponse('迟到结果'))
+
+    expect(await reading).toMatchObject({ success: false })
+    expect(view.rows).toHaveLength(0)
+    expect(transport).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects a suspended assembly after selecting and leaving an application', async () => {
+    const started = deferredFixture<void>()
+    const metadata = deferredFixture<ReturnType<typeof formalModels>>()
+    vi.spyOn(DataSpaceDesignApi.prototype, 'readModelBatch').mockImplementationOnce(() => {
+      started.resolve()
+      return metadata.promise
+    })
+    const assembly = openStatusView()
+    const settled = assembly.then(() => ({accepted: true}), (reason: unknown) => ({accepted: false, reason}))
+    await started.promise
+    selectApplicationFixture('APP-A')
+    runtime.enterLowcodeApplicationCatalog()
+    metadata.resolve(formalModels(MY))
+
+    expect(await settled).toMatchObject({
+      accepted: false, reason: expect.objectContaining({message: expect.stringContaining('SPARK_EXECUTION_SCOPE_STALE')}),
+    })
+    expect(transport).toHaveBeenCalledTimes(0)
+  })
+
+  it('keeps a catalog view valid through renewal and invalidates it for a new login identity', async () => {
+    const view = await openStatusView()
+    const wire = pauseTransport()
+    const renewed = lowcodeApi.platform.refreshSession()
+    expect(await wire.started).toMatchObject({ url: '/api/LoginAuthority/refresh' })
+    wire.refreshed()
+    await renewed
+    expect(await view.requestRefresh()).toMatchObject({ success: true })
+    expect(transport).toHaveBeenLastCalledWith(expect.objectContaining({
+      headers: expect.objectContaining({ Authorization: 'Bearer renewed-access' }),
+    }))
+    transport.mockClear()
+    const session = sessionFixture()
+    lowcodeApi.session.save({ ...session, identity: { ...session.identity, userId: 'U2' } })
+
+    expect(await view.requestRefresh()).toMatchObject({ success: false })
+    expect(transport).toHaveBeenCalledTimes(0)
+  })
+
+  it('drops a query waiting for renewal when an application is selected before transport', async () => {
+    const view = await openStatusView()
+    const session = lowcodeApi.session.get()
+    if (session === null) throw new Error('missing fixture session')
+    lowcodeApi.session.save({...session, accessExpiresAt: 0})
+    const wire = pauseTransport()
+    const reading = view.requestRefresh()
+    expect(await wire.started).toMatchObject({url: '/api/LoginAuthority/refresh'})
+    selectApplicationFixture('APP-A')
+    runtime.enterLowcodeApplicationCatalog()
+    wire.refreshed()
+
+    expect(await reading).toMatchObject({success: false})
+    expect(view.rows).toHaveLength(0)
+    expect(transport).toHaveBeenCalledTimes(1)
+  })
+
+  it.each(['before-save', 'after-dispatch'] as const)('does not replay a catalog save after a scope change (%s)', async stage => {
+    const dataSet = await loadLowcodeRuntimeScenario(command)
+    dataSets.push(dataSet)
+    const view = dataSet.getView('enterprise_app_auth', 'default')
+    if (view === undefined) throw new Error('application request view missing')
+    const baseline = {id: 'REQ1', ent_shortname: 'ENT', app_id: 'APP-R', source_ent: 'OTHER',
+      request_type: 'REQUEST', auth_status: 'PENDING', review_comment: '原说明'}
+    transport.mockResolvedValueOnce({status: 200, statusText: 'OK', headers: {}, data: {Code: 200, Result: {
+      primaryKeyField: 'id', lingma_sys_key: 'table-proof', data: {Count: 1, Items: [{...baseline,
+        lingma_sys_key: 'row-proof', lingma_sys_params: {r: [], e: ['review_comment'], h: [], m: [], d: false}}]},
+    }}})
+    view.queryContext = {entShortName: 'ENT'}
+    expect(await view.requestRefresh()).toMatchObject({success: true})
+    await view.editRowById('REQ1', {review_comment: '新说明'})
+    transport.mockClear()
+    const save = {views: [{tableName: 'enterprise_app_auth', viewId: 'default', ids: ['REQ1']}]}
+    const leaveAndReturn = () => {
+      selectApplicationFixture('APP-A')
+      runtime.enterLowcodeApplicationCatalog()
+    }
+
+    if (stage === 'before-save') {
+      leaveAndReturn()
+      await expect(dataSet.saveChanges(save)).rejects.toThrow('SPARK_QUERY_CONTEXT_STALE')
+      expect(view.hasUnconfirmedSave).toBe(false)
+      expect(view.dirtyTracking.hasPendingChanges('REQ1')).toBe(true)
+      expect(transport).toHaveBeenCalledTimes(0)
+    } else {
+      const wire = pauseTransport()
+      const saving = dataSet.saveChanges(save).then(result => ({result}), (reason: unknown) => ({reason}))
+      const dispatched = await wire.started
+      expect(dispatched.url).toBe('/api/DataOperation/BatchTableOperateRequestByCRUD')
+      expect(dispatched.headers).not.toHaveProperty('X-AppId')
+      leaveAndReturn()
+      wire.respond({Code: 200, Result: {maplistedit: [{enterprise_app_auth: [{...baseline, review_comment: '新说明'}]}]}})
+
+      expect(await saving).toHaveProperty('reason')
+      expect(view.hasUnconfirmedSave).toBe(true)
+      expect(dataSet.saveJournal.views).toMatchObject([{state: 'unknown', ids: ['REQ1']}])
+      expect(await dataSet.verifySaveJournal()).toMatchObject({views: [{state: 'unknown'}]})
+      await expect(dataSet.saveChanges(save)).rejects.toThrow()
+      expect(transport).toHaveBeenCalledTimes(1)
+    }
+  })
+})
 
 function pauseTransport() {
   let resolveStarted: (config: RequestConfig) => void = () => undefined

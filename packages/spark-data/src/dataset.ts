@@ -23,6 +23,7 @@ import type {
 import { RequestState } from './types'
 import type { DataSetAppServices } from './types'
 import { DataView, type DataSetSaveResolution, type DataViewSaveDispatchProof } from './data-view'
+import type { SaveChangesData } from './strategies/crud/dirty-tracking-delegate'
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 import { deepClone, Logger, isRecord, SparkAIModel, toError } from '@spark-appworks/spark-utils'
 
@@ -179,6 +180,15 @@ type DataSetSaveJournalRecord = {
   completed: boolean
   retainedDraft: boolean
 }
+
+/** 原批次经核验或部分确认后的同步通知。仅登记后续工作，禁止在回调中派发。 */
+type DataSetSaveRecoveryHandler = (result: DataSetSaveChangesResult) => undefined
+type DataSetSaveCompletionRegistration = Readonly<{
+  handler: DataSetSaveCompletionHandler
+  onRecovered: DataSetSaveRecoveryHandler | undefined
+}>
+
+type DataSetSaveVerification = Readonly<{journal: DataSetSaveJournal; error?: Error}>
 
 /** 同一次执行的局部派发证据，与公开日志当前指针独立。 */
 type DataSetSaveExecution = Readonly<{
@@ -471,7 +481,7 @@ export class DataSet extends SparkAIModel implements DataSetContract {
 
   /** DataSet.saveChanges 的默认提交策略。 */
   saveChangesConfig: DataSetSaveChangesConfig | undefined
-  private _saveCompletionHandler: DataSetSaveCompletionHandler | undefined
+  private _saveCompletion: DataSetSaveCompletionRegistration | undefined
 
   /** 设计器布局信息（不参与运行时数据逻辑）。 */
   layout: DataSetMetadata['layout'] | undefined
@@ -1845,18 +1855,26 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
 
   /** Verify only the original unknown captures and retain the first error for UI diagnosis. */
   async verifySaveJournal(): Promise<DataSetSaveJournal> {
+    return (await this.verifyOriginalSaveJournal()).journal
+  }
+
+  private async verifyOriginalSaveJournal(): Promise<DataSetSaveVerification> {
     const settled=this.settleConfirmedDetachedSaves()
     const journal=this._saveJournal
-    if(!journal)return settled
+    if(!journal)return {journal: settled}
     const originals = this.originalJournalRecords(journal)
-    if (originals.length === 0) return settled
+    if (originals.length === 0) return {journal: settled}
 
+    const completion = this._saveCompletion
     this._saveDispatchOwner = Symbol()
     this._saveChangesInFlight++
     try {
-      const resolution = await this.withCascadeSuspended(() => DataView.resolveQuerySaves(originals.map(record => record.view)))
+      const receipts = new Map<DataView, SaveChangesData>()
+      const resolution = await this.withCascadeSuspended(() => DataView.resolveQuerySaves(originals.map(record => record.view), receipts))
       this.settleJournalRecovery(journal, originals, resolution)
-      return this.saveJournal
+      if (this._saveCompletion === completion) this.notifyRecoveredSave(journal, originals, receipts)
+      const error = resolution.views.find(view => view.error !== undefined)?.error
+      return {journal: this.saveJournal, ...(error === undefined ? {} : {error})}
     } finally {
       this._saveDispatchOwner = undefined
       this._saveChangesInFlight--
@@ -1884,7 +1902,8 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       throw new Error('DATA_SET_SAVE_JOURNAL_SCOPE: 原保存捕获不属于当前核验视图')
     }
 
-    let journal = await this.verifySaveJournal()
+    const verification = await this.verifyOriginalSaveJournal()
+    let journal = verification.journal
     if (journal.batchId !== batchId) throw new Error('DATA_SET_SAVE_JOURNAL_BATCH: 原保存批次已变化')
     const states = new Set(journal.views.map(item => item.state))
     const settlement = states.has('unknown') ? 'unknown' : states.has('pending') ? 'pending'
@@ -1924,6 +1943,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
         }
       })) : []
     return {journal, settlement, draftCleanup, journalReleased, readbacks,
+      ...(verification.error === undefined ? {} : {verificationError: verification.error}),
       ...(cleanupError === undefined ? {} : {cleanupError}), ...(releaseError === undefined ? {} : {releaseError})}
   }
 
@@ -1963,6 +1983,44 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       record.originalError ??= outcome.error
     }
     this.refreshSaveJournalCompletion(journal)
+  }
+
+  /** 通知设计会话已确认的原回执，由会话独立安排下游续办。 */
+  private notifyRecoveredSave(
+    journal: DataSetSaveJournalRecord,
+    originals: readonly DataSetSaveJournalViewRecord[],
+    receipts: ReadonlyMap<DataView, SaveChangesData>,
+  ): void {
+    const handler = this._saveCompletion?.onRecovered
+    if (!handler || this.destroyed || this._saveJournal !== journal) return
+    const confirmed = originals.flatMap(record => {
+      const receipt = receipts.get(record.view)
+      return record.state === 'applied' && receipt
+        ? [{...receipt, tableName: record.tableName, viewId: record.viewId, appliedEditingRows: 0, failedEditingRows: 0}] : []
+    })
+    if (confirmed.length === 0) return
+    const result = emptyDataSetSaveChangesResult(confirmed.length)
+    for (const view of confirmed) mergeViewResult(result, view)
+    const owner = this._saveDispatchOwner
+    this._saveDispatchOwner ??= Symbol()
+    try {
+      handler(result)
+    } catch (cause) {
+      dsLogger.error(`DATA_SET_SAVE_RECOVERY_HANDLER: ${toError(cause).message}`)
+    } finally {
+      this._saveDispatchOwner = owner
+    }
+  }
+
+  private notifyPartialSave(journal: DataSetSaveJournalRecord, execution: DataSetSaveExecution): void {
+    if (!this._saveCompletion?.onRecovered) return
+    const receipts = new Map<DataView, SaveChangesData>()
+    for (const [view, dispatched] of execution.dispatched) {
+      if (dispatched === true) continue
+      const receipt = dispatched.receipt()
+      if (receipt) receipts.set(view, receipt)
+    }
+    this.notifyRecoveredSave(journal, execution.records, receipts)
   }
 
   /** Retain the original draft and journal without cancelling, replaying, or replacing it. */
@@ -2093,6 +2151,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     phase: DataSetSaveJournalPhaseRecord,
     options: DataSetSaveChangesOptions,
   ): Promise<CrudResult<DataSetSaveChangesResult>> {
+    const completion = this._saveCompletion
     const preflight = Symbol()
     phase.preflight = preflight
     this._saveChangesInFlight++
@@ -2119,30 +2178,40 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       if (this._saveDispatchOwner === preflight || phase.preflight === preflight && !this._saveDispatchOwner) {
         this.settleSaveJournal(execution, error)
         this.refreshSaveJournalCompletion(journal)
+        if (this._saveCompletion === completion) this.notifyPartialSave(journal, execution)
       }
       throw error
     } finally {
       if (this._saveDispatchOwner === preflight) this._saveDispatchOwner = undefined
       this._saveChangesInFlight--
     }
-    if (result.success && result.data && this._saveCompletionHandler) {
+    if (this._saveCompletion !== completion || !completion) return result
+    if (result.success && result.data) {
       try {
-        await this._saveCompletionHandler(result, options)
+        await completion.handler(result, options)
       } catch (error) {
         return { ...result, data: { ...result.data, followUpError: toError(error) } }
       }
-    }
+    } else this.notifyPartialSave(journal, execution)
     return result
   }
 
-  /** 注册原保存确认后的唯一后续动作；返回取消函数，不替代DataView保存回执。 */
-  setSaveCompletionHandler(handler?: DataSetSaveCompletionHandler): () => void {
-    if (this._saveCompletionHandler && this._saveCompletionHandler !== handler) {
+  /**
+   * 注册数据集保存的唯一后续动作。可选结算通知同步接收恢复或中断批次中实际确认的分项，
+   * 只登记后续工作，不在原核验期间执行写入。取消函数同时释放两个回调。
+   */
+  setSaveCompletionHandler(
+    handler?: DataSetSaveCompletionHandler,
+    onRecovered?: DataSetSaveRecoveryHandler,
+  ): () => void {
+    const previous = this._saveCompletion
+    if ((!handler && onRecovered) || (previous && (previous.handler !== handler || previous.onRecovered !== onRecovered))) {
       throw new Error('DATA_SET_SAVE_COMPLETION_HANDLER: 已存在其他保存后续动作')
     }
-    this._saveCompletionHandler = handler
+    const registration = previous ?? (handler ? {handler, onRecovered} : undefined)
+    this._saveCompletion = registration
     return () => {
-      if (this._saveCompletionHandler === handler) this._saveCompletionHandler = undefined
+      if (this._saveCompletion === registration) this._saveCompletion = undefined
     }
   }
 
@@ -2338,8 +2407,13 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     if (views.length === 0) return { state: 'none', views: [] }
     const journal = this._saveJournal
     const originals = journal ? this.originalJournalRecords(journal) : []
-    const resolution = await this.withCascadeSuspended(() => DataView.resolveQuerySaves(views))
-    if (journal) this.settleJournalRecovery(journal, originals, resolution)
+    const completion = this._saveCompletion
+    const receipts = new Map<DataView, SaveChangesData>()
+    const resolution = await this.withCascadeSuspended(() => DataView.resolveQuerySaves(views, receipts))
+    if (journal) {
+      this.settleJournalRecovery(journal, originals, resolution)
+      if (this._saveCompletion === completion) this.notifyRecoveredSave(journal, originals, receipts)
+    }
     return resolution
   }
 

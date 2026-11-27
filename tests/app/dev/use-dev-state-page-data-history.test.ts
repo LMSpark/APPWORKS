@@ -855,16 +855,24 @@ describe('tool and shared scenario editing owners',()=>{
    return {assembled, sources}
   }
 
-  it.each(['initial','assembly','pointer'] as const)('rejects the stored Plan when explicit query fields are found at %s',async phase=>{
+  const unsupportedPlanDefaults = [
+   {member:'queryConfig.fields',working:explicitFieldsText,error:'不支持保存显式 queryConfig.fields'},
+   {member:'queryContext',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"queryContext":{"region":"north"}'),error:'不支持保存非空 queryContext'},
+   {member:'sortExpression',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"sortExpression":[{"field":"id","direction":"desc"}]'),error:'不支持保存独立 sortExpression'},
+   {member:'filterExpression',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"filterExpression":{"field":"id","operator":"eq","value":"ONE"}'),error:'不支持保存可替换的初始过滤'},
+  ]
+  it.each(unsupportedPlanDefaults.flatMap(definition=>
+   (['initial','assembly','pointer'] as const).map(phase=>({...definition,phase}))
+  ))('rejects the stored Plan when $member is found at $phase',async ({phase,working,error})=>{
    configurePublicationSources('Dataset Plan')
    const {page,state,save,wrapper}=await openPublication('[]')
-   expect(explicitFieldsText).not.toBe(fixtureText(20))
-   httpGet.mockImplementation(async (url:string)=>({content:url==='scenario:scene'?explicitFieldsText:url.endsWith('/rule.json')?'[]':''}))
+   expect(working).not.toBe(fixtureText(20))
+   httpGet.mockImplementation(async (url:string)=>({content:url==='scenario:scene'?working:url.endsWith('/rule.json')?'[]':''}))
    const observe=async()=>{
     await state.loadSelectedScenarioViews()
     const source=state.editor.getScenarioViews('scene')
     if(!source)throw Error('Missing the original loaded working scene')
-    expect(source.savedText).toBe(explicitFieldsText)
+    expect(source.savedText).toBe(working)
     expect(state.editor.getScenarioDefinitions('scene')?.getView('DataViewDefinition')?.hasEditingChanges()).toBe(false)
    }
    try{
@@ -886,7 +894,7 @@ describe('tool and shared scenario editing owners',()=>{
     page.actions.value.saveDelivery()
     const status=()=>state.statusMessages.value.map(message=>message.text).join(' ')
     await vi.waitFor(()=>expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
-    expect(status()).toContain('scene Orders@default 不支持保存显式 queryConfig.fields')
+    expect(status()).toContain(`scene Orders@default ${error}`)
     expect(savedVersions.has('orders-page-node')).toBe(false)
     expect(scenarioVersions.size).toBe(0)
     expect(httpPut).not.toHaveBeenCalled()

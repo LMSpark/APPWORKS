@@ -210,6 +210,7 @@ describe('runtime data set plan', () => {
     })
 
     expect(() => build({scopeFilter, filterExpression})).toThrow('SPACE Orders@default 不支持同时保存常驻范围和初始过滤')
+    expect(() => build({filterExpression})).toThrow('SPACE Orders@default 不支持保存可替换的初始过滤')
     expect(compileRuntimeDataSetPlan(build({scopeFilter})).metadata.tables['Orders']?.views['default']?.scopeFilter)
       .toEqual(scopeFilter)
   })

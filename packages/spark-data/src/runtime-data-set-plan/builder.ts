@@ -229,15 +229,7 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
     const fields = modelFields.filter(field => field.dataModelId === modelId)
     for (const [viewId, rawView] of Object.entries(tableViews)) {
       if (!isRecord(rawView)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${tableName}.${viewId}: 视图配置无效`)
-      // Plan v1 的空间入参和字段投影不能代替视图自己的默认上下文和独立排序。
-      const queryContext = rawView['queryContext']
-      if (isRecord(queryContext) && Object.keys(queryContext).length > 0) {
-        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryContext: ${input.scenarioId} ${tableName}@${viewId} 不支持保存非空 queryContext`)
-      }
-      const sort = rawView['sortExpression']
-      if (Array.isArray(sort) && sort.length > 0) {
-        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.sortExpression: ${input.scenarioId} ${tableName}@${viewId} 不支持保存独立 sortExpression`)
-      }
+      assertPlanViewDefaults(rawView, `${input.scenarioId} ${tableName}@${viewId}`)
       const recordId = stableViewRecordId(tableName, viewId)
       const cascadeDependencies: RuntimeDataSetPlanDependency[] = []
       const dependentFilters: RuntimePlanFilter[] = []
@@ -281,15 +273,9 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
         }
       }
       const scopeFilter = wireFilter(rawView['scopeFilter'], `${tableName}.${viewId}.scopeFilter`)
-      const initialFilter = wireFilter(rawView['filterExpression'], `${tableName}.${viewId}.filterExpression`)
-      if (scopeFilter && initialFilter) {
-        throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.filterExpression: ${input.scenarioId} ${tableName}@${viewId} 不支持同时保存常驻范围和初始过滤`)
-      }
-      const staticFilter = scopeFilter ?? initialFilter
-      const allFilters = [...staticFilter ? [staticFilter] : [], ...dependentFilters]
+      const allFilters = [...scopeFilter ? [scopeFilter] : [], ...dependentFilters]
       const filter = allFilters.length === 0 ? '' : JSON.stringify(allFilters.length === 1 ? allFilters[0] : {Type: 'And', Filters: allFilters})
       const queryConfig = isRecord(rawView['queryConfig']) ? rawView['queryConfig'] : {}
-      assertPlanViewQueryFields(queryConfig['fields'], `${input.scenarioId} ${tableName}@${viewId}`)
       const projection = Array.isArray(rawView['fieldProjection']) ? rawView['fieldProjection'].filter(isRecord) : []
       views.push({
         id: recordId, code: viewId, name: viewId, description: '',
@@ -335,22 +321,35 @@ function tableViewsByName(tables: RuntimePlanRecord, tableName: string): Runtime
   return isRecord(table) ? table : undefined
 }
 
-function assertPlanViewQueryFields(fields: unknown, viewIdentity: string): void {
+function assertPlanViewDefaults(view: RuntimePlanRecord, viewIdentity: string): void {
+  const queryContext = view['queryContext']
+  if (isRecord(queryContext) && Object.keys(queryContext).length > 0) {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryContext: ${viewIdentity} 不支持保存非空 queryContext`)
+  }
+  const sort = view['sortExpression']
+  if (Array.isArray(sort) && sort.length > 0) {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.sortExpression: ${viewIdentity} 不支持保存独立 sortExpression`)
+  }
+  if (wireFilter(view['filterExpression'], `${viewIdentity}.filterExpression`)) {
+    const scope = wireFilter(view['scopeFilter'], `${viewIdentity}.scopeFilter`)
+    const detail = scope ? '不支持同时保存常驻范围和初始过滤' : '不支持保存可替换的初始过滤'
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.filterExpression: ${viewIdentity} ${detail}`)
+  }
+  const fields = isRecord(view['queryConfig']) ? view['queryConfig']['fields'] : undefined
   if (Array.isArray(fields) && fields.length > 0) {
     throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.fields: ${viewIdentity} 不支持保存显式 queryConfig.fields`)
   }
 }
 
-/** 拒绝 Plan v1 无法保存的正式视图默认请求列。生成和新发布使用同一工作场景规则。 */
-export function assertRuntimeDataSetPlanQueryFields(input: Pick<BuildRuntimeDataSetPlanInput, 'scenarioId' | 'scenarioConfig'>): void {
+/** 核同一工作场景的视图默认查询配置可由 Plan v1 表达，用于已有 Plan 的新发布。 */
+export function assertRuntimeDataSetPlanViewDefaults(input: Pick<BuildRuntimeDataSetPlanInput, 'scenarioId' | 'scenarioConfig'>): void {
   const tables = input.scenarioConfig['tables']
   if (!isRecord(tables)) return
   for (const [tableName, table] of Object.entries(tables)) {
     if (!isRecord(table) || table['resourceType'] === 'file' || table['resourceType'] === 'command'
       || !isRecord(table['modelBinding']) || !isRecord(table['views'])) continue
     for (const [viewId, view] of Object.entries(table['views'])) {
-      const fields = isRecord(view) && isRecord(view['queryConfig']) ? view['queryConfig']['fields'] : undefined
-      assertPlanViewQueryFields(fields, `${input.scenarioId} ${tableName}@${viewId}`)
+      if (isRecord(view)) assertPlanViewDefaults(view, `${input.scenarioId} ${tableName}@${viewId}`)
     }
   }
 }

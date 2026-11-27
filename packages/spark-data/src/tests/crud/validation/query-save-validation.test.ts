@@ -200,6 +200,8 @@ describe('formal query-save receipt identity', () => {
 
   it.each(['unchanged', 'edited'] as const)('keeps partial recovery evidence when the original draft is %s', async mode => {
     const f = await resourceOwners(undefined, true)
+    const settled = vi.fn(() => undefined)
+    const stop = f.dataSet.setSaveCompletionHandler(() => undefined, settled)
     const read = vi.spyOn(f.fileOwner, 'executeQuery')
     const normalOrderSave = f.orderOwner.save.getMockImplementation()!
     let rejected = false
@@ -218,6 +220,9 @@ describe('formal query-save receipt identity', () => {
       const selection = {views: [{tableName: 'Items'}, {tableName: 'Orders'}]}
       f.dataSet.prepareSaveJournal(selection)
       await expect(f.dataSet.saveChanges(selection)).rejects.toThrow('order original result lost')
+      expect(settled).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({savedCount: 1, viewResults: [
+        expect.objectContaining({tableName: 'Items', viewId: 'default', savedCount: 1}),
+      ]}))
       const batchId = f.dataSet.saveJournal.batchId
       if (!batchId) throw new Error('missing original batch')
       if (mode === 'edited') f.orders.updateEditingValue('1', 'title', 'Later order draft')
@@ -232,6 +237,7 @@ describe('formal query-save receipt identity', () => {
       })
       expect(f.stored.get('Orders')?.[0]?.['title']).toBe('Before')
       expect(f.stored.get('Items')?.[0]?.['title']).toBe('Confirmed item')
+      expect(settled).toHaveBeenCalledOnce()
       expect(f.batches).toEqual([['Items']])
       if (mode === 'unchanged') {
         expect(f.orders.hasEditingChanges()).toBe(false)
@@ -247,7 +253,7 @@ describe('formal query-save receipt identity', () => {
       expect((await f.dataSet.saveChanges({views: [{tableName: 'Orders'}]})).success).toBe(true)
       expect(f.stored.get('Orders')?.[0]?.['title']).toBe('Later order draft')
       expect(f.batches).toEqual([['Items'], ['Orders']])
-    } finally {f.dataSet.destroy()}
+    } finally {stop(); f.dataSet.destroy()}
   })
 
   it.each(['replaced','disposed','deferred'] as const)('retains the confirmed journal when post-save readback is %s',async mode=>{
@@ -296,11 +302,14 @@ describe('formal query-save receipt identity', () => {
   it('withholds post-save reads while the original result remains unknown',async()=>{
     const f=await resourceOwners()
     const read=vi.spyOn(f.fileOwner,'executeQuery')
+    const originalError = new Error('original verification unavailable')
+    const verificationError = new Error('original source still shows the prior state')
     let pending=false
     f.database.hasUnconfirmedSave.mockImplementation(()=>pending)
     f.database.save.mockImplementation(async()=>{
+      const error = pending ? verificationError : originalError
       pending=true
-      throw new Error('original verification unavailable')
+      throw error
     })
     try{
       f.items.updateEditingValue('1','title','Unconfirmed item')
@@ -308,7 +317,8 @@ describe('formal query-save receipt identity', () => {
       const batchId=f.dataSet.saveJournal.batchId
       if(!batchId)throw new Error('missing original batch')
       const result=await f.dataSet.verifySaveJournalAndRead({batchId,receiptViews:[f.items],readbackViews:[f.file]})
-      expect(result).toMatchObject({settlement:'unknown',journal:{batchId,currentRecoverableAction:'verify-original-receipt'},readbacks:[]})
+      expect(result).toMatchObject({settlement:'unknown',verificationError,
+        journal:{batchId,originalError,currentRecoverableAction:'verify-original-receipt'},readbacks:[]})
       expect(f.items.hasUnconfirmedSave).toBe(true)
       expect(f.batches).toEqual([])
       expect(read).not.toHaveBeenCalled()
@@ -1438,6 +1448,45 @@ it('keeps a failed source save on the original path without running the completi
     expect(complete).not.toHaveBeenCalled()
     expect(f.fileOwner.save).not.toHaveBeenCalled()
   } finally {release(); f.dataSet.destroy()}
+})
+
+it('keeps a recovery receipt with the registration that began the original verification', async () => {
+  const f = await resourceOwners()
+  const persist = f.database.save.getMockImplementation()!
+  let pending = false
+  let settle = () => {}
+  let entered = () => {}
+  const ready = new Promise<void>(resolve => {entered = resolve})
+  const wait = new Promise<void>(resolve => {settle = resolve})
+  f.database.hasUnconfirmedSave.mockImplementation(() => pending)
+  f.database.save.mockImplementationOnce(async command => {
+    const receipt = await persist(command)
+    pending = true
+    f.database.save.mockImplementationOnce(async () => {
+      entered()
+      await wait
+      pending = false
+      return receipt
+    })
+    throw new Error('original result lost')
+  })
+  const first = vi.fn(() => undefined), replacement = vi.fn(() => undefined)
+  const stop = f.dataSet.setSaveCompletionHandler(() => undefined, first)
+  try {
+    f.items.updateEditingValue('1', 'title', 'Original metadata')
+    await expect(f.dataSet.saveChanges({views: [{tableName: 'Items'}]})).rejects.toThrow('original result lost')
+    const checking = f.dataSet.verifySaveJournal()
+    await ready
+    stop()
+    const stopReplacement = f.dataSet.setSaveCompletionHandler(() => undefined, replacement)
+    try {
+      settle()
+      await expect(checking).resolves.toMatchObject({completed: true})
+      expect(first).not.toHaveBeenCalled()
+      expect(replacement).not.toHaveBeenCalled()
+      expect(f.batches).toEqual([['Items']])
+    } finally {stopReplacement()}
+  } finally {settle();stop();f.dataSet.destroy()}
 })
 
 it('cannot continue a pending source against a new view with the same identity text', async () => {

@@ -655,12 +655,34 @@ describe('table-and-view-page', () => {
     expect(wrapper.text()).toContain('选择一张表或视图以查看字段目录。')
   })
 
-  it('fails when the requested database primary key does not resolve uniquely', async () => {
+  it('releases the rejected catalog and opens a valid database through an independent page instance', async () => {
+    let rejectedView: DataView | undefined
+    const loadCatalog = LowcodeDatabaseTableView.loadCatalog
+    const load = vi.spyOn(LowcodeDatabaseTableView, 'loadCatalog').mockImplementationOnce(async (...args) => {
+      const dataSet = await loadCatalog.call(LowcodeDatabaseTableView, ...args)
+      rejectedView = dataSet.getView(DATABASE_CATALOG_DB_MODEL, 'default')
+      return dataSet
+    })
     const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID, {databaseId: 'MISSING-DB'})
     expect(wrapper.text()).toContain('指定 databaseId 未在当前数据库目录中唯一命中')
     const dbRequest = http.requests.find(request => request.url === '/api/DataOperation/GetData'
       && JSON.stringify(request.data).includes('_base_dbInfo'))
     expect(JSON.stringify((dbRequest?.data as {Table: Array<{Filter: unknown}>}).Table[0]?.Filter)).toContain('MISSING-DB')
+    const rejected = await load.mock.results[0]?.value
+    if (!rejected) throw new Error('No DataSet returned for the rejected catalog')
+    try {
+      expect.soft(rejected.destroyed).toBe(true)
+      expect.soft(rejectedView?.destroyed).toBe(true)
+
+      const reopened = await open(DATABASE_TABLE_VIEW_SCENARIO_ID, {databaseId: 'DB1'})
+      const current = await load.mock.results[1]?.value
+      if (!current) throw new Error('No DataSet returned for the valid catalog')
+      expect(current).not.toBe(rejected)
+      expect(current.destroyed).toBe(false)
+      expect(reopened.findComponent(RendererTable).find('.el-table__body-wrapper').text()).toContain('业务库')
+    } finally {
+      rejected.destroy()
+    }
   })
 
   it('uses the formal database primary key for the server query when it is not rowid', async () => {

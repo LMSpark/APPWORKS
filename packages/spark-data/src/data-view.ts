@@ -380,6 +380,8 @@ type DataViewSaveDispatchState = 'applied' | 'not-applied' | 'unknown'
 export type DataViewSaveDispatchProof = Readonly<{
   matchesUnconfirmed(view: DataView): boolean
   outcome(): DataViewSaveDispatchState
+  /** 实际接纳的分项回执，在后续来源失败时仍属于原派发。 */
+  receipt(): SaveChangesData | undefined
 }>
 type DataViewQuerySaveValidationInput = Readonly<{ ids?: Array<string | number>; includeEditingRows: boolean }>
 type DataViewQuerySaveCapture = Readonly<{
@@ -3757,7 +3759,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   }
 
   /** @internal 按原派发批核验已有捕获；不提交后来编辑，不将来源失去pending当作未生效证明。 */
-  static async resolveQuerySaves(views: readonly DataView[]): Promise<DataSetSaveResolution> {
+  static async resolveQuerySaves(views: readonly DataView[], receipts?: Map<DataView, SaveChangesData>): Promise<DataSetSaveResolution> {
     const expected = new Map(views.flatMap(view => view.hasUnconfirmedSave && view.#unconfirmedQuerySave
       ? [[view, view.#unconfirmedQuerySave] as const] : []))
     const settled = new Map<DataView, DataViewSaveResolution>()
@@ -3767,7 +3769,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       for(const batch of batches){
         if(!batch||batch.some(({view,capture})=>expected.get(view)!==capture))throw new Error('DATA_VIEW_SAVE_RECOVERY: 缺少原批次完整捕获')
         await DataView.savePreparedQueryViews(batch.map(({view})=>({view})),undefined,
-          {expected,settle:(view,outcome)=>{settled.set(view,outcome)}})
+          {expected,settle:(view,outcome,receipt)=>{
+            settled.set(view,outcome)
+            if(receipt)receipts?.set(view,receipt)
+          }})
       }
     } catch (error) {failure = toError(error)}
     const outcomes = [...expected.keys()].map(view => {
@@ -3866,7 +3871,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   }
 
   private static async savePreparedQueryViews(targets: readonly DataViewQuerySaveTarget[], checkDomain?: DataViewDomainDispatchCheck,
-    resolution?: {expected: ReadonlyMap<DataView, DataViewQuerySaveCapture>; settle(view: DataView, outcome: DataViewSaveResolution): void}): Promise<Array<CrudResult<SaveChangesData>>> {
+    resolution?: {expected: ReadonlyMap<DataView, DataViewQuerySaveCapture>; settle(view: DataView, outcome: DataViewSaveResolution, receipt?: SaveChangesData): void}): Promise<Array<CrudResult<SaveChangesData>>> {
     if (resolution && targets.some(({view}) => !view.hasUnconfirmedSave || view.#unconfirmedQuerySave !== resolution.expected.get(view))) {
       throw new Error('DATA_VIEW_SAVE_RECOVERY: 入口原提交捕获已接纳或替换，不能派发新提交')
     }
@@ -3924,7 +3929,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const dispatched = new Set<DataView>()
     const returned = new Set<DataView>()
     const dispatchedChanges = new Map<DataView,DataViewQuerySaveChange>()
-    const dispatchOutcomes = new Map<DataView, { state: DataViewSaveDispatchState }>()
+    const dispatchOutcomes = new Map<DataView, {state: DataViewSaveDispatchState; receipt?: SaveChangesData}>()
     let failure: Error | null = null
     try {
       for (const batch of batches) {
@@ -3962,13 +3967,14 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             const observer = dispatchObservers.get(view)
             if (observer) {
               const change = dispatchedChanges.get(view)
-              const status: { state: DataViewSaveDispatchState } = { state: 'unknown' }
+              const status: {state: DataViewSaveDispatchState; receipt?: SaveChangesData} = {state: 'unknown'}
               dispatchOutcomes.set(view, status)
               observer({
                 matchesUnconfirmed: candidate => candidate === view && !view.destroyed
                   && view.#unconfirmedQuerySave === capture && view.hasUnconfirmedSave,
                 outcome: () => status.state === 'unknown' && view.destroyed && change && hasConfirmedFileDeletion(change)
                   ? 'applied' : status.state,
+                receipt: () => status.receipt,
               })
             }
           }
@@ -3987,10 +3993,14 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             return { view, command }
           })
           for (const {view, command} of acceptances) {
-            results.set(view, view.acceptQuerySaveReceipt(command))
+            const accepted = view.acceptQuerySaveReceipt(command)
+            results.set(view, accepted)
             const outcome = dispatchOutcomes.get(view)
-            if (outcome) outcome.state = 'applied'
-            resolution?.settle(view,{tableName:view.tableName,viewId:view.viewId,state:'confirmed'})
+            if (outcome) {
+              outcome.state = 'applied'
+              if (accepted.data) outcome.receipt = accepted.data
+            }
+            resolution?.settle(view,{tableName:view.tableName,viewId:view.viewId,state:'confirmed'},accepted.data)
             try {
               const notify: ((context: DataViewQueryResult) => unknown) | undefined = command.executor.acknowledgeSave
               const notification = notify?.call(command.executor, command.context)

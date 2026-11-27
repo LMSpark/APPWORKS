@@ -1605,6 +1605,8 @@ export type DataSetSaveJournalReadResult = Readonly<{
   settlement: 'confirmed' | 'partial' | 'not-applied' | 'unknown' | 'pending'
   draftCleanup: 'untouched' | 'discarded' | 'retained'
   journalReleased: boolean
+  /** 本次原提交核验的来源诊断。日志中的 originalError 仍保留首次失败。 */
+  verificationError?: Error
   cleanupError?: Error
   releaseError?: Error
   readbacks: ReadonlyArray<Readonly<DataViewRefreshResult & {view: DataView}>>

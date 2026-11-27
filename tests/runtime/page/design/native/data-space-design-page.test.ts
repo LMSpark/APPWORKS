@@ -351,7 +351,9 @@ describe('native DataTable data processing', () => {
     await wrapper.get('[data-action="save-model-workspace"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(true); expect(f.fileWrites).toHaveLength(1)
     expect(editor.get('[data-action="discard-table-api"]').attributes('disabled')).toBeDefined()
+    const originalSave = vi.spyOn(f.sessions[0]!.metadataDataSet, 'saveChanges')
     await editor.findAll('button').find(button => button.text() === '核验数据处理提交')!.trigger('click'); await flushPromises()
+    expect(originalSave).not.toHaveBeenCalled()
     expect(instance.isDirty, editor.text()).toBe(false); expect(f.fileWrites).toHaveLength(1)
     expect((await f.open('A')).definitionDataSet!.getTable('OrdersAlias')!.api?.list?.url).toBe('/api/Orders/query')
   })
@@ -616,7 +618,7 @@ describe('file model workspace', () => {
     expect(f.fileWrites).toHaveLength(1); expect(writes(f)).toEqual([]); expect(f.modelReads).toEqual([])
     expect(f.assemblyScopes).toEqual([['DataViewDefinition', 'DataSpaceLayoutDefinition']])
   })
-  it('edits and cancels resource field configuration in the bound native view and preserves named views on save', async () => {
+  it.each([false, true])('edits and cancels resource field configuration in the bound native view and preserves named views on save (lost=%s)', async lost => {
     const f = fixture({overviewOnly: true}), original = {...fileConfig(), tables: {...fileConfig().tables,
       OrdersAlias: {modelBinding: {modelId: 'M1', modelName: 'Orders'}, views: {default: {}, other: {pageSize: 19}}}}}
     f.stored.set('A', JSON.stringify(original))
@@ -631,7 +633,18 @@ describe('file model workspace', () => {
     expect((bindings.getEditingRow(key)!['configuration'] as typeof configuration).columns.find(column => column.name === 'viewId')?.label).toBe('视图名称修订')
     await wrapper.get('[data-action="discard-file-model"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false); expect(f.fileWrites).toEqual([])
-    await edit(); await wrapper.get('[data-action="save-file-model"]').trigger('click'); await flushPromises()
+    await edit()
+    if (lost) f.loseNextFileResponse()
+    await wrapper.get('[data-action="save-file-model"]').trigger('click'); await flushPromises()
+    if (lost) {
+      expect(f.fileWrites).toHaveLength(1)
+      expect(bindings.hasUnconfirmedSave).toBe(true)
+      const originalSave = vi.spyOn(session.metadataDataSet, 'saveChanges')
+      const verify = wrapper.get('[data-action="save-file-model"]')
+      expect(verify.text()).toContain('核验文件提交')
+      await verify.trigger('click'); await flushPromises()
+      expect(originalSave).not.toHaveBeenCalled()
+    }
     expect(instance.isDirty).toBe(false); expect(f.fileWrites).toHaveLength(1); expect(writes(f)).toEqual([])
     const saved = JSON.parse(f.stored.get('A')!)
     expect(saved.tables.DataViewDefinition.views).toEqual(original.tables.DataViewDefinition.views)
@@ -2378,7 +2391,9 @@ describe('native graph layout persistence', () => {
     expect(instance.isDirty).toBe(true); expect(f.fileWrites).toHaveLength(1)
     expect(sourceButton(wrapper, 'save-layout').attributes('disabled')).toBeDefined()
     expect(sourceButton(wrapper, 'cancel-layout').attributes('disabled')).toBeDefined()
+    const originalSave = vi.spyOn(f.sessions[0]!.metadataDataSet, 'saveChanges')
     await sourceButton(wrapper, 'verify-layout').trigger('click'); await flushPromises()
+    expect(originalSave).not.toHaveBeenCalled()
     expect(f.fileWrites).toHaveLength(1); expect(instance.isDirty).toBe(false)
     expect(wrapper.text()).toContain('未重复提交')
   })
@@ -7223,7 +7238,9 @@ describe('native data-space design entry', () => {
     expect((await boundNumber(wrapper, 'pageSize')).attributes('disabled')).toBeDefined()
     expect(boundChoiceProps(wrapper, '自动加载').disabled).toBe(true)
     expect(boundSelect(wrapper, '取值字段候选').props('disabled')).toBe(true)
+    const originalSave = vi.spyOn(f.sessions[0]!.metadataDataSet, 'saveChanges')
     await wrapper.get('[data-action="verify-views"]').trigger('click'); await flushPromises()
+    expect(originalSave).not.toHaveBeenCalled()
     expect(f.fileWrites).toHaveLength(1)
     expect(instance.isDirty).toBe(false)
     expect(wrapper.text()).toContain('已核验并确认保存结果')

@@ -966,6 +966,10 @@
             "handler": {
               "type": "object",
               "title": "DataSetSaveCompletionHandler"
+            },
+            "onRecovered": {
+              "type": "object",
+              "title": "DataSetSaveRecoveryHandler"
             }
           },
           "additionalProperties": false
@@ -1087,7 +1091,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T00:55:45.195Z",
+  "generatedAt": "2026-11-27T13:46:41.000Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -1113,6 +1117,15 @@
             "targetName": "Error"
           }
         ],
+        "members": {}
+      }
+    },
+    "DataSetSaveRecoveryHandler": {
+      "name": "DataSetSaveRecoveryHandler",
+      "jsdoc": "原批次经核验或部分确认后的同步通知。仅登记后续工作，禁止在回调中派发。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "(result: DataSetSaveChangesResult) => undefined",
         "members": {}
       }
     },
@@ -2635,7 +2648,7 @@
             },
             {
               "name": "setSaveCompletionHandler",
-              "jsdoc": "注册原保存确认后的唯一后续动作；返回取消函数，不替代DataView保存回执。",
+              "jsdoc": "注册数据集保存的唯一后续动作。可选结算通知同步接收恢复或中断批次中实际确认的分项，\n只登记后续工作，不在原核验期间执行写入。取消函数同时释放两个回调。",
               "parameters": [
                 {
                   "name": "handler",
@@ -2643,6 +2656,17 @@
                     "type": "reference",
                     "name": "DataSetSaveCompletionHandler",
                     "sourcePath": "packages/spark-data/src/types.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                },
+                {
+                  "name": "onRecovered",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSetSaveRecoveryHandler",
+                    "sourcePath": "packages/spark-data/src/dataset.ts"
                   },
                   "flags": {
                     "isOptional": true

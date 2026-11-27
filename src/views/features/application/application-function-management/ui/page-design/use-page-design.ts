@@ -7,7 +7,7 @@
  */
 import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { getNavTree, resolveNavNodeRuntimeTarget, useNav, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
-import { assertRuntimeDataSetPlanQueryFields, buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey, parseRuntimeDataSetPlanFile,
+import { assertRuntimeDataSetPlanViewDefaults, buildDataViewKey, ensureDataSetStaticInputTable, parseDataViewKey, parseRuntimeDataSetPlanFile,
  type DataSet, type DataTable, type DataView } from '@spark-appworks/spark-data'
 import * as ProjectModel from '@spark-appworks/spark-project-model'
 import { validatePageScriptSyntax } from '@spark-appworks/spark-component'
@@ -502,20 +502,20 @@ export function usePageDesign(state: DevState) {
           if (readFileText(fileName) !== text) throw new Error(`${fileName} 交付期间 DataView 已修改，未更新发布引用`)
         }
       }
-      const assertPlanQueryFieldsRepresentable = () => {
+      const assertPlanViewDefaults = () => {
         if (!useDatasetPublication) return
         for (const scenarioId of callDefinition.scenarioIds) {
           const working = state.editor.getScenarioViews(scenarioId)?.savedText
           if (working === undefined) continue
           const scenarioConfig = new ProjectModel.ScenarioViewConfig(scenarioId, working).toJSON()
-          assertRuntimeDataSetPlanQueryFields({scenarioId, scenarioConfig})
+          assertRuntimeDataSetPlanViewDefaults({scenarioId, scenarioConfig})
         }
       }
       let validated = false
       // 原快照可以继续核验。新增写入要先用本次捕获的来源完成运行时绑定校验。
       async function validateNewPublication(): Promise<void> {
         assertCapturedFiles()
-        assertPlanQueryFieldsRepresentable()
+        assertPlanViewDefaults()
         if (validated) return
         const scriptText = texts.get('script.js')
         if (scriptText === undefined) throw new Error('交付脚本文本缺失')
@@ -549,7 +549,7 @@ export function usePageDesign(state: DevState) {
           validationRuntime.dispose()
         }
         assertCapturedFiles()
-        assertPlanQueryFieldsRepresentable()
+        assertPlanViewDefaults()
         validated = true
       }
       let versions = ProjectModel.parsePageToolPublicationVersions(expectedVersionId.trim())
@@ -645,7 +645,7 @@ export function usePageDesign(state: DevState) {
         beforeSubmit() {
           assertTarget(true)
           assertPlanDraftsSettled()
-          assertPlanQueryFieldsRepresentable()
+          assertPlanViewDefaults()
           for (const file of DELIVERY_FILES) {
             if (readFileText(file) !== texts.get(file)) throw new Error(`${file} 在提交发布指针前已修改`)
           }

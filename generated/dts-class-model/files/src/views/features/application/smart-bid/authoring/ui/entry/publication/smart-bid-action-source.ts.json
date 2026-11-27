@@ -7,7 +7,7 @@
     "sourceFile": "src/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source.ts",
     "packageName": "app",
     "modulePath": "views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source",
-    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source\n职责：把页08–15 的已核请求交给本次 PageRuntime 唯一显式的 SmartBid command owner。\n边界：不创建命令视图、不映射后端 HTTP；场景没有已绑定 owner 时明确失败。",
+    "jsdoc": "@module app:views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source\n职责：把已核请求交给本次 PageRuntime 唯一显式的 SmartBid command owner，消费原命令回执。\n边界：复用场景绑定，不创建命令视图。流结束只证明轮次完成，动作确认仍须原业务回执。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "SmartBidPageAction",
@@ -40,7 +40,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T01:03:09.903Z",
+  "generatedAt": "2026-11-27T13:46:41.000Z",
   "models": {
     "SmartBidPageAction": {
       "name": "SmartBidPageAction",

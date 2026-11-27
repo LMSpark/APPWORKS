@@ -35,6 +35,7 @@ type RebuildState = {preview: RebuildPreview; fingerprint: string; file: FileSta
 export class DataSpaceLayoutEdit {
   static #sequence = 0
   readonly #view: DataView
+  readonly #saveIntent = Symbol('data-space-layout')
   /** 未配置节点的本次局部视图；标题与坐标属于布局，不是正式模型记录。 */
   readonly nodes: DataView
   /** 未配置连线的布局视图；source/target为节点身份，parentTable/childTable只作画布映射键。 */
@@ -554,7 +555,7 @@ export class DataSpaceLayoutEdit {
 
   private async submit(): Promise<void> {
     try {
-      const result = await this.session.metadataDataSet.saveChanges({views: [{tableName: this.#view.tableName, viewId: this.#view.viewId}]})
+      const result = await this.session.saveMetadata(this.#saveIntent, [this.#view])
       if (!result.success) throw new Error('布局保存未成功')
     } finally {
       const current = this.file()
@@ -567,7 +568,7 @@ export class DataSpaceLayoutEdit {
     if (this.#working || !this.staged) throw new Error('没有本操作待核验的布局')
     this.assertDraft(this.file()); this.#working = true
     try {
-      await this.submit()
+      await this.session.verifyMetadataSave(this.#saveIntent, [this.#view])
       this.reset(false)
       return 'confirmed'
     } finally {this.#working = false}

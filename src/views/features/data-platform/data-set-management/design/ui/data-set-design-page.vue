@@ -273,7 +273,7 @@
               </RendererTabPane>
             </RendererTabs>
             <template v-if="activeFileSection !== 'views'">
-                <RendererButton data-action="save-file-model" :disabled="busy || fileFieldEditing || !fileBindingDirty || fileDefinitionStatus === 'pending'" :label="fileDefinitionStatus === 'unknown' ? '核验文件提交' : '保存模型配置'" @click="saveFileModel" />
+                <RendererButton data-action="save-file-model" :disabled="busy || fileFieldEditing || (!fileModelCanVerify && (!fileBindingDirty || fileDefinitionStatus !== 'idle'))" :label="fileModelCanVerify ? '核验文件提交' : '保存模型配置'" @click="saveFileModel" />
                 <RendererButton data-action="discard-file-model" :disabled="busy || fileFieldEditing || !fileBindingDirty || fileDefinitionStatus !== 'idle'" label="取消未提交修改" @click="discardFileModel" />
             </template>
             </template>
@@ -1251,6 +1251,8 @@ const availableFileResources = computed(() => {
 })
 const fileBindingDirty = computed(() => {revision.value; const bindings = view('DataTableBindingDefinition'); return bindings?.hasEditingChanges() === true || bindings?.dirtyTracking.hasPendingChanges() === true})
 const fileDefinitionStatus = computed(() => {revision.value; try {return session.value?.viewState?.saveStatus ?? 'idle'} catch {return 'pending'}})
+const fileModelSaveIntent = Symbol('file-model-configuration')
+const fileModelCanVerify = computed(() => {revision.value; return session.value?.hasMetadataSaveToVerify(fileModelSaveIntent) === true})
 const activeFileSection = ref<string | number>('source')
 const fileFieldEditing = ref(false)
 const fileFieldChildren: SparkNode[] = [
@@ -1272,11 +1274,18 @@ watch(() => [fileContext.value?.tableName, fileContext.value?.rowKey, selected.v
 }, {flush: 'sync'})
 async function saveFileModel(): Promise<void> {
   const current = session.value
-  if (!current || busy.value || fileFieldEditing.value || !fileContext.value || !fileBindingDirty.value) return
+  if (!current || busy.value || fileFieldEditing.value || !fileContext.value
+    || (!fileModelCanVerify.value && (!fileBindingDirty.value || fileDefinitionStatus.value !== 'idle'))) return
   busy.value = true; error.value = ''
   try {
-    const result = await current.metadataDataSet.saveChanges({views: [{tableName: 'DataTableBindingDefinition', viewId: 'default'}]})
-    if (!result.success) throw new Error(result.message)
+    const bindings = current.metadataDataSet.getView('DataTableBindingDefinition', 'default')
+    if (!bindings) throw new Error('缺少当前文件模型的原绑定视图')
+    if (fileModelCanVerify.value) {
+      await current.verifyMetadataSave(fileModelSaveIntent, [bindings])
+    } else {
+      const result = await current.saveMetadata(fileModelSaveIntent, [bindings])
+      if (!result.success) throw new Error(result.message)
+    }
     const refreshed = await current.metadataDataSet.getView('DataTableBindingDefinition', 'fileModels')?.requestRefresh()
     if (refreshed && !refreshed.success) throw new Error(`文件配置已保存，画布回读未完成：${refreshed.message ?? '查询失败'}`)
   } catch (cause) {error.value = readError(cause)}

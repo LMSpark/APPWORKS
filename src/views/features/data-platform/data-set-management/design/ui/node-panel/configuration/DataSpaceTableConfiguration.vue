@@ -54,8 +54,8 @@ AI用途：模型数据处理工作区，保留旧模型目标原值，不将目
         <RendererButton v-if="!workspaceActions" :data-view-key="bindingKey" :data-action="columnsSection ? 'save-table-columns' : 'save-table-api'"
           :label="`保存${title}`" button-type="primary" :disabled="!canSave" @click="save" />
         <RendererButton :data-view-key="bindingKey" :data-action="columnsSection ? 'discard-table-columns' : 'discard-table-api'" :label="`取消${title}修改`" :disabled="blocked || editing || !pending" @click="discard" />
-        <RendererButton v-if="state.file && state.file.saveStatus !== 'idle'" :data-view-key="bindingKey" :label="`核验${title}提交`"
-          :disabled="busy || disabled" @click="save" />
+        <RendererButton v-if="canVerify" :data-view-key="bindingKey" :label="`核验${title}提交`"
+          :disabled="busy || disabled" @click="verify" />
       </div>
     </template>
     <RendererButton v-else-if="!busy" :data-view-key="bindingKey" :label="`重读${title}`" :disabled="disabled" @click="load" />
@@ -74,6 +74,7 @@ const columnsSection = props.section === 'columns'
 const title = columnsSection ? '字段配置' : '数据处理'
 const emit = defineEmits<{changed: []; pending: [value: boolean]}>()
 const dataSet = props.session.metadataDataSet
+const saveIntent = Symbol('table-configuration')
 const source = dataSet.getView('DataTableBindingDefinition', 'default')!
 if (!source) throw new Error('正式元数据空间缺少模型绑定定义视图')
 const bindings = source.createQueryView('tableConfiguration:' + crypto.randomUUID())
@@ -221,12 +222,23 @@ async function createBinding(): Promise<void> {
   } catch (cause) {error.value = describeError(cause)}
 }
 const canSave = computed(() => !blocked.value && pending.value && !editing.value)
+const canVerify = computed(() => {tick.value; return props.session.hasMetadataSaveToVerify(saveIntent)})
 async function save(): Promise<void> {
-  if (!pending.value || editing.value) return
+  if (!canSave.value) return
   await run(async () => {
     modelIdentity()
-    const saved = await dataSet.saveChanges({views: [{tableName: bindings.tableName, viewId: bindings.viewId}]})
+    const saved = await props.session.saveMetadata(saveIntent, [bindings])
     if (!saved.success) throw new Error(saved.message ?? `${title}保存未确认`)
+    if (!active) return
+    needsReadback = true; ready.value = false
+    await readback()
+  })
+}
+async function verify(): Promise<void> {
+  if (!canVerify.value) return
+  await run(async () => {
+    modelIdentity()
+    await props.session.verifyMetadataSave(saveIntent, [bindings])
     if (!active) return
     needsReadback = true; ready.value = false
     await readback()

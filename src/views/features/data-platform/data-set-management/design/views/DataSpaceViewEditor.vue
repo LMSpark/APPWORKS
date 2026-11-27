@@ -286,6 +286,8 @@ const describeError = (cause: unknown) => cause instanceof Error ? cause.message
 const view = computed(() => props.session.metadataDataSet.getView('DataViewDefinition', 'default'))
 const dataSet = props.session.metadataDataSet
 const bindingView = dataSet.getView('DataTableBindingDefinition', 'default')!
+const saveIntent = Symbol('view-definition')
+let structureReadbackOnRecovery = false
 const readbackViews = [view.value, bindingView, dataSet.getView('DataTableBindingDefinition', 'fileModels')].filter(item => item !== undefined)
 const readbackFailure = computed(() => {
   tick.value
@@ -626,7 +628,10 @@ async function run(action: () => Promise<void>): Promise<void> {
 }
 async function commitDefinitions(successMessage: string): Promise<void> {
   const bindingChanged = bindingView.hasEditingChanges() || bindingView.dirtyTracking.hasPendingChanges()
-  const saved = await dataSet.saveChanges({views: [{tableName: 'DataViewDefinition', viewId: 'default'}, {tableName: 'DataTableBindingDefinition', viewId: 'default'}]})
+  const source = view.value
+  if (!source) throw new Error('缺少原视图定义')
+  structureReadbackOnRecovery = bindingChanged || source.dirtyTracking.pendingCreateIds.size > 0 || source.dirtyTracking.pendingDeleteIds.size > 0
+  const saved = await props.session.saveMetadata(saveIntent, [source, bindingView])
   if (!saved.success) throw new Error(saved.message)
   // 属性修改已由原生保存回执接纳；结构变化还须读取隐式新增的默认视图及绑定投影。
   const structureChanged = bindingChanged || (saved.data?.createdCount ?? 0) > 0 || (saved.data?.deletedCount ?? 0) > 0
@@ -675,7 +680,14 @@ async function verify(): Promise<void> {
       changed()
       return
     }
-    await commitDefinitions('已核验并确认保存结果')
+    const receiptViews = [view.value, bindingView].filter(item => item !== undefined)
+    await props.session.verifyMetadataSave(saveIntent, receiptViews)
+    if (structureReadbackOnRecovery) await readbackDefinitions()
+    if (active) {
+      tick.value++
+      message.value = localDirty.value ? '原提交已确认，仍有修改待保存'
+        : readbackViews.some(item => item.refreshPending) ? '原提交已确认，目录将在当前修改或操作结束后更新' : '已核验并确认保存结果'
+    }
   })
 }
 async function previewRemote(): Promise<void> {

@@ -761,6 +761,50 @@
           },
           "additionalProperties": false
         },
+        "method.saveMetadata.params": {
+          "type": "object",
+          "properties": {
+            "intent": true,
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveMetadata.return": {
+          "type": "object",
+          "title": "Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
+        },
+        "method.hasMetadataSaveToVerify.params": {
+          "type": "object",
+          "properties": {
+            "intent": true
+          },
+          "additionalProperties": false
+        },
+        "method.hasMetadataSaveToVerify.return": {
+          "type": "boolean"
+        },
+        "method.verifyMetadataSave.params": {
+          "type": "object",
+          "properties": {
+            "intent": true,
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verifyMetadataSave.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.getRuntimeDataSetPlanState.params": {
           "type": "object",
           "properties": {},
@@ -1615,7 +1659,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T18:01:53.144Z",
+  "generatedAt": "2026-11-27T13:46:41.000Z",
   "models": {
     "RuntimeDataSetPlanStatus": {
       "name": "RuntimeDataSetPlanStatus",
@@ -2401,6 +2445,89 @@
             }
           ],
           "methods": [
+            {
+              "name": "saveMetadata",
+              "jsdoc": "提交本操作选定的元数据视图，并保留实际新派发批次的身份。",
+              "parameters": [
+                {
+                  "name": "intent",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "symbol"
+                  }
+                },
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly SparkData.DataView[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "SparkData.CrudResult",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "SparkData.DataSetSaveChangesResult"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "hasMetadataSaveToVerify",
+              "jsdoc": "当前操作持有这个 DataSet 的原核验身份。",
+              "parameters": [
+                {
+                  "name": "intent",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "symbol"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "verifyMetadataSave",
+              "jsdoc": "只核验当前操作实际派发的原元数据批次。",
+              "parameters": [
+                {
+                  "name": "intent",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "symbol"
+                  }
+                },
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly SparkData.DataView[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
             {
               "name": "getRuntimeDataSetPlanState",
               "jsdoc": "Plan 承接结果独立于元数据回执。状态仅指当前设计会话的后续发布。",

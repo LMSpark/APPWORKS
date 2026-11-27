@@ -126,10 +126,6 @@ function preparePublishedSmartBidActionCall(route:ContentAuthoringRoute){
     const result=await submit({operationId:command.operationId,requestKey:command.requestKey,
      prompt:command.prompt,inputs:command.inputs},signal)
     session.assertCurrent()
-    if(!isRecord(result)||result['state']!=='ACTION_APPLIED'||result['dispatched']!==true||!isRecord(result['actionReceipt'])){
-     const interrupted=isRecord(result)&&result['state']==='SSE_UNKNOWN'
-     throw Error(interrupted?'工具回传中断，原业务结果待核验':'当前没有原业务回执，请核验原请求')
-    }
     return Object.freeze({operationId:command.operationId,requestKey:command.requestKey,outcome:result,
      assertCurrent:session.assertCurrent})
    }})

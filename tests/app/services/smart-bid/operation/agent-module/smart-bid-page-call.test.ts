@@ -574,3 +574,126 @@ it.each([{operationId:'60',action:'ENABLE'}, {operationId:'61',action:'DISABLE'}
     expect.objectContaining({operationId,requestKey:'REQUEST',inputs:prepared.record}),controller.signal)
   }finally{runtime.dispose();source.mockRestore();select.mockRestore()}
  })
+
+// Append below the existing Page19 cancellation cases in smart-bid-page-call.test.ts.
+// Existing suite owns the isolated login, SSE bridge, renderer imports and cleanup.
+it.each((['ENABLE','DISABLE'] as const).flatMap(action =>
+ ['empty','interrupted','mismatched','confirmed'].map(mode => ({action,mode}))))(
+ 'requires original command evidence from the published Page19 $action button for $mode',
+ async ({action,mode}) => {
+  registerAllRenderers()
+  state.mode=mode
+  const {configurationChannelReadView,configurationVersionReadView}=await import(
+   '@/views/features/application/smart-bid/configuration/configuration-channel-reader')
+  const scenarioId='SPACE',projectId='PROJECT',pageId='smart-bid-configuration-page19'
+  const enabling=action==='ENABLE',operationId=enabling?'60':'61'
+  const scope={kind:'template',key:'PROPOSAL',scopeId:projectId}
+  const version={versionId:'VERSION',digest:'a'.repeat(64)}
+  const channel={id:'CHANNEL',kind:scope.kind,key:scope.key,scope:'PROJECT',scopeId:projectId,
+   version:'P1',state:'ACTIVE',hash:version.digest}
+  const immutable={id:'ORIGINAL',kind:scope.kind,key:scope.key,version:version.versionId,hash:version.digest}
+  const query={scenarioId,projectId,configurationKind:scope.kind,configurationKey:scope.key,
+   configurationVersionId:version.versionId,candidateRequestKey:'REQUEST',disableRequestKey:'REQUEST',disableDecisionRef:'DECISION'}
+  const dataSet=DataSet.fromJson({scenarioId,tables:{
+   ConfigChannel:{modelBinding:{modelName:'ConfigChannel',modelId:'CHANNEL-MODEL'},
+    columns:Object.keys(channel).map(name=>({name,isPrimaryKey:name==='id'})),
+    views:{default:{},currentChannel:configurationChannelReadView('id')}},
+   ConfigVersion:{modelBinding:{modelName:'ConfigVersion',modelId:'VERSION-MODEL'},
+    columns:Object.keys(immutable).map(name=>({name,isPrimaryKey:name==='id'})),
+    views:{default:{},originalVersion:configurationVersionReadView('id')}},
+  }})
+  const refusedSave=vi.fn(async()=>{throw Error('No metadata save is allowed in this fixture')})
+  for(const [model,viewName,row] of [
+   ['ConfigChannel','currentChannel',channel],['ConfigVersion','originalVersion',immutable],
+  ] as const){
+   const view=dataSet.getView(model,viewName)
+    if(!view)throw Error(`Missing ${model}@${viewName}`)
+   const table=new DataSpaceQueryTable({scenarioId,metaName:model})
+   view.bindQueryExecutor({save:refusedSave,executeQuery:async()=>new DataSpaceQueryContext({
+    identity:table.identity,scope:model,readScope:()=>model,snapshot:table.applyResult({Result:{
+     primaryKeyField:'id',data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
+    }}),
+   })})
+  }
+  const resource={resourceType:'command' as const,resourceId:'smart-bid:action'}
+  const command=ensureDataSetResourceView({dataSet,tableName:'SmartBidAction',resource,
+   columns:[{name:'commandId',primary:true},...['operationId','registrationId','businessInstanceId',
+    'runtimeInstanceId','requestKey','prompt','receiptRef'].map(name=>({name})),{name:'inputs',type:'json'}]})
+  const submit=vi.fn(async(row:DataRow)=>({...row,receiptRef:'COMMAND-RECEIPT',
+   ...(mode==='mismatched'?{requestKey:'ANOTHER-REQUEST'}:{})}))
+  bindDataSetCommandSubmit(command,{resource,guard:()=>{},createKey:()=>'ORIGINAL-COMMAND',
+   inputFields:['operationId','registrationId','businessInstanceId','runtimeInstanceId','requestKey','prompt','inputs'],
+   submit,verify:async()=>undefined})
+  vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>{
+   const pathname=new URL(input instanceof Request?input.url:String(input),globalThis.location.href).pathname
+   if(!pathname.startsWith('/dts-class-model/'))throw Error('External fetch refused by local fixture')
+   return new Response(await readFile(resolve('generated',pathname.slice(1)),'utf8'),{
+    headers:{'Content-Type':'application/json'},
+   })
+  }))
+  const tool=new PageTool({pageId})
+  for(const filename of ['rule.json','script.js','style.css'] as const)
+   tool.hydrateFileText(filename,await readFile(resolve('src/views/features/application/smart-bid/configuration/page19',filename),'utf8'))
+  tool.markLoaded()
+   const path=`/apps/${app}/fixture`
+  const original=page19Target.preparePublishedConfigurationReleaseCall
+  const binding=vi.spyOn(page19Target,'preparePublishedConfigurationReleaseCall').mockImplementation(
+   (route,entry,bind)=>original(route,entry,(runtime,target)=>{
+    const configured=bind(runtime,target)
+    const trusted={...scope,decisionRef:'DECISION',authorityRef:'AUTHORITY',assertCurrent:target.assertCurrent}
+    return {...configured,
+     readCandidate:async()=>({decision:{...trusted,action:'ENABLE',candidate:version,typeCheckRef:'TYPE',
+      closureCheckRef:'CLOSURE',reviewRef:'REVIEW'},pointer:{...scope,pointerVersion:'P1',version,assertCurrent:target.assertCurrent}}),
+     readDisableDecision:async()=>({decision:{...trusted,action:'DISABLE',original:version,
+      effectiveAt:'2026-11-27T10:00:00Z',stopScope:'NEW_SELECTION'}}),
+    }
+   }))
+  const previous={...config.global.stubs},stubs={...previous}
+  let runtime:PageRuntime|undefined
+  let cleanupMount:(()=>void)|undefined
+  try{
+   const entry=preparePublishedSmartBidPageCall({path,query,meta:{title:'配置编审与启用',type:'config-page',
+    nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,tool:{projectId:app,pageId}}})
+   if(!entry)throw Error('Missing published Page19 entry')
+   runtime=new PageRuntime({tool,scenarioIds:[scenarioId],mainScenarioId:scenarioId,
+    scenarioInputs:entry.scenarioInputs,loadScenario:async()=>dataSet})
+   await runtime.load()
+   const host=entry.createHost(runtime)
+   // Build the independent literal command the mock LLM sends to the real action owner.
+   const inputs={...scope,requestKey:'REQUEST',expectedPointerVersion:'P1',action,decisionRef:'DECISION',
+    authorityRef:'AUTHORITY',version,...(enabling
+     ?{targetState:'ENABLED',typeCheckRef:'TYPE',closureCheckRef:'CLOSURE',reviewRef:'REVIEW'}
+     :{targetState:'DISABLED',effectiveAt:'2026-11-27T10:00:00Z',stopScope:'NEW_SELECTION'})}
+   state.script=`return await this.dispatchOperation(${JSON.stringify({operationId,
+    registrationId:'SmartBidOperationModule',businessInstanceId:projectId,runtimeInstanceId:runtime.call.instanceId,
+    requestKey:'REQUEST',prompt:enabling?'启用已编审配置版本':'停用已编审配置版本',inputs})})`
+   const router=createRouter({history:createMemoryHistory(),routes:[{path,component:defineComponent({render:()=>h('div')})}]})
+   await router.push({path,query})
+   await router.isReady()
+   for(const key of ['SparkComponentRenderer','spark-component-renderer','el-button'])delete stubs[key]
+   config.global.stubs=stubs
+   const messages={success:vi.fn(),error:vi.fn(),warning:vi.fn(),info:vi.fn()},onError=vi.fn()
+   const wrapper=mount(SparkPageRenderer,{attachTo:document.body,props:{pageRuntime:runtime,host,messageService:messages,
+    routeSnapshot:{path,fullPath:router.currentRoute.value.fullPath,name:null,params:{},query,hash:''},onError},
+    global:{plugins:[router,ElementPlus,Spark.createPlugin()]}})
+   cleanupMount=()=>wrapper.unmount()
+   await flushPromises()
+   expect(onError).not.toHaveBeenCalled()
+   await command.refresh()
+   const button=wrapper.findAll('button').find(item=>item.text()===(enabling?'提交启用请求':'提交停用请求'))
+   if(!button)throw Error('Missing published Page19 submission button')
+   await button.trigger('click')
+   await vi.waitFor(()=>expect(messages.success.mock.calls.length+messages.error.mock.calls.length).toBe(1))
+   expect(state.sent).toBe(true)
+   expect(refusedSave).not.toHaveBeenCalled()
+   expect(submit).toHaveBeenCalledTimes(mode==='confirmed'||mode==='mismatched'?1:0)
+   if(mode==='confirmed'){
+    expect(submit.mock.calls[0]?.[0]).toMatchObject({operationId,requestKey:'REQUEST',inputs})
+    expect(messages.success).toHaveBeenCalledExactlyOnceWith(enabling?'配置启用请求已提交':'配置停用请求已提交')
+    expect(messages.error).not.toHaveBeenCalled()
+   }else{
+    expect(messages.success).not.toHaveBeenCalled()
+    expect(messages.error).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(mode==='interrupted'?'回传中断':'原业务回执'))
+   }
+  }finally{cleanupMount?.();runtime?.dispose();binding.mockRestore();config.global.stubs=previous}
+ })

@@ -84,6 +84,7 @@ it.each([
     error: '不支持同时保存常驻范围和初始过滤',
   },
   {label: 'default query inputs', config: {queryContext: {region: 'north'}}, error: '不支持保存非空 queryContext'},
+  {label: 'replaceable initial filter', config: {filterExpression: {field: 'region', operator: 'eq', value: 'north'}}, error: '不支持保存可替换的初始过滤'},
   {label: 'independent sort', config: {sortExpression: [{field: 'region', direction: 'desc'}]}, error: '不支持保存独立 sortExpression'},
   {label: 'explicit query fields', config: {queryConfig: {fields: ['rowid']}}, error: '不支持保存显式 queryConfig.fields'},
 ])('keeps the confirmed metadata save when $label prevent Plan generation', async ({config, error}) => {
@@ -112,6 +113,82 @@ it.each([
   await expect(session.resumeRuntimeDataSetPlan()).rejects.toThrow(`OrderTable@default ${error}`)
   expect(f.planFileWrites).toEqual([])
   expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(1)
+})
+
+it.each(['button', 'journal'] as const)('publishes one working Plan after a named view receipt is recovered via %s', async recovery => {
+  const f = dataSpaceChainFixture()
+  const write = f.fileGateway.writeText
+  let drop = true
+  f.fileGateway.writeText = async (id, text) => {
+    await write(id, text)
+    if (id === f.target && drop) {
+      drop = false
+      throw markFileMutationMayHaveApplied(new Error('original named-view upload response was lost'))
+    }
+  }
+  transport.request.mockImplementation(f.request)
+  transport.scope.mockImplementation(f.readScope)
+  transport.workspace.mockImplementation(f.workspace)
+  transport.gateways.mockReturnValue({scenarioViews: f.fileGateway, blueprint: {}})
+  const session = await open(f.target)
+  const metadata = session.metadataDataSet
+  const definitions = view(metadata, 'DataViewDefinition')
+  const runtime = new PageRuntime({pageId: 'original-view-receipt', scenarioIds: [f.meta], loadScenario: async () => metadata})
+  await runtime.load(); pageRuntimes.push(runtime); registerAllRenderers()
+  const selected = ref<string | number>(), revision = ref(0)
+  const Host = defineComponent({setup() {
+    useSparkComponent({type: 'named-view-editor'}).sparkProvide(PAGE_RUNTIME, runtime)
+    return () => h(DataSpaceViewEditor, {session, modelId: 'CHOICE-MODEL', modelName: 'Choices',
+      rowKey: selected.value, revision: revision.value, onChanged: () => {revision.value++}, onSelect: key => {selected.value = key}})
+  }})
+  const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()],
+    stubs: {'el-button': ElButton, SparkComponentRenderer: false, 'spark-component-renderer': false}}})
+  wrappers.push(wrapper); await flushPromises()
+  const name = wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'newName')!
+  await name.get('input').setValue('receiptProbe'); await flushPromises()
+  await wrapper.get('[data-action="add-view"]').trigger('click'); await flushPromises()
+  expect(definitions.getEditingRow(selected.value!)?.['viewId']).toBe('receiptProbe')
+  await wrapper.get('[data-action="save-views"]').trigger('click'); await flushPromises()
+  expect(definitions.hasUnconfirmedSave).toBe(true)
+  expect(f.fileWrites).toHaveLength(1)
+  expect(f.planFileWrites).toHaveLength(0)
+  const original = metadata.saveJournal.batchId
+  if (!original) throw Error('fixture expected an original metadata batch')
+  await expect(session.verifyMetadataSave(Symbol('another operation'), [definitions, view(metadata, 'DataTableBindingDefinition')]))
+    .rejects.toThrow('没有本操作待核验的元数据提交')
+  expect(metadata.saveJournal.batchId).toBe(original)
+  expect(definitions.hasUnconfirmedSave).toBe(true)
+  const dispatch = vi.spyOn(metadata, 'saveChanges')
+  if (recovery === 'button') {
+    await wrapper.get('[data-action="verify-views"]').trigger('click'); await flushPromises()
+  } else {
+    const receipt = await metadata.verifySaveJournalAndRead({batchId: original,
+      receiptViews: [definitions, view(metadata, 'DataTableBindingDefinition')], readbackViews: []})
+    expect(receipt.settlement).toBe('confirmed')
+  }
+  expect(definitions.hasUnconfirmedSave).toBe(false)
+  expect(f.fileWrites).toHaveLength(1)
+  expect.soft(dispatch.mock.calls.filter(([options]) => !options?.views?.length || options.views.some(
+    target => target.tableName === 'DataViewDefinition' || target.tableName === 'DataTableBindingDefinition'))).toHaveLength(0)
+  expect(session.getRuntimeDataSetPlanState().status).toBe('deferred')
+  expect(f.planFileWrites).toHaveLength(0)
+  expect((await metadata.verifySaveJournal()).batchId).toBe(original)
+  await session.resumeRuntimeDataSetPlan()
+  expect(session.getRuntimeDataSetPlanState().status).toBe('idle')
+  expect(f.planFileWrites).toHaveLength(1)
+  const carrier = DataSet.fromJson({scenarioId: f.target, tables: {}})
+  runtimes.push(carrier)
+  const assertCurrent = () => expect(f.readScope().headers['X-AppId']).toBe('CHAIN-APP')
+  const text = await readRuntimeDataSetPlan({dataSet: carrier, scenarioId: f.target, assertCurrent})
+  expect(text).toBe(f.planFileWrites[0])
+  const consumer = await assembleLowcodeRuntimeDataSetPlan({projectId: 'CHAIN-APP', scenarioId: f.target, text: text!, assertCurrent})
+  runtimes.push(consumer)
+  const recovered = view(consumer, 'Choices', 'receiptProbe')
+  expect((await recovered.loadFromServer()).success).toBe(true)
+  expect(recovered.rows.length).toBeGreaterThan(0)
+  expect(f.requests.filter(request => request.url.includes('BatchTableOperate'))).toHaveLength(0)
+  expect(f.fileWrites).toHaveLength(1)
+  expect(f.planFileWrites).toHaveLength(1)
 })
 
 it.each(['rejected', 'lost'] as const)('reopens a saved named definition when the Plan upload is %s', async mode => {

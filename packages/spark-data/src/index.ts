@@ -137,7 +137,7 @@ export { DataViewFieldCascadeDefinition } from './strategies/cascade/field-casca
 export { DataViewSelectionValue } from './strategies/selection/data-view-selection-value'
 export { parseRuntimeDataSetPlanFile } from './runtime-data-set-plan/parser'
 export { compileRuntimeDataSetPlan } from './runtime-data-set-plan/compiler'
-export { assertRuntimeDataSetPlanQueryFields, buildRuntimeDataSetPlan, buildRuntimeDataSetPlanText, hashRuntimeDataSetPlanContent, stableRuntimeDataSetPlanText } from './runtime-data-set-plan/builder'
+export { assertRuntimeDataSetPlanViewDefaults, buildRuntimeDataSetPlan, buildRuntimeDataSetPlanText, hashRuntimeDataSetPlanContent, stableRuntimeDataSetPlanText } from './runtime-data-set-plan/builder'
 export type {BuildRuntimeDataSetPlanInput} from './runtime-data-set-plan/builder'
 export type {
   CompileRuntimeDataSetPlanOptions,

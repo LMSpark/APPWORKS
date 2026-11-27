@@ -1714,6 +1714,7 @@ watch([scenarioId, requestedDatabaseId], async ([id, databaseTarget]) => {
     const databaseId = databaseTarget.value
     const ds = await LowcodeDatabaseTableView.loadCatalog(id, databaseId === undefined ? {} : {databaseId})
     if (!active || own !== generation) {ds.destroy(); return}
+    dataSet.value = ds
     const db = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')
     const tables = ds.getView(DATABASE_CATALOG_TABLE_MODEL, 'default')
     const views = ds.getView(DATABASE_CATALOG_VIEW_MODEL, 'default')
@@ -1725,7 +1726,6 @@ watch([scenarioId, requestedDatabaseId], async ([id, databaseTarget]) => {
       if (matches.length !== 1 || db.total !== 1) throw new Error('指定 databaseId 未在当前数据库目录中唯一命中')
       db.setCurrentRow(matches[0]!)
     }
-    dataSet.value = ds
     dbView.value = db
     tableView.value = tables
     viewView.value = views

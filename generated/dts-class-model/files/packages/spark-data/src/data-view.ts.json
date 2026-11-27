@@ -1332,6 +1332,14 @@
         },
         "method.outcome.return": {
           "$ref": "#/$defs/DataViewSaveDispatchState"
+        },
+        "method.receipt.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.receipt.return": {
+          "$ref": "strategies/crud/dirty-tracking-delegate.ts.json#/$defs/SaveChangesData"
         }
       }
     },
@@ -3205,6 +3213,10 @@
               "items": {
                 "$ref": "#/$defs/DataView"
               }
+            },
+            "receipts": {
+              "type": "object",
+              "title": "Map<DataView, SaveChangesData>"
             }
           },
           "additionalProperties": false
@@ -3586,7 +3598,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T10:51:30.101Z",
+  "generatedAt": "2026-11-27T13:46:41.000Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -5246,11 +5258,11 @@
       "jsdoc": "@internal 只读定位一次实际派发的原捕获，调用方不读取业务行或凭据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    matchesUnconfirmed(view: DataView): boolean;\n    outcome(): DataViewSaveDispatchState;\n}>",
+        "declarationTypeText": "Readonly<{\n    matchesUnconfirmed(view: DataView): boolean;\n    outcome(): DataViewSaveDispatchState;\n    /** 实际接纳的分项回执，在后续来源失败时仍属于原派发。 */\n    receipt(): SaveChangesData | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    matchesUnconfirmed(view: DataView): boolean;\n    outcome(): DataViewSaveDispatchState;\n}>",
+            "typeText": "Readonly<{\n    matchesUnconfirmed(view: DataView): boolean;\n    outcome(): DataViewSaveDispatchState;\n    /** 实际接纳的分项回执，在后续来源失败时仍属于原派发。 */\n    receipt(): SaveChangesData | undefined;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -5280,6 +5292,19 @@
                 "type": "reference",
                 "name": "DataViewSaveDispatchState",
                 "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "receipt",
+              "jsdoc": "实际接纳的分项回执，在后续来源失败时仍属于原派发。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "SaveChangesData",
+                  "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts"
+                }
               }
             }
           ]
@@ -8369,6 +8394,28 @@
                   "type": {
                     "type": "unknown",
                     "name": "readonly DataView[]"
+                  }
+                },
+                {
+                  "name": "receipts",
+                  "type": {
+                    "type": "reference",
+                    "name": "Map",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataView",
+                        "sourcePath": "packages/spark-data/src/data-view.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "SaveChangesData",
+                        "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

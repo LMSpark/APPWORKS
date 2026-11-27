@@ -12,7 +12,7 @@ import { LowcodeDataSpaceViewFields } from './lowcode-data-space-view-fields'
 import { LowcodeDataSpaceFieldValue } from '../model-source/field/lowcode-data-space-field-value'
 import { LowcodeDataSpaceRelationMetadata } from './lowcode-data-space-relation-metadata'
 import { LowcodeDataSpaceCascadeMetadata } from './lowcode-data-space-cascade-metadata'
-import {RUNTIME_DATA_SET_PLAN_FILE_TABLE, runtimeDataSetPlanUnconfirmed, verifyRuntimeDataSetPlan,
+import {runtimeDataSetPlanUnconfirmed, verifyRuntimeDataSetPlan,
   type PublishRuntimeDataSetPlanInput} from '../runtime-data-set-plan-file'
 
 import {
@@ -240,6 +240,7 @@ export class LowcodeDataSpaceDesignSession {
   #runtimePlanFileRevision: number | undefined
   #runtimePlanPending = false
   #runtimePlanError: string | undefined
+  #metadataSave: Readonly<{intent: symbol; batchId: string}> | undefined
 
   private readonly design: LowcodeDataSpaceViewDesign
   private readonly options: ViewDesignOptions
@@ -260,23 +261,74 @@ export class LowcodeDataSpaceDesignSession {
     this.#relationMetadata = new LowcodeDataSpaceRelationMetadata(metadataDataSet, definitionResource)
     this.#cascadeMetadata = new LowcodeDataSpaceCascadeMetadata(metadataDataSet)
     if (options.publishRuntimeDataSetPlan) {
-      this.#removeSaveCompletion = metadataDataSet.setSaveCompletionHandler(async (result, saveOptions) => {
-        if (saveOptions?.views?.length && saveOptions.views.every(view => view.tableName === RUNTIME_DATA_SET_PLAN_FILE_TABLE)) return
-        const relevantTables = new Set([
-          ...LowcodeDataSpaceMetadata.tables,
-          'DataTableBindingDefinition',
-          'DataViewDefinition',
-          'DataResourceRelationDefinition',
-          'DataViewCascadeDefinition',
-        ])
-        if (saveOptions?.views?.length && saveOptions.views.every(view => !relevantTables.has(view.tableName))) return
-        const changed = (result.data?.createdCount ?? 0) + (result.data?.savedCount ?? 0) + (result.data?.deletedCount ?? 0)
-        if (!changed) return
+      const relevantTables = new Set([
+        ...LowcodeDataSpaceMetadata.tables,
+        'DataTableBindingDefinition',
+        'DataViewDefinition',
+        'DataResourceRelationDefinition',
+        'DataViewCascadeDefinition',
+      ])
+      const confirmedMetadata = (result?: SparkData.DataSetSaveChangesResult) => result?.viewResults.some(view =>
+        relevantTables.has(view.tableName) && view.createdCount + view.savedCount + view.deletedCount !== 0) === true
+      this.#removeSaveCompletion = metadataDataSet.setSaveCompletionHandler(async result => {
+        if (!confirmedMetadata(result.data)) return
         this.#runtimePlanRequested++
         if (this.#runtimePlanPending || this.#runtimePlanError !== undefined) return
         await this.advanceRuntimeDataSetPlan()
+      }, result => {
+        if (confirmedMetadata(result)) this.#runtimePlanRequested++
       })
     }
+  }
+
+  /** 提交本操作选定的元数据视图，并保留实际新派发批次的身份。 */
+  async saveMetadata(intent: symbol, views: readonly SparkData.DataView[]): Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>> {
+    this.assertOwner()
+    const dataSet = this.metadataDataSet
+    if (views.length === 0 || views.some(view => view.destroyed || dataSet.getView(view.tableName, view.viewId) !== view)) {
+      throw new Error('保存目标不属于当前元数据设计实例')
+    }
+    if (views.some(view => view.hasUnconfirmedSave)) throw new Error('请先核验原元数据提交')
+    const previous = dataSet.saveJournal.batchId
+    const result = dataSet.saveChanges({views: views.map(({tableName, viewId}) => ({tableName, viewId}))})
+    const {batchId} = dataSet.saveJournal
+    try {
+      return await result
+    } catch (cause) {
+      const journal = dataSet.saveJournal
+      if (batchId && batchId !== previous && journal.batchId === batchId && journal.views.some(view => view.state === 'unknown')) {
+        this.#metadataSave = {intent, batchId}
+      }
+      throw cause
+    }
+  }
+
+  /** 当前操作持有这个 DataSet 的原核验身份。 */
+  hasMetadataSaveToVerify(intent: symbol): boolean {
+    const original = this.#metadataSave
+    const journal = this.metadataDataSet.saveJournal
+    return original?.intent === intent && original.batchId === journal.batchId && journal.currentRecoverableAction === 'verify-original-receipt'
+  }
+
+  /** 只核验当前操作实际派发的原元数据批次。 */
+  async verifyMetadataSave(intent: symbol, views: readonly SparkData.DataView[]): Promise<void> {
+    this.assertOwner()
+    const dataSet = this.metadataDataSet
+    const original = this.#metadataSave
+    if (!original || !this.hasMetadataSaveToVerify(intent)) throw new Error('没有本操作待核验的元数据提交')
+    const {batchId} = original
+    const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: views, readbackViews: []})
+    this.assertOwner()
+    if (result.settlement === 'not-applied' || result.settlement === 'partial') {
+      dataSet.releaseSettledSaveJournal(batchId)
+      this.#metadataSave = undefined
+      throw new Error(result.settlement === 'partial' ? '原元数据提交部分已确认，未生效的草稿已保留'
+        : '原元数据提交明确未生效，已保留草稿，请显式重试')
+    }
+    if (result.settlement !== 'confirmed') {
+      throw result.verificationError ?? result.journal.originalError ?? new Error('原元数据提交仍未确认')
+    }
+    this.#metadataSave = undefined
   }
 
   /** Plan 承接结果独立于元数据回执。状态仅指当前设计会话的后续发布。 */

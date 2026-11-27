@@ -19846,7 +19846,7 @@
       "chainBreak": "DataViewQuerySaveValidationInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 305,
+      "declarationLine": 307,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -19858,7 +19858,7 @@
       "chainBreak": "DataViewQuerySaveValidationInput.ids 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 306,
+      "declarationLine": 308,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -19870,7 +19870,7 @@
       "chainBreak": "DataViewQuerySaveValidationInput.includeEditingRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 307,
+      "declarationLine": 309,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
     },
@@ -20073,7 +20073,7 @@
       "chainBreak": "DataSet.getFieldCascadeState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/dataset.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/dataset.ts",
-      "declarationLine": 313,
+      "declarationLine": 315,
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "declarationKind": "class"
     },
@@ -20085,7 +20085,7 @@
       "chainBreak": "DataSet.refreshFieldCascade 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/dataset.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/dataset.ts",
-      "declarationLine": 314,
+      "declarationLine": 316,
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "declarationKind": "class"
     },
@@ -20097,7 +20097,7 @@
       "chainBreak": "DataSet.onFieldCascadeChange 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/dataset.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/dataset.ts",
-      "declarationLine": 315,
+      "declarationLine": 317,
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "declarationKind": "class"
     },
@@ -27600,7 +27600,7 @@
       "chainBreak": "DataSetSaveJournalReadResult.cleanupError 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1428,
+      "declarationLine": 1430,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -27612,7 +27612,7 @@
       "chainBreak": "DataSetSaveJournalReadResult.releaseError 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1429,
+      "declarationLine": 1431,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -27624,7 +27624,7 @@
       "chainBreak": "DataSetSaveJournalReadResult.readbacks 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1430,
+      "declarationLine": 1432,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -27636,7 +27636,7 @@
       "chainBreak": "DataSetViewSaveOutcome.state 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1492,
+      "declarationLine": 1494,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -27648,7 +27648,7 @@
       "chainBreak": "DataViewRefreshResult.refreshStatus 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1525,
+      "declarationLine": 1527,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },
@@ -51976,7 +51976,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.viewState 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 136,
+      "declarationLine": 142,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -51988,7 +51988,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.stageInputParameters 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 223,
+      "declarationLine": 229,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -52000,7 +52000,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.reloadInputParameters 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 239,
+      "declarationLine": 245,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -52012,7 +52012,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.definitionDataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 331,
+      "declarationLine": 337,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -52024,7 +52024,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.previewRemoteViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 361,
+      "declarationLine": 367,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -52036,7 +52036,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 367,
+      "declarationLine": 373,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -52047,7 +52047,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 369,
+      "declarationLine": 375,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -52059,7 +52059,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 371,
+      "declarationLine": 377,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -52071,7 +52071,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign.preview 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 390,
+      "declarationLine": 396,
       "sourceFile": "src/platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },

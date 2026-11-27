@@ -1,7 +1,7 @@
 /**
  * @module app:views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source
- * 职责：把页08–15 的已核请求交给本次 PageRuntime 唯一显式的 SmartBid command owner。
- * 边界：不创建命令视图、不映射后端 HTTP；场景没有已绑定 owner 时明确失败。
+ * 职责：把已核请求交给本次 PageRuntime 唯一显式的 SmartBid command owner，消费原命令回执。
+ * 边界：复用场景绑定，不创建命令视图。流结束只证明轮次完成，动作确认仍须原业务回执。
  */
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {coerceStrictJsonValue,type JsonParams,type JsonValue} from '@spark-appworks/spark-json-document'
@@ -27,7 +27,12 @@ export function createSmartBidPageActionSubmit(runtime:PageRuntime,projectId:str
   })
   const outcome=await agent.dispatch(command,signal)
   assertCurrent()
-  return outcome.outcome
+  const result=outcome.outcome
+  if(!isRecord(result)||result['state']!=='ACTION_APPLIED'||result['dispatched']!==true||!isRecord(result['actionReceipt'])){
+   const interrupted=isRecord(result)&&result['state']==='SSE_UNKNOWN'
+   throw Error(interrupted?'工具回传中断，原业务结果待核验':'当前没有原业务回执，请核验原请求')
+  }
+  return result
  }
 }
 

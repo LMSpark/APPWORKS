@@ -17,20 +17,20 @@
       "type": "object",
       "title": "AnchorNode",
       "properties": {
-        "type": {
-          "type": "string"
-        },
         "nodeId": {
           "type": "string"
         },
         "parentId": {
           "type": "string"
+        },
+        "type": {
+          "type": "string"
         }
       },
       "required": [
-        "type",
         "nodeId",
-        "parentId"
+        "parentId",
+        "type"
       ],
       "additionalProperties": false
     }
@@ -53,17 +53,17 @@
         "members": {
           "attributes": [
             {
-              "name": "type",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "nodeId",
               "readable": true,
               "writable": true
             },
             {
               "name": "parentId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "type",
               "readable": true,
               "writable": true
             }

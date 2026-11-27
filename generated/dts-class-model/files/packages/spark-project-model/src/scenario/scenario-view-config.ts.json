@@ -32,13 +32,13 @@
         "sourceRelationId": {
           "type": "string"
         },
-        "relationName": {
-          "type": "string"
-        },
         "parentTable": {
           "type": "string"
         },
         "childTable": {
+          "type": "string"
+        },
+        "relationName": {
           "type": "string"
         },
         "cascadeUpdate": {
@@ -363,11 +363,6 @@
               "writable": false
             },
             {
-              "name": "relationName",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "parentTable",
               "readable": true,
               "writable": true
@@ -376,6 +371,11 @@
               "name": "childTable",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "relationName",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "cascadeUpdate",

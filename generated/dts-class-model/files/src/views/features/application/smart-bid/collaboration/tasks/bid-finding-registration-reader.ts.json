@@ -107,22 +107,22 @@
         "projectId": {
           "type": "string"
         },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
+        "target": {
+          "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/ReviewFindingTarget"
         },
         "checkRef": {
           "type": "string"
         },
-        "target": {
-          "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/ReviewFindingTarget"
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
         }
       },
       "required": [
         "projectId",
-        "assertCurrent",
+        "target",
         "checkRef",
-        "target"
+        "assertCurrent"
       ],
       "additionalProperties": false
     }
@@ -166,7 +166,7 @@
               "writable": true
             },
             {
-              "name": "assertCurrent",
+              "name": "target",
               "readable": true,
               "writable": true
             },
@@ -176,7 +176,7 @@
               "writable": true
             },
             {
-              "name": "target",
+              "name": "assertCurrent",
               "readable": true,
               "writable": true
             }

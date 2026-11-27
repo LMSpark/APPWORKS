@@ -354,7 +354,7 @@
     "packages/spark-ai/src/class-model/class-model/schema/class-model-declaration-schema.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/class-model/schema/class-model-declaration-schema.ts",
       "shardFile": "files/packages/spark-ai/src/class-model/class-model/schema/class-model-declaration-schema.ts.json",
-      "sourceModifiedAt": "2026-11-20T20:59:31.444Z"
+      "sourceModifiedAt": "2026-11-27T08:42:04.943Z"
     },
     "packages/spark-ai/src/class-model/class-model/schema/class-model-json-schema-def-keys.ts": {
       "sourceFile": "packages/spark-ai/src/class-model/class-model/schema/class-model-json-schema-def-keys.ts",

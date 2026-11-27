@@ -321,19 +321,19 @@
               "type": "object",
               "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
             },
-            "readFileBytes": {
-              "type": "object",
-              "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
-            },
             "removeFile": {
               "type": "object",
               "title": "(locator: LowcodeFileLocator) => Promise<void>"
+            },
+            "readFileBytes": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
             }
           },
           "required": [
             "listFiles",
-            "readFileBytes",
-            "removeFile"
+            "removeFile",
+            "readFileBytes"
           ],
           "additionalProperties": false
         },

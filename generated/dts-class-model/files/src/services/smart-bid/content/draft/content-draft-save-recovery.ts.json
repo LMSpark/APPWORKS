@@ -78,17 +78,17 @@
         "draftId": {
           "type": "string"
         },
-        "expectedDraftVersion": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
         "requestKey": {
           "type": "string"
         },
         "requestDigest": {
           "type": "string"
+        },
+        "expectedDraftVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "contentDigest": {
           "type": "string"
@@ -100,9 +100,9 @@
       "required": [
         "projectId",
         "draftId",
-        "expectedDraftVersion",
         "requestKey",
         "requestDigest",
+        "expectedDraftVersion",
         "contentDigest",
         "authorId"
       ],
@@ -119,17 +119,17 @@
         "draftId": {
           "type": "string"
         },
-        "expectedDraftVersion": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
         "requestKey": {
           "type": "string"
         },
         "requestDigest": {
           "type": "string"
+        },
+        "expectedDraftVersion": {
+          "type": [
+            "null",
+            "string"
+          ]
         },
         "contentDigest": {
           "type": "string"
@@ -157,9 +157,9 @@
       "required": [
         "projectId",
         "draftId",
-        "expectedDraftVersion",
         "requestKey",
         "requestDigest",
+        "expectedDraftVersion",
         "contentDigest",
         "authorId"
       ]

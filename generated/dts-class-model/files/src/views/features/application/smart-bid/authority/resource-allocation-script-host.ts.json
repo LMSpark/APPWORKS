@@ -113,13 +113,13 @@
         "previous": {
           "type": "object",
           "properties": {
+            "enterpriseId": {
+              "type": "string"
+            },
             "projectId": {
               "type": "string"
             },
             "resourceVersionId": {
-              "type": "string"
-            },
-            "enterpriseId": {
               "type": "string"
             },
             "allocationRef": {
@@ -131,9 +131,9 @@
             }
           },
           "required": [
+            "enterpriseId",
             "projectId",
             "resourceVersionId",
-            "enterpriseId",
             "allocationRef",
             "assertCurrent"
           ],

@@ -20,11 +20,8 @@
         "projectId": {
           "type": "string"
         },
-        "purpose": {
-          "enum": [
-            "REVIEW",
-            "FORMAL"
-          ]
+        "documentId": {
+          "type": "string"
         },
         "revisionId": {
           "type": "string"
@@ -32,20 +29,23 @@
         "requestKey": {
           "type": "string"
         },
-        "documentId": {
-          "type": "string"
-        },
         "inputDigest": {
           "type": "string"
+        },
+        "purpose": {
+          "enum": [
+            "REVIEW",
+            "FORMAL"
+          ]
         }
       },
       "required": [
         "projectId",
-        "purpose",
+        "documentId",
         "revisionId",
         "requestKey",
-        "documentId",
-        "inputDigest"
+        "inputDigest",
+        "purpose"
       ],
       "additionalProperties": false
     },
@@ -130,7 +130,7 @@
               "writable": true
             },
             {
-              "name": "purpose",
+              "name": "documentId",
               "readable": true,
               "writable": true
             },
@@ -145,12 +145,12 @@
               "writable": true
             },
             {
-              "name": "documentId",
+              "name": "inputDigest",
               "readable": true,
               "writable": true
             },
             {
-              "name": "inputDigest",
+              "name": "purpose",
               "readable": true,
               "writable": true
             }

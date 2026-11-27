@@ -20,6 +20,10 @@
         "runtime": {
           "type": "object",
           "properties": {
+            "getDataSet": {
+              "type": "object",
+              "title": "(scenarioId: string) => DataSet | undefined"
+            },
             "destroyed": {
               "enum": [
                 false,
@@ -31,16 +35,12 @@
                 false,
                 true
               ]
-            },
-            "getDataSet": {
-              "type": "object",
-              "title": "(scenarioId: string) => DataSet | undefined"
             }
           },
           "required": [
+            "getDataSet",
             "destroyed",
-            "isLoaded",
-            "getDataSet"
+            "isLoaded"
           ],
           "additionalProperties": false
         },

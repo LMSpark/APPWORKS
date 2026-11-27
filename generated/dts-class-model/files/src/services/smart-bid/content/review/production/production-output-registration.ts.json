@@ -118,13 +118,13 @@
         "projectId": {
           "type": "string"
         },
+        "documentId": {
+          "type": "string"
+        },
         "revisionId": {
           "type": "string"
         },
         "requestKey": {
-          "type": "string"
-        },
-        "documentId": {
           "type": "string"
         },
         "inputDigest": {
@@ -133,9 +133,9 @@
       },
       "required": [
         "projectId",
+        "documentId",
         "revisionId",
         "requestKey",
-        "documentId",
         "inputDigest"
       ],
       "additionalProperties": false
@@ -148,13 +148,13 @@
         "projectId": {
           "type": "string"
         },
+        "documentId": {
+          "type": "string"
+        },
         "revisionId": {
           "type": "string"
         },
         "requestKey": {
-          "type": "string"
-        },
-        "documentId": {
           "type": "string"
         },
         "inputDigest": {
@@ -184,9 +184,9 @@
       },
       "required": [
         "projectId",
+        "documentId",
         "revisionId",
         "requestKey",
-        "documentId",
         "inputDigest"
       ]
     }
@@ -243,17 +243,17 @@
               "writable": true
             },
             {
+              "name": "documentId",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "revisionId",
               "readable": true,
               "writable": true
             },
             {
               "name": "requestKey",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "documentId",
               "readable": true,
               "writable": true
             },

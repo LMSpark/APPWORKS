@@ -21,15 +21,15 @@
       "type": "object",
       "title": "SystemPageInstanceView",
       "properties": {
-        "view": {
-          "type": "object",
-          "title": "Component"
-        },
         "instanceId": {
           "type": "string"
         },
         "componentName": {
           "type": "string"
+        },
+        "view": {
+          "type": "object",
+          "title": "Component"
         },
         "isDirty": {
           "enum": [
@@ -39,9 +39,9 @@
         }
       },
       "required": [
-        "view",
         "instanceId",
         "componentName",
+        "view",
         "isDirty"
       ],
       "additionalProperties": false
@@ -392,17 +392,17 @@
         "members": {
           "attributes": [
             {
-              "name": "view",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "instanceId",
               "readable": true,
               "writable": true
             },
             {
               "name": "componentName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "view",
               "readable": true,
               "writable": true
             },

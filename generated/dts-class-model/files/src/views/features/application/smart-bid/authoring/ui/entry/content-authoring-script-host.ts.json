@@ -19,24 +19,24 @@
       "type": "object",
       "title": "Binding",
       "properties": {
+        "runtime": {
+          "$ref": "../../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
         "projectId": {
           "type": "string"
         },
-        "dataViewKey": {
+        "draftId": {
+          "type": "string"
+        },
+        "actorUserId": {
           "type": "string"
         },
         "assertCurrent": {
           "type": "object",
           "title": "() => void"
-        },
-        "draftId": {
-          "type": "string"
-        },
-        "runtime": {
-          "$ref": "../../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
-        },
-        "actorUserId": {
-          "type": "string"
         },
         "setPending": {
           "type": "object",
@@ -44,12 +44,12 @@
         }
       },
       "required": [
-        "projectId",
-        "dataViewKey",
-        "assertCurrent",
-        "draftId",
         "runtime",
+        "dataViewKey",
+        "projectId",
+        "draftId",
         "actorUserId",
+        "assertCurrent",
         "setPending"
       ],
       "additionalProperties": false
@@ -469,7 +469,7 @@
         "members": {
           "attributes": [
             {
-              "name": "projectId",
+              "name": "runtime",
               "readable": true,
               "writable": true
             },
@@ -479,7 +479,7 @@
               "writable": true
             },
             {
-              "name": "assertCurrent",
+              "name": "projectId",
               "readable": true,
               "writable": true
             },
@@ -489,12 +489,12 @@
               "writable": true
             },
             {
-              "name": "runtime",
+              "name": "actorUserId",
               "readable": true,
               "writable": true
             },
             {
-              "name": "actorUserId",
+              "name": "assertCurrent",
               "readable": true,
               "writable": true
             },

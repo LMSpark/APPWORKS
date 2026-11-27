@@ -817,7 +817,13 @@
       "type": "object",
       "title": "CandidateNodeSelection",
       "properties": {
+        "path": {
+          "type": "string"
+        },
         "start": {
+          "type": "number"
+        },
+        "end": {
           "type": "number"
         },
         "mode": {
@@ -825,12 +831,6 @@
             "TEXT",
             "INSERTION"
           ]
-        },
-        "path": {
-          "type": "string"
-        },
-        "end": {
-          "type": "number"
         },
         "role": {
           "enum": [
@@ -843,10 +843,10 @@
         }
       },
       "required": [
-        "start",
-        "mode",
         "path",
+        "start",
         "end",
+        "mode",
         "role",
         "nodeId"
       ],

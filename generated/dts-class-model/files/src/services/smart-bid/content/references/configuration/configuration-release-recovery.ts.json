@@ -203,6 +203,24 @@
       "type": "object",
       "title": "Request",
       "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "ENABLE",
+            "DISABLE"
+          ]
+        },
         "version": {
           "anyOf": [
             {
@@ -239,28 +257,10 @@
             }
           ]
         },
-        "scopeId": {
-          "type": "string"
-        },
-        "kind": {
-          "type": "string"
-        },
-        "key": {
-          "type": "string"
-        },
-        "requestKey": {
-          "type": "string"
-        },
         "expectedPointerVersion": {
           "type": [
             "null",
             "string"
-          ]
-        },
-        "action": {
-          "enum": [
-            "ENABLE",
-            "DISABLE"
           ]
         },
         "requestDigest": {
@@ -268,13 +268,13 @@
         }
       },
       "required": [
-        "version",
-        "scopeId",
         "kind",
         "key",
+        "scopeId",
         "requestKey",
-        "expectedPointerVersion",
         "action",
+        "version",
+        "expectedPointerVersion",
         "requestDigest"
       ],
       "additionalProperties": false
@@ -284,6 +284,24 @@
       "type": "object",
       "title": "Receipt",
       "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "scopeId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "ENABLE",
+            "DISABLE"
+          ]
+        },
         "version": {
           "anyOf": [
             {
@@ -320,28 +338,10 @@
             }
           ]
         },
-        "scopeId": {
-          "type": "string"
-        },
-        "kind": {
-          "type": "string"
-        },
-        "key": {
-          "type": "string"
-        },
-        "requestKey": {
-          "type": "string"
-        },
         "expectedPointerVersion": {
           "type": [
             "null",
             "string"
-          ]
-        },
-        "action": {
-          "enum": [
-            "ENABLE",
-            "DISABLE"
           ]
         },
         "requestDigest": {
@@ -365,13 +365,13 @@
         "method.assertCurrent.return": true
       },
       "required": [
-        "version",
-        "scopeId",
         "kind",
         "key",
+        "scopeId",
         "requestKey",
-        "expectedPointerVersion",
         "action",
+        "version",
+        "expectedPointerVersion",
         "requestDigest"
       ]
     }

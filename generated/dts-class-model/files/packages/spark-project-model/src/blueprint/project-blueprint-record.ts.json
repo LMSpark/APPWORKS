@@ -19,6 +19,15 @@
       "type": "object",
       "title": "BlueprintIdentity",
       "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
         "kind": {
           "enum": [
             "module",
@@ -28,22 +37,13 @@
             "content",
             "unknown"
           ]
-        },
-        "projectId": {
-          "type": "string"
-        },
-        "nodeId": {
-          "type": "string"
-        },
-        "parentNodeId": {
-          "type": "string"
         }
       },
       "required": [
-        "kind",
-        "projectId",
         "nodeId",
-        "parentNodeId"
+        "parentNodeId",
+        "projectId",
+        "kind"
       ],
       "additionalProperties": false
     },
@@ -394,7 +394,12 @@
         "members": {
           "attributes": [
             {
-              "name": "kind",
+              "name": "nodeId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "parentNodeId",
               "readable": true,
               "writable": true
             },
@@ -404,12 +409,7 @@
               "writable": true
             },
             {
-              "name": "nodeId",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "parentNodeId",
+              "name": "kind",
               "readable": true,
               "writable": true
             }

@@ -27,10 +27,6 @@
         "nodeId": {
           "type": "string"
         },
-        "value": {
-          "type": "object",
-          "title": "(field: string) => unknown"
-        },
         "dataSet": {
           "$ref": "../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
@@ -43,15 +39,19 @@
         "canRead": {
           "type": "object",
           "title": "(field: string) => boolean"
+        },
+        "value": {
+          "type": "object",
+          "title": "(field: string) => unknown"
         }
       },
       "required": [
         "projectId",
         "nodeId",
-        "value",
         "dataSet",
         "hasTreeProjection",
-        "canRead"
+        "canRead",
+        "value"
       ],
       "additionalProperties": false
     },
@@ -160,11 +160,6 @@
               "writable": true
             },
             {
-              "name": "value",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "dataSet",
               "readable": true,
               "writable": true
@@ -176,6 +171,11 @@
             },
             {
               "name": "canRead",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "value",
               "readable": true,
               "writable": true
             }

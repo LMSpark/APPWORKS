@@ -66,19 +66,19 @@
       "type": "object",
       "title": "FixedFact",
       "properties": {
-        "version": {
-          "type": "number"
-        },
         "projectId": {
           "type": "string"
         },
-        "scopeRef": true,
         "baselineId": {
           "type": "string"
         },
         "factId": {
           "type": "string"
         },
+        "version": {
+          "type": "number"
+        },
+        "scopeRef": true,
         "assertCurrent": {
           "type": "object",
           "title": "() => void"
@@ -89,11 +89,11 @@
         }
       },
       "required": [
-        "version",
         "projectId",
-        "scopeRef",
         "baselineId",
         "factId",
+        "version",
+        "scopeRef",
         "assertCurrent",
         "decisionRefs"
       ],

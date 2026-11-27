@@ -140,13 +140,13 @@
               "type": "object",
               "title": "(path: string, params?: Record<string, unknown>) => void"
             },
-            "resolveView": {
-              "type": "object",
-              "title": "(binding: string) => DataView | undefined"
-            },
             "getDataSet": {
               "type": "object",
               "title": "(scenarioId: string) => DataSet | undefined"
+            },
+            "resolveView": {
+              "type": "object",
+              "title": "(binding: string) => DataView | undefined"
             },
             "invokeHostCommand": {
               "type": "object",
@@ -165,8 +165,8 @@
             "uploadFiles",
             "showLoading",
             "navigate",
-            "resolveView",
             "getDataSet",
+            "resolveView",
             "invokeHostCommand"
           ],
           "additionalProperties": false
@@ -174,7 +174,7 @@
         "console": {
           "type": "object",
           "properties": {
-            "debug": {
+            "log": {
               "type": "object",
               "title": "(...data: any[]) => void"
             },
@@ -190,17 +190,17 @@
               "type": "object",
               "title": "(...data: any[]) => void"
             },
-            "log": {
+            "debug": {
               "type": "object",
               "title": "(...data: any[]) => void"
             }
           },
           "required": [
-            "debug",
+            "log",
             "info",
             "warn",
             "error",
-            "log"
+            "debug"
           ],
           "additionalProperties": false
         },

@@ -30,19 +30,19 @@
               "type": "object",
               "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
             },
-            "readTextFile": {
-              "type": "object",
-              "title": "(locator: LowcodeFileLocator) => Promise<string>"
-            },
             "removeFile": {
               "type": "object",
               "title": "(locator: LowcodeFileLocator) => Promise<void>"
+            },
+            "readTextFile": {
+              "type": "object",
+              "title": "(locator: LowcodeFileLocator) => Promise<string>"
             }
           },
           "required": [
             "listFiles",
-            "readTextFile",
-            "removeFile"
+            "removeFile",
+            "readTextFile"
           ],
           "additionalProperties": false
         }

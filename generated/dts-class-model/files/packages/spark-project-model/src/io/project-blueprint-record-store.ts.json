@@ -608,18 +608,18 @@
       "type": "object",
       "title": "BlueprintRecordOwner",
       "properties": {
-        "save": {
-          "type": "object",
-          "title": "(command: Readonly<{ changes: readonly DataSpaceRuntimeSaveChange[]; signal?: AbortSignal; }>) => Promise<DataSpaceRequestSaveResult>"
-        },
         "query": {
           "type": "object",
           "title": "(identity: DataSpaceQueryIdentity, options?: DataSpaceQueryOptions) => Promise<DataSpaceQueryContext>"
+        },
+        "save": {
+          "type": "object",
+          "title": "(command: Readonly<{ changes: readonly DataSpaceRuntimeSaveChange[]; signal?: AbortSignal; }>) => Promise<DataSpaceRequestSaveResult>"
         }
       },
       "required": [
-        "save",
-        "query"
+        "query",
+        "save"
       ],
       "additionalProperties": false
     },
@@ -1073,12 +1073,12 @@
         "members": {
           "attributes": [
             {
-              "name": "save",
+              "name": "query",
               "readable": true,
               "writable": true
             },
             {
-              "name": "query",
+              "name": "save",
               "readable": true,
               "writable": true
             }

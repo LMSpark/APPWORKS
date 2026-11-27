@@ -90,20 +90,20 @@
       "type": "object",
       "title": "Request",
       "properties": {
+        "groupScope": {
+          "$ref": "delivery-selection-digest.ts.json#/$defs/GroupScope"
+        },
         "requestKey": {
           "type": "string"
         },
         "requestDigest": {
           "type": "string"
-        },
-        "groupScope": {
-          "$ref": "delivery-selection-digest.ts.json#/$defs/GroupScope"
         }
       },
       "required": [
+        "groupScope",
         "requestKey",
-        "requestDigest",
-        "groupScope"
+        "requestDigest"
       ],
       "additionalProperties": false
     },
@@ -224,17 +224,17 @@
         "members": {
           "attributes": [
             {
+              "name": "groupScope",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "requestKey",
               "readable": true,
               "writable": true
             },
             {
               "name": "requestDigest",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "groupScope",
               "readable": true,
               "writable": true
             }

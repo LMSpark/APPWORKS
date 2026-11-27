@@ -49,23 +49,13 @@
           ],
           "additionalProperties": false
         },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
-        },
-        "inputDigest": {
-          "type": [
-            "null",
-            "string"
-          ]
-        },
         "guideRef": {
           "type": "string"
         },
-        "guideDigest": {
+        "guideVersionRef": {
           "type": "string"
         },
-        "guideVersionRef": {
+        "guideDigest": {
           "type": "string"
         },
         "usable": {
@@ -73,6 +63,16 @@
             false,
             true
           ]
+        },
+        "inputDigest": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
         },
         "requirementReads": {
           "type": "array",
@@ -100,12 +100,12 @@
       },
       "required": [
         "scope",
-        "assertCurrent",
-        "inputDigest",
         "guideRef",
-        "guideDigest",
         "guideVersionRef",
-        "usable"
+        "guideDigest",
+        "usable",
+        "inputDigest",
+        "assertCurrent"
       ],
       "additionalProperties": false
     },
@@ -337,22 +337,7 @@
               "writable": true
             },
             {
-              "name": "assertCurrent",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "inputDigest",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "guideRef",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "guideDigest",
               "readable": true,
               "writable": true
             },
@@ -362,7 +347,22 @@
               "writable": true
             },
             {
+              "name": "guideDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "usable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "inputDigest",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
               "readable": true,
               "writable": true
             },

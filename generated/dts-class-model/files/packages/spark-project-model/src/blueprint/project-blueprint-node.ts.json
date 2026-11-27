@@ -288,12 +288,6 @@
       "type": "object",
       "title": "ProjectBlueprintNodePatch",
       "properties": {
-        "source": {
-          "$ref": "#/$defs/BlueprintSource"
-        },
-        "navigation": {
-          "$ref": "#/$defs/BlueprintNavigation"
-        },
         "kind": {
           "enum": [
             "module",
@@ -307,17 +301,23 @@
         "capability": {
           "$ref": "#/$defs/BlueprintCapability"
         },
+        "navigation": {
+          "$ref": "#/$defs/BlueprintNavigation"
+        },
         "dataSpace": {
           "$ref": "#/$defs/BlueprintDataSpace"
         },
         "prototype": {
           "$ref": "#/$defs/BlueprintPrototype"
+        },
+        "source": {
+          "$ref": "#/$defs/BlueprintSource"
         }
       },
       "required": [
-        "source",
         "kind",
-        "capability"
+        "capability",
+        "source"
       ],
       "additionalProperties": false
     },
@@ -870,16 +870,6 @@
         "members": {
           "attributes": [
             {
-              "name": "source",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "navigation",
-              "readable": true,
-              "writable": false
-            },
-            {
               "name": "kind",
               "readable": true,
               "writable": true
@@ -890,6 +880,11 @@
               "writable": true
             },
             {
+              "name": "navigation",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "dataSpace",
               "readable": true,
               "writable": false
@@ -898,6 +893,11 @@
               "name": "prototype",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "source",
+              "readable": true,
+              "writable": true
             }
           ]
         }

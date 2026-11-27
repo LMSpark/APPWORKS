@@ -84,20 +84,20 @@
         "target": {
           "type": "object",
           "properties": {
-            "pageId": {
-              "type": "string"
-            },
             "dataSet": {
               "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "appId": {
               "type": "string"
+            },
+            "pageId": {
+              "type": "string"
             }
           },
           "required": [
-            "pageId",
             "dataSet",
-            "appId"
+            "appId",
+            "pageId"
           ],
           "additionalProperties": false
         },

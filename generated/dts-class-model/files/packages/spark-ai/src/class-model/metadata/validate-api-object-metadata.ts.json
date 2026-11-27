@@ -22,8 +22,8 @@
       "properties": {
         "level": {
           "enum": [
-            "warn",
-            "error"
+            "error",
+            "warn"
           ]
         },
         "rule": {

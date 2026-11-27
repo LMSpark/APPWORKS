@@ -173,8 +173,7 @@
           ]
         },
         "inspectReport": {
-          "type": "object",
-          "title": "AiAgentToolRuntimeInspectReport"
+          "$ref": "../../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentToolRuntimeInspectReport"
         }
       },
       "required": [
@@ -196,9 +195,9 @@
       "properties": {
         "level": {
           "enum": [
-            "info",
+            "error",
             "warn",
-            "error"
+            "info"
           ]
         },
         "code": {
@@ -278,8 +277,7 @@
               }
             },
             "inspectReport": {
-              "type": "object",
-              "title": "AiAgentToolRuntimeInspectReport"
+              "$ref": "../../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentToolRuntimeInspectReport"
             },
             "diagnostics": {
               "type": "array",
@@ -365,10 +363,7 @@
         "method.register.params": {
           "type": "object",
           "properties": {
-            "alias": {
-              "type": "object",
-              "title": "K"
-            },
+            "alias": true,
             "registration": {
               "$ref": "../registration-types.ts.json#/$defs/AiAgentRegistration"
             }
@@ -381,10 +376,7 @@
         "method.ensure.params": {
           "type": "object",
           "properties": {
-            "alias": {
-              "type": "object",
-              "title": "K"
-            },
+            "alias": true,
             "command": {
               "$ref": "#/$defs/AiAgentHostEnsureCommand"
             }
@@ -475,10 +467,7 @@
             "alias": {
               "type": "string"
             },
-            "args": {
-              "type": "object",
-              "title": "TInput"
-            },
+            "args": true,
             "chat": {
               "$ref": "../business-task.ts.json#/$defs/AiAgentTaskChatOptions"
             }

@@ -18,8 +18,7 @@
       "title": "WorkflowDialogScopeInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "workflowId": {
           "type": "string"
@@ -39,8 +38,7 @@
           "additionalProperties": false
         },
         "method.getDataSet.return": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "method.getWorkflowId.params": {
           "type": "object",

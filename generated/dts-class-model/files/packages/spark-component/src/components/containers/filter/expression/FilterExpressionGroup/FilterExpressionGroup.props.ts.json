@@ -35,9 +35,9 @@
               },
               "type": {
                 "enum": [
+                  "text",
                   "number",
                   "boolean",
-                  "text",
                   "date",
                   "datetime",
                   "select"

@@ -20,7 +20,38 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Host"
+          "properties": {
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(binding: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "runtime",
+            "scenarioId",
+            "projectId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -111,15 +142,13 @@
             "receipts": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Receipt"
+                "$ref": "../../../../../../../services/smart-bid/content/review/submission/submission-receipt-effects.ts.json#/$defs/Receipt"
               }
             },
             "decisions": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Decision"
+                "$ref": "../../../../../../../services/smart-bid/content/review/submission/submission-receipt-effects.ts.json#/$defs/Decision"
               }
             },
             "assertCurrent": {
@@ -157,8 +186,7 @@
                 "requiredFields": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "title": "Field"
+                    "$ref": "../../model/review/deadline/content-deadline-field-reconciliation.ts.json#/$defs/Field"
                   }
                 },
                 "requiredMembers": {
@@ -183,13 +211,332 @@
                 "packages": {
                   "type": "array",
                   "items": {
-                    "$ref": "../../model/review/deadline/content-deadline-package-reconciliation.ts.json#/$defs/ReviewedPackage"
+                    "type": "object",
+                    "properties": {
+                      "assertCurrent": {
+                        "type": "object",
+                        "title": "() => void"
+                      },
+                      "members": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "position": {
+                              "type": "string"
+                            },
+                            "expectedVersionId": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "packedVersionId": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "expectedHash": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "packedHash": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "observedHash": {
+                              "type": [
+                                "null",
+                                "string"
+                              ]
+                            },
+                            "issues": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "position",
+                            "expectedVersionId",
+                            "packedVersionId",
+                            "expectedHash",
+                            "packedHash",
+                            "observedHash",
+                            "issues"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "membershipMatches": {
+                        "enum": [
+                          false,
+                          true
+                        ]
+                      },
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "packageId": {
+                        "type": "string"
+                      },
+                      "packageHash": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "assertCurrent",
+                      "members",
+                      "membershipMatches",
+                      "projectId",
+                      "packageId",
+                      "packageHash"
+                    ],
+                    "additionalProperties": false
                   }
                 },
                 "batches": {
                   "type": "array",
                   "items": {
-                    "$ref": "../../model/review/deadline/content-deadline-field-reconciliation.ts.json#/$defs/Batch"
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "revisionId": {
+                        "type": "string"
+                      },
+                      "attemptRef": {
+                        "type": "string"
+                      },
+                      "receiptRef": {
+                        "type": "string"
+                      },
+                      "results": {
+                        "type": "array",
+                        "items": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "assignmentId": {
+                                  "type": "string"
+                                },
+                                "fieldId": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "const": "STAGE_REQUIRED"
+                                },
+                                "observationRef": {
+                                  "type": "string"
+                                },
+                                "attemptRef": {
+                                  "type": "string"
+                                },
+                                "observedStage": {
+                                  "enum": [
+                                    "SAVED",
+                                    "DRAFT",
+                                    "SUBMITTED"
+                                  ]
+                                },
+                                "expectedStage": {
+                                  "enum": [
+                                    "SAVED",
+                                    "SUBMITTED"
+                                  ]
+                                },
+                                "observedValueJson": {
+                                  "type": "string"
+                                },
+                                "unit": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "assertCurrent": {
+                                  "type": "object",
+                                  "title": "() => void"
+                                }
+                              },
+                              "required": [
+                                "assignmentId",
+                                "fieldId",
+                                "state",
+                                "observationRef",
+                                "attemptRef",
+                                "observedStage",
+                                "expectedStage",
+                                "observedValueJson",
+                                "unit",
+                                "assertCurrent"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "assignmentId": {
+                                  "type": "string"
+                                },
+                                "fieldId": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "const": "RECEIPT_REQUIRED"
+                                },
+                                "observationRef": {
+                                  "type": "string"
+                                },
+                                "attemptRef": {
+                                  "type": "string"
+                                },
+                                "observedStage": {
+                                  "enum": [
+                                    "SAVED",
+                                    "DRAFT",
+                                    "SUBMITTED"
+                                  ]
+                                },
+                                "expectedStage": {
+                                  "enum": [
+                                    "SAVED",
+                                    "SUBMITTED"
+                                  ]
+                                },
+                                "observedValueJson": {
+                                  "type": "string"
+                                },
+                                "unit": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "assertCurrent": {
+                                  "type": "object",
+                                  "title": "() => void"
+                                }
+                              },
+                              "required": [
+                                "assignmentId",
+                                "fieldId",
+                                "state",
+                                "observationRef",
+                                "attemptRef",
+                                "observedStage",
+                                "expectedStage",
+                                "observedValueJson",
+                                "unit",
+                                "assertCurrent"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "assignmentId": {
+                                  "type": "string"
+                                },
+                                "fieldId": {
+                                  "type": "string"
+                                },
+                                "receiptRef": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "enum": [
+                                    "MATCHED",
+                                    "MISMATCHED"
+                                  ]
+                                },
+                                "observedValueHash": {
+                                  "type": "string"
+                                },
+                                "approvalRef": {
+                                  "type": "string"
+                                },
+                                "observationRef": {
+                                  "type": "string"
+                                },
+                                "attemptRef": {
+                                  "type": "string"
+                                },
+                                "observedStage": {
+                                  "enum": [
+                                    "SAVED",
+                                    "DRAFT",
+                                    "SUBMITTED"
+                                  ]
+                                },
+                                "expectedStage": {
+                                  "enum": [
+                                    "SAVED",
+                                    "SUBMITTED"
+                                  ]
+                                },
+                                "observedValueJson": {
+                                  "type": "string"
+                                },
+                                "unit": {
+                                  "type": [
+                                    "null",
+                                    "string"
+                                  ]
+                                },
+                                "assertCurrent": {
+                                  "type": "object",
+                                  "title": "() => void"
+                                }
+                              },
+                              "required": [
+                                "assignmentId",
+                                "fieldId",
+                                "state",
+                                "observedValueHash",
+                                "approvalRef",
+                                "observationRef",
+                                "attemptRef",
+                                "observedStage",
+                                "expectedStage",
+                                "observedValueJson",
+                                "unit",
+                                "assertCurrent"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        }
+                      },
+                      "allSelectedFieldsMatched": {
+                        "enum": [
+                          false,
+                          true
+                        ]
+                      },
+                      "assertCurrent": {
+                        "type": "object",
+                        "title": "() => void"
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "revisionId",
+                      "attemptRef",
+                      "receiptRef",
+                      "results",
+                      "allSelectedFieldsMatched",
+                      "assertCurrent"
+                    ],
+                    "additionalProperties": false
                   }
                 }
               },
@@ -472,9 +819,9 @@
                 "properties": {
                   "contentState": {
                     "enum": [
+                      "PENDING",
                       "MATCHED",
-                      "MISMATCHED",
-                      "PENDING"
+                      "MISMATCHED"
                     ]
                   },
                   "fields": {
@@ -490,9 +837,9 @@
                         },
                         "state": {
                           "enum": [
+                            "PENDING",
                             "MATCHED",
-                            "MISMATCHED",
-                            "PENDING"
+                            "MISMATCHED"
                           ]
                         },
                         "observationRef": {
@@ -534,9 +881,9 @@
                         },
                         "state": {
                           "enum": [
+                            "PENDING",
                             "MATCHED",
-                            "MISMATCHED",
-                            "PENDING"
+                            "MISMATCHED"
                           ]
                         }
                       },
@@ -761,11 +1108,41 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Host"
+          "properties": {
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(binding: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "runtime",
+            "scenarioId",
+            "projectId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
-          "type": "object",
-          "title": "Request"
+          "$ref": "../../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Request"
         },
         {
           "type": "object",
@@ -843,8 +1220,7 @@
             "requirements": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Requirement"
+                "$ref": "../../model/review/package/content-package-release.ts.json#/$defs/Requirement"
               }
             },
             "assertCurrent": {
@@ -865,8 +1241,7 @@
         {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Evidence"
+            "$ref": "../../model/review/package/content-package-release.ts.json#/$defs/Evidence"
           }
         }
       ]
@@ -910,8 +1285,7 @@
             "members": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Member"
+                "$ref": "../../../../../../../services/smart-bid/content/review/delivery-selection-digest.ts.json#/$defs/Member"
               }
             },
             "compatibilityRefs": {
@@ -1001,11 +1375,41 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Host"
+          "properties": {
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(binding: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "runtime",
+            "scenarioId",
+            "projectId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
-          "type": "object",
-          "title": "Request"
+          "$ref": "../../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Request"
         },
         {
           "type": "object",
@@ -1021,11 +1425,11 @@
             },
             "openOriginal": {
               "type": "object",
-              "title": "(member: Readonly<{ manifestId: string; manifestVersion: string; position: string; fileVersionId: string; fileHash: string; }>) => Promise<Readonly<{ projectId: string; fileVersionId: string; bytes: ArrayBuffer; assertCurrent: () => void; }>>"
+              "title": "(member: Member) => Promise<OriginalFile>"
             },
             "readCurrentUse": {
               "type": "object",
-              "title": "(scope: Readonly<{ request: Request; selectionId: string; selectionVersion: string; selectionHash: string; positions: readonly string[]; }>) => Promise<Readonly<...>>"
+              "title": "(scope: UseScope) => Promise<UseProof>"
             }
           },
           "required": [
@@ -1046,7 +1450,38 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Host"
+          "properties": {
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(binding: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "runtime",
+            "scenarioId",
+            "projectId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
           "type": "string"
@@ -1139,12 +1574,10 @@
       "items": false,
       "prefixItems": [
         {
-          "type": "object",
-          "title": "Pick<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>, \"projectId\" | \"selectionHash\"> & Readonly<{ members: readonly Readonly<{ position: string; paperRef: string; versionRef: string; copies: number; }>[]; }> & Readonly<{ assertCurrent: () => void; }>"
+          "$ref": "../../../../../../../services/smart-bid/content/review/paper-submission-package.ts.json#/$defs/Evidence"
         },
         {
-          "type": "object",
-          "title": "Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }> & Readonly<{ packingRef: string; members: readonly Readonly<{ position: string; paperRef: string; versionRef: string; copies: number; }>[]; }> & Readonly<{ assertCurrent: () => void; }>"
+          "$ref": "../../../../../../../services/smart-bid/content/review/paper-submission-package.ts.json#/$defs/Evidence"
         }
       ]
     },
@@ -1155,12 +1588,10 @@
       "items": false,
       "prefixItems": [
         {
-          "type": "object",
-          "title": "Request"
+          "$ref": "../../../../../../../services/smart-bid/content/review/submission/signature-request.ts.json#/$defs/Request"
         },
         {
-          "type": "object",
-          "title": "Basis"
+          "$ref": "../../../../../../../services/smart-bid/content/review/submission/signature-request.ts.json#/$defs/Basis"
         },
         {
           "type": "object",
@@ -1168,8 +1599,7 @@
             "versions": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Version"
+                "$ref": "../../../../../../../services/smart-bid/content/review/submission/authority-grant-coverage.ts.json#/$defs/Version"
               }
             },
             "assertCurrent": {
@@ -1243,8 +1673,7 @@
           "type": "string"
         },
         "request": {
-          "type": "object",
-          "title": "Request"
+          "$ref": "../../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Request"
         },
         "state": {
           "enum": [

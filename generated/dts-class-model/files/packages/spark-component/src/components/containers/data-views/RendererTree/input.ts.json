@@ -23,7 +23,20 @@
       "title": "RendererTreeInputProps",
       "properties": {
         "children": {
-          "$ref": "../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "$ref": "../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+              }
+            ]
+          }
         },
         "toolbar": {
           "$ref": "../../layout/action/RendererToolbar/RendererToolbar.types.ts.json#/$defs/RToolbarProps"

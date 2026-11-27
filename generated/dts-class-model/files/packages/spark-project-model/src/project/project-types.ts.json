@@ -189,11 +189,14 @@
           }
         },
         "selectedNode": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ProjectBlueprintTreeNodeData"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeData"
+            }
+          ]
         },
         "selectedNodeId": {
           "type": [
@@ -202,18 +205,24 @@
           ]
         },
         "blueprintLocation": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ProjectBlueprintTreeNodeLocation"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeNodeLocation"
+            }
+          ]
         },
         "blueprintDraft": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "BlueprintNodeDraft"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../blueprint/project-blueprint-edit.ts.json#/$defs/BlueprintNodeDraft"
+            }
+          ]
         },
         "pageDeliveries": {
           "type": "array",

@@ -48,8 +48,7 @@
           "title": "(context: { moduleInstanceId: string; }) => ProjectWorkspace"
         },
         "blueprintDataView": {
-          "type": "object",
-          "title": "import(\"../project/blueprint-workspace-dataview\").BlueprintWorkspaceDataView"
+          "$ref": "../project/blueprint-workspace-dataview.ts.json#/$defs/BlueprintWorkspaceDataView"
         },
         "getDataViewCompletionResult": {
           "type": "object",

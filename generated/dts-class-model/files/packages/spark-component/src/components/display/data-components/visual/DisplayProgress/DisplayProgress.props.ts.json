@@ -47,17 +47,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -74,8 +74,8 @@
         },
         "progressType": {
           "enum": [
-            "circle",
             "line",
+            "circle",
             "dashboard"
           ]
         },
@@ -90,9 +90,9 @@
         },
         "status": {
           "enum": [
-            "warning",
             "success",
-            "exception"
+            "exception",
+            "warning"
           ]
         },
         "indeterminate": {
@@ -141,9 +141,9 @@
         },
         "strokeLinecap": {
           "enum": [
+            "butt",
             "round",
-            "square",
-            "butt"
+            "square"
           ]
         },
         "formatText": {

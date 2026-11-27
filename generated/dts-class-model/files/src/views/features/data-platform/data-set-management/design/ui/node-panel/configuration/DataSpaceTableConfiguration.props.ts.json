@@ -20,8 +20,7 @@
       "title": "DataSpaceTableConfigurationProps",
       "properties": {
         "session": {
-          "type": "object",
-          "title": "import(\"../../../../../../../../platform-adapters/data-space/view-design/lowcode-data-space-view-design\").LowcodeDataSpaceDesignSession"
+          "$ref": "../../../../../../../../platform-adapters/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
         },
         "modelId": {
           "type": "string"
@@ -49,8 +48,8 @@
         },
         "section": {
           "enum": [
-            "columns",
-            "requests"
+            "requests",
+            "columns"
           ]
         }
       },

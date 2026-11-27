@@ -26,7 +26,24 @@
       "type": "array",
       "title": "Mappings",
       "items": {
-        "$ref": "../migration/lowcode-data-space-relation-migration.ts.json#/$defs/Migration"
+        "type": "object",
+        "properties": {
+          "modelId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sourceName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "modelId",
+          "name",
+          "sourceName"
+        ],
+        "additionalProperties": false
       }
     },
     "LowcodeDataSpaceModelMigration": {

@@ -32,8 +32,7 @@
           "type": "object",
           "properties": {},
           "additionalProperties": {
-            "type": "object",
-            "title": "import(\"../support/useEventDefaults.js\").EventDefaultDeclaration"
+            "$ref": "../support/useEventDefaults.ts.json#/$defs/EventDefaultDeclaration"
           }
         }
       },

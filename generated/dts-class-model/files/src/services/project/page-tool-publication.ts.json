@@ -192,7 +192,11 @@
       "title": "PageToolPublicationFileSource",
       "properties": {
         "fileName": {
-          "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+          "enum": [
+            "rule.json",
+            "script.js",
+            "style.css"
+          ]
         },
         "version": {
           "type": "number"
@@ -320,7 +324,11 @@
             "type": "object",
             "properties": {
               "fileName": {
-                "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+                "enum": [
+                  "rule.json",
+                  "script.js",
+                  "style.css"
+                ]
               },
               "version": {
                 "type": "number"
@@ -375,7 +383,11 @@
                 "type": "object",
                 "properties": {
                   "fileName": {
-                    "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+                    "enum": [
+                      "rule.json",
+                      "script.js",
+                      "style.css"
+                    ]
                   },
                   "version": {
                     "type": "number"
@@ -438,7 +450,11 @@
                 "type": "object",
                 "properties": {
                   "fileName": {
-                    "$ref": "../../../packages/spark-project-model/src/page/page-file.ts.json#/$defs/PageToolFileName"
+                    "enum": [
+                      "rule.json",
+                      "script.js",
+                      "style.css"
+                    ]
                   },
                   "version": {
                     "type": "number"

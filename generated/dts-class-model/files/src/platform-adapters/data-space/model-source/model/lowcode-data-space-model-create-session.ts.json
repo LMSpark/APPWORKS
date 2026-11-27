@@ -68,8 +68,7 @@
       "title": "Prepared",
       "properties": {
         "source": {
-          "type": "object",
-          "title": "PageDataSpaceModelSource"
+          "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSource"
         },
         "model": {
           "type": "object",
@@ -180,12 +179,12 @@
       "title": "ModelCreateStatus",
       "enum": [
         "idle",
-        "unsubmitted",
-        "unknown",
-        "readback",
         "previewing",
         "ready",
         "saving",
+        "unsubmitted",
+        "unknown",
+        "readback",
         "different"
       ]
     },
@@ -250,11 +249,14 @@
           "type": "number"
         },
         "preview": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "Candidate"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/Candidate"
+            }
+          ]
         },
         "staged": {
           "type": "array",
@@ -263,11 +265,14 @@
           }
         },
         "capture": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataSpaceDefinitionCaptureBatch"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+            }
+          ]
         },
         "captureSignatures": {
           "type": "array",
@@ -405,8 +410,7 @@
           "type": "string"
         },
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -442,8 +446,7 @@
       "title": "ModelCreateHostInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"

@@ -63,8 +63,7 @@
           "type": "string"
         },
         "runtime": {
-          "type": "object",
-          "title": "AiAgentToolRuntime"
+          "$ref": "../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentToolRuntime"
         },
         "inputContract": {
           "type": "object",
@@ -294,10 +293,6 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
-                },
                 "toLocaleString": {
                   "anyOf": [
                     {
@@ -361,7 +356,6 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@306065",
                 "toLocaleString"
               ],
               "additionalProperties": false
@@ -539,8 +533,7 @@
           "type": "string"
         },
         "runtime": {
-          "type": "object",
-          "title": "AiAgentToolRuntime"
+          "$ref": "../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentToolRuntime"
         },
         "inputContract": {
           "$ref": "business-task.ts.json#/$defs/AiAgentInputContract"

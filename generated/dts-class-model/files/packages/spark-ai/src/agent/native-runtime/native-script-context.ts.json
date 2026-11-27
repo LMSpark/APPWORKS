@@ -41,8 +41,7 @@
           }
         },
         "host": {
-          "type": "object",
-          "title": "AiAgentRuntimeHostContext"
+          "$ref": "../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentRuntimeHostContext"
         }
       },
       "required": [
@@ -57,8 +56,7 @@
       "properties": {
         "instance": true,
         "api": {
-          "type": "object",
-          "title": "AiApiObjectMetadata"
+          "$ref": "../../class-model/metadata/ai-api-object-metadata-schema.ts.json#/$defs/AiApiObjectMetadata"
         },
         "ctx": {
           "$ref": "#/$defs/AiNativePathContext"
@@ -81,8 +79,7 @@
       "properties": {
         "target": true,
         "action": {
-          "type": "object",
-          "title": "AiApiActionMetadata"
+          "$ref": "../../class-model/metadata/ai-api-object-metadata-schema.ts.json#/$defs/AiApiActionMetadata"
         },
         "args": {
           "$ref": "#/$defs/ScriptActionArg"
@@ -111,8 +108,7 @@
           "type": "string"
         },
         "result": {
-          "type": "object",
-          "title": "AiAgentToolResult<unknown>"
+          "$ref": "../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentToolResult"
         }
       },
       "additionalProperties": false,
@@ -124,8 +120,7 @@
               "type": "string"
             },
             "result": {
-              "type": "object",
-              "title": "AiAgentToolResult<unknown>"
+              "$ref": "../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentToolResult"
             }
           },
           "additionalProperties": false

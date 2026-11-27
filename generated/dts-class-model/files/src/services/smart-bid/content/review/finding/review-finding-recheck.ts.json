@@ -41,8 +41,8 @@
           "enum": [
             "CONTENT",
             "FILE",
-            "PACKAGE",
             "FIELD",
+            "PACKAGE",
             "SUBMISSION",
             "VALIDATION"
           ]

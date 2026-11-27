@@ -41,8 +41,8 @@
         },
         "direction": {
           "enum": [
-            "vertical",
-            "horizontal"
+            "horizontal",
+            "vertical"
           ]
         },
         "size": {
@@ -69,8 +69,8 @@
         },
         "alignment": {
           "enum": [
-            "center",
             "stretch",
+            "center",
             "flex-start",
             "flex-end",
             "baseline"

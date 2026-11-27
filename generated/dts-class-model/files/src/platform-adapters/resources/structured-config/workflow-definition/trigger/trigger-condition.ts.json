@@ -28,8 +28,7 @@
           "type": "object",
           "properties": {
             "ds": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "id": {
               "type": "string"
@@ -44,8 +43,7 @@
           "type": "object",
           "properties": {
             "ds": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "id": {
               "type": "string"
@@ -61,8 +59,7 @@
           "type": "object",
           "properties": {
             "ds": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "id": {
               "type": "string"
@@ -73,16 +70,14 @@
         "method.columns.return": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "method.functionContext.params": {
           "type": "object",
           "properties": {
             "ds": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "id": {
               "type": "string"

@@ -58,7 +58,16 @@
         "models": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/BlueprintModel"
+            "type": "object",
+            "properties": {
+              "metaName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "metaName"
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -144,10 +153,10 @@
             },
             "placement": {
               "enum": [
-                "parent",
+                "top",
                 "left",
                 "right",
-                "top",
+                "parent",
                 "tabs",
                 "popup"
               ]
@@ -160,11 +169,11 @@
             },
             "openMode": {
               "enum": [
-                "embedded",
-                "current",
                 "subsystem",
+                "current",
                 "new-window",
-                "modal"
+                "modal",
+                "embedded"
               ]
             },
             "displayMode": {
@@ -304,172 +313,6 @@
                 "at": {
                   "type": "object",
                   "title": "((index: number) => { metaName: string; } | undefined) & ((index: number) => Readonly<{ metaName: string; }> | undefined)"
-                },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "(() => ArrayIterator<{ metaName: string; }>) & (() => ArrayIterator<Readonly<{ metaName: string; }>>)"
-                },
-                "__@unscopables@306067": {
-                  "type": "object",
-                  "properties": {
-                    "length": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "toString": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "toLocaleString": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "concat": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "join": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "slice": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "indexOf": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "lastIndexOf": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "every": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "some": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "forEach": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "map": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "filter": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "reduce": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "reduceRight": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "find": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "findIndex": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "entries": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "keys": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "values": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "includes": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "flatMap": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "flat": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "at": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "__@iterator@306065": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    },
-                    "__@unscopables@306067": {
-                      "enum": [
-                        false,
-                        true
-                      ]
-                    }
-                  },
-                  "additionalProperties": false
                 }
               },
               "required": [
@@ -496,9 +339,7 @@
                 "includes",
                 "flatMap",
                 "flat",
-                "at",
-                "__@iterator@306065",
-                "__@unscopables@306067"
+                "at"
               ],
               "additionalProperties": false
             }

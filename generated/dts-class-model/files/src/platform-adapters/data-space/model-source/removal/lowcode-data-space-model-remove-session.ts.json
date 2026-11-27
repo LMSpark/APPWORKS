@@ -151,11 +151,11 @@
       "title": "ModelRemoveStatus",
       "enum": [
         "idle",
-        "unknown",
-        "readback",
         "previewing",
         "ready",
         "saving",
+        "unknown",
+        "readback",
         "different",
         "configuration"
       ]
@@ -197,11 +197,14 @@
           ]
         },
         "filePlan": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "LowcodeDataSpaceModelRemovalFilePlan"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/LowcodeDataSpaceModelRemovalFilePlan"
+            }
+          ]
         },
         "verification": {
           "type": "array",
@@ -291,8 +294,7 @@
       "title": "ModelRemoveHost",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -333,8 +335,7 @@
       "title": "ModelRemoveHostInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"

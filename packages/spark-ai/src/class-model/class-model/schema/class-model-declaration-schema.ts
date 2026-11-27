@@ -9,10 +9,14 @@ import { dirname, resolve } from 'node:path'
 import type { JsonSchema, JsonSchemaObject } from '@spark-appworks/spark-json-document'
 import { extractConstOrSingleEnumValue } from './json-schema-emit'
 
+type DeclarationLiteral = string | number | boolean | null
+
 /** 类型别名的数据形状投影；访问属性是否只读不改变输入是否必填。 */
 export class ClassModelDeclarationSchema {
+  private readonly targets = new WeakMap<JsonSchemaObject, ts.Declaration>()
+  private readonly unlinked = new WeakMap<JsonSchemaObject, JsonSchema>()
   private readonly checker: ts.TypeChecker
-  private readonly names = new Map<ts.Type, string>()
+  private readonly aliasSymbols = new Map<ts.Type, Set<ts.Symbol>>()
   /** 使用生成阶段已有的类型检查器。 */
   public constructor(program: ts.Program) {
     this.checker = program.getTypeChecker()
@@ -21,7 +25,11 @@ export class ClassModelDeclarationSchema {
       for (const node of source.statements) {
         if (!ts.isTypeAliasDeclaration(node) || node.typeParameters?.length) continue
         const type = this.checker.getTypeAtLocation(node)
-        if (!this.names.has(type)) this.names.set(type, node.name.text)
+        const symbol = this.checker.getSymbolAtLocation(node.name)
+        if (symbol === undefined) continue
+        const symbols = this.aliasSymbols.get(type)
+        if (symbols === undefined) this.aliasSymbols.set(type, new Set([symbol]))
+        else symbols.add(symbol)
       }
     }
   }
@@ -55,6 +63,27 @@ export class ClassModelDeclarationSchema {
     }
   }
 
+  /** 在当前投影实例内保留声明与原始 Schema 节点；标准化后的文档没有编译器对象。 */
+  public registerTypeAliasBody(document: JsonSchemaObject, body: JsonSchema): void {
+    this.unlinked.set(document, body)
+  }
+
+  /** 供 bundle 在标准化复制子节点前从源 Schema 生成有声明证明的链接。 */
+  public typeAliasBody(document: JsonSchemaObject): JsonSchema | undefined {
+    return this.unlinked.get(document)
+  }
+
+  /** 返回此占位节点在构建程序中指向的具体声明。 */
+  public referenceDeclaration(node: JsonSchemaObject): ts.Declaration | undefined {
+    return this.targets.get(node)
+  }
+
+  private referenceSchema(title: string, declaration: ts.Declaration): JsonSchemaObject {
+    const schema = {type: 'object', title} as const
+    this.targets.set(schema, declaration)
+    return schema
+  }
+
   private schema(type: ts.Type, site: ts.Node, expand = false): JsonSchema {
     if (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.TypeParameter)) return true
     if (type.flags & (ts.TypeFlags.Never | ts.TypeFlags.Undefined | ts.TypeFlags.Void)) return false
@@ -64,8 +93,8 @@ export class ClassModelDeclarationSchema {
     if (type.flags & ts.TypeFlags.Number) return {type: 'number'}
     if (type.flags & ts.TypeFlags.BooleanLiteral) return {type: 'boolean', enum: [this.checker.typeToString(type) === 'true']}
     if (type.flags & ts.TypeFlags.Null) return {type: 'null'}
-    const aliasName = this.names.get(type)
-    if (!expand && aliasName !== undefined) return {type: 'object', title: aliasName}
+    const alias = expand ? undefined : this.declaredAlias(type, site)
+    if (alias !== undefined) return alias
     if (this.isTuple(type)) return this.tupleSchema(type, site)
     if (this.checker.isArrayType(type) || type.getSymbol()?.name === 'ReadonlyArray') {
       const element = this.checker.getIndexTypeOfType(type, ts.IndexKind.Number)
@@ -77,11 +106,12 @@ export class ClassModelDeclarationSchema {
       ts.isTypeAliasDeclaration(declaration) || ts.isInterfaceDeclaration(declaration) || ts.isClassDeclaration(declaration))
     if (!expand && namedDeclaration !== undefined && !(ts.isTypeAliasDeclaration(namedDeclaration)
       && /[/\\]lib\.[^/\\]+\.d\.ts$/u.test(namedDeclaration.getSourceFile().fileName))) {
-      return {type: 'object', title: this.checker.typeToString(type, site, ts.TypeFormatFlags.NoTruncation)}
+      return this.referenceSchema(this.checker.typeToString(type, site, ts.TypeFormatFlags.NoTruncation), namedDeclaration)
     }
     if (type.isUnion()) {
-      const schemas = type.types.filter(part => !(part.flags & (ts.TypeFlags.Undefined | ts.TypeFlags.Void)))
+      const branches = type.types.filter(part => !(part.flags & (ts.TypeFlags.Undefined | ts.TypeFlags.Void)))
         .map(part => this.schema(part, site))
+      const schemas = this.orderLiteralBranches(branches, site)
       if (schemas.length === 0) return false
       if (schemas.length === 1 && schemas[0] !== undefined) return schemas[0]
       if (schemas.includes(true)) return true
@@ -94,6 +124,99 @@ export class ClassModelDeclarationSchema {
     }
     if (!(type.flags & (ts.TypeFlags.Object | ts.TypeFlags.Intersection))) return true
     return this.objectSchema(type, site)
+  }
+
+  /** 只有语法提供了全部实际值的顺序，才排列已投影分支；每个分支和它的值保持原样。 */
+  private orderLiteralBranches(branches: JsonSchema[], site: ts.Node): JsonSchema[] {
+    const node = ts.isTypeAliasDeclaration(site) ? site.type : site
+    if (!ts.isTypeNode(node) || branches.length < 2) return branches
+    const byValue = new Map<DeclarationLiteral, JsonSchema[]>()
+    for (const branch of branches) {
+      const value = typeof branch === 'object' && branch.type === 'null' ? null : extractConstOrSingleEnumValue(branch)
+      if (value === undefined) return branches
+      const group = byValue.get(value)
+      if (group === undefined) byValue.set(value, [branch])
+      else group.push(branch)
+    }
+    const ordered = this.declaredLiteralValues(node)
+    if (ordered === undefined) return branches
+    const result: JsonSchema[] = []
+    for (const value of new Set(ordered)) {
+      const group = byValue.get(value)
+      if (group === undefined) return branches
+      result.push(...group)
+    }
+    return result.length === branches.length ? result : branches
+  }
+
+  private declaredLiteralValues(node: ts.TypeNode): DeclarationLiteral[] | undefined {
+    if (ts.isParenthesizedTypeNode(node)) return this.declaredLiteralValues(node.type)
+    if (node.kind === ts.SyntaxKind.UndefinedKeyword || node.kind === ts.SyntaxKind.VoidKeyword) return []
+    if (ts.isUnionTypeNode(node)) {
+      const values: DeclarationLiteral[] = []
+      for (const part of node.types) {
+        const group = this.declaredLiteralValues(part)
+        if (group === undefined) return undefined
+        values.push(...group)
+      }
+      return values
+    }
+    if (ts.isTemplateLiteralTypeNode(node)) {
+      const [span] = node.templateSpans
+      if (node.head.text !== '' || node.templateSpans.length !== 1 || span?.literal.text !== '') return undefined
+      return this.declaredLiteralValues(span.type)?.map(String)
+    }
+    if (ts.isTypeReferenceNode(node)) {
+      const binding = this.checker.getSymbolAtLocation(node.typeName)
+      const symbol = binding !== undefined && binding.flags & ts.SymbolFlags.Alias ? this.checker.getAliasedSymbol(binding) : binding
+      const declarations = symbol?.declarations
+      if (declarations?.length !== 1) return undefined
+      const [decl] = declarations
+      if (decl === undefined) return undefined
+      if (ts.isEnumMember(decl)) {
+        const value = this.checker.getConstantValue(decl)
+        return value === undefined ? undefined : [value]
+      }
+      if (!ts.isEnumDeclaration(decl)) return undefined
+      const values: DeclarationLiteral[] = []
+      for (const member of decl.members) {
+        const value = this.checker.getConstantValue(member)
+        if (value === undefined) return undefined
+        values.push(value)
+      }
+      return values
+    }
+    if (!ts.isLiteralTypeNode(node)) return undefined
+    if (node.literal.kind === ts.SyntaxKind.NullKeyword) return [null]
+    if (node.literal.kind === ts.SyntaxKind.TrueKeyword) return [true]
+    if (node.literal.kind === ts.SyntaxKind.FalseKeyword) return [false]
+    const value = this.checker.getTypeFromTypeNode(node)
+    return value.isStringLiteral() || value.isNumberLiteral() ? [value.value] : undefined
+  }
+
+  private declaredAlias(type: ts.Type, site: ts.Node): JsonSchemaObject | undefined {
+    const candidates = this.aliasSymbols.get(type)
+    if (candidates === undefined) return undefined
+    const annotation = ts.isTypeNode(site) ? site : ts.isTypeAliasDeclaration(site) ? site.type : undefined
+    if (annotation === undefined) return undefined
+    const matches = new Map<ts.Symbol, string>()
+    const visit = (node: ts.Node): void => {
+      if (ts.isTypeReferenceNode(node)) {
+        const symbol = this.checker.getSymbolAtLocation(node.typeName)
+        const resolved = symbol !== undefined && symbol.flags & ts.SymbolFlags.Alias
+          ? this.checker.getAliasedSymbol(symbol) : symbol
+        if (resolved !== undefined && candidates.has(resolved) && this.checker.getTypeFromTypeNode(node) === type) {
+          matches.set(resolved, node.typeName.getText())
+        }
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(annotation)
+    const [match] = matches
+    if (matches.size !== 1 || match === undefined) return undefined
+    const [symbol, spelling] = match
+    const declaration = symbol.declarations?.find(ts.isTypeAliasDeclaration)
+    return declaration === undefined ? undefined : this.referenceSchema(spelling, declaration)
   }
 
   private isTuple(type: ts.Type): type is ts.TupleTypeReference {
@@ -112,7 +235,12 @@ export class ClassModelDeclarationSchema {
     const properties: Record<string, JsonSchema> = {}
     const required: string[] = []
     for (const property of this.checker.getPropertiesOfType(type)) {
-      properties[property.name] = this.schema(this.checker.getTypeOfSymbolAtLocation(property, site), site)
+      // JSON 只携带字符串成员名。相同字符串查回其它成员时，当前属性属于独立的符号键。
+      if (this.checker.getPropertyOfType(type, property.name) !== property) continue
+      const declaration = property.valueDeclaration ?? property.declarations?.[0]
+      const annotation = declaration !== undefined && (ts.isPropertySignature(declaration) || ts.isPropertyDeclaration(declaration))
+        ? declaration.type : undefined
+      properties[property.name] = this.schema(this.checker.getTypeOfSymbolAtLocation(property, site), annotation ?? site)
       if (!(property.flags & ts.SymbolFlags.Optional)) required.push(property.name)
     }
     const index = this.checker.getIndexTypeOfType(type, ts.IndexKind.String)

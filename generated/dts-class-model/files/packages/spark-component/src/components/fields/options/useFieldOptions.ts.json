@@ -55,17 +55,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -107,17 +107,17 @@
         },
         "optionDataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -322,17 +322,17 @@
             },
             "dataMember": {
               "enum": [
-                "page",
-                "columns",
-                "rows",
-                "total",
-                "requestState",
                 "value",
+                "rows",
+                "columns",
                 "currentRow",
                 "selectedRows",
                 "aggregateResult",
                 "selectionAggregateResult",
+                "total",
+                "page",
                 "pageSize",
+                "requestState",
                 "mutating",
                 "loadingError",
                 "mutatingError"
@@ -374,17 +374,17 @@
             },
             "optionDataMember": {
               "enum": [
-                "page",
-                "columns",
-                "rows",
-                "total",
-                "requestState",
                 "value",
+                "rows",
+                "columns",
                 "currentRow",
                 "selectedRows",
                 "aggregateResult",
                 "selectionAggregateResult",
+                "total",
+                "page",
                 "pageSize",
+                "requestState",
                 "mutating",
                 "loadingError",
                 "mutatingError"
@@ -482,10 +482,7 @@
           },
           "additionalProperties": false
         },
-        "method.coerce.return": {
-          "type": "object",
-          "title": "TValue"
-        },
+        "method.coerce.return": true,
         "method.formatDisplay.params": {
           "type": "object",
           "properties": {

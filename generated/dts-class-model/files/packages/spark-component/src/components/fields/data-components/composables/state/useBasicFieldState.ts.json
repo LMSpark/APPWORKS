@@ -34,17 +34,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -100,15 +100,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -162,10 +162,7 @@
         "method.emitUpdate.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },
@@ -187,17 +184,11 @@
           },
           "additionalProperties": false
         },
-        "method.coerce.return": {
-          "type": "object",
-          "title": "TValue"
-        },
+        "method.coerce.return": true,
         "method.toSourceValue.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },

@@ -24,14 +24,10 @@
           "properties": {
             "value": {
               "type": "string"
-            },
-            "__@RefSymbol@309832": {
-              "const": true
             }
           },
           "required": [
-            "value",
-            "__@RefSymbol@309832"
+            "value"
           ],
           "additionalProperties": false
         },
@@ -43,14 +39,10 @@
                 false,
                 true
               ]
-            },
-            "__@RefSymbol@309832": {
-              "const": true
             }
           },
           "required": [
-            "value",
-            "__@RefSymbol@309832"
+            "value"
           ],
           "additionalProperties": false
         },
@@ -59,14 +51,10 @@
           "properties": {
             "value": {
               "type": "number"
-            },
-            "__@RefSymbol@309832": {
-              "const": true
             }
           },
           "required": [
-            "value",
-            "__@RefSymbol@309832"
+            "value"
           ],
           "additionalProperties": false
         },

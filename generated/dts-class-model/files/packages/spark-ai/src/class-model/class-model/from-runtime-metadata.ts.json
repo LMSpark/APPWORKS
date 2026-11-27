@@ -27,8 +27,7 @@
         "modules": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "AiRuntimeApiMetadataJson"
+            "$ref": "../metadata/ai-api-object-metadata-schema.ts.json#/$defs/AiRuntimeApiMetadataJson"
           }
         }
       },

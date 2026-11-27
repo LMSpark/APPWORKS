@@ -135,8 +135,8 @@
         },
         "outcome": {
           "enum": [
-            "unknown",
-            "not-applied"
+            "not-applied",
+            "unknown"
           ]
         },
         "code": {

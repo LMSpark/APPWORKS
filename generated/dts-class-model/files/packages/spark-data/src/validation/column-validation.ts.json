@@ -19,12 +19,12 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "ValidationRuleType",
       "enum": [
-        "min",
-        "max",
         "required",
         "type",
         "minLength",
         "maxLength",
+        "min",
+        "max",
         "pattern"
       ]
     },
@@ -56,10 +56,10 @@
           "properties": {
             "type": {
               "enum": [
-                "min",
-                "max",
                 "minLength",
-                "maxLength"
+                "maxLength",
+                "min",
+                "max"
               ]
             },
             "message": {

@@ -83,15 +83,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -330,15 +330,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {

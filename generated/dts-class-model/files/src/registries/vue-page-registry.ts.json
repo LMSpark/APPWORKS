@@ -21,8 +21,8 @@
       "enum": [
         "public",
         "platform",
-        "app",
-        "enterprise"
+        "enterprise",
+        "app"
       ]
     },
     "VuePageConfigEntry": {

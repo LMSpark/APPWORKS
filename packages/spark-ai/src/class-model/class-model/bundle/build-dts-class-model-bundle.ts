@@ -5,9 +5,9 @@
  * AI用途：需要重建知识索引、定位 JSDoc 断链或验证模块/成员语义闭环时，用本模块作为编译入口。
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, posix, resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 
-import type ts from 'typescript'
+import ts from 'typescript'
 
 import {
   DTS_CLASS_MODEL_BUNDLE_PROTOCOL,
@@ -29,10 +29,9 @@ import { canRenderMethodSignatureFromTypeTree, resolveMethodReturnType } from '.
 import {
   isClassModelEmitPath,
   sourceFileFromEmitPath,
-  toClassModelEmitPath,
 } from './class-model-emit-path'
 import { normalizeRepoPath } from '../declaration/dts-ast-utils'
-import { projectDtsSourceFileProjection } from '../declaration/project-from-declarations'
+import { projectDtsSourceFileProjection, typeAliasJsonSchema } from '../declaration/project-from-declarations'
 import { attachModelJsonSchemas } from '../schema/class-model-to-json-schema'
 import { ClassModelDeclarationSchema } from '../schema/class-model-declaration-schema'
 import { stripRedundantModelSchemas } from '../schema/class-model-schema-projection'
@@ -116,11 +115,12 @@ type TypeReferenceTarget = Readonly<{
 }>
 
 type BundleSchemaRefContext = Readonly<{
+  repoRoot: string
+  declarationSchema: ClassModelDeclarationSchema
   currentSourcePath: string
   currentBundleFile: string
   projectedClassNamesBySourcePath: ReadonlyMap<string, ReadonlySet<string>>
   schemaClassNamesBySourcePath: ReadonlyMap<string, ReadonlySet<string>>
-  classNameSourceIndex: ReadonlyMap<string, string | undefined>
   typeReferenceIndex: ReadonlyMap<string, ReadonlyMap<string, TypeReferenceTarget>>
 }>
 
@@ -139,13 +139,11 @@ export function buildDtsClassModelBundle(
     ? undefined
     : new Set([...options.projectOnlySourcePaths].map(sourceFileFromEmitPath))
   const knownSourcePaths = new Set(rootFiles.map(absolutePath => sourceFileFromEmitPath(normalizeRepoPath(absolutePath, repoRoot))))
-  const knownEmitSourcePaths = new Set(rootFiles.map(absolutePath => normalizeRepoPath(absolutePath, repoRoot)))
   const knownProjectedClassNamesBySourcePath = normalizeKnownProjectedClassNamesBySourcePath(
     options.knownProjectedClassNamesBySourcePath,
   )
   for (const sourcePath of knownProjectedClassNamesBySourcePath.keys()) {
     knownSourcePaths.add(sourcePath)
-    knownEmitSourcePaths.add(toClassModelEmitPath(sourcePath))
   }
   const total = rootFiles.length
   const progressInterval = options.progressInterval ?? 50
@@ -171,9 +169,9 @@ export function buildDtsClassModelBundle(
     const sourceFile = program.getSourceFile(absolutePath)
     if (sourceFile === undefined) throw new Error(`Missing DTS source: ${absolutePath}`)
     const typeReferenceTargets = collectDtsTypeReferenceTargets({
-      emitSourcePath,
+      repoRoot,
       sourceFile,
-      knownEmitSourcePaths,
+      checker: program.getTypeChecker(),
     })
     if (typeReferenceTargets.size > 0) typeReferenceIndex.set(sourcePath, typeReferenceTargets)
 
@@ -247,7 +245,6 @@ export function buildDtsClassModelBundle(
       new Set(Object.keys(projectedFile.projection.models)),
     )
   }
-  const classNameSourceIndex = buildClassNameSourceIndex(projectedClassNamesBySourcePath)
   const schemaClassNamesBySourcePath = buildSchemaClassNamesBySourcePath({
     outputDir,
     projectedFiles,
@@ -255,11 +252,11 @@ export function buildDtsClassModelBundle(
   })
   for (const projectedFile of projectedFiles) {
     const compactProjection = compactDtsFileProjectionForBundle(projectedFile.projection, {
+      repoRoot, declarationSchema,
       currentSourcePath: projectedFile.sourcePath,
       currentBundleFile: projectedFile.bundleFile,
       projectedClassNamesBySourcePath,
       schemaClassNamesBySourcePath,
-      classNameSourceIndex,
       typeReferenceIndex,
     })
     mkdirSync(dirname(projectedFile.outputPath), { recursive: true })
@@ -308,86 +305,51 @@ function normalizeKnownProjectedClassNamesBySourcePath(
   return normalized
 }
 
-function collectDtsTypeReferenceTargets(command: {
-  emitSourcePath: string
+/** 以当前声明文件的词法绑定和本次 TS Program 解析出的声明文件登记引用。 */
+function collectDtsTypeReferenceTargets(command: Readonly<{
+  repoRoot: string
   sourceFile: ts.SourceFile
-  knownEmitSourcePaths: ReadonlySet<string>
-}): ReadonlyMap<string, TypeReferenceTarget> {
-  const { emitSourcePath, sourceFile, knownEmitSourcePaths } = command
+  checker: ts.TypeChecker
+}>): ReadonlyMap<string, TypeReferenceTarget> {
+  const {repoRoot, sourceFile, checker} = command
   const targets = new Map<string, TypeReferenceTarget>()
-  const text = sourceFile.getFullText()
-  for (const importMatch of text.matchAll(/import\s+(?:type\s+)?([^'"]+?)\s+from\s+['"]([^'"]+)['"]/gu)) {
-    const bindingsText = importMatch[1]?.trim()
-    const moduleSpecifier = importMatch[2]
-    if (bindingsText === undefined || moduleSpecifier === undefined) continue
-    const targetEmitSourcePath = resolveDtsModuleSpecifierSourcePath(emitSourcePath, moduleSpecifier, knownEmitSourcePaths)
-    if (targetEmitSourcePath === undefined) continue
-    const targetSourcePath = sourceFileFromEmitPath(targetEmitSourcePath)
+  const ambiguous = new Set<string>()
 
-    const namedBindings = /^\{(?<body>[\s\S]*)\}$/u.exec(bindingsText)
-    if (namedBindings?.groups?.['body'] !== undefined) {
-      for (const binding of namedBindings.groups['body'].split(',')) {
-        const parsed = parseNamedImportBinding(binding)
-        if (parsed === undefined) continue
-        targets.set(parsed.localName, {
-          targetName: parsed.importedName,
-          targetSourcePath,
-        })
-      }
-      continue
+  function record(spelling: string, symbol: ts.Symbol | undefined): void {
+    if (symbol === undefined || ambiguous.has(spelling)) return
+    const actual = symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
+    const declarations = actual.declarations?.filter(node =>
+      ts.isTypeAliasDeclaration(node) || ts.isInterfaceDeclaration(node) ||
+      ts.isClassDeclaration(node) || ts.isEnumDeclaration(node)) ?? []
+    const sources = new Set(declarations.map(node => normalizeRepoPath(node.getSourceFile().fileName, repoRoot)))
+    if (sources.size !== 1) return
+    const [source] = sources
+    if (source === undefined || !isClassModelEmitPath(source)) return
+    const target = {targetName: actual.name, targetSourcePath: sourceFileFromEmitPath(source)}
+    const previous = targets.get(spelling)
+    if (previous !== undefined && (previous.targetName !== target.targetName ||
+      previous.targetSourcePath !== target.targetSourcePath)) {
+      targets.delete(spelling)
+      ambiguous.add(spelling)
+      return
     }
-
-    const namespaceBinding = /^\*\s+as\s+(?<name>[A-Za-z_$][\w$]*)$/u.exec(bindingsText)
-    if (namespaceBinding?.groups?.['name'] !== undefined) {
-      targets.set(`${namespaceBinding.groups['name']}.*`, {
-        targetName: '*',
-        targetSourcePath,
-      })
-      continue
-    }
-
-    const defaultBinding = /^(?<name>[A-Za-z_$][\w$]*)$/u.exec(bindingsText)
-    if (defaultBinding?.groups?.['name'] !== undefined) {
-      targets.set(defaultBinding.groups['name'], {
-        targetName: defaultBinding.groups['name'],
-        targetSourcePath,
-      })
-    }
+    targets.set(spelling, target)
   }
+
+  function visit(node: ts.Node): void {
+    if (ts.isImportSpecifier(node) || ts.isImportClause(node) && node.name !== undefined) {
+      if (node.name !== undefined) record(node.name.text, checker.getSymbolAtLocation(node.name))
+    }
+    if (ts.isTypeReferenceNode(node)) {
+      record(node.typeName.getText(sourceFile), checker.getSymbolAtLocation(node.typeName))
+    }
+    if (ts.isImportTypeNode(node) && node.qualifier !== undefined) {
+      record(node.getText(sourceFile), checker.getSymbolAtLocation(node.qualifier))
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile)
   return targets
-}
-
-function parseNamedImportBinding(binding: string): { importedName: string; localName: string } | undefined {
-  const normalized = binding.trim().replace(/^type\s+/u, '')
-  if (normalized.length === 0) return undefined
-  const match = /^(?<imported>[A-Za-z_$][\w$]*)(?:\s+as\s+(?<local>[A-Za-z_$][\w$]*))?$/u.exec(normalized)
-  const importedName = match?.groups?.['imported']
-  if (importedName === undefined) return undefined
-  return {
-    importedName,
-    localName: match?.groups?.['local'] ?? importedName,
-  }
-}
-
-function resolveDtsModuleSpecifierSourcePath(
-  currentSourcePath: string,
-  moduleSpecifier: string,
-  knownSourcePaths: ReadonlySet<string>,
-): string | undefined {
-  if (!moduleSpecifier.startsWith('.')) return undefined
-  const base = posix.normalize(posix.join(posix.dirname(currentSourcePath), moduleSpecifier.replace(/\\/g, '/')))
-  for (const candidate of dtsModuleSourcePathCandidates(base)) {
-    if (knownSourcePaths.has(candidate)) return candidate
-  }
-  return undefined
-}
-
-function dtsModuleSourcePathCandidates(base: string): readonly string[] {
-  if (/\.d\.[cm]?ts$/u.test(base)) return [base]
-  if (base.endsWith(".vue")) return [`${base}.d.ts`]
-  if (/\.[cm]?js$/u.test(base)) return [base.replace(/\.[cm]?js$/u, '.d.ts')]
-  if (/\.[cm]?ts$/u.test(base)) return [base.replace(/\.[cm]?ts$/u, '.d.ts')]
-  return [`${base}.d.ts`, `${base}/index.d.ts`]
 }
 
 function shouldReportFileProgress(current: number, total: number, interval: number): boolean {
@@ -661,9 +623,12 @@ function compactClassModelForBundle(model: DtsTypeDeclarationModel, refContext: 
     }
   }
   if (model.declarationKind === 'typeAlias') {
+    const body = model.jsonSchema === undefined ? undefined : refContext.declarationSchema.typeAliasBody(model.jsonSchema)
+    const jsonSchema = body === undefined ? (model.jsonSchema === undefined ? undefined : referenceSchemaObjectForBundle(model.jsonSchema, refContext))
+      : typeAliasJsonSchema({className: model.name, jsdoc: model.jsdoc, schema: referenceRequiredSchemaForBundle(body, refContext)})
     return {
       ...model,
-      ...(model.jsonSchema === undefined ? {} : {jsonSchema: referenceSchemaObjectForBundle(model.jsonSchema, refContext)}),
+      ...(jsonSchema === undefined ? {} : {jsonSchema}),
       typeAlias: {
         ...model.typeAlias,
         members: {
@@ -814,7 +779,9 @@ function directSchemaRefForBundle(
   if (!isTypeReferencePlaceholderSchema(schema)) return undefined
   const title = schema.title
   if (typeof title !== 'string') return undefined
-  const dtsTarget = dtsTypeReferenceTargetForBundle(title, refContext)
+  const declaration = refContext.declarationSchema.referenceDeclaration(schema)
+  const dtsTarget = declaration === undefined ? dtsTypeReferenceTargetForBundle(title, refContext)
+    : declarationRefTarget(declaration, refContext)
   if (dtsTarget !== undefined) {
     return {
       $ref: modelJsonSchemaRefForBundleFile(
@@ -828,6 +795,15 @@ function directSchemaRefForBundle(
   return undefined
 }
 
+function declarationRefTarget(declaration: ts.Declaration, context: BundleSchemaRefContext): TypeReferenceTarget | undefined {
+  const emitPath = normalizeRepoPath(declaration.getSourceFile().fileName, context.repoRoot)
+  if (!isClassModelEmitPath(emitPath)) return undefined
+  if (!(ts.isTypeAliasDeclaration(declaration) || ts.isClassDeclaration(declaration)
+    || ts.isInterfaceDeclaration(declaration) || ts.isEnumDeclaration(declaration)) || declaration.name === undefined) return undefined
+  const target = {targetSourcePath: sourceFileFromEmitPath(emitPath), targetName: declaration.name.text}
+  return refTargetExists(target, context) ? target : undefined
+}
+
 function dtsTypeReferenceTargetForBundle(
   title: string,
   refContext: BundleSchemaRefContext,
@@ -839,7 +815,7 @@ function dtsTypeReferenceTargetForBundle(
   const parsed = parseDtsReferenceTitle(title)
   if (parsed === undefined) return undefined
 
-  const imported = sourceTargets?.get(parsed.localName)
+  const imported = sourceTargets?.get(parsed.namespaceName === undefined ? parsed.localName : `${parsed.namespaceName}.${parsed.localName}`)
   if (imported !== undefined) {
     const target = {
       targetName: imported.targetName,
@@ -848,16 +824,7 @@ function dtsTypeReferenceTargetForBundle(
     return refTargetExists(target, refContext) ? target : undefined
   }
 
-  if (parsed.namespaceName !== undefined) {
-    const namespaceTarget = sourceTargets?.get(`${parsed.namespaceName}.*`)
-    if (namespaceTarget !== undefined) {
-      const target = {
-        targetName: parsed.localName,
-        targetSourcePath: namespaceTarget.targetSourcePath,
-      }
-      return refTargetExists(target, refContext) ? target : undefined
-    }
-  }
+  if (parsed.namespaceName !== undefined) return undefined
 
   const currentFileModels = refContext.projectedClassNamesBySourcePath.get(refContext.currentSourcePath)
   if (currentFileModels?.has(parsed.localName) === true) {
@@ -868,31 +835,7 @@ function dtsTypeReferenceTargetForBundle(
     return refTargetExists(target, refContext) ? target : undefined
   }
 
-  const uniqueSourcePath = refContext.classNameSourceIndex.get(parsed.localName)
-  if (uniqueSourcePath !== undefined) {
-    const target = {
-      targetName: parsed.localName,
-      targetSourcePath: uniqueSourcePath,
-    }
-    return refTargetExists(target, refContext) ? target : undefined
-  }
   return undefined
-}
-
-function buildClassNameSourceIndex(
-  projectedClassNamesBySourcePath: ReadonlyMap<string, ReadonlySet<string>>,
-): ReadonlyMap<string, string | undefined> {
-  const index = new Map<string, string | undefined>()
-  for (const [sourcePath, classNames] of projectedClassNamesBySourcePath.entries()) {
-    for (const className of classNames) {
-      if (index.has(className)) {
-        index.set(className, undefined)
-      } else {
-        index.set(className, sourcePath)
-      }
-    }
-  }
-  return index
 }
 
 function sortRecord<T>(record: Readonly<Record<string, T>>): Record<string, T> {

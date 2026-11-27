@@ -164,10 +164,7 @@
         "method.syncValue.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },
@@ -224,15 +221,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -292,10 +289,7 @@
         "method.emitUpdate.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },

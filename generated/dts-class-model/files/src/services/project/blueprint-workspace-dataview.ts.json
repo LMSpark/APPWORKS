@@ -352,8 +352,7 @@
       "title": "BlueprintWorkspaceDataView",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "view": {
           "$ref": "../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
@@ -407,8 +406,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "projectId": {
               "type": "string"
@@ -608,7 +606,8 @@
           "type": "object",
           "properties": {
             "fields": {
-              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "explicitNodeId": {
               "type": "string"
@@ -731,13 +730,15 @@
               "type": "string"
             },
             "input": {
-              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
         },
         "method.preflightChildNode.return": {
-          "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.addChildNode.params": {
           "type": "object",
@@ -746,7 +747,8 @@
               "type": "string"
             },
             "input": {
-              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "explicitNodeId": {
               "type": "string"
@@ -765,7 +767,8 @@
               "type": "string"
             },
             "fields": {
-              "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "explicitNodeId": {
               "type": "string"
@@ -795,7 +798,8 @@
           "additionalProperties": false
         },
         "method.preflightNodeData.return": {
-          "$ref": "../smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.updateNodeData.params": {
           "type": "object",

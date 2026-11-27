@@ -51,23 +51,23 @@
         "confirmButtonType": {
           "enum": [
             "",
-            "info",
-            "warning",
-            "success",
-            "danger",
             "default",
-            "primary"
+            "primary",
+            "success",
+            "warning",
+            "info",
+            "danger"
           ]
         },
         "cancelButtonType": {
           "enum": [
             "",
-            "info",
-            "warning",
-            "success",
-            "danger",
             "default",
-            "primary"
+            "primary",
+            "success",
+            "warning",
+            "info",
+            "danger"
           ]
         },
         "icon": {

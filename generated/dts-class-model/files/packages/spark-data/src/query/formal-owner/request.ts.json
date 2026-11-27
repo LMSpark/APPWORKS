@@ -113,7 +113,11 @@
             "actionOrder": {
               "type": "array",
               "items": {
-                "$ref": "save-order.ts.json#/$defs/DataSpaceSaveAction"
+                "enum": [
+                  "added",
+                  "changed",
+                  "deleted"
+                ]
               }
             }
           },

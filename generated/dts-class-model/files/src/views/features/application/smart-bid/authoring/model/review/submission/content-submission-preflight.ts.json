@@ -82,8 +82,8 @@
         },
         "stage": {
           "enum": [
-            "SAVED",
             "DRAFT",
+            "SAVED",
             "SUBMITTED"
           ]
         },
@@ -334,8 +334,8 @@
             "status": {
               "enum": [
                 "UNKNOWN",
-                "PARTIAL",
-                "COMBINED_SENT"
+                "COMBINED_SENT",
+                "PARTIAL"
               ]
             },
             "newDelivery": {
@@ -577,8 +577,7 @@
             "versions": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Version"
+                "$ref": "../../../../../../../../services/smart-bid/content/review/submission/authority-grant-coverage.ts.json#/$defs/Version"
               }
             },
             "assertCurrent": {

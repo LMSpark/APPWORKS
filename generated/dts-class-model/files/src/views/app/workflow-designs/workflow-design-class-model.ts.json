@@ -121,11 +121,14 @@
           "type": "string"
         },
         "constructorSignature": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ClassModelConstructorOption"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/ClassModelConstructorOption"
+            }
+          ]
         },
         "attributes": {
           "type": "array",

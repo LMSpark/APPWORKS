@@ -28,7 +28,8 @@
           "type": "string"
         },
         "file": {
-          "$ref": "../../../../../../services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+          "type": "object",
+          "title": "File"
         }
       },
       "additionalProperties": false,

@@ -39,28 +39,16 @@
         "method.normalize.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },
-        "method.normalize.return": {
-          "type": "object",
-          "title": "TValue"
-        },
+        "method.normalize.return": true,
         "method.equals.params": {
           "type": "object",
           "properties": {
-            "a": {
-              "type": "object",
-              "title": "TValue"
-            },
-            "b": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "a": true,
+            "b": true
           },
           "additionalProperties": false
         },
@@ -70,10 +58,7 @@
         "method.emitValue.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },

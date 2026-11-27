@@ -21,8 +21,7 @@
       "title": "RichTextImageUploadResourceInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "upload": {
           "$ref": "../../../design/lowcode-design-file-upload.ts.json#/$defs/LowcodeDesignFileUpload"
@@ -68,7 +67,8 @@
           "type": "object",
           "properties": {
             "file": {
-              "$ref": "../../../../../services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+              "type": "object",
+              "title": "File"
             }
           },
           "additionalProperties": false

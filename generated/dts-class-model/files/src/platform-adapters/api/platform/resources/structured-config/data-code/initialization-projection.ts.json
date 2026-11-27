@@ -81,8 +81,8 @@
       "properties": {
         "read": {
           "enum": [
-            "masked",
             "invisible",
+            "masked",
             "visible"
           ]
         },
@@ -108,8 +108,8 @@
         "writeMode": {
           "enum": [
             "required",
-            "readonly",
-            "editable"
+            "editable",
+            "readonly"
           ]
         }
       },

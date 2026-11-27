@@ -57,10 +57,10 @@
                   },
                   "kind": {
                     "enum": [
-                      "REVIEW",
                       "OTHER",
                       "INQUIRY",
                       "CLARIFICATION",
+                      "REVIEW",
                       "REPRICE_INVITATION"
                     ]
                   },

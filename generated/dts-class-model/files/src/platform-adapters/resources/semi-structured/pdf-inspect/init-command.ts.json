@@ -23,8 +23,7 @@
       "title": "PdfInspectionExecutionInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "configId": {
           "type": "string"
@@ -142,7 +141,8 @@
             "files": {
               "type": "array",
               "items": {
-                "$ref": "../../../../services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+                "type": "object",
+                "title": "File"
               }
             }
           },
@@ -327,8 +327,7 @@
       "title": "RecoverPdfInspectionInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "requestId": true,
         "resolveUrl": {

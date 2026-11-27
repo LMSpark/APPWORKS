@@ -22,8 +22,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "AiDeliveryMode",
       "enum": [
-        "auto",
-        "manual"
+        "manual",
+        "auto"
       ]
     },
     "AiDeliveryArtifact": {
@@ -43,8 +43,8 @@
         },
         "status": {
           "enum": [
-            "saved",
             "dirty",
+            "saved",
             "skipped",
             "rolledBack"
           ]
@@ -76,10 +76,10 @@
         },
         "status": {
           "enum": [
-            "failed",
             "saved",
             "skipped",
-            "rolledBack"
+            "rolledBack",
+            "failed"
           ]
         },
         "artifacts": {
@@ -113,10 +113,7 @@
         "method.save.params": {
           "type": "object",
           "properties": {
-            "context": {
-              "type": "object",
-              "title": "TContext"
-            }
+            "context": true
           },
           "additionalProperties": false
         },
@@ -127,10 +124,7 @@
         "method.trace.params": {
           "type": "object",
           "properties": {
-            "context": {
-              "type": "object",
-              "title": "TContext"
-            },
+            "context": true,
             "result": {
               "$ref": "#/$defs/AiDeliveryResult"
             }
@@ -144,10 +138,7 @@
         "method.rollback.params": {
           "type": "object",
           "properties": {
-            "context": {
-              "type": "object",
-              "title": "TContext"
-            },
+            "context": true,
             "error": {
               "type": "object",
               "title": "Error"

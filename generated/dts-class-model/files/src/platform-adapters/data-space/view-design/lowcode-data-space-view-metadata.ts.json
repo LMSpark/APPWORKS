@@ -27,8 +27,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -37,11 +36,14 @@
           "type": "object",
           "properties": {
             "definition": {
-              "type": [
-                "null",
-                "object"
-              ],
-              "title": "DataSet"
+              "anyOf": [
+                {
+                  "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false

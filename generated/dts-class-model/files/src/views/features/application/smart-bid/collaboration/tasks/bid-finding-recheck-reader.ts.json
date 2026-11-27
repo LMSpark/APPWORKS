@@ -46,16 +46,13 @@
           "type": "object",
           "properties": {
             "finding": {
-              "type": "object",
-              "title": "Finding"
+              "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/Finding"
             },
             "decision": {
-              "type": "object",
-              "title": "Decision"
+              "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/Decision"
             },
             "evidence": {
-              "type": "object",
-              "title": "Evidence"
+              "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/Evidence"
             }
           },
           "required": [
@@ -73,12 +70,10 @@
       "title": "EvidenceSource",
       "properties": {
         "evidence": {
-          "type": "object",
-          "title": "Evidence"
+          "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/Evidence"
         },
         "decision": {
-          "type": "object",
-          "title": "Decision"
+          "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-recheck.ts.json#/$defs/Decision"
         }
       },
       "required": [

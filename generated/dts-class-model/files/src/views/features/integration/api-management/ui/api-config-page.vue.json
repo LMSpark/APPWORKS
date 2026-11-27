@@ -33,25 +33,24 @@
           ]
         },
         "dataSource": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-data\").DataView"
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "dataViewKey": {
           "type": "string"
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -141,8 +140,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "TabName",
       "enum": [
-        "headers",
         "jwt",
+        "headers",
         "publicParams",
         "accounts"
       ]

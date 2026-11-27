@@ -43,7 +43,8 @@
               "type": "string"
             },
             "headers": {
-              "$ref": "../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, string>"
             }
           },
           "required": [

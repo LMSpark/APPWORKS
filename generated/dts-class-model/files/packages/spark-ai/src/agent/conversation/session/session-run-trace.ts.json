@@ -45,8 +45,8 @@
         },
         "status": {
           "enum": [
-            "error",
-            "success"
+            "success",
+            "error"
           ]
         },
         "resultSummary": {

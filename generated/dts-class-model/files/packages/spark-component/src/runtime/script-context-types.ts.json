@@ -122,7 +122,7 @@
             },
             "selectEntities": {
               "type": "object",
-              "title": "(options: PageSelectEntitiesOptions) => Promise<PageSelectorOption[]>"
+              "title": "(options: PageSelectEntitiesOptions) => Promise<PageSelectorOption[] | null>"
             },
             "browseFiles": {
               "type": "object",
@@ -315,13 +315,7 @@
           },
           "additionalProperties": false
         },
-        "method.getApi.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "T"
-        },
+        "method.getApi.return": true,
         "method.getApisByType.params": {
           "type": "object",
           "properties": {
@@ -333,10 +327,7 @@
         },
         "method.getApisByType.return": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "title": "T"
-          }
+          "items": true
         }
       }
     }

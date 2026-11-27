@@ -111,17 +111,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -173,17 +173,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -251,15 +251,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -343,17 +343,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -425,15 +425,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -496,17 +496,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -578,15 +578,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -624,17 +624,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -706,15 +706,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -755,17 +755,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -837,15 +837,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -889,17 +889,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -971,15 +971,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -1037,17 +1037,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1119,15 +1119,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -1177,17 +1177,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1259,15 +1259,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -1323,17 +1323,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1405,15 +1405,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -1471,17 +1471,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1553,15 +1553,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -1633,8 +1633,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "SparkOptionValueMode",
       "enum": [
-        "array",
         "auto",
+        "array",
         "separated-string"
       ]
     },
@@ -1648,17 +1648,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1730,15 +1730,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -1793,17 +1793,17 @@
         },
         "optionDataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1856,17 +1856,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -1938,15 +1938,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -2001,17 +2001,17 @@
         },
         "optionDataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -2070,17 +2070,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -2152,15 +2152,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -2215,17 +2215,17 @@
         },
         "optionDataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -2308,8 +2308,8 @@
         },
         "effect": {
           "enum": [
-            "light",
-            "dark"
+            "dark",
+            "light"
           ]
         },
         "offset": {
@@ -2370,17 +2370,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -2463,17 +2463,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -2528,17 +2528,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"

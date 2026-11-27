@@ -21,11 +21,14 @@
       "properties": {
         "dataSource": true,
         "moduleContext": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ContextSnapshot"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../../../spark-utils/src/script-types.ts.json#/$defs/ContextSnapshot"
+            }
+          ]
         }
       },
       "required": [

@@ -55,8 +55,7 @@
           "type": "string"
         },
         "module": {
-          "type": "object",
-          "title": "AiRuntimeApiMetadataJson"
+          "$ref": "../metadata/ai-api-object-metadata-schema.ts.json#/$defs/AiRuntimeApiMetadataJson"
         },
         "$defs": {
           "type": "object",
@@ -128,13 +127,13 @@
         },
         "declarationKind": {
           "enum": [
-            "function",
-            "enum",
-            "component",
             "class",
             "interface",
             "typeAlias",
-            "const"
+            "enum",
+            "function",
+            "const",
+            "component"
           ]
         }
       },
@@ -250,10 +249,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "DtsTypeDeclarationKind",
       "enum": [
-        "enum",
         "class",
         "interface",
-        "typeAlias"
+        "typeAlias",
+        "enum"
       ]
     },
     "DtsTypeDeclarationBase": {
@@ -551,13 +550,13 @@
             },
             "declarationKind": {
               "enum": [
-                "function",
-                "enum",
-                "component",
                 "class",
                 "interface",
                 "typeAlias",
-                "const"
+                "enum",
+                "function",
+                "const",
+                "component"
               ]
             }
           },
@@ -689,13 +688,13 @@
             },
             "declarationKind": {
               "enum": [
-                "function",
-                "enum",
-                "component",
                 "class",
                 "interface",
                 "typeAlias",
-                "const"
+                "enum",
+                "function",
+                "const",
+                "component"
               ]
             }
           },
@@ -827,13 +826,13 @@
             },
             "declarationKind": {
               "enum": [
-                "function",
-                "enum",
-                "component",
                 "class",
                 "interface",
                 "typeAlias",
-                "const"
+                "enum",
+                "function",
+                "const",
+                "component"
               ]
             }
           },
@@ -965,13 +964,13 @@
             },
             "declarationKind": {
               "enum": [
-                "function",
-                "enum",
-                "component",
                 "class",
                 "interface",
                 "typeAlias",
-                "const"
+                "enum",
+                "function",
+                "const",
+                "component"
               ]
             }
           },
@@ -1615,7 +1614,32 @@
               "additionalProperties": false
             },
             {
-              "$ref": "#/$defs/DtsReflectionTypeMeta"
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "reflection"
+                },
+                "declaration": {
+                  "type": "object",
+                  "properties": {
+                    "signatures": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/DtsReflectionSignature"
+                      }
+                    }
+                  },
+                  "required": [
+                    "signatures"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "type",
+                "declaration"
+              ],
+              "additionalProperties": false
             },
             {
               "type": "object",

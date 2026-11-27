@@ -29,8 +29,7 @@
           "title": "PageScriptCaller"
         },
         "actionCtx": {
-          "type": "object",
-          "title": "ActionExecutionContext"
+          "$ref": "../actions/action-types.ts.json#/$defs/ActionExecutionContext"
         }
       },
       "required": [

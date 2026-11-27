@@ -63,8 +63,7 @@
           "additionalProperties": false
         },
         {
-          "type": "object",
-          "title": "Scope"
+          "$ref": "content-operation-script-host.ts.json#/$defs/Scope"
         }
       ]
     }

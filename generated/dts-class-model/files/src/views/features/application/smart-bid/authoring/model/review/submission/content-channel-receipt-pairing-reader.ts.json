@@ -45,15 +45,13 @@
         {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Receipt"
+            "$ref": "../../../../../../../../services/smart-bid/content/review/submission/channel-receipt-pairing.ts.json#/$defs/Receipt"
           }
         },
         {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Candidate"
+            "$ref": "../../../../../../../../services/smart-bid/content/review/submission/channel-receipt-pairing.ts.json#/$defs/Candidate"
           }
         }
       ]

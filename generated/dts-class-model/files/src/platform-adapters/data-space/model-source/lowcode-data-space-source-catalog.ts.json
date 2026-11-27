@@ -24,11 +24,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "PageDataSpaceModelSourceType",
       "enum": [
-        "interface",
         "table",
-        "json",
         "dict",
+        "interface",
         "platformApi",
+        "json",
         "logicView",
         "databaseView"
       ]
@@ -111,8 +111,8 @@
       "properties": {
         "type": {
           "enum": [
-            "inputParams",
-            "dataModel"
+            "dataModel",
+            "inputParams"
           ]
         },
         "Name": {
@@ -247,8 +247,7 @@
               "$ref": "#/$defs/PageDataSpaceModelSourceQuery"
             },
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -264,8 +263,7 @@
               "$ref": "#/$defs/PageDataSpaceModelSource"
             },
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "options": {
               "type": "object",

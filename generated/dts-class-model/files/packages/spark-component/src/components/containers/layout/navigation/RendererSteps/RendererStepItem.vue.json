@@ -107,8 +107,8 @@
         },
         "mode": {
           "enum": [
-            "content",
-            "header"
+            "header",
+            "content"
           ]
         }
       },

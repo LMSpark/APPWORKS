@@ -23,8 +23,7 @@
           "type": "object",
           "properties": {
             "metadataDataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "getModelCreate": {
               "type": "object",

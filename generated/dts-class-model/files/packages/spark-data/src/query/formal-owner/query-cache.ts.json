@@ -19,10 +19,7 @@
       "type": "object",
       "title": "ResultCacheRequest",
       "properties": {
-        "page": {
-          "type": "object",
-          "title": "SmartBidExecutable"
-        },
+        "page": true,
         "definition": true
       },
       "additionalProperties": false,
@@ -53,8 +50,7 @@
       "title": "DataSpaceQueryCacheOptions",
       "properties": {
         "http": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-utils\").HttpClientBase"
+          "$ref": "../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
         },
         "readScope": {
           "type": "object",

@@ -31,8 +31,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "PageRuntimeMode",
       "enum": [
-        "preview",
         "design",
+        "preview",
         "published"
       ]
     },
@@ -375,8 +375,7 @@
           "additionalProperties": false
         },
         "method.getDataSet.return": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "method.resolveView.params": {
           "type": "object",

@@ -82,11 +82,14 @@
           "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
         },
         "parent": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ElTreeNode"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/ElTreeNode"
+            }
+          ]
         }
       },
       "required": [
@@ -300,9 +303,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "TreeNodeDropType",
       "enum": [
-        "inner",
         "before",
-        "after"
+        "after",
+        "inner"
       ]
     },
     "TreeNodeDropEvent": {

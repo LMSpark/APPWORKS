@@ -70,7 +70,11 @@
             "actionOrder": {
               "type": "array",
               "items": {
-                "$ref": "save-order.ts.json#/$defs/DataSpaceSaveAction"
+                "enum": [
+                  "added",
+                  "changed",
+                  "deleted"
+                ]
               }
             }
           },
@@ -395,7 +399,8 @@
               "$ref": "../../data-view.ts.json#/$defs/DataView"
             },
             "sourceInputs": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false

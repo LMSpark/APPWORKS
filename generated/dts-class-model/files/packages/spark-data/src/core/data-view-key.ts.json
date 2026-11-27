@@ -139,17 +139,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -228,11 +228,14 @@
           "type": "string"
         },
         "descriptor": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataViewKeyDescriptor"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/DataViewKeyDescriptor"
+            }
+          ]
         },
         "message": {
           "type": "string"
@@ -282,11 +285,14 @@
           "type": "string"
         },
         "descriptor": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataViewMemberDescriptor"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/DataViewMemberDescriptor"
+            }
+          ]
         },
         "message": {
           "type": "string"
@@ -307,18 +313,24 @@
       "title": "ResolvedDataViewCapabilities",
       "properties": {
         "dataSource": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataView"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          ]
         },
         "dataRow": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataRow"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          ]
         }
       },
       "required": [

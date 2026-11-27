@@ -44,8 +44,8 @@
         },
         "effect": {
           "enum": [
-            "light",
-            "dark"
+            "dark",
+            "light"
           ]
         },
         "offset": {

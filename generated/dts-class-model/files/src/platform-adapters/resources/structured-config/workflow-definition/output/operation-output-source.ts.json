@@ -18,8 +18,7 @@
       "title": "Input",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         }
       },
       "additionalProperties": false,

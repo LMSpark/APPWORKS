@@ -183,14 +183,14 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "LoginType",
       "enum": [
-        "MOBILE",
-        "EMAIL",
-        "FACE",
         "WECHAT_MINIAPP",
         "WECHAT_WEB",
         "WECHAT_CORP_WEB",
         "DINGTALK_WEB",
+        "MOBILE",
+        "EMAIL",
         "PASSWORD",
+        "FACE",
         "SSO",
         "CODE",
         "TICKET"
@@ -1632,7 +1632,8 @@
           "type": "string"
         },
         "inputParams": {
-          "$ref": "../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, WireJsonObject[]>"
         },
         "startParams": {
           "type": "array",
@@ -1806,7 +1807,8 @@
           "type": "string"
         },
         "fieldTypeMap": {
-          "$ref": "../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, string>"
         },
         "dataRowMap": {
           "$ref": "#/$defs/WireJsonObject"

@@ -123,15 +123,13 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "selectionColumns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "primaryKeys": {
@@ -174,15 +172,15 @@
         "method.columns.return": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "method.validateProjection.params": {
           "type": "object",
           "properties": {
             "view": {
-              "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "model": {
               "$ref": "#/$defs/FormalModel"
@@ -222,15 +220,15 @@
         "method.selectionColumns.return": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "method.validateSelection.params": {
           "type": "object",
           "properties": {
             "view": {
-              "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "fields": {
               "type": "object",
@@ -244,7 +242,8 @@
           "type": "object",
           "properties": {
             "view": {
-              "$ref": "../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "fields": {
               "type": "object",

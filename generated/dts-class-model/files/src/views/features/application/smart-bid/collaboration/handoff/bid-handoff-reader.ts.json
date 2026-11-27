@@ -46,14 +46,13 @@
         "items": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Item"
+            "$ref": "../../../../../../services/smart-bid/content/review/submission/bid-handoff-evidence.ts.json#/$defs/Item"
           }
         },
         "receipts": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Receipt"
+            "$ref": "../../../../../../services/smart-bid/content/review/submission/bid-handoff-evidence.ts.json#/$defs/Receipt"
           }
         },
         "assertCurrent": {

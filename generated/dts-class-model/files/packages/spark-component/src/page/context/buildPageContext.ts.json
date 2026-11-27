@@ -47,16 +47,14 @@
           "title": "AbortSignal"
         },
         "pageRoute": {
-          "type": "object",
-          "title": "PageRoute"
+          "$ref": "../../runtime/script-context-types.ts.json#/$defs/PageRoute"
         },
         "pageContainer": {
           "type": "object",
           "title": "Ref<HTMLElement | null, HTMLElement | null>"
         },
         "pageService": {
-          "type": "object",
-          "title": "PageServiceCapability"
+          "$ref": "../../runtime/app-services.ts.json#/$defs/PageServiceCapability"
         }
       },
       "required": [

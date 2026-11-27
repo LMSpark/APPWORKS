@@ -63,17 +63,19 @@
               "type": "string"
             },
             "finding": {
-              "type": [
-                "null",
-                "object"
-              ],
-              "title": "Finding"
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-registration.ts.json#/$defs/Finding"
+                }
+              ]
             },
             "observations": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Observation"
+                "$ref": "../../../../../../services/smart-bid/content/review/finding/review-finding-registration.ts.json#/$defs/Observation"
               }
             },
             "assertCurrent": {

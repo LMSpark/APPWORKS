@@ -20,8 +20,7 @@
         "targets": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "ReviewTarget"
+            "$ref": "../../../../../../../services/smart-bid/content/review/review-coverage.ts.json#/$defs/ReviewTarget"
           }
         },
         "approvals": {
@@ -58,8 +57,7 @@
         "targets": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "ReviewTarget"
+            "$ref": "../../../../../../../services/smart-bid/content/review/review-coverage.ts.json#/$defs/ReviewTarget"
           }
         }
       },
@@ -93,8 +91,7 @@
         "findings": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Finding"
+            "$ref": "../../../../../../../services/smart-bid/content/review/review-check-evidence.ts.json#/$defs/Finding"
           }
         }
       },
@@ -185,7 +182,7 @@
         },
         "resolveAnchor": {
           "type": "object",
-          "title": "(anchor: unknown) => Pick<Finding, \"kind\" | \"targetId\">"
+          "title": "(anchor: unknown) => Pick<ReviewFinding, \"kind\" | \"targetId\">"
         }
       },
       "required": [

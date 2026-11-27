@@ -63,13 +63,7 @@
           },
           "additionalProperties": false
         },
-        "method.getApi.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "T"
-        },
+        "method.getApi.return": true,
         "method.getApisByType.params": {
           "type": "object",
           "properties": {
@@ -81,10 +75,7 @@
         },
         "method.getApisByType.return": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "title": "T"
-          }
+          "items": true
         }
       }
     },
@@ -125,8 +116,7 @@
           "type": "object",
           "properties": {
             "DataViewFilterCodec": {
-              "type": "object",
-              "title": "typeof import(\"@spark-appworks/spark-data\").DataViewFilterCodec"
+              "$ref": "../../../../spark-data/src/query/filter/data-view-filter-codec.ts.json#/$defs/DataViewFilterCodec"
             },
             "createDataSet": {
               "type": "object",

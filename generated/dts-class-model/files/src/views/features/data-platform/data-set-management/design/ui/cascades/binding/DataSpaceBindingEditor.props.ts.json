@@ -40,9 +40,9 @@
         },
         "endpoint": {
           "enum": [
-            "parent",
-            "options",
             "target",
+            "options",
+            "parent",
             "query-parent",
             "query-child",
             "filter-source",
@@ -59,9 +59,9 @@
         },
         "fieldMode": {
           "enum": [
-            "none",
             "required",
-            "optional"
+            "optional",
+            "none"
           ]
         },
         "writableField": {

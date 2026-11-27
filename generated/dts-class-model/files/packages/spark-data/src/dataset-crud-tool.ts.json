@@ -218,10 +218,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -273,8 +269,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@306065"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -503,10 +498,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -558,8 +549,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@306065"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -877,10 +867,6 @@
                     "at": {
                       "type": "object",
                       "title": "(index: number) => string | undefined"
-                    },
-                    "__@iterator@306065": {
-                      "type": "object",
-                      "title": "() => StringIterator<string>"
                     }
                   },
                   "required": [
@@ -932,8 +918,7 @@
                     "trimRight",
                     "matchAll",
                     "replaceAll",
-                    "at",
-                    "__@iterator@306065"
+                    "at"
                   ],
                   "additionalProperties": false
                 }
@@ -1090,11 +1075,14 @@
           ]
         },
         "crudConfig": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "CrudOperationConfig"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+            }
+          ]
         },
         "resourceType": {
           "anyOf": [
@@ -1298,10 +1286,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -1353,8 +1337,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@306065"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -1586,10 +1569,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -1641,8 +1620,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@306065"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -2024,10 +2002,6 @@
                     "at": {
                       "type": "object",
                       "title": "(index: number) => string | undefined"
-                    },
-                    "__@iterator@306065": {
-                      "type": "object",
-                      "title": "() => StringIterator<string>"
                     }
                   },
                   "required": [
@@ -2079,8 +2053,7 @@
                     "trimRight",
                     "matchAll",
                     "replaceAll",
-                    "at",
-                    "__@iterator@306065"
+                    "at"
                   ],
                   "additionalProperties": false
                 }
@@ -2263,11 +2236,14 @@
           ]
         },
         "crudConfig": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "CrudOperationConfig"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+            }
+          ]
         },
         "resourceType": {
           "anyOf": [
@@ -2471,10 +2447,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -2526,8 +2498,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@306065"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -2759,10 +2730,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -2814,8 +2781,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@306065"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -2940,7 +2906,33 @@
               "type": "object",
               "properties": {
                 "tree": {
-                  "$ref": "query/formal-table-contract.ts.json#/$defs/DataSpaceQueryTree"
+                  "type": "object",
+                  "properties": {
+                    "keyField": {
+                      "type": "string"
+                    },
+                    "parentField": {
+                      "type": "string"
+                    },
+                    "nodeId": {
+                      "type": "string"
+                    },
+                    "hasChildrenField": {
+                      "type": "string"
+                    },
+                    "mode": {
+                      "enum": [
+                        "child",
+                        "parent"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "keyField",
+                    "parentField",
+                    "nodeId"
+                  ],
+                  "additionalProperties": false
                 },
                 "children": {
                   "type": "array",
@@ -2953,6 +2945,12 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "pagination": {
+                  "enum": [
+                    "paged",
+                    "none"
+                  ]
                 },
                 "parentResult": {
                   "type": "object",
@@ -2972,12 +2970,6 @@
                 },
                 "outputType": {
                   "type": "string"
-                },
-                "pagination": {
-                  "enum": [
-                    "none",
-                    "paged"
-                  ]
                 },
                 "allPages": {
                   "enum": [
@@ -3002,8 +2994,8 @@
                 },
                 "cacheType": {
                   "enum": [
-                    "page",
                     "none",
+                    "page",
                     "browser"
                   ]
                 },
@@ -3031,20 +3023,134 @@
             "filterExpression": {
               "anyOf": [
                 {
-                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                          }
+                        },
+                        {
+                          "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator"
+                  ],
+                  "additionalProperties": false
                 },
                 {
-                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+                  "type": "object",
+                  "properties": {
+                    "logic": {
+                      "enum": [
+                        "and",
+                        "or"
+                      ]
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                      }
+                    }
+                  },
+                  "required": [
+                    "logic",
+                    "filters"
+                  ],
+                  "additionalProperties": false
                 }
               ]
             },
             "scopeFilter": {
               "anyOf": [
                 {
-                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                          }
+                        },
+                        {
+                          "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator"
+                  ],
+                  "additionalProperties": false
                 },
                 {
-                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+                  "type": "object",
+                  "properties": {
+                    "logic": {
+                      "enum": [
+                        "and",
+                        "or"
+                      ]
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                      }
+                    }
+                  },
+                  "required": [
+                    "logic",
+                    "filters"
+                  ],
+                  "additionalProperties": false
                 }
               ]
             },
@@ -3519,10 +3625,67 @@
             "filterExpression": {
               "anyOf": [
                 {
-                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string"
+                    },
+                    "operator": {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                          }
+                        },
+                        {
+                          "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "operator"
+                  ],
+                  "additionalProperties": false
                 },
                 {
-                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+                  "type": "object",
+                  "properties": {
+                    "logic": {
+                      "enum": [
+                        "and",
+                        "or"
+                      ]
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                      }
+                    }
+                  },
+                  "required": [
+                    "logic",
+                    "filters"
+                  ],
+                  "additionalProperties": false
                 }
               ]
             },
@@ -4114,7 +4277,8 @@
                   "$ref": "dataset.ts.json#/$defs/DataSet"
                 },
                 {
-                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 },
                 {
                   "type": "string"
@@ -4136,7 +4300,8 @@
                   "$ref": "types.ts.json#/$defs/DataSetMetadata"
                 },
                 {
-                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 },
                 {
                   "type": "string"
@@ -4158,7 +4323,8 @@
                   "$ref": "types.ts.json#/$defs/DataSetMetadata"
                 },
                 {
-                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 },
                 {
                   "type": "string"
@@ -4246,7 +4412,8 @@
                   "$ref": "types.ts.json#/$defs/DataSetMetadata"
                 },
                 {
-                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 },
                 {
                   "type": "string"
@@ -4501,7 +4668,8 @@
           "additionalProperties": false
         },
         "method.listAggregates.return": {
-          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, AggregateColumnConfig>"
         },
         "method.getAggregate.params": {
           "type": "object",

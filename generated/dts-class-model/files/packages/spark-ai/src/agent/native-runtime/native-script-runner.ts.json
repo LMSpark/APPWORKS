@@ -32,12 +32,10 @@
       "properties": {
         "instance": true,
         "metadata": {
-          "type": "object",
-          "title": "AiRuntimeApiMetadataJson"
+          "$ref": "../../class-model/metadata/ai-api-object-metadata-schema.ts.json#/$defs/AiRuntimeApiMetadataJson"
         },
         "host": {
-          "type": "object",
-          "title": "AiAgentRuntimeHostContext"
+          "$ref": "../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentRuntimeHostContext"
         },
         "schemaDefs": {
           "$ref": "#/$defs/AiNativeRuntimeSchemaDefs"
@@ -60,8 +58,8 @@
           "properties": {
             "schemaVersion": {
               "enum": [
-                2,
-                1
+                1,
+                2
               ]
             },
             "rootApi": {

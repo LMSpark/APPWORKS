@@ -33,8 +33,8 @@
         "mode": {
           "enum": [
             "edit",
-            "delete",
-            "pending"
+            "pending",
+            "delete"
           ]
         }
       },
@@ -107,8 +107,7 @@
           "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "dataViewKey": {
           "type": "string"

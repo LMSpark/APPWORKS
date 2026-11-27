@@ -75,12 +75,12 @@
         },
         "responseType": {
           "enum": [
-            "text",
-            "formdata",
-            "json",
-            "document",
             "arraybuffer",
-            "blob"
+            "blob",
+            "document",
+            "json",
+            "text",
+            "formdata"
           ]
         },
         "baseURL": {
@@ -187,11 +187,14 @@
         },
         "data": true,
         "error": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ApiEnvelopeError"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/ApiEnvelopeError"
+            }
+          ]
         },
         "context": {
           "$ref": "#/$defs/ApiEnvelopeContext"
@@ -522,12 +525,12 @@
         },
         "responseType": {
           "enum": [
-            "text",
-            "formdata",
-            "json",
-            "document",
             "arraybuffer",
-            "blob"
+            "blob",
+            "document",
+            "json",
+            "text",
+            "formdata"
           ]
         },
         "baseURL": {
@@ -670,7 +673,8 @@
           "additionalProperties": false
         },
         "method.getHeaders.return": {
-          "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, string>"
         }
       }
     },
@@ -737,11 +741,11 @@
         },
         "reason": {
           "enum": [
-            "unknown",
             "not-found",
             "network",
             "invalid-response",
-            "parse"
+            "parse",
+            "unknown"
           ]
         }
       },
@@ -817,10 +821,10 @@
             },
             "reason": {
               "enum": [
-                "unknown",
                 "network",
                 "invalid-response",
-                "parse"
+                "parse",
+                "unknown"
               ]
             }
           },

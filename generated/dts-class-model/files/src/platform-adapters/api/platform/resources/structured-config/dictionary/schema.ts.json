@@ -59,7 +59,8 @@
           "type": "object",
           "properties": {
             "row": {
-              "$ref": "../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "changedFields": {
               "type": "array",
@@ -75,10 +76,12 @@
           "type": "object",
           "properties": {
             "row": {
-              "$ref": "../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "definition": {
-              "$ref": "../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "changedFields": {
               "type": "array",

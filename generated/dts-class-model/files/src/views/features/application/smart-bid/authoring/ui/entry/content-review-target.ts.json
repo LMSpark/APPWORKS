@@ -56,11 +56,11 @@
           "properties": {
             "readFrozen": {
               "type": "object",
-              "title": "(scope: Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>) => Promise<Evidence<Pick<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>, \"projectId\" | \"selectionHash\"> & Readonly<...>>>"
+              "title": "(scope: Review[0]) => Promise<Source[\"frozen\"]>"
             },
             "readWitness": {
               "type": "object",
-              "title": "(scope: Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>) => Promise<Evidence<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }> & Readonly<...>>>"
+              "title": "(scope: Review[0]) => Promise<Source[\"observed\"]>"
             }
           },
           "required": [
@@ -71,11 +71,11 @@
         },
         "readPaperPackingSelection": {
           "type": "object",
-          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; frozen: Evidence<Pick<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>, \"projectId\" | \"selectionHash\"> & Readonly<...>>; }> & (Readonly<{ state: \"PREPARE\"; packed: Evidence<...>; }> | Re..."
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; frozen: PaperPacking[0]; }> & (Readonly<{ state: \"PREPARE\"; packed: PaperPacking[1]; }> | Readonly<{ state: \"RECOVER\"; packingRequestRef: string; }>)>"
         },
         "readPackageRelease": {
           "type": "object",
-          "title": "(original: Readonly<Pick<PackageProof, \"projectId\" | \"packageId\" | \"packageHash\" | \"selectionHash\">>, signal: AbortSignal) => Promise<Readonly<{ rules: Readonly<{ projectId: string; packageId: string; packageHash: string; selectionHash: string; }> & Readonly<...>; evidence: readonly Evidence[]; signature?: Readonly<..."
+          "title": "(original: Readonly<Pick<PackageRelease[0], \"projectId\" | \"packageId\" | \"packageHash\" | \"selectionHash\">>, signal: AbortSignal) => Promise<Readonly<{ rules: PackageRelease[1]; evidence: PackageRelease[2]; signature?: Readonly<{ targets: Parameters<typeof bindPackageSignatureCoverage>[1]; recordIds: readonly string[]..."
         },
         "readSubmissionPreparation": {
           "type": "object",
@@ -83,15 +83,15 @@
         },
         "readSignatureSelection": {
           "type": "object",
-          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; request: Request; basis: Basis; authority: Readonly<{ versions: readonly Readonly<{ versionId: string; record: Readonly<{ enterpriseId: string; grantId: string; requestKey: string; ... 11 more ...; knownAt: string; }>; assertCurr..."
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; request: SignaturePreparation[0]; basis: SignaturePreparation[1]; authority: SignaturePreparation[2]; }>>"
         },
         "readOriginalSignatureSelection": {
           "type": "object",
-          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; request: OriginalSignature; assertCurrent: () => void; }>>"
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; request: SignatureRecovery; assertCurrent: () => void; }>>"
         },
         "readFreezeSelection": {
           "type": "object",
-          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; selection: Readonly<{ requestKey: string; requestDigest: string; selectionId: string; selectionVersion: string; expectedSelectionVersion: string | null; ... 4 more ...; checkedStateRefs: readonly string[]; }>; uses: readonly Read..."
+          "title": "(selectionRef: string, signal: AbortSignal) => Promise<Readonly<{ selectionRef: string; selection: FreezePreparation[0]; uses: FreezePreparation[1]; assertCurrent: () => void; }>>"
         },
         "readPackingSelection": {
           "type": "object",
@@ -206,11 +206,11 @@
             },
             "submitEnable": {
               "type": "object",
-              "title": "(prepared: Readonly<{ record: Readonly<{ targetState: \"ENABLED\"; typeCheckRef: string; closureCheckRef: string; reviewRef: string; effectiveAt?: never; stopScope?: never; kind: string; key: string; scopeId: string; requestKey: string; expectedPointerVersion: string | null; action: \"ENABLE\" | \"DISABLE\"; decisionRef: ..."
+              "title": "(prepared: PreparedRelease, signal: AbortSignal) => Promise<JsonValue>"
             },
             "submitDisable": {
               "type": "object",
-              "title": "(prepared: Readonly<{ record: Readonly<{ targetState: \"ENABLED\"; typeCheckRef: string; closureCheckRef: string; reviewRef: string; effectiveAt?: never; stopScope?: never; kind: string; key: string; scopeId: string; requestKey: string; expectedPointerVersion: string | null; action: \"ENABLE\" | \"DISABLE\"; decisionRef: ..."
+              "title": "(prepared: PreparedRelease, signal: AbortSignal) => Promise<JsonValue>"
             }
           },
           "additionalProperties": false
@@ -255,7 +255,7 @@
           "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/Scope"
+          "$ref": "../../../response/ui/entry/response-script-host.ts.json#/$defs/Scope"
         },
         {
           "type": "object",
@@ -287,7 +287,7 @@
                 },
                 "read": {
                   "type": "object",
-                  "title": "(appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{ appointmentRef: string; request: Readonly<{ personId: string; employerId: string; }> & Readonly<{ enterpriseId: string; projectId: string; positionRef: string; scopeRef: string; purposeRef: string; }> & Readonly<...>; evidence: Readonly<...>; }>>"
+                  "title": "(appointmentRef: string, signal: AbortSignal) => Promise<Readonly<{ appointmentRef: string; request: Appointment[0]; evidence: Appointment[1]; }>>"
                 }
               },
               "required": [
@@ -310,7 +310,7 @@
                 },
                 "read": {
                   "type": "object",
-                  "title": "(commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{ commitmentRef: string; coverage: Readonly<{ projectId: string; scopeRef: string; purposeRef: string; fields: readonly Readonly<{ key: string; kind: \"PRICE\" | \"PERSON\" | \"OTHER\"; value: string; unit: string | null; }>[]; approvals: readonly Approval[]..."
+                  "title": "(commitmentRef: string, signal: AbortSignal) => Promise<Readonly<{ commitmentRef: string; coverage: Commitment; source: CommitmentSource; }>>"
                 }
               },
               "required": [

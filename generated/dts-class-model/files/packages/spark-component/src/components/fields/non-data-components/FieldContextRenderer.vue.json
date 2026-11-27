@@ -57,11 +57,14 @@
           "title": "(row: DataRow) => Promise<void>"
         },
         "editingContextRow": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataRow"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          ]
         },
         "isCurrentFieldEditable": {
           "enum": [
@@ -137,15 +140,15 @@
         "align": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "mergedChildren": {
@@ -186,15 +189,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {

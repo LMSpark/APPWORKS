@@ -23891,7 +23891,7 @@
         "sourceFile": "src/views/features/workflow/flow-workbench/model/use-flow-workbench-todo.ts",
         "packageName": "app",
         "modulePath": "views/features/workflow/flow-workbench/model/use-flow-workbench-todo",
-        "jsdoc": "@module app:views/features/workflow/flow-workbench/model/use-flow-workbench-todo\n职责：工作台四页签绑定与列定义。",
+        "jsdoc": "@module app:views/features/workflow/flow-workbench/model/use-flow-workbench-todo\n职责：工作台当前标签、正式查询视图及运行实例装配。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

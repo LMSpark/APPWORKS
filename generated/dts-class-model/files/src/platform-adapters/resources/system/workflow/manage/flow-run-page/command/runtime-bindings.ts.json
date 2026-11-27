@@ -21,8 +21,7 @@
           "$ref": "../../../../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
         },
         "http": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-utils\").HttpClientBase"
+          "$ref": "../../../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
         },
         "readScope": {
           "type": "object",

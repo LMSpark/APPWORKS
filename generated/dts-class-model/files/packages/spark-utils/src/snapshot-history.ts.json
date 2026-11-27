@@ -28,13 +28,7 @@
         "cursor": {
           "type": "number"
         },
-        "current": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "T"
-        },
+        "current": true,
         "length": {
           "type": "number"
         }
@@ -53,10 +47,7 @@
         "method.push.params": {
           "type": "object",
           "properties": {
-            "snapshot": {
-              "type": "object",
-              "title": "T"
-            }
+            "snapshot": true
           },
           "additionalProperties": false
         },
@@ -66,25 +57,13 @@
           "properties": {},
           "additionalProperties": false
         },
-        "method.undo.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "T"
-        },
+        "method.undo.return": true,
         "method.redo.params": {
           "type": "object",
           "properties": {},
           "additionalProperties": false
         },
-        "method.redo.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "T"
-        },
+        "method.redo.return": true,
         "method.clear.params": {
           "type": "object",
           "properties": {},

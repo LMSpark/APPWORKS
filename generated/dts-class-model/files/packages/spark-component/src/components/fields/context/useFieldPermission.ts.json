@@ -34,17 +34,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -86,14 +86,10 @@
               "properties": {
                 "value": {
                   "type": "number"
-                },
-                "__@RefSymbol@309832": {
-                  "const": true
                 }
               },
               "required": [
-                "value",
-                "__@RefSymbol@309832"
+                "value"
               ],
               "additionalProperties": false
             },
@@ -103,7 +99,7 @@
             },
             "dataSource": {
               "type": "object",
-              "title": "import(\"vue\").ComputedRef<DataView | null>"
+              "title": "import(\"vue\").ComputedRef<import(\"@spark-appworks/spark-data\").DataView | null>"
             },
             "activeRow": {
               "type": "object",
@@ -119,7 +115,7 @@
             },
             "member": {
               "type": "object",
-              "title": "import(\"vue\").ComputedRef<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | import(\"@spark-appworks/spark-data\").DataMember | \"value\" | \"pageSize\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"mutating\" | \"loadingError\" | \"mutatingError\">"
+              "title": "import(\"vue\").ComputedRef<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"pageSize\" | \"selectedRows\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"currentRow\">"
             },
             "fieldMember": {
               "type": "object",
@@ -195,17 +191,11 @@
           },
           "additionalProperties": false
         },
-        "method.coerce.return": {
-          "type": "object",
-          "title": "TValue"
-        },
+        "method.coerce.return": true,
         "method.toSourceValue.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },

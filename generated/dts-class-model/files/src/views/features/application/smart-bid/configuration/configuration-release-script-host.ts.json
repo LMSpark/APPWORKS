@@ -54,8 +54,7 @@
           "additionalProperties": false
         },
         {
-          "type": "object",
-          "title": "Request"
+          "$ref": "../../../../../services/smart-bid/content/references/configuration/configuration-release-recovery.ts.json#/$defs/Request"
         }
       ]
     },
@@ -74,8 +73,7 @@
             "uses": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Use"
+                "$ref": "../../../../../services/smart-bid/content/references/configuration/configuration-disable-impact.ts.json#/$defs/Use"
               }
             },
             "complete": {
@@ -144,8 +142,7 @@
           "additionalProperties": false
         },
         {
-          "type": "object",
-          "title": "Decision"
+          "$ref": "../../../../../services/smart-bid/content/references/configuration/configuration-release-decision.ts.json#/$defs/Decision"
         }
       ]
     },

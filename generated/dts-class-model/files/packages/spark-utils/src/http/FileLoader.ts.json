@@ -118,18 +118,7 @@
           },
           "additionalProperties": false
         },
-        "method.transform.return": {
-          "anyOf": [
-            {
-              "type": "object",
-              "title": "T"
-            },
-            {
-              "type": "object",
-              "title": "Promise<T>"
-            }
-          ]
-        }
+        "method.transform.return": true
       },
       "properties": {
         "forceRefresh": {
@@ -245,10 +234,7 @@
         "method.on.params": {
           "type": "object",
           "properties": {
-            "event": {
-              "type": "object",
-              "title": "K"
-            },
+            "event": true,
             "listener": {
               "type": "object",
               "title": "(payload: FileLoaderEventMap[K]) => void"

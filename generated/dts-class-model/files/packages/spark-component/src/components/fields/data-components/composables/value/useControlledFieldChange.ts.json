@@ -63,17 +63,11 @@
           "properties": {},
           "additionalProperties": false
         },
-        "method.getValue.return": {
-          "type": "object",
-          "title": "TValue"
-        },
+        "method.getValue.return": true,
         "method.emitUpdate.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },
@@ -81,10 +75,7 @@
         "method.syncValue.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },
@@ -92,14 +83,8 @@
         "method.afterDefault.params": {
           "type": "object",
           "properties": {
-            "nextValue": {
-              "type": "object",
-              "title": "TValue"
-            },
-            "previousValue": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "nextValue": true,
+            "previousValue": true
           },
           "additionalProperties": false
         },

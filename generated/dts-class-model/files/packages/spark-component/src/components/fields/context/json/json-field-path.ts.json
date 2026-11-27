@@ -37,8 +37,7 @@
         "method.root.return": {
           "anyOf": [
             {
-              "type": "object",
-              "title": "import(\"@spark-appworks/spark-json-document\").JsonObject"
+              "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
             },
             {
               "type": "array",
@@ -66,8 +65,7 @@
         "method.parent.return": {
           "anyOf": [
             {
-              "type": "object",
-              "title": "import(\"@spark-appworks/spark-json-document\").JsonObject"
+              "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonObject"
             },
             {
               "type": "array",
@@ -121,8 +119,7 @@
           "additionalProperties": false
         },
         "method.replace.return": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-json-document\").JsonDocument"
+          "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonDocument"
         },
         "method.identity.params": {
           "type": "object",

@@ -274,10 +274,6 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@306065": {
-              "type": "object",
-              "title": "() => StringIterator<string>"
-            },
             "toLocaleString": {
               "anyOf": [
                 {
@@ -341,7 +337,6 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@306065",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -358,17 +353,11 @@
           },
           "additionalProperties": false
         },
-        "method.normalize.return": {
-          "type": "object",
-          "title": "TInput"
-        },
+        "method.normalize.return": true,
         "method.toScope.params": {
           "type": "object",
           "properties": {
-            "normalizedInput": {
-              "type": "object",
-              "title": "TInput"
-            }
+            "normalizedInput": true
           },
           "additionalProperties": false
         },
@@ -378,10 +367,7 @@
         "method.toOrchestration.params": {
           "type": "object",
           "properties": {
-            "normalizedInput": {
-              "type": "object",
-              "title": "TInput"
-            }
+            "normalizedInput": true
           },
           "additionalProperties": false
         },
@@ -459,10 +445,7 @@
         "kindID": {
           "type": "string"
         },
-        "normalizedInput": {
-          "type": "object",
-          "title": "TInput"
-        },
+        "normalizedInput": true,
         "scope": {
           "$ref": "scope-types.ts.json#/$defs/AiAgentScope"
         },
@@ -481,10 +464,7 @@
             "kindID": {
               "type": "string"
             },
-            "normalizedInput": {
-              "type": "object",
-              "title": "TInput"
-            },
+            "normalizedInput": true,
             "scope": {
               "$ref": "scope-types.ts.json#/$defs/AiAgentScope"
             },

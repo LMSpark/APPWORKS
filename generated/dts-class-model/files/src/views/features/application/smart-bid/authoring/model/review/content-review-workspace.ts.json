@@ -30,8 +30,7 @@
         "targets": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "ReviewTarget"
+            "$ref": "content-review-versions.ts.json#/$defs/ReviewTarget"
           }
         }
       },

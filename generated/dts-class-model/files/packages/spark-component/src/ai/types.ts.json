@@ -47,8 +47,8 @@
         },
         "status": {
           "enum": [
-            "error",
-            "success"
+            "success",
+            "error"
           ]
         },
         "resultSummary": {
@@ -269,9 +269,9 @@
       "properties": {
         "level": {
           "enum": [
-            "info",
+            "error",
             "warn",
-            "error"
+            "info"
           ]
         },
         "code": {
@@ -358,8 +358,8 @@
         "kind": {
           "enum": [
             "message",
-            "unknown",
-            "functionCall"
+            "functionCall",
+            "unknown"
           ]
         },
         "direction": {

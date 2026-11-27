@@ -217,7 +217,7 @@
               },
               "unsubs": {
                 "type": "object",
-                "title": "Map<SparkData.DataView, (() => void)[]>"
+                "title": "Map<DataView, (() => void)[]>"
               }
             },
             "required": [
@@ -244,7 +244,7 @@
               },
               "unsubs": {
                 "type": "object",
-                "title": "Map<SparkData.DataView, (() => void)[]>"
+                "title": "Map<DataView, (() => void)[]>"
               }
             },
             "required": [
@@ -466,7 +466,60 @@
         "settleSaveJournal": true,
         "refreshSaveJournalCompletion": true,
         "saveJournal": {
-          "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveJournal"
+          "type": "object",
+          "properties": {
+            "batchId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "completed": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "completedPhases": {
+              "type": "number"
+            },
+            "originalError": {
+              "type": "object",
+              "title": "Error"
+            },
+            "currentRecoverableAction": {
+              "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveRecoverableAction"
+            },
+            "retainedDraft": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "phases": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveJournalPhase"
+              }
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataSetSaveJournalView"
+              }
+            }
+          },
+          "required": [
+            "batchId",
+            "completed",
+            "completedPhases",
+            "originalError",
+            "currentRecoverableAction",
+            "retainedDraft",
+            "phases",
+            "views"
+          ],
+          "additionalProperties": false
         },
         "settleConfirmedDetachedSaves": {
           "type": "object",

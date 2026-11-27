@@ -18,8 +18,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "FieldActionMode",
       "enum": [
-        "readonly",
-        "editable"
+        "editable",
+        "readonly"
       ]
     },
     "UseFieldActionModeOptions": {
@@ -55,14 +55,8 @@
         "method.chooseByMode.params": {
           "type": "object",
           "properties": {
-            "editableValue": {
-              "type": "object",
-              "title": "T"
-            },
-            "readonlyValue": {
-              "type": "object",
-              "title": "T"
-            }
+            "editableValue": true,
+            "readonlyValue": true
           },
           "additionalProperties": false
         },

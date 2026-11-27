@@ -30,19 +30,19 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "PageMessageType",
       "enum": [
-        "info",
+        "success",
         "error",
         "warning",
-        "success"
+        "info"
       ]
     },
     "PageDialogResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "PageDialogResult",
       "enum": [
+        "confirm",
         "cancel",
-        "close",
-        "confirm"
+        "close"
       ]
     },
     "PageDialogOptions": {
@@ -132,7 +132,8 @@
           "type": "number"
         },
         "file": {
-          "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+          "type": "object",
+          "title": "File"
         }
       },
       "required": [
@@ -208,7 +209,8 @@
         "files": {
           "type": "array",
           "items": {
-            "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+            "type": "object",
+            "title": "File"
           }
         }
       },
@@ -235,7 +237,8 @@
           "type": "number"
         },
         "file": {
-          "$ref": "../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+          "type": "object",
+          "title": "File"
         },
         "response": true,
         "url": {
@@ -604,7 +607,8 @@
               "type": "string"
             },
             "params": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -639,7 +643,8 @@
                       "type": "string"
                     },
                     "query": {
-                      "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                      "type": "object",
+                      "title": "Record<string, unknown>"
                     }
                   },
                   "required": [
@@ -671,7 +676,8 @@
                       "type": "string"
                     },
                     "query": {
-                      "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                      "type": "object",
+                      "title": "Record<string, unknown>"
                     }
                   },
                   "required": [

@@ -34,8 +34,7 @@
           "type": "string"
         },
         "runtime": {
-          "type": "object",
-          "title": "import(\"../../../../../../../../packages/spark-project-model/src\").PageRuntime"
+          "$ref": "../../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
         },
         "actorUserId": {
           "type": "string"
@@ -60,7 +59,6 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "Action",
       "enum": [
-        "move",
         "addDocument",
         "addChapter",
         "addParagraph",
@@ -71,6 +69,7 @@
         "addTable",
         "updateTable",
         "updateText",
+        "move",
         "remove"
       ]
     },

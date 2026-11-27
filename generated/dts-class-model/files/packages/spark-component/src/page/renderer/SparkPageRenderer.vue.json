@@ -80,8 +80,7 @@
           "additionalProperties": false
         },
         "routeSnapshot": {
-          "type": "object",
-          "title": "PageRoute"
+          "$ref": "../../runtime/script-context-types.ts.json#/$defs/PageRoute"
         },
         "enableCssScope": {
           "enum": [
@@ -202,7 +201,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T04:26:00.329Z",
+  "generatedAt": "2026-11-25T23:58:44.024Z",
   "models": {
     "PageRuntimeErrorPhase": {
       "name": "PageRuntimeErrorPhase",

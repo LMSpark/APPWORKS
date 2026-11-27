@@ -20,13 +20,13 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "JsonSchemaType",
       "enum": [
-        "string",
-        "number",
+        "null",
         "boolean",
         "object",
-        "integer",
         "array",
-        "null"
+        "number",
+        "integer",
+        "string"
       ]
     },
     "JsonSchema": {

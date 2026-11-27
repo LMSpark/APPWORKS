@@ -20,10 +20,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "ToolbarPosition",
       "enum": [
-        "left",
-        "right",
         "top",
-        "bottom"
+        "bottom",
+        "left",
+        "right"
       ]
     },
     "UseContainerToolbarOptions": {
@@ -102,10 +102,7 @@
           },
           "additionalProperties": false
         },
-        "method.runWithViewSync.return": {
-          "type": "object",
-          "title": "T"
-        },
+        "method.runWithViewSync.return": true,
         "method.runWithViewSyncAsync.params": {
           "type": "object",
           "properties": {

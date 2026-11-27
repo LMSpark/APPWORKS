@@ -33,8 +33,7 @@
       "title": "ModelEditSessionInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -113,8 +112,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "targetId": {
               "type": "string"
@@ -280,8 +278,7 @@
             "columns": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "DataColumn"
+                "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
               }
             },
             "warning": {
@@ -408,8 +405,7 @@
             "columns": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "DataColumn"
+                "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
               }
             },
             "warning": {

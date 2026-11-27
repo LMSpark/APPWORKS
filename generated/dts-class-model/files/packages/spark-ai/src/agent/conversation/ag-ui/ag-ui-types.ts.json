@@ -54,9 +54,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "SparkAgUiTextMessageRole",
       "enum": [
-        "system",
-        "user",
         "assistant",
+        "user",
+        "system",
         "developer"
       ]
     },

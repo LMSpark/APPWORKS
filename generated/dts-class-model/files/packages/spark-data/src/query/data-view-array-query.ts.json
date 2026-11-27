@@ -46,8 +46,8 @@
         },
         "resultKind": {
           "enum": [
-            "join",
             "entity",
+            "join",
             "navigation",
             "hierarchy",
             "aggregate"

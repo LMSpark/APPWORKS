@@ -150,8 +150,8 @@
         },
         "show": {
           "enum": [
-            "number",
-            "title"
+            "title",
+            "number"
           ]
         }
       },

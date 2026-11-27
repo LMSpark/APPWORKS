@@ -47,7 +47,7 @@
         "members": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Member"
+            "$ref": "delivery-selection-digest.ts.json#/$defs/Member"
           }
         },
         "compatibilityRefs": {

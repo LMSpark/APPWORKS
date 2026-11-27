@@ -45,12 +45,12 @@
         "linkType": {
           "enum": [
             "",
-            "info",
-            "warning",
-            "success",
-            "danger",
             "default",
-            "primary"
+            "primary",
+            "success",
+            "warning",
+            "info",
+            "danger"
           ]
         },
         "underline": {

@@ -111,7 +111,8 @@
           "additionalProperties": false
         },
         "method.getFormData.return": {
-          "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.validate.params": {
           "type": "object",
@@ -202,14 +203,14 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "ActionDescriptorActionName",
       "enum": [
-        "delete",
-        "open",
-        "confirm",
         "show-message",
+        "confirm",
         "alert",
         "navigate",
+        "open",
         "set-field",
         "append-row",
+        "delete",
         "patch",
         "move",
         "message-row",
@@ -1479,8 +1480,8 @@
         },
         "targetParentSource": {
           "enum": [
-            "scope",
-            "field"
+            "field",
+            "scope"
           ]
         },
         "targetParentField": {
@@ -2462,11 +2463,14 @@
           "additionalProperties": false
         },
         "method.getPageService.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "PageServiceCapability"
+          "anyOf": [
+            {
+              "$ref": "../../runtime/app-services.ts.json#/$defs/PageServiceCapability"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "method.invokeHostCommand.params": {
           "type": "object",
@@ -2488,7 +2492,8 @@
           "additionalProperties": false
         },
         "method.getRouteQuery.return": {
-          "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.getRouter.params": {
           "type": "object",
@@ -2544,7 +2549,8 @@
                       "type": "string"
                     },
                     "query": {
-                      "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                      "type": "object",
+                      "title": "Record<string, string>"
                     }
                   },
                   "required": [

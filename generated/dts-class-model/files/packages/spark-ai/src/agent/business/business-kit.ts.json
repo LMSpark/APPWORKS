@@ -260,10 +260,6 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@306065": {
-              "type": "object",
-              "title": "() => StringIterator<string>"
-            },
             "toLocaleString": {
               "anyOf": [
                 {
@@ -327,7 +323,6 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@306065",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -554,10 +549,6 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@306065": {
-              "type": "object",
-              "title": "() => StringIterator<string>"
-            },
             "toLocaleString": {
               "anyOf": [
                 {
@@ -621,7 +612,6 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@306065",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -674,10 +664,7 @@
           },
           "additionalProperties": false
         },
-        "method.normalize.return": {
-          "type": "object",
-          "title": "TInput"
-        }
+        "method.normalize.return": true
       }
     },
     "CreateSimpleInputContractOptions": {
@@ -913,10 +900,6 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@306065": {
-              "type": "object",
-              "title": "() => StringIterator<string>"
-            },
             "toLocaleString": {
               "anyOf": [
                 {
@@ -980,7 +963,6 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@306065",
             "toLocaleString"
           ],
           "additionalProperties": false
@@ -1207,10 +1189,6 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@306065": {
-              "type": "object",
-              "title": "() => StringIterator<string>"
-            },
             "toLocaleString": {
               "anyOf": [
                 {
@@ -1274,7 +1252,6 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@306065",
             "toLocaleString"
           ],
           "additionalProperties": false

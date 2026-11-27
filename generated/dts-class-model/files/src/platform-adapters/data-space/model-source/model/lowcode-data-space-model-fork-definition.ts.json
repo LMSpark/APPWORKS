@@ -84,12 +84,14 @@
           "type": "object",
           "properties": {
             "model": {
-              "$ref": "../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "fields": {
               "type": "array",
               "items": {
-                "$ref": "../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                "type": "object",
+                "title": "Record<string, unknown>"
               }
             },
             "sourceFieldIds": {

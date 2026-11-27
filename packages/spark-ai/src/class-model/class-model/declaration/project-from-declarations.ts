@@ -39,6 +39,7 @@ import {
   type ProjectDtsFileProjectionOptions,
 } from '../bundle/dts-bundle-types'
 import {
+  isLocalTypeParameterName,
   paramsSchemaFromParameters,
   typeNodeToJsonSchema,
 } from './dts-type-schema'
@@ -559,6 +560,7 @@ function projectTypeAliasDeclaration(
       })
     : undefined
 
+  if (jsonSchema !== undefined) context.declarationSchema.registerTypeAliasBody(jsonSchema, objectSchema)
   registerModel(context, name, {
     name,
     jsdoc,
@@ -583,7 +585,8 @@ function projectTypeAliasDeclaration(
   return name
 }
 
-function typeAliasJsonSchema(command: Readonly<{
+/** 从类型别名的原始或已链接 body 统一生成正式 Draft 文档。 */
+export function typeAliasJsonSchema(command: Readonly<{
   className: string
   jsdoc: string
   schema: ReturnType<typeof typeNodeToJsonSchema>
@@ -1240,35 +1243,6 @@ function dtsReferenceTypeMetaFromTypeReferenceNode(
     ...(target?.sourcePath === undefined ? {} : { sourcePath: target.sourcePath }),
     ...(typeArguments === undefined || typeArguments.length === 0 ? {} : { typeArguments }),
   }
-}
-
-function isLocalTypeParameterName(node: ts.Node, typeName: string): boolean {
-  if (typeName.includes('.')) return false
-  for (let current: ts.Node = node; !ts.isSourceFile(current); current = current.parent) {
-    const typeParameters = readNodeTypeParameters(current)
-    if (typeParameters?.some(parameter => parameter.name.text === typeName) === true) return true
-  }
-  return false
-}
-
-function readNodeTypeParameters(node: ts.Node): readonly ts.TypeParameterDeclaration[] | undefined {
-  if (
-    ts.isClassDeclaration(node)
-    || ts.isInterfaceDeclaration(node)
-    || ts.isTypeAliasDeclaration(node)
-    || ts.isFunctionDeclaration(node)
-    || ts.isFunctionExpression(node)
-    || ts.isArrowFunction(node)
-    || ts.isMethodDeclaration(node)
-    || ts.isMethodSignature(node)
-    || ts.isCallSignatureDeclaration(node)
-    || ts.isConstructSignatureDeclaration(node)
-    || ts.isFunctionTypeNode(node)
-    || ts.isConstructorTypeNode(node)
-  ) {
-    return node.typeParameters
-  }
-  return undefined
 }
 
 type DtsImportLookupCommand = Readonly<{

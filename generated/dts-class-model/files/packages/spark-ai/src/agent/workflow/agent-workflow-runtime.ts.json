@@ -28,8 +28,7 @@
       "title": "AgentWorkflowRuntimeKnowledge",
       "properties": {
         "provider": {
-          "type": "object",
-          "title": "ClassModelKnowledgeProvider"
+          "$ref": "../../class-model/knowledge/class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeProvider"
         }
       },
       "required": [

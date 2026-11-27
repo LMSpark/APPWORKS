@@ -64,12 +64,10 @@
           "additionalProperties": false
         },
         {
-          "type": "object",
-          "title": "Version"
+          "$ref": "../../../../../../../../services/smart-bid/content/review/production/production-request.ts.json#/$defs/Version"
         },
         {
-          "type": "object",
-          "title": "Evidence"
+          "$ref": "../../../../../../../../services/smart-bid/content/review/production/production-request.ts.json#/$defs/Evidence"
         }
       ]
     }

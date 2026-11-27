@@ -56,10 +56,10 @@
         },
         "state": {
           "enum": [
-            "PENDING",
             "CURRENT",
-            "STALE",
-            "MISSING"
+            "PENDING",
+            "MISSING",
+            "STALE"
           ]
         },
         "value": {
@@ -190,9 +190,9 @@
           "properties": {
             "status": {
               "enum": [
-                "REQUIRED",
+                "WAIT",
                 "CONFLICT",
-                "WAIT"
+                "REQUIRED"
               ]
             },
             "branchIds": {

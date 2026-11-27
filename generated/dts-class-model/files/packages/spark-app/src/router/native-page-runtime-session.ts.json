@@ -26,8 +26,7 @@
           "type": "string"
         },
         "tool": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-project-model\").PageTool"
+          "$ref": "../../../spark-project-model/src/page/page-tool.ts.json#/$defs/PageTool"
         },
         "scenarioIds": {
           "type": "array",
@@ -48,10 +47,43 @@
           "type": "string"
         },
         "scenarioInputs": {
-          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageScenarioInputs"
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
         },
         "source": {
-          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeSource"
+          "type": "object",
+          "properties": {
+            "mode": {
+              "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeMode"
+            },
+            "sourceRevision": {
+              "type": "string"
+            },
+            "publicationRef": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "scenarioIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "mode",
+            "sourceRevision",
+            "publicationRef",
+            "scenarioIds"
+          ],
+          "additionalProperties": false
         },
         "resolveSource": {
           "type": "object",
@@ -72,8 +104,7 @@
           "type": "string"
         },
         "tool": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-project-model\").PageTool"
+          "$ref": "../../../spark-project-model/src/page/page-tool.ts.json#/$defs/PageTool"
         },
         "scenarioIds": {
           "type": "array",
@@ -94,10 +125,43 @@
           "type": "string"
         },
         "scenarioInputs": {
-          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageScenarioInputs"
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
         },
         "source": {
-          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeSource"
+          "type": "object",
+          "properties": {
+            "mode": {
+              "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntimeMode"
+            },
+            "sourceRevision": {
+              "type": "string"
+            },
+            "publicationRef": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "scenarioIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "mode",
+            "sourceRevision",
+            "publicationRef",
+            "scenarioIds"
+          ],
+          "additionalProperties": false
         },
         "resolveSource": {
           "type": "object",

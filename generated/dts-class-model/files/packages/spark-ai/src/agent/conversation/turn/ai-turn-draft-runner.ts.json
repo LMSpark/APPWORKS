@@ -21,8 +21,7 @@
       "title": "AiTurnDraftRunnerInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "turnResource": {
           "$ref": "ai-turn-resource.ts.json#/$defs/AiTurnResource"

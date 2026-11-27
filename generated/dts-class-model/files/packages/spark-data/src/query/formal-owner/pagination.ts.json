@@ -71,10 +71,7 @@
         "method.key.params": {
           "type": "object",
           "properties": {
-            "row": {
-              "type": "object",
-              "title": "T"
-            }
+            "row": true
           },
           "additionalProperties": false
         },

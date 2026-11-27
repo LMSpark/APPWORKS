@@ -27,11 +27,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "JsonNodeType",
       "enum": [
+        "object",
+        "array",
         "string",
         "number",
         "boolean",
-        "object",
-        "array",
         "null"
       ]
     },
@@ -142,8 +142,7 @@
           "type": "number"
         },
         "path": {
-          "type": "object",
-          "title": "JsonPath"
+          "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
         },
         "childCount": {
           "type": "number"
@@ -228,10 +227,6 @@
         "values": {
           "type": "object",
           "title": "() => MapIterator<JsonTreeNode>"
-        },
-        "__@iterator@306065": {
-          "type": "object",
-          "title": "() => MapIterator<[string, JsonTreeNode]>"
         }
       },
       "required": [
@@ -241,8 +236,7 @@
         "size",
         "entries",
         "keys",
-        "values",
-        "__@iterator@306065"
+        "values"
       ],
       "additionalProperties": false
     },
@@ -428,8 +422,7 @@
           "type": "object",
           "properties": {
             "path": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             }
           },
           "additionalProperties": false
@@ -441,8 +434,7 @@
           "type": "object",
           "properties": {
             "path": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             }
           },
           "additionalProperties": false
@@ -454,8 +446,7 @@
           "type": "object",
           "properties": {
             "path": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             }
           },
           "additionalProperties": false
@@ -467,8 +458,7 @@
           "type": "object",
           "properties": {
             "parentPath": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             }
           },
           "additionalProperties": false
@@ -480,12 +470,10 @@
           "type": "object",
           "properties": {
             "target": {
-              "type": "object",
-              "title": "JsonObject"
+              "$ref": "../core/json-types.ts.json#/$defs/JsonObject"
             },
             "parentPath": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             }
           },
           "additionalProperties": false
@@ -497,22 +485,19 @@
           "type": "object",
           "properties": {
             "parentPath": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             }
           },
           "additionalProperties": false
         },
         "method.createDefaultArrayItem.return": {
-          "type": "object",
-          "title": "JsonValue"
+          "$ref": "../core/json-types.ts.json#/$defs/JsonValue"
         },
         "method.createDefaultObjectValue.params": {
           "type": "object",
           "properties": {
             "parentPath": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             },
             "key": {
               "type": "string"
@@ -521,15 +506,13 @@
           "additionalProperties": false
         },
         "method.createDefaultObjectValue.return": {
-          "type": "object",
-          "title": "JsonValue"
+          "$ref": "../core/json-types.ts.json#/$defs/JsonValue"
         },
         "method.getValueOptions.params": {
           "type": "object",
           "properties": {
             "path": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             }
           },
           "additionalProperties": false
@@ -544,8 +527,7 @@
           "type": "object",
           "properties": {
             "path": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             }
           },
           "additionalProperties": false
@@ -573,12 +555,10 @@
           "type": "object",
           "properties": {
             "changedPath": {
-              "type": "object",
-              "title": "JsonPath"
+              "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
             },
             "newValue": {
-              "type": "object",
-              "title": "JsonValue"
+              "$ref": "../core/json-types.ts.json#/$defs/JsonValue"
             }
           },
           "additionalProperties": false
@@ -597,15 +577,13 @@
       "title": "AutoPopulateEntry",
       "properties": {
         "targetPath": {
-          "type": "object",
-          "title": "JsonPath"
+          "$ref": "../core/json-path.ts.json#/$defs/JsonPath"
         },
         "entries": {
           "type": "object",
           "properties": {},
           "additionalProperties": {
-            "type": "object",
-            "title": "JsonValue"
+            "$ref": "../core/json-types.ts.json#/$defs/JsonValue"
           }
         }
       },
@@ -843,11 +821,6 @@
             },
             {
               "name": "values",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "__@iterator@306065",
               "readable": true,
               "writable": true
             }

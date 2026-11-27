@@ -65,10 +65,10 @@
         },
         "placement": {
           "enum": [
-            "parent",
+            "top",
             "left",
             "right",
-            "top",
+            "parent",
             "tabs",
             "popup"
           ]
@@ -81,11 +81,11 @@
         },
         "openMode": {
           "enum": [
-            "embedded",
-            "current",
             "subsystem",
+            "current",
             "new-window",
-            "modal"
+            "modal",
+            "embedded"
           ]
         },
         "displayMode": {
@@ -133,7 +133,16 @@
         "models": {
           "type": "array",
           "items": {
-            "$ref": "project-blueprint-record.ts.json#/$defs/BlueprintModel"
+            "type": "object",
+            "properties": {
+              "metaName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "metaName"
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -350,10 +359,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "ProjectPageSurface",
       "enum": [
-        "none",
+        "config-files",
         "system-page",
         "link",
-        "config-files"
+        "none"
       ]
     },
     "ProjectPageNodeSummary": {
@@ -432,11 +441,14 @@
           "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
         },
         "parent": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ProjectBlueprintTreeNodeData"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/ProjectBlueprintTreeNodeData"
+            }
+          ]
         },
         "parentId": {
           "type": [

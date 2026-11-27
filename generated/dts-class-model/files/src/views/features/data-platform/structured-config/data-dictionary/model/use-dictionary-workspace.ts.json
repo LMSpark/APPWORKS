@@ -23,8 +23,8 @@
         },
         "purpose": {
           "enum": [
-            "data",
-            "design"
+            "design",
+            "data"
           ]
         },
         "open": {
@@ -83,7 +83,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T04:26:00.326Z",
+  "generatedAt": "2026-11-23T08:03:43.506Z",
   "models": {
     "DictionaryPageInput": {
       "name": "DictionaryPageInput",

@@ -71,11 +71,11 @@
             },
             "tone": {
               "enum": [
-                "info",
-                "warning",
+                "primary",
                 "success",
+                "warning",
                 "danger",
-                "primary"
+                "info"
               ]
             }
           },

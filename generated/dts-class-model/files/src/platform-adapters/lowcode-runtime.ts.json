@@ -126,7 +126,41 @@
           "$ref": "../../packages/spark-project-model/src/io/project-reference-client.ts.json#/$defs/ProjectReferenceGateway"
         },
         "scenarioViews": {
-          "$ref": "../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ScenarioViewGateway"
+          "type": "object",
+          "properties": {
+            "submissionJournal": {
+              "$ref": "../../packages/spark-project-model/src/scenario/scenario-submission-journal.ts.json#/$defs/ScenarioSubmissionJournal"
+            },
+            "readScope": {
+              "type": "object",
+              "title": "() => string"
+            },
+            "readText": {
+              "type": "object",
+              "title": "(scenarioId: string) => Promise<string | null>"
+            },
+            "writeText": {
+              "type": "object",
+              "title": "(scenarioId: string, text: string, expectedText?: string | null) => Promise<void>"
+            },
+            "listVersions": {
+              "type": "object",
+              "title": "(scenarioId: string) => Promise<PageToolFileVersionSummary[]>"
+            },
+            "readVersion": {
+              "type": "object",
+              "title": "(scenarioId: string, version: number) => Promise<string>"
+            },
+            "createVersion": {
+              "type": "object",
+              "title": "(command: ScenarioViewVersionCreateCommand) => Promise<PageToolFileVersionSummary>"
+            }
+          },
+          "required": [
+            "readScope",
+            "readText"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [

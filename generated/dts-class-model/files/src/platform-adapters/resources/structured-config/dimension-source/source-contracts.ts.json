@@ -19,11 +19,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "DimensionSourceContractFieldRole",
       "enum": [
-        "time",
-        "attribute",
         "identity",
+        "attribute",
         "dimension",
-        "relation"
+        "relation",
+        "time"
       ]
     },
     "DimensionSourceContractField": {

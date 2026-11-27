@@ -32,8 +32,7 @@
           "title": "(field: string) => unknown"
         },
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "hasTreeProjection": {
           "enum": [
@@ -62,8 +61,7 @@
       "title": "NodeTargetResourceScope",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "runtime": {
           "$ref": "../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"

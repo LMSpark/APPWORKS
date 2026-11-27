@@ -133,10 +133,7 @@
             "alias": {
               "type": "string"
             },
-            "input": {
-              "type": "object",
-              "title": "TInput"
-            },
+            "input": true,
             "chat": {
               "$ref": "../../../spark-ai/src/agent/business/business-task.ts.json#/$defs/AiAgentTaskChatOptions"
             }

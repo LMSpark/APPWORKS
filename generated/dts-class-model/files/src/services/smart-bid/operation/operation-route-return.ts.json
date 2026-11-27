@@ -75,9 +75,9 @@
         "state": {
           "enum": [
             "COMPLETE",
-            "UNKNOWN",
             "PARTIAL",
-            "FAILED"
+            "FAILED",
+            "UNKNOWN"
           ]
         }
       },

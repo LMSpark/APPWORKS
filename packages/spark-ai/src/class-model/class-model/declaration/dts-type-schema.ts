@@ -110,6 +110,7 @@ function typeReferenceNodeToJsonSchema(
   sourceFile: ts.SourceFile | undefined,
 ): JsonSchema {
   const typeName = node.typeName.getText(sourceFile)
+  if (isLocalTypeParameterName(node, typeName)) return true
   const firstTypeArgument = node.typeArguments?.[0]
   if ((typeName === 'Array' || typeName === 'ReadonlyArray') && firstTypeArgument !== undefined) {
     return {
@@ -231,4 +232,34 @@ function isJsonSchemaObject(schema: JsonSchema): schema is JsonSchemaObject {
 function withoutRequired(schema: JsonSchemaObject): JsonSchemaObject {
   const { required: _required, ...rest } = schema
   return rest
+}
+
+/** 以最近声明范围的泛型参数区分运行时模型引用。 */
+export function isLocalTypeParameterName(node: ts.Node, typeName: string): boolean {
+  if (typeName.includes('.')) return false
+  for (let current: ts.Node = node; !ts.isSourceFile(current); current = current.parent) {
+    const typeParameters = readNodeTypeParameters(current)
+    if (typeParameters?.some(parameter => parameter.name.text === typeName) === true) return true
+  }
+  return false
+}
+
+function readNodeTypeParameters(node: ts.Node): readonly ts.TypeParameterDeclaration[] | undefined {
+  if (
+    ts.isClassDeclaration(node)
+    || ts.isInterfaceDeclaration(node)
+    || ts.isTypeAliasDeclaration(node)
+    || ts.isFunctionDeclaration(node)
+    || ts.isFunctionExpression(node)
+    || ts.isArrowFunction(node)
+    || ts.isMethodDeclaration(node)
+    || ts.isMethodSignature(node)
+    || ts.isCallSignatureDeclaration(node)
+    || ts.isConstructSignatureDeclaration(node)
+    || ts.isFunctionTypeNode(node)
+    || ts.isConstructorTypeNode(node)
+  ) {
+    return node.typeParameters
+  }
+  return undefined
 }

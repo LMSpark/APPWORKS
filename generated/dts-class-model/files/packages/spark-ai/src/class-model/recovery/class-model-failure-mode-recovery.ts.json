@@ -57,8 +57,7 @@
           "type": "string"
         },
         "mode": {
-          "type": "object",
-          "title": "AiApiActionFailureMode"
+          "$ref": "../metadata/ai-api-object-metadata-schema.ts.json#/$defs/AiApiActionFailureMode"
         }
       },
       "required": [

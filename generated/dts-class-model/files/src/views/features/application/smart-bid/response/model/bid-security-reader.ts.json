@@ -153,8 +153,7 @@
         "receipts": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Receipt"
+            "$ref": "../../../../../../services/smart-bid/content/references/commercial/bid-security-review.ts.json#/$defs/Receipt"
           }
         }
       },

@@ -64,8 +64,7 @@
           "additionalProperties": false
         },
         "method.resolveContext.return": {
-          "type": "object",
-          "title": "ActionExecutionContext"
+          "$ref": "../../../../../page/actions/action-types.ts.json#/$defs/ActionExecutionContext"
         },
         "method.warn.params": {
           "type": "object",

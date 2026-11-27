@@ -86,10 +86,7 @@
           "properties": {
             "nodes": {
               "type": "array",
-              "items": {
-                "type": "object",
-                "title": "T"
-              }
+              "items": true
             },
             "selector": {
               "$ref": "../types.ts.json#/$defs/TreeFieldSelector"
@@ -99,10 +96,7 @@
         },
         "method.sort.return": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "title": "T"
-          }
+          "items": true
         }
       }
     }

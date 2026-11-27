@@ -47,8 +47,8 @@
         },
         "resultKind": {
           "enum": [
-            "join",
             "entity",
+            "join",
             "navigation",
             "hierarchy",
             "aggregate"
@@ -60,8 +60,7 @@
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../types.ts.json#/$defs/DataColumn"
           }
         },
         "resultPrimaryKey": {

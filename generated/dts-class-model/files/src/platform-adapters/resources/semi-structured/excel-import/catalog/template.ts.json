@@ -16,11 +16,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "ExcelTemplatePhase",
       "enum": [
-        "complete",
         "selected",
-        "retained",
         "upload",
-        "publication"
+        "publication",
+        "complete",
+        "retained"
       ]
     }
   },

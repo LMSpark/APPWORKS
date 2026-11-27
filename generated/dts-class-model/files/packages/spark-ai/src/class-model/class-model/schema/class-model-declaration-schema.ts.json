@@ -61,6 +61,44 @@
         },
         "method.project.return": {
           "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
+        },
+        "method.registerTypeAliasBody.params": {
+          "type": "object",
+          "properties": {
+            "document": {
+              "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            },
+            "body": {
+              "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registerTypeAliasBody.return": true,
+        "method.typeAliasBody.params": {
+          "type": "object",
+          "properties": {
+            "document": {
+              "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.typeAliasBody.return": {
+          "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchema"
+        },
+        "method.referenceDeclaration.params": {
+          "type": "object",
+          "properties": {
+            "node": {
+              "$ref": "../../../../../spark-json-document/src/schema/schema-types.ts.json#/$defs/JsonSchemaObject"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.referenceDeclaration.return": {
+          "type": "object",
+          "title": "ts.Declaration"
         }
       }
     }
@@ -129,6 +167,70 @@
               "type": {
                 "type": "reference",
                 "name": "JsonSchema"
+              }
+            },
+            {
+              "name": "registerTypeAliasBody",
+              "jsdoc": "在当前投影实例内保留声明与原始 Schema 节点；标准化后的文档没有编译器对象。",
+              "parameters": [
+                {
+                  "name": "document",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonSchemaObject"
+                  }
+                },
+                {
+                  "name": "body",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonSchema"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "typeAliasBody",
+              "jsdoc": "供 bundle 在标准化复制子节点前从源 Schema 生成有声明证明的链接。",
+              "parameters": [
+                {
+                  "name": "document",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonSchemaObject"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "JsonSchema"
+                }
+              }
+            },
+            {
+              "name": "referenceDeclaration",
+              "jsdoc": "返回此占位节点在构建程序中指向的具体声明。",
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonSchemaObject"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "ts.Declaration"
+                }
               }
             }
           ]

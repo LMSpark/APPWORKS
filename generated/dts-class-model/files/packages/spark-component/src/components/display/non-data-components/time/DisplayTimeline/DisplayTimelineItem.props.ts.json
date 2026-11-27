@@ -62,11 +62,11 @@
         },
         "itemType": {
           "enum": [
-            "info",
-            "warning",
+            "primary",
             "success",
+            "warning",
             "danger",
-            "primary"
+            "info"
           ]
         },
         "color": {
@@ -74,8 +74,8 @@
         },
         "itemSize": {
           "enum": [
-            "large",
-            "normal"
+            "normal",
+            "large"
           ]
         },
         "hollow": {

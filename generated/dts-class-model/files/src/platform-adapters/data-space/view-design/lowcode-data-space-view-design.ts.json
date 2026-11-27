@@ -125,9 +125,9 @@
         },
         "saveStatus": {
           "enum": [
-            "unknown",
             "idle",
-            "pending"
+            "pending",
+            "unknown"
           ]
         },
         "submittedText": {
@@ -213,14 +213,83 @@
           "$ref": "../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
         },
         "metadataDataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "fileExecutors": {
           "type": "object",
           "properties": {},
           "additionalProperties": {
-            "$ref": "../../../../packages/spark-data/src/data-table.ts.json#/$defs/DataTableQueryExecutor"
+            "type": "object",
+            "properties": {
+              "derivedQueries": {
+                "const": "bound-view-only"
+              },
+              "parentResults": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "localAggregates": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "saveIndependently": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "invalidateQueryCache": {
+                "type": "object",
+                "title": "() => void"
+              },
+              "releaseQueryCache": {
+                "type": "object",
+                "title": "(page: object) => void"
+              },
+              "queryColumns": {
+                "type": "object",
+                "title": "(view: SparkData.DataView) => readonly SparkData.DataColumn[]"
+              },
+              "executeQuery": {
+                "type": "object",
+                "title": "(view: SparkData.DataView, params: SparkData.QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 21 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+              },
+              "save": {
+                "type": "object",
+                "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<SparkData.TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; recovery?: Readonly<...."
+              },
+              "hasUnconfirmedSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+              },
+              "acknowledgeSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => undefined"
+              },
+              "refreshSavedRowPermissions": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
+              },
+              "appendQueryResult": {
+                "type": "object",
+                "title": "(base: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>, addition: Readonly<...>) =..."
+              },
+              "abandonUnconfirmedSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
+              },
+              "source": {
+                "$ref": "../../../../packages/spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
+              }
+            },
+            "required": [
+              "executeQuery"
+            ],
+            "additionalProperties": false
           }
         },
         "projectionBindings": {
@@ -253,7 +322,77 @@
           "type": "object",
           "properties": {},
           "additionalProperties": {
-            "$ref": "../../../../packages/spark-data/src/data-table.ts.json#/$defs/DataTableQueryExecutor"
+            "type": "object",
+            "properties": {
+              "derivedQueries": {
+                "const": "bound-view-only"
+              },
+              "parentResults": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "localAggregates": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "saveIndependently": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "invalidateQueryCache": {
+                "type": "object",
+                "title": "() => void"
+              },
+              "releaseQueryCache": {
+                "type": "object",
+                "title": "(page: object) => void"
+              },
+              "queryColumns": {
+                "type": "object",
+                "title": "(view: SparkData.DataView) => readonly SparkData.DataColumn[]"
+              },
+              "executeQuery": {
+                "type": "object",
+                "title": "(view: SparkData.DataView, params: SparkData.QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 21 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+              },
+              "save": {
+                "type": "object",
+                "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<SparkData.TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; recovery?: Readonly<...."
+              },
+              "hasUnconfirmedSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+              },
+              "acknowledgeSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => undefined"
+              },
+              "refreshSavedRowPermissions": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
+              },
+              "appendQueryResult": {
+                "type": "object",
+                "title": "(base: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>, addition: Readonly<...>) =..."
+              },
+              "abandonUnconfirmedSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
+              },
+              "source": {
+                "$ref": "../../../../packages/spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
+              }
+            },
+            "required": [
+              "executeQuery"
+            ],
+            "additionalProperties": false
           }
         },
         "modelSources": {
@@ -270,8 +409,7 @@
               "$ref": "#/$defs/PageDataSpaceViewModelInput"
             },
             "metadata": {
-              "type": "object",
-              "title": "SparkData.DataSet"
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -530,8 +668,7 @@
           "type": "string"
         },
         "metadataDataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "design": {
           "$ref": "#/$defs/LowcodeDataSpaceViewDesign"
@@ -565,8 +702,7 @@
           "type": "string"
         },
         "metadataDataSet": {
-          "type": "object",
-          "title": "SparkData.DataSet"
+          "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "viewState": {
           "anyOf": [
@@ -591,11 +727,14 @@
           ]
         },
         "definitionDataSet": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "SparkData.DataSet"
+          "anyOf": [
+            {
+              "$ref": "../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "definitionError": {
           "type": [
@@ -697,8 +836,7 @@
         "method.getViewFields.return": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "SparkData.DataColumn"
+            "$ref": "../../../../packages/spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "method.getViewOutputProjection.params": {

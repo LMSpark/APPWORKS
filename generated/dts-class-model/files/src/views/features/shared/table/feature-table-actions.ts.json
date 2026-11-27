@@ -34,10 +34,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "FeatureTableAction",
       "enum": [
-        "save",
-        "cancel",
         "add",
-        "remove"
+        "remove",
+        "save",
+        "cancel"
       ]
     },
     "FeatureTableToolbarInput": {

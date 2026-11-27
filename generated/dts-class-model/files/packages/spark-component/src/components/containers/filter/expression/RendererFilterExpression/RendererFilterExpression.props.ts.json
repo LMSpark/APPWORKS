@@ -28,7 +28,29 @@
       "type": "array",
       "title": "FilterFunctionTables",
       "items": {
-        "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionTable"
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionTableField"
+            }
+          },
+          "loadFields": {
+            "type": "object",
+            "title": "() => Promise<readonly DataViewFilterFunctionTableField[]>"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
       }
     },
     "FilterColumnTable": {
@@ -61,8 +83,8 @@
         },
         "valueFormat": {
           "enum": [
-            "text",
-            "native"
+            "native",
+            "text"
           ]
         },
         "format": {
@@ -80,15 +102,14 @@
         },
         "displayMode": {
           "enum": [
-            "inline",
-            "box"
+            "box",
+            "inline"
           ]
         },
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "columnDataViewKey": {

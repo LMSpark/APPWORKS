@@ -217,9 +217,9 @@
         },
         "type": {
           "enum": [
+            "text",
             "number",
             "boolean",
-            "text",
             "date",
             "datetime",
             "select"
@@ -389,7 +389,10 @@
       "title": "DataViewFilterFunctionContext",
       "properties": {
         "tables": {
-          "$ref": "../../../../spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props.ts.json#/$defs/FilterFunctionTables"
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewFilterFunctionTable"
+          }
         },
         "relatedFields": {
           "type": "array",
@@ -481,11 +484,11 @@
         "control": {
           "enum": [
             "text",
-            "select",
-            "checkbox",
             "password",
             "textarea",
-            "json"
+            "json",
+            "select",
+            "checkbox"
           ]
         },
         "required": {
@@ -505,7 +508,36 @@
             {
               "type": "array",
               "items": {
-                "$ref": "#/$defs/DataViewFilterValueOption"
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "disabled": {
+                    "enum": [
+                      false,
+                      true
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
               }
             },
             {

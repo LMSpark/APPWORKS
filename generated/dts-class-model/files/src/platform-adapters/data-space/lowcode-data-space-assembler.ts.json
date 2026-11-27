@@ -125,7 +125,77 @@
           "type": "object",
           "properties": {},
           "additionalProperties": {
-            "$ref": "../../../packages/spark-data/src/data-table.ts.json#/$defs/DataTableQueryExecutor"
+            "type": "object",
+            "properties": {
+              "derivedQueries": {
+                "const": "bound-view-only"
+              },
+              "parentResults": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "localAggregates": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "saveIndependently": {
+                "enum": [
+                  false,
+                  true
+                ]
+              },
+              "invalidateQueryCache": {
+                "type": "object",
+                "title": "() => void"
+              },
+              "releaseQueryCache": {
+                "type": "object",
+                "title": "(page: object) => void"
+              },
+              "queryColumns": {
+                "type": "object",
+                "title": "(view: SparkData.DataView) => readonly SparkData.DataColumn[]"
+              },
+              "executeQuery": {
+                "type": "object",
+                "title": "(view: SparkData.DataView, params: SparkData.QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 21 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+              },
+              "save": {
+                "type": "object",
+                "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<SparkData.TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; recovery?: Readonly<...."
+              },
+              "hasUnconfirmedSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+              },
+              "acknowledgeSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => undefined"
+              },
+              "refreshSavedRowPermissions": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
+              },
+              "appendQueryResult": {
+                "type": "object",
+                "title": "(base: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>, addition: Readonly<...>) =..."
+              },
+              "abandonUnconfirmedSave": {
+                "type": "object",
+                "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
+              },
+              "source": {
+                "$ref": "../../../packages/spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
+              }
+            },
+            "required": [
+              "executeQuery"
+            ],
+            "additionalProperties": false
           }
         },
         "commandBindings": {
@@ -150,7 +220,21 @@
           "additionalProperties": {
             "anyOf": [
               {
-                "$ref": "../../../packages/spark-data/src/query/formal-owner/model-binding.ts.json#/$defs/DataSpaceModelReadAdapter"
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "paged-read"
+                  },
+                  "execute": {
+                    "type": "object",
+                    "title": "(input: Readonly<{ view: SparkData.DataView; params: Readonly<SparkData.QueryParams>; read: (params: SparkData.QueryParams) => Promise<SparkData.DataSpaceQueryContext>; }>) => Promise<Readonly<{ result: SparkData.DataSpaceQueryContext; nextPageAvailable?: boolean; }>>"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "execute"
+                ],
+                "additionalProperties": false
               },
               {
                 "type": "object",
@@ -182,8 +266,7 @@
       "title": "LowcodeDataSpaceAssembly",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "diagnostics": {
           "type": "array",

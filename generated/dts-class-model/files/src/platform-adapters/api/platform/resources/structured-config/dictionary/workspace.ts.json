@@ -20,16 +20,15 @@
       "title": "DictionaryWorkspaceInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "dictionaryId": {
           "type": "string"
         },
         "purpose": {
           "enum": [
-            "data",
-            "design"
+            "design",
+            "data"
           ]
         },
         "create": {
@@ -112,7 +111,8 @@
             "values": {
               "type": "array",
               "items": {
-                "$ref": "../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                "type": "object",
+                "title": "Record<string, unknown>"
               }
             }
           },
@@ -127,7 +127,8 @@
             "values": {
               "type": "array",
               "items": {
-                "$ref": "../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                "type": "object",
+                "title": "Record<string, unknown>"
               }
             }
           },

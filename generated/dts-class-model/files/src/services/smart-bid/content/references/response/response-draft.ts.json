@@ -109,8 +109,8 @@
         },
         "kind": {
           "enum": [
-            "MATERIAL",
             "FACT",
+            "MATERIAL",
             "QUALIFICATION"
           ]
         },

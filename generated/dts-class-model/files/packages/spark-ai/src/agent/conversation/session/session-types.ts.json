@@ -35,9 +35,9 @@
       "properties": {
         "level": {
           "enum": [
-            "info",
+            "error",
             "warn",
-            "error"
+            "info"
           ]
         },
         "code": {

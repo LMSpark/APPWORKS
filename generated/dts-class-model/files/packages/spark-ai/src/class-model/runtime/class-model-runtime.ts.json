@@ -45,8 +45,7 @@
           "$ref": "../class-model/types.ts.json#/$defs/ClassModelDocument"
         },
         "knowledge": {
-          "type": "object",
-          "title": "ClassModelKnowledgeProvider"
+          "$ref": "../knowledge/class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeProvider"
         },
         "scriptExecutor": {
           "type": "object",
@@ -127,9 +126,9 @@
       "properties": {
         "level": {
           "enum": [
-            "info",
+            "error",
             "warn",
-            "error"
+            "info"
           ]
         },
         "code": {

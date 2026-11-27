@@ -25,10 +25,7 @@
         "method.systemDefault.params": {
           "type": "object",
           "properties": {
-            "args": {
-              "type": "object",
-              "title": "TArgs"
-            }
+            "args": true
           },
           "additionalProperties": false
         },

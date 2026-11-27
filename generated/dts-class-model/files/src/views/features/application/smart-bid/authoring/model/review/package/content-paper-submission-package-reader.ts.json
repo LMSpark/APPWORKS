@@ -43,7 +43,24 @@
           "additionalProperties": false
         },
         {
-          "$ref": "#/$defs/Source"
+          "type": "object",
+          "properties": {
+            "frozen": {
+              "$ref": "../../../../../../../../services/smart-bid/content/review/paper-submission-package.ts.json#/$defs/Evidence"
+            },
+            "packed": {
+              "$ref": "../../../../../../../../services/smart-bid/content/review/paper-submission-package.ts.json#/$defs/Evidence"
+            },
+            "observed": {
+              "$ref": "../../../../../../../../services/smart-bid/content/review/paper-submission-package.ts.json#/$defs/Evidence"
+            }
+          },
+          "required": [
+            "frozen",
+            "packed",
+            "observed"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -53,16 +70,13 @@
       "title": "Source",
       "properties": {
         "frozen": {
-          "type": "object",
-          "title": "Pick<Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }>, \"projectId\" | \"selectionHash\"> & Readonly<{ members: readonly Readonly<{ position: string; paperRef: string; versionRef: string; copies: number; }>[]; }> & Readonly<{ assertCurrent: () => void; }>"
+          "$ref": "../../../../../../../../services/smart-bid/content/review/paper-submission-package.ts.json#/$defs/Evidence"
         },
         "packed": {
-          "type": "object",
-          "title": "Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }> & Readonly<{ packingRef: string; members: readonly Readonly<{ position: string; paperRef: string; versionRef: string; copies: number; }>[]; }> & Readonly<{ assertCurrent: () => void; }>"
+          "$ref": "../../../../../../../../services/smart-bid/content/review/paper-submission-package.ts.json#/$defs/Evidence"
         },
         "observed": {
-          "type": "object",
-          "title": "Readonly<{ projectId: string; packageId: string; sealRef: string; selectionHash: string; }> & Readonly<{ witnessRef: string; complete: boolean; members: readonly Readonly<{ position: string; paperRef: string; versionRef: string; copies: number; }>[]; }> & Readonly<{ assertCurrent: () => void; }>"
+          "$ref": "../../../../../../../../services/smart-bid/content/review/paper-submission-package.ts.json#/$defs/Evidence"
         }
       },
       "required": [

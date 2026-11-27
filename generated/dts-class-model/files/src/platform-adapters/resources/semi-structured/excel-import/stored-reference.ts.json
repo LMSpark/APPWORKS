@@ -69,8 +69,7 @@
           ]
         },
         "source": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "databaseId": {
           "type": "string"

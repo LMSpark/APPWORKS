@@ -49,8 +49,7 @@
       "title": "ApplicationManagerRecord",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "appId": {
           "type": "string"
@@ -104,8 +103,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "appType": {
               "type": "string"
@@ -121,8 +119,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "appId": {
               "type": "string"

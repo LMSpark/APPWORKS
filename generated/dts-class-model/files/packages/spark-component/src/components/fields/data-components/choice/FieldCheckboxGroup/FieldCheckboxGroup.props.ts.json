@@ -63,17 +63,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -110,10 +110,36 @@
           ]
         },
         "modelValue": {
-          "$ref": "#/$defs/CheckboxGroupMultiValue"
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
         },
         "value": {
-          "$ref": "#/$defs/CheckboxGroupMultiValue"
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
         },
         "field": {
           "type": "string"
@@ -149,15 +175,15 @@
         "titleAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "valueAlign": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "headerCellClassName": {
@@ -196,8 +222,7 @@
           "type": "string"
         },
         "dataSource": {
-          "type": "object",
-          "title": "import(\"../../../../../../../spark-data/src\").DataView"
+          "$ref": "../../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "optionDataViewKey": {
           "type": "string"
@@ -213,17 +238,17 @@
         },
         "optionDataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"

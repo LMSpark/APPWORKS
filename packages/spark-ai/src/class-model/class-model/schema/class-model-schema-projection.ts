@@ -120,17 +120,16 @@ function hydrateEnumModel(
   model: Extract<DtsTypeDeclarationModel, { declarationKind: 'enum' }>,
   jsonSchema: JsonSchemaObject,
 ): DtsTypeDeclarationModel {
-  const enumValues = Array.isArray(jsonSchema.enum)
-    ? jsonSchema.enum.filter(isJsonLiteralValue)
-    : []
-  const singleConst = isJsonLiteralValue(jsonSchema.const) ? jsonSchema.const : undefined
+  const enumValues = Array.isArray(jsonSchema.enum) ? jsonSchema.enum
+    : isJsonLiteralValue(jsonSchema.const) ? [jsonSchema.const] : []
+  // 有未知成员时持久化值数组可能更短；索引只有在一一对应时才代表正式成员。
+  if (enumValues.length !== model.enumDecl.members.length || !enumValues.every(isJsonLiteralValue)) return model
   return {
     ...model,
     enumDecl: {
       members: model.enumDecl.members.map((attribute, index) => {
         if (attribute.schema !== undefined) return attribute
-        const fromEnum = enumValues[index]
-        const constValue = fromEnum ?? (index === 0 ? singleConst : undefined)
+        const constValue = enumValues[index]
         if (constValue === undefined) return attribute
         return { ...attribute, schema: { const: constValue } }
       }),

@@ -20,8 +20,7 @@
       "title": "Input",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "workflowId": {
           "type": "string"
@@ -200,8 +199,7 @@
                   "type": "object",
                   "properties": {
                     "status": {
-                      "type": "object",
-                      "title": "import(\"@/platform-adapters/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus"
+                      "$ref": "../../../../data-space/model-source/model/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateStatus"
                     },
                     "pending": {
                       "type": "boolean"
@@ -231,8 +229,7 @@
                           "type": "object",
                           "properties": {
                             "source": {
-                              "type": "object",
-                              "title": "import(\"@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource"
+                              "$ref": "../../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSource"
                             },
                             "model": {
                               "type": "object",
@@ -281,8 +278,7 @@
                             "fields": {
                               "type": "array",
                               "items": {
-                                "type": "object",
-                                "title": "import(\"@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField"
+                                "$ref": "../../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceField"
                               }
                             }
                           },
@@ -390,8 +386,7 @@
                   "type": "object",
                   "properties": {
                     "status": {
-                      "type": "object",
-                      "title": "import(\"@/platform-adapters/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus"
+                      "$ref": "../../../../data-space/model-source/model/lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateStatus"
                     },
                     "pending": {
                       "type": "boolean"
@@ -670,7 +665,8 @@
                             "type": "boolean"
                           },
                           "patch": {
-                            "$ref": "../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                            "type": "object",
+                            "title": "Record<string, unknown>"
                           }
                         },
                         "required": [
@@ -692,8 +688,7 @@
                       "type": "object",
                       "properties": {
                         "source": {
-                          "type": "object",
-                          "title": "import(\"@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource"
+                          "$ref": "../../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSource"
                         },
                         "model": {
                           "type": "object",
@@ -742,8 +737,7 @@
                         "fields": {
                           "type": "array",
                           "items": {
-                            "type": "object",
-                            "title": "import(\"@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField"
+                            "$ref": "../../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceField"
                           }
                         }
                       },

@@ -29,9 +29,9 @@
         },
         "source": {
           "enum": [
+            "navigation",
             "toolbar",
             "user-menu",
-            "navigation",
             "app-shell"
           ]
         }

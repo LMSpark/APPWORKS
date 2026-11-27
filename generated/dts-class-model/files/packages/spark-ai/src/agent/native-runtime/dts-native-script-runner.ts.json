@@ -27,8 +27,7 @@
           "type": "string"
         },
         "host": {
-          "type": "object",
-          "title": "AiAgentRuntimeHostContext"
+          "$ref": "../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentRuntimeHostContext"
         },
         "script": {
           "type": "string"

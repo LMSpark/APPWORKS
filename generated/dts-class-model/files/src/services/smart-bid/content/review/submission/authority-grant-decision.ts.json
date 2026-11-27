@@ -149,7 +149,88 @@
       "title": "Prepared",
       "properties": {
         "record": {
-          "$ref": "authority-grant-coverage.ts.json#/$defs/Grant"
+          "type": "object",
+          "properties": {
+            "enterpriseId": {
+              "type": "string"
+            },
+            "grantId": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "expectedVersion": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "intent": {
+              "enum": [
+                "REGISTER",
+                "CHANGE",
+                "REVOKE"
+              ]
+            },
+            "decisionRef": {
+              "type": "string"
+            },
+            "decisionMakerId": {
+              "type": "string"
+            },
+            "decisionAuthorityRef": {
+              "type": "string"
+            },
+            "representativeId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "actions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "objectRefs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "expiresAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enterpriseId",
+            "grantId",
+            "requestKey",
+            "expectedVersion",
+            "intent",
+            "decisionRef",
+            "decisionMakerId",
+            "decisionAuthorityRef",
+            "representativeId",
+            "projectId",
+            "actions",
+            "objectRefs",
+            "effectiveAt",
+            "expiresAt",
+            "knownAt"
+          ],
+          "additionalProperties": false
         },
         "requestDigest": {
           "type": "string"

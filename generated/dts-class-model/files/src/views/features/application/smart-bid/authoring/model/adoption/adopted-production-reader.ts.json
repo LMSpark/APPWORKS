@@ -47,11 +47,14 @@
           "additionalProperties": false
         },
         {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "Observation"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../../../../services/smart-bid/content/adoption/adoption-recovery.ts.json#/$defs/Observation"
+            }
+          ]
         },
         {
           "anyOf": [
@@ -201,12 +204,10 @@
           "additionalProperties": false
         },
         {
-          "type": "object",
-          "title": "Version"
+          "$ref": "../../../../../../../services/smart-bid/content/review/production/production-request.ts.json#/$defs/Version"
         },
         {
-          "type": "object",
-          "title": "Evidence"
+          "$ref": "../../../../../../../services/smart-bid/content/review/production/production-request.ts.json#/$defs/Evidence"
         }
       ]
     }

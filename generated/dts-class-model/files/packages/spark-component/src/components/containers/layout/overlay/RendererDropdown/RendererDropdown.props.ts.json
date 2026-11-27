@@ -65,9 +65,9 @@
         },
         "trigger": {
           "enum": [
+            "hover",
             "click",
-            "contextmenu",
-            "hover"
+            "contextmenu"
           ]
         },
         "hideOnClick": {

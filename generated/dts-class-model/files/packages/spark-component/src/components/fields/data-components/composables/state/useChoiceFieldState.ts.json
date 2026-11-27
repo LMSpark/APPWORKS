@@ -38,10 +38,7 @@
         "method.emitUpdate.params": {
           "type": "object",
           "properties": {
-            "value": {
-              "type": "object",
-              "title": "TValue"
-            }
+            "value": true
           },
           "additionalProperties": false
         },
@@ -53,10 +50,7 @@
           },
           "additionalProperties": false
         },
-        "method.coerce.return": {
-          "type": "object",
-          "title": "TValue"
-        }
+        "method.coerce.return": true
       }
     }
   },

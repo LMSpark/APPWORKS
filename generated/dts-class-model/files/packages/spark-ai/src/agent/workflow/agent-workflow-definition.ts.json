@@ -95,8 +95,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "AgentWorkflowDefinitionValidationStatus",
       "enum": [
-        "warning",
         "valid",
+        "warning",
         "invalid"
       ]
     },
@@ -827,7 +827,34 @@
           "const": "start"
         },
         "data": {
-          "$ref": "#/$defs/AgentWorkflowStartNodeData"
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "start"
+            },
+            "title": {
+              "type": "string"
+            },
+            "inputs": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "projection": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "validation": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "state": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/AgentWorkflowCapability"
+              }
+            }
+          },
+          "additionalProperties": false
         },
         "position": {
           "type": "object",
@@ -865,7 +892,40 @@
           "const": "output"
         },
         "data": {
-          "$ref": "#/$defs/AgentWorkflowOutputNodeData"
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "output"
+            },
+            "title": {
+              "type": "string"
+            },
+            "outputs": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "upstreamValidation": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "validation": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "state": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "result": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/AgentWorkflowCapability"
+              }
+            }
+          },
+          "required": [
+            "outputs"
+          ],
+          "additionalProperties": false
         },
         "position": {
           "type": "object",
@@ -903,7 +963,52 @@
           "const": "node"
         },
         "data": {
-          "$ref": "#/$defs/AgentWorkflowBusinessNodeData"
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "node"
+            },
+            "title": {
+              "type": "string"
+            },
+            "models": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/AgentWorkflowModelContext"
+              }
+            },
+            "inputs": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "outputs": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "llm": {
+              "$ref": "#/$defs/AgentWorkflowLlmWork"
+            },
+            "validation": {
+              "$ref": "#/$defs/AgentWorkflowNodeValidation"
+            },
+            "state": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "result": {
+              "$ref": "#/$defs/AgentWorkflowJsonRecord"
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/AgentWorkflowCapability"
+              }
+            }
+          },
+          "required": [
+            "models",
+            "inputs",
+            "outputs",
+            "llm"
+          ],
+          "additionalProperties": false
         },
         "position": {
           "type": "object",

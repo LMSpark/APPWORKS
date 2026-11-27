@@ -191,7 +191,8 @@
                   "type": "string"
                 },
                 "data": {
-                  "$ref": "content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 }
               },
               "required": [
@@ -363,7 +364,8 @@
               "type": "string"
             },
             "data": {
-              "$ref": "content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false

@@ -175,9 +175,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "FieldKind",
       "enum": [
-        "number",
         "text",
         "integer",
+        "number",
         "bit"
       ]
     },
@@ -233,8 +233,7 @@
       "title": "DimensionSourceSave",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targets": {
           "type": "array",

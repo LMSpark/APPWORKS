@@ -49,11 +49,14 @@
               ]
             },
             "preview": {
-              "type": [
-                "null",
-                "object"
-              ],
-              "title": "Candidate"
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "../../../../../../../platform-adapters/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json#/$defs/Candidate"
+                }
+              ]
             },
             "fork": {
               "type": [
@@ -163,11 +166,14 @@
               ]
             },
             "preview": {
-              "type": [
-                "null",
-                "object"
-              ],
-              "title": "Preview"
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "../../../../../../../platform-adapters/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json#/$defs/Preview"
+                }
+              ]
             },
             "verification": {
               "type": "array",
@@ -232,14 +238,14 @@
       "properties": {
         "kind": {
           "enum": [
-            "name",
             "search",
             "result",
-            "contract",
-            "parameter",
+            "name",
             "mapping",
             "addition",
-            "removal"
+            "removal",
+            "parameter",
+            "contract"
           ]
         },
         "id": {
@@ -325,8 +331,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "changed": {
               "type": "object",
@@ -354,8 +359,7 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "object",
-              "title": "import(\"@/platform-adapters/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceType"
+              "$ref": "../../../../../../../platform-adapters/data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceType"
             },
             "id": {
               "type": "string"

@@ -101,7 +101,20 @@
       "title": "DataTableQueryBindingOptions",
       "properties": {
         "resource": {
-          "$ref": "data-view.ts.json#/$defs/DataViewResourceIdentity"
+          "type": "object",
+          "properties": {
+            "resourceType": {
+              "type": "string"
+            },
+            "resourceId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "resourceType",
+            "resourceId"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -384,7 +397,8 @@
           }
         },
         "views": {
-          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, DataView>"
         },
         "viewList": {
           "type": "array",
@@ -646,7 +660,8 @@
                   "$ref": "types.ts.json#/$defs/TableMetadata"
                 },
                 {
-                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 },
                 {
                   "type": "string"

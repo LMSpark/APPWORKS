@@ -268,10 +268,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@306065": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -323,8 +319,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@306065"
+                "at"
               ],
               "additionalProperties": false
             },

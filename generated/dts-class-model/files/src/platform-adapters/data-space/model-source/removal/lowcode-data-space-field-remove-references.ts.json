@@ -24,8 +24,8 @@
       "properties": {
         "fieldPurpose": {
           "enum": [
-            "inputParams",
-            "dataModel"
+            "dataModel",
+            "inputParams"
           ]
         },
         "modelFilterChange": {
@@ -114,8 +114,8 @@
       "properties": {
         "fieldPurpose": {
           "enum": [
-            "inputParams",
-            "dataModel"
+            "dataModel",
+            "inputParams"
           ]
         },
         "modelFilterChange": {

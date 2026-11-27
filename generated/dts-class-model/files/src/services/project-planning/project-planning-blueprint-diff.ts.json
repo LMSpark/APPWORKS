@@ -43,9 +43,9 @@
           "enum": [
             "create",
             "update",
-            "delete",
             "move",
-            "reorder"
+            "reorder",
+            "delete"
           ]
         },
         "nodeId": {

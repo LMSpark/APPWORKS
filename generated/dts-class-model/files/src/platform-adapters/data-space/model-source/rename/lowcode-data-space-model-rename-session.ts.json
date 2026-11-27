@@ -75,11 +75,11 @@
       "title": "ModelRenameStatus",
       "enum": [
         "idle",
-        "unknown",
-        "readback",
         "previewing",
         "ready",
         "saving",
+        "unknown",
+        "readback",
         "different",
         "configuration"
       ]
@@ -105,18 +105,24 @@
           "type": "string"
         },
         "file": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ModelRenameFilePlan"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/ModelRenameFilePlan"
+            }
+          ]
         },
         "capture": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataSpaceDefinitionCaptureBatch"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+            }
+          ]
         },
         "captureSignatures": {
           "type": "array",
@@ -235,8 +241,7 @@
       "title": "ModelRenameHost",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -285,8 +290,7 @@
       "title": "ModelRenameHostInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"

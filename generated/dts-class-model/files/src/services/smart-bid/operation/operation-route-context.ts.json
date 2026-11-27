@@ -96,9 +96,9 @@
         "state": {
           "enum": [
             "ALLOWED",
-            "DENIED",
             "MISSING",
-            "TRIMMED"
+            "TRIMMED",
+            "DENIED"
           ]
         }
       },

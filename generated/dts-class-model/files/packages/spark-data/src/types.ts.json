@@ -107,10 +107,7 @@
         "method.on.params": {
           "type": "object",
           "properties": {
-            "event": {
-              "type": "object",
-              "title": "K"
-            },
+            "event": true,
             "handler": {
               "type": "object",
               "title": "(...args: TEventMap[K]) => void"
@@ -122,10 +119,7 @@
         "method.off.params": {
           "type": "object",
           "properties": {
-            "event": {
-              "type": "object",
-              "title": "K"
-            },
+            "event": true,
             "handler": {
               "type": "object",
               "title": "(...args: TEventMap[K]) => void"
@@ -137,10 +131,7 @@
         "method.emit.params": {
           "type": "object",
           "properties": {
-            "event": {
-              "type": "object",
-              "title": "K"
-            },
+            "event": true,
             "args": true
           },
           "additionalProperties": false
@@ -149,10 +140,7 @@
         "method.removeAllListeners.params": {
           "type": "object",
           "properties": {
-            "event": {
-              "type": "object",
-              "title": "K"
-            }
+            "event": true
           },
           "additionalProperties": false
         },
@@ -160,10 +148,7 @@
         "method.listenerCount.params": {
           "type": "object",
           "properties": {
-            "event": {
-              "type": "object",
-              "title": "K"
-            }
+            "event": true
           },
           "additionalProperties": false
         },
@@ -438,10 +423,6 @@
             "at": {
               "type": "object",
               "title": "(index: number) => string | undefined"
-            },
-            "__@iterator@305685": {
-              "type": "object",
-              "title": "() => StringIterator<string>"
             }
           },
           "required": [
@@ -493,8 +474,7 @@
             "trimRight",
             "matchAll",
             "replaceAll",
-            "at",
-            "__@iterator@305685"
+            "at"
           ],
           "additionalProperties": false
         }
@@ -1037,10 +1017,6 @@
             "at": {
               "type": "object",
               "title": "(index: number) => string | undefined"
-            },
-            "__@iterator@305685": {
-              "type": "object",
-              "title": "() => StringIterator<string>"
             }
           },
           "required": [
@@ -1092,8 +1068,7 @@
             "trimRight",
             "matchAll",
             "replaceAll",
-            "at",
-            "__@iterator@305685"
+            "at"
           ],
           "additionalProperties": false
         },
@@ -1318,10 +1293,6 @@
             "at": {
               "type": "object",
               "title": "(index: number) => string | undefined"
-            },
-            "__@iterator@305685": {
-              "type": "object",
-              "title": "() => StringIterator<string>"
             }
           },
           "required": [
@@ -1373,8 +1344,7 @@
             "trimRight",
             "matchAll",
             "replaceAll",
-            "at",
-            "__@iterator@305685"
+            "at"
           ],
           "additionalProperties": false
         },
@@ -1611,10 +1581,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@305685": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -1666,8 +1632,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@305685"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -1896,10 +1861,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@305685": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -1951,8 +1912,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@305685"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -2887,10 +2847,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@305685": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -2942,8 +2898,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@305685"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -3172,10 +3127,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@305685": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -3227,8 +3178,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@305685"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -3331,10 +3281,10 @@
       "title": "AggregateType",
       "enum": [
         "sum",
+        "count",
         "avg",
         "min",
         "max",
-        "count",
         "join"
       ]
     },
@@ -3533,7 +3483,33 @@
           "type": "object",
           "properties": {
             "tree": {
-              "$ref": "query/formal-table-contract.ts.json#/$defs/DataSpaceQueryTree"
+              "type": "object",
+              "properties": {
+                "keyField": {
+                  "type": "string"
+                },
+                "parentField": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "hasChildrenField": {
+                  "type": "string"
+                },
+                "mode": {
+                  "enum": [
+                    "child",
+                    "parent"
+                  ]
+                }
+              },
+              "required": [
+                "keyField",
+                "parentField",
+                "nodeId"
+              ],
+              "additionalProperties": false
             },
             "children": {
               "type": "array",
@@ -3546,6 +3522,12 @@
               "items": {
                 "type": "string"
               }
+            },
+            "pagination": {
+              "enum": [
+                "paged",
+                "none"
+              ]
             },
             "parentResult": {
               "type": "object",
@@ -3565,12 +3547,6 @@
             },
             "outputType": {
               "type": "string"
-            },
-            "pagination": {
-              "enum": [
-                "none",
-                "paged"
-              ]
             },
             "allPages": {
               "enum": [
@@ -3595,8 +3571,8 @@
             },
             "cacheType": {
               "enum": [
-                "page",
                 "none",
+                "page",
                 "browser"
               ]
             },
@@ -3624,20 +3600,134 @@
         "filterExpression": {
           "anyOf": [
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "operator": {
+                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                      }
+                    },
+                    {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "operator"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+              "type": "object",
+              "properties": {
+                "logic": {
+                  "enum": [
+                    "and",
+                    "or"
+                  ]
+                },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                  }
+                }
+              },
+              "required": [
+                "logic",
+                "filters"
+              ],
+              "additionalProperties": false
             }
           ]
         },
         "scopeFilter": {
           "anyOf": [
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "operator": {
+                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                      }
+                    },
+                    {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "operator"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+              "type": "object",
+              "properties": {
+                "logic": {
+                  "enum": [
+                    "and",
+                    "or"
+                  ]
+                },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                  }
+                }
+              },
+              "required": [
+                "logic",
+                "filters"
+              ],
+              "additionalProperties": false
             }
           ]
         },
@@ -3751,7 +3841,26 @@
               "type": "string"
             },
             {
-              "$ref": "core/data-field-member.ts.json#/$defs/DataFieldMemberRef"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "path": {
+                  "$ref": "core/data-field-member.ts.json#/$defs/DataFieldMemberPath"
+                },
+                "format": {
+                  "enum": [
+                    "text",
+                    "native"
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "path"
+              ],
+              "additionalProperties": false
             }
           ]
         },
@@ -3761,7 +3870,26 @@
               "type": "string"
             },
             {
-              "$ref": "core/data-field-member.ts.json#/$defs/DataFieldMemberRef"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "path": {
+                  "$ref": "core/data-field-member.ts.json#/$defs/DataFieldMemberPath"
+                },
+                "format": {
+                  "enum": [
+                    "text",
+                    "native"
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "path"
+              ],
+              "additionalProperties": false
             }
           ]
         },
@@ -3811,8 +3939,8 @@
         },
         "serverPaginationMode": {
           "enum": [
-            "flat",
-            "root"
+            "root",
+            "flat"
           ]
         },
         "filterMode": {
@@ -4084,10 +4212,67 @@
         "filterExpression": {
           "anyOf": [
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "operator": {
+                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                      }
+                    },
+                    {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "operator"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+              "type": "object",
+              "properties": {
+                "logic": {
+                  "enum": [
+                    "and",
+                    "or"
+                  ]
+                },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                  }
+                }
+              },
+              "required": [
+                "logic",
+                "filters"
+              ],
+              "additionalProperties": false
             }
           ]
         },
@@ -4128,9 +4313,9 @@
         },
         "operator": {
           "enum": [
-            "contains",
+            "eq",
             "in",
-            "eq"
+            "contains"
           ]
         },
         "omitEmpty": {
@@ -4481,10 +4666,10 @@
       "properties": {
         "status": {
           "enum": [
-            "error",
             "idle",
             "loading",
-            "ready"
+            "ready",
+            "error"
           ]
         },
         "options": {
@@ -4495,9 +4680,9 @@
         },
         "valueStatus": {
           "enum": [
+            "empty",
             "valid",
             "invalid",
-            "empty",
             "unverified"
           ]
         },
@@ -4819,14 +5004,14 @@
             "null",
             "object"
           ],
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "computedAggregateError": {
           "type": [
             "null",
             "object"
           ],
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "aggregateResult": {
           "type": "object",
@@ -5610,7 +5795,8 @@
           "additionalProperties": false
         },
         "method.getRequestTemplateParams.return": {
-          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.toJson.params": {
           "type": "object",
@@ -6171,10 +6357,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@305685": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -6226,8 +6408,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@305685"
+                "at"
               ],
               "additionalProperties": false
             },
@@ -6253,9 +6434,9 @@
         },
         "owner": {
           "enum": [
-            "command",
-            "file",
             "database",
+            "file",
+            "command",
             "pagedata"
           ]
         },
@@ -6267,15 +6448,15 @@
         },
         "state": {
           "enum": [
+            "pending",
             "applied",
             "not-applied",
-            "unknown",
-            "pending"
+            "unknown"
           ]
         },
         "originalError": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         }
       },
       "required": [
@@ -6306,10 +6487,10 @@
         },
         "state": {
           "enum": [
-            "not-applied",
-            "unknown",
+            "pending",
             "completed",
-            "pending"
+            "not-applied",
+            "unknown"
           ]
         },
         "views": {
@@ -6331,11 +6512,11 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "DataSetSaveRecoverableAction",
       "enum": [
-        "none",
         "verify-original-receipt",
         "continue-phase",
         "retain-draft",
-        "discard-not-applied"
+        "discard-not-applied",
+        "none"
       ]
     },
     "DataSetSaveJournal": {
@@ -6360,7 +6541,7 @@
         },
         "originalError": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "currentRecoverableAction": {
           "$ref": "#/$defs/DataSetSaveRecoverableAction"
@@ -6440,18 +6621,18 @@
         },
         "settlement": {
           "enum": [
+            "confirmed",
+            "partial",
             "not-applied",
             "unknown",
-            "pending",
-            "confirmed",
-            "partial"
+            "pending"
           ]
         },
         "draftCleanup": {
           "enum": [
-            "retained",
             "untouched",
-            "discarded"
+            "discarded",
+            "retained"
           ]
         },
         "journalReleased": {
@@ -6462,11 +6643,11 @@
         },
         "cleanupError": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "releaseError": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "readbacks": {
           "type": "array",
@@ -6482,7 +6663,7 @@
               "data": true,
               "error": {
                 "type": "object",
-                "title": "ErrorDefault"
+                "title": "Error"
               },
               "message": {
                 "type": "string"
@@ -6496,8 +6677,8 @@
               "refreshStatus": {
                 "enum": [
                   "read",
-                  "failed",
                   "deferred",
+                  "failed",
                   "invalidated"
                 ]
               },
@@ -6627,7 +6808,7 @@
       "properties": {
         "followUpError": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "viewCount": {
           "type": "number"
@@ -6706,7 +6887,7 @@
         "data": true,
         "error": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "message": {
           "type": "string"
@@ -6737,7 +6918,7 @@
         "data": true,
         "error": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "message": {
           "type": "string"
@@ -6751,8 +6932,8 @@
         "refreshStatus": {
           "enum": [
             "read",
-            "failed",
             "deferred",
+            "failed",
             "invalidated"
           ]
         }
@@ -6780,10 +6961,67 @@
         "filter": {
           "anyOf": [
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "operator": {
+                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                      }
+                    },
+                    {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "operator"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+              "type": "object",
+              "properties": {
+                "logic": {
+                  "enum": [
+                    "and",
+                    "or"
+                  ]
+                },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                  }
+                }
+              },
+              "required": [
+                "logic",
+                "filters"
+              ],
+              "additionalProperties": false
             }
           ]
         },
@@ -6823,8 +7061,8 @@
         },
         "pagination": {
           "enum": [
-            "none",
-            "paged"
+            "paged",
+            "none"
           ]
         },
         "page": {
@@ -6864,7 +7102,33 @@
           ]
         },
         "tree": {
-          "$ref": "query/formal-table-contract.ts.json#/$defs/DataSpaceQueryTree"
+          "type": "object",
+          "properties": {
+            "keyField": {
+              "type": "string"
+            },
+            "parentField": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "hasChildrenField": {
+              "type": "string"
+            },
+            "mode": {
+              "enum": [
+                "child",
+                "parent"
+              ]
+            }
+          },
+          "required": [
+            "keyField",
+            "parentField",
+            "nodeId"
+          ],
+          "additionalProperties": false
         },
         "sort": {
           "type": "string"
@@ -6872,10 +7136,67 @@
         "filter": {
           "anyOf": [
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "operator": {
+                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                      }
+                    },
+                    {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "operator"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+              "type": "object",
+              "properties": {
+                "logic": {
+                  "enum": [
+                    "and",
+                    "or"
+                  ]
+                },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                  }
+                }
+              },
+              "required": [
+                "logic",
+                "filters"
+              ],
+              "additionalProperties": false
             }
           ]
         },
@@ -6971,7 +7292,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "title": "ErrorDefault"
+            "title": "Error"
           }
         },
         "totalTime": {

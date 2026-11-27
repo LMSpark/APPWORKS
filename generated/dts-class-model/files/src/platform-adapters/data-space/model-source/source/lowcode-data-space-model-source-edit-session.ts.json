@@ -49,8 +49,7 @@
       "title": "Prepared",
       "properties": {
         "source": {
-          "type": "object",
-          "title": "PageDataSpaceModelSource"
+          "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSource"
         },
         "model": {
           "type": "object",
@@ -227,7 +226,65 @@
       "properties": {
         "after": {
           "type": "object",
-          "title": "FormalModel"
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "metaName": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "sourceName": {
+              "type": "string"
+            },
+            "sourceId": {
+              "type": "string"
+            },
+            "sourceType": {
+              "type": "string"
+            },
+            "primaryKey": {
+              "type": "string"
+            },
+            "businessMain": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/query/formal-owner/formal-model.ts.json#/$defs/FormalModelField"
+              }
+            },
+            "raw": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            },
+            "sourceInputBindings": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/query/formal-owner/formal-model.ts.json#/$defs/DataSpaceSourceInputBinding"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "metaName",
+            "name",
+            "sourceName",
+            "sourceId",
+            "sourceType",
+            "primaryKey",
+            "businessMain",
+            "fields",
+            "raw"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,
@@ -766,12 +823,12 @@
       "title": "ModelSourceEditStatus",
       "enum": [
         "idle",
-        "unsubmitted",
-        "unknown",
-        "readback",
         "previewing",
         "ready",
         "saving",
+        "unknown",
+        "readback",
+        "unsubmitted",
         "different",
         "configuration"
       ]
@@ -806,9 +863,9 @@
           "properties": {
             "requestType": {
               "enum": [
-                "delete",
                 "add",
-                "edit"
+                "edit",
+                "delete"
               ]
             },
             "prepareContract": {
@@ -938,11 +995,14 @@
           "type": "number"
         },
         "preview": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "Preview"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/Preview"
+            }
+          ]
         },
         "baseline": {
           "type": "string"
@@ -1005,18 +1065,24 @@
           "title": "Set<string>"
         },
         "contractPlan": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "SourceContractPlan"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/SourceContractPlan"
+            }
+          ]
         },
         "capture": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataSpaceDefinitionCaptureBatch"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+            }
+          ]
         },
         "captureBaseline": {
           "type": "array",
@@ -1024,7 +1090,47 @@
             "type": "object",
             "properties": {
               "target": {
-                "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCapture"
+                "type": "object",
+                "properties": {
+                  "tableName": {
+                    "type": "string"
+                  },
+                  "viewId": {
+                    "type": "string"
+                  },
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "view": {
+                    "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                  },
+                  "queryContext": {
+                    "type": "string"
+                  },
+                  "createdCount": {
+                    "type": "number"
+                  },
+                  "savedCount": {
+                    "type": "number"
+                  },
+                  "deletedCount": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "tableName",
+                  "viewId",
+                  "ids",
+                  "view",
+                  "queryContext",
+                  "createdCount",
+                  "savedCount",
+                  "deletedCount"
+                ],
+                "additionalProperties": false
               },
               "signature": {
                 "type": "string"
@@ -1114,8 +1220,7 @@
       "title": "ModelSourceEditHost",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -1124,7 +1229,7 @@
           "type": "string"
         },
         "sources": {
-          "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"
+          "$ref": "#/$defs/Reader"
         },
         "lifecycle": {
           "$ref": "#/$defs/ModelSourceEditLifecycle"
@@ -1191,8 +1296,7 @@
       "title": "ModelSourceEditHostInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -1201,7 +1305,7 @@
           "type": "string"
         },
         "sources": {
-          "$ref": "../lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"
+          "$ref": "#/$defs/Reader"
         },
         "lifecycle": {
           "$ref": "#/$defs/ModelSourceEditLifecycle"

@@ -135,8 +135,7 @@
           "additionalProperties": false
         },
         "method.getTree.return": {
-          "type": "object",
-          "title": "SparkNodeTreeModel"
+          "$ref": "../../../spark-data/src/node-tree/spark-node-tree.ts.json#/$defs/SparkNodeTree"
         }
       }
     },
@@ -161,8 +160,7 @@
           "type": "boolean"
         },
         "nodeTree": {
-          "type": "object",
-          "title": "SparkNodeTreeModel"
+          "$ref": "../../../spark-data/src/node-tree/spark-node-tree.ts.json#/$defs/SparkNodeTree"
         }
       },
       "additionalProperties": false,
@@ -285,8 +283,7 @@
           "additionalProperties": false
         },
         "method.getNodeTree.return": {
-          "type": "object",
-          "title": "SparkNodeTreeModel"
+          "$ref": "../../../spark-data/src/node-tree/spark-node-tree.ts.json#/$defs/SparkNodeTree"
         },
         "method.editNodeTree.params": {
           "type": "object",

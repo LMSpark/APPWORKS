@@ -29,15 +29,13 @@
         "fields": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Field"
+            "$ref": "../../../../../../../services/smart-bid/content/references/commercial/commitment-approval-coverage.ts.json#/$defs/Field"
           }
         },
         "approvals": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Approval"
+            "$ref": "../../../../../../../services/smart-bid/content/references/commercial/commitment-approval-coverage.ts.json#/$defs/Approval"
           }
         },
         "assertCurrent": {

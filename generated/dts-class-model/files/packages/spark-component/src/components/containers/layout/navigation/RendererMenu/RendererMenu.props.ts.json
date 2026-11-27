@@ -127,8 +127,8 @@
         },
         "menuTrigger": {
           "enum": [
-            "click",
-            "hover"
+            "hover",
+            "click"
           ]
         },
         "showTimeout": {

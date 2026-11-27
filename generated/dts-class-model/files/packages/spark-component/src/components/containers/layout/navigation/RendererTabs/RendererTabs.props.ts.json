@@ -48,8 +48,8 @@
         },
         "toolbarPlacement": {
           "enum": [
-            "header",
-            "outside"
+            "outside",
+            "header"
           ]
         },
         "modelValue": {

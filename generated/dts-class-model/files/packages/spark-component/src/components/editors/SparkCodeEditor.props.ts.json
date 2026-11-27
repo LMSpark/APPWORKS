@@ -44,8 +44,8 @@
         },
         "language": {
           "enum": [
-            "css",
-            "javascript"
+            "javascript",
+            "css"
           ]
         },
         "readOnly": {

@@ -27,8 +27,8 @@
         "permAction": {
           "enum": [
             "create",
-            "delete",
             "edit",
+            "delete",
             "create-child"
           ]
         },

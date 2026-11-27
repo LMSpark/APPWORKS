@@ -20,11 +20,14 @@
       "title": "SparkRuntimeOwner",
       "properties": {
         "parent": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "SparkRuntimeOwner"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/SparkRuntimeOwner"
+            }
+          ]
         },
         "pageRoot": true
       },

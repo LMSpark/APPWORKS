@@ -69,7 +69,8 @@
           "type": "object",
           "properties": {
             "pk": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -111,7 +112,8 @@
               "type": "object",
               "properties": {
                 "serverPk": {
-                  "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 },
                 "applyRecord": {
                   "type": "object",
@@ -141,7 +143,8 @@
               ]
             },
             "serverPk": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -209,7 +212,8 @@
           "type": "object",
           "properties": {
             "file": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+              "type": "object",
+              "title": "File"
             }
           },
           "additionalProperties": false

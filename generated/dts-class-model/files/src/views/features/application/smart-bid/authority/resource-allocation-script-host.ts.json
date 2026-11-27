@@ -159,7 +159,7 @@
       "title": "Release",
       "properties": {
         "allocation": {
-          "$ref": "#/$defs/Allocation"
+          "$ref": "../../../../../services/smart-bid/content/references/resource-use/resource-allocation-release.ts.json#/$defs/Allocation"
         },
         "obligationRefs": {
           "type": "array",

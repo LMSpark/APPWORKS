@@ -59,9 +59,9 @@
         },
         "status": {
           "enum": [
-            "WAIVED",
             "OPEN",
             "RESOLVED",
+            "WAIVED",
             "STALE"
           ]
         }

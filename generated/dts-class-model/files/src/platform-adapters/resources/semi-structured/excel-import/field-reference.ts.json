@@ -33,8 +33,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "definitionViewId": {
               "enum": [
@@ -55,8 +54,7 @@
           "type": "object",
           "properties": {
             "source": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "definitionViewId": {
               "enum": [
@@ -128,8 +126,7 @@
       "title": "Target",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "nodeId": {
           "type": "string"
@@ -156,8 +153,7 @@
           "additionalProperties": false
         },
         "method.resolveSource.return": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         }
       }
     },
@@ -180,8 +176,7 @@
           ]
         },
         "source": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "dictionaryFields": {
           "$ref": "#/$defs/ExcelDictionaryReferenceFields"

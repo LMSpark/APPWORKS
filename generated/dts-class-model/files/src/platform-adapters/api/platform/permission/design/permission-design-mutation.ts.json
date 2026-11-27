@@ -205,13 +205,153 @@
         "change": {
           "anyOf": [
             {
-              "$ref": "permission-design-api.ts.json#/$defs/PermissionFeatureTag"
+              "type": "object",
+              "properties": {
+                "tagId": {
+                  "type": "string"
+                },
+                "parentId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "tagId",
+                "parentId",
+                "title",
+                "description",
+                "code",
+                "order"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "permission-design-api.ts.json#/$defs/PermissionDataObjectPolicy"
+              "type": "object",
+              "properties": {
+                "policyId": {
+                  "type": "string"
+                },
+                "featureTagId": {
+                  "type": "string"
+                },
+                "resourceName": {
+                  "type": "string"
+                },
+                "databaseName": {
+                  "type": "string"
+                },
+                "readableFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "editableFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "maskedFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "showFilter": {
+                  "type": "string"
+                },
+                "addFilter": {
+                  "type": "string"
+                },
+                "editFilter": {
+                  "type": "string"
+                },
+                "deleteFilter": {
+                  "type": "string"
+                },
+                "saveFilter": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "policyId",
+                "featureTagId",
+                "resourceName",
+                "databaseName",
+                "readableFields",
+                "editableFields",
+                "maskedFields",
+                "showFilter",
+                "addFilter",
+                "editFilter",
+                "deleteFilter",
+                "saveFilter"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "permission-design-api.ts.json#/$defs/PermissionObjectGrant"
+              "type": "object",
+              "properties": {
+                "grantId": {
+                  "type": "string"
+                },
+                "pageId": {
+                  "type": "string"
+                },
+                "featureTagIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "subjectIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "organizationScope": {
+                  "$ref": "permission-design-api.ts.json#/$defs/PermissionGrantOrganizationScope"
+                },
+                "businessId": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                },
+                "rawGrantType": {
+                  "type": [
+                    "null",
+                    "number"
+                  ]
+                }
+              },
+              "required": [
+                "grantId",
+                "pageId",
+                "featureTagIds",
+                "subjectIds",
+                "organizationScope",
+                "businessId",
+                "enabled",
+                "rawGrantType"
+              ],
+              "additionalProperties": false
             },
             {
               "type": "object",

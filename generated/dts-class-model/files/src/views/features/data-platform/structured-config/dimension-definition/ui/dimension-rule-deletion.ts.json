@@ -85,8 +85,7 @@
           "$ref": "#/$defs/Id"
         },
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targets": {
           "type": "array",
@@ -97,17 +96,17 @@
         "phase": {
           "enum": [
             "continue",
-            "done",
             "pending",
             "verify",
             "settle",
             "reload",
-            "broken"
+            "broken",
+            "done"
           ]
         },
         "failure": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         },
         "message": {
           "type": "string"

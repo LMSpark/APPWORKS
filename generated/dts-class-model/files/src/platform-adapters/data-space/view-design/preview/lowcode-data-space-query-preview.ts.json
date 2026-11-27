@@ -29,7 +29,33 @@
           "type": "object",
           "properties": {
             "tree": {
-              "$ref": "../../../../../packages/spark-data/src/query/formal-table-contract.ts.json#/$defs/DataSpaceQueryTree"
+              "type": "object",
+              "properties": {
+                "keyField": {
+                  "type": "string"
+                },
+                "parentField": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "hasChildrenField": {
+                  "type": "string"
+                },
+                "mode": {
+                  "enum": [
+                    "child",
+                    "parent"
+                  ]
+                }
+              },
+              "required": [
+                "keyField",
+                "parentField",
+                "nodeId"
+              ],
+              "additionalProperties": false
             },
             "children": {
               "type": "array",
@@ -42,6 +68,12 @@
               "items": {
                 "type": "string"
               }
+            },
+            "pagination": {
+              "enum": [
+                "paged",
+                "none"
+              ]
             },
             "parentResult": {
               "type": "object",
@@ -61,12 +93,6 @@
             },
             "outputType": {
               "type": "string"
-            },
-            "pagination": {
-              "enum": [
-                "none",
-                "paged"
-              ]
             },
             "allPages": {
               "enum": [
@@ -91,8 +117,8 @@
             },
             "cacheType": {
               "enum": [
-                "page",
                 "none",
+                "page",
                 "browser"
               ]
             },
@@ -150,8 +176,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "SparkData.DataSet"
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "modelName": {
               "type": "string"

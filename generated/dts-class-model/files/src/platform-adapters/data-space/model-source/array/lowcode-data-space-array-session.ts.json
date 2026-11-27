@@ -52,11 +52,127 @@
       "properties": {
         "original": {
           "type": "object",
-          "title": "FormalModel"
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "metaName": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "sourceName": {
+              "type": "string"
+            },
+            "sourceId": {
+              "type": "string"
+            },
+            "sourceType": {
+              "type": "string"
+            },
+            "primaryKey": {
+              "type": "string"
+            },
+            "businessMain": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/query/formal-owner/formal-model.ts.json#/$defs/FormalModelField"
+              }
+            },
+            "raw": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            },
+            "sourceInputBindings": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/query/formal-owner/formal-model.ts.json#/$defs/DataSpaceSourceInputBinding"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "metaName",
+            "name",
+            "sourceName",
+            "sourceId",
+            "sourceType",
+            "primaryKey",
+            "businessMain",
+            "fields",
+            "raw"
+          ],
+          "additionalProperties": false
         },
         "candidate": {
           "type": "object",
-          "title": "FormalModel"
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "metaName": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "sourceName": {
+              "type": "string"
+            },
+            "sourceId": {
+              "type": "string"
+            },
+            "sourceType": {
+              "type": "string"
+            },
+            "primaryKey": {
+              "type": "string"
+            },
+            "businessMain": {
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/query/formal-owner/formal-model.ts.json#/$defs/FormalModelField"
+              }
+            },
+            "raw": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            },
+            "sourceInputBindings": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/query/formal-owner/formal-model.ts.json#/$defs/DataSpaceSourceInputBinding"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "metaName",
+            "name",
+            "sourceName",
+            "sourceId",
+            "sourceType",
+            "primaryKey",
+            "businessMain",
+            "fields",
+            "raw"
+          ],
+          "additionalProperties": false
         },
         "changes": {
           "type": "array",
@@ -91,9 +207,9 @@
       "title": "ArrayEditStatus",
       "enum": [
         "idle",
+        "saving",
         "unknown",
         "readback",
-        "saving",
         "different",
         "configuration"
       ]
@@ -282,8 +398,7 @@
       "title": "ArraySessionHost",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -346,8 +461,7 @@
       "title": "ArraySessionHostInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"

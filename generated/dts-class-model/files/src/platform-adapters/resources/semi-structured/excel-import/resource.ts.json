@@ -80,8 +80,7 @@
           "type": "object",
           "properties": {
             "dataSet": {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             "getPage": {
               "type": "object",
@@ -91,8 +90,7 @@
           "additionalProperties": false
         },
         "method.bindEditorModelRules.return": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "method.loadReferenceSources.params": {
           "type": "object",

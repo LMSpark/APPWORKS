@@ -30,7 +30,6 @@
         },
         "key": {
           "enum": [
-            "silent",
             "successMessage",
             "failureMessage",
             "emptyMessage",
@@ -38,6 +37,7 @@
             "confirmMessage",
             "confirmTitle",
             "confirmType",
+            "silent",
             "disabledWhenRow"
           ]
         },
@@ -59,11 +59,14 @@
           }
         },
         "row": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataRow"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          ]
         }
       },
       "required": [
@@ -85,11 +88,14 @@
           }
         },
         "primary": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataRow"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          ]
         }
       },
       "required": [
@@ -107,8 +113,7 @@
           "type": "object",
           "properties": {
             "type": {
-              "type": "object",
-              "title": "PageMessageType"
+              "$ref": "../../runtime/app-services.ts.json#/$defs/PageMessageType"
             },
             "message": {
               "type": "string"
@@ -153,18 +158,24 @@
       "title": "ResolvedActionDataCapabilities",
       "properties": {
         "dataSource": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataView"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          ]
         },
         "currentRow": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataRow"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          ]
         },
         "selectedRows": {
           "type": "array",

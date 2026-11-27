@@ -56,11 +56,11 @@
         },
         "kind": {
           "enum": [
-            "number",
             "text",
+            "textarea",
+            "number",
             "select",
             "radio",
-            "textarea",
             "switch"
           ]
         },

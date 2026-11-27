@@ -27,10 +27,10 @@
         },
         "type": {
           "enum": [
-            "info",
-            "error",
+            "success",
             "warning",
-            "success"
+            "error",
+            "info"
           ]
         },
         "time": {
@@ -305,10 +305,10 @@
                       },
                       "placement": {
                         "enum": [
-                          "parent",
+                          "top",
                           "left",
                           "right",
-                          "top",
+                          "parent",
                           "tabs",
                           "popup"
                         ]
@@ -321,11 +321,11 @@
                       },
                       "openMode": {
                         "enum": [
-                          "embedded",
-                          "current",
                           "subsystem",
+                          "current",
                           "new-window",
-                          "modal"
+                          "modal",
+                          "embedded"
                         ]
                       },
                       "displayMode": {
@@ -479,10 +479,10 @@
                 },
                 "placement": {
                   "enum": [
-                    "parent",
+                    "top",
                     "left",
                     "right",
-                    "top",
+                    "parent",
                     "tabs",
                     "popup"
                   ]
@@ -495,11 +495,11 @@
                 },
                 "openMode": {
                   "enum": [
-                    "embedded",
-                    "current",
                     "subsystem",
+                    "current",
                     "new-window",
-                    "modal"
+                    "modal",
+                    "embedded"
                   ]
                 },
                 "displayMode": {

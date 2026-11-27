@@ -101,8 +101,8 @@
         },
         "mode": {
           "enum": [
-            "parent",
-            "child"
+            "child",
+            "parent"
           ]
         }
       },
@@ -179,17 +179,20 @@
         },
         "orderType": {
           "enum": [
-            null,
             "ascending",
-            "descending"
+            "descending",
+            null
           ]
         },
         "valueFun": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataSpaceQueryValueFunction"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/DataSpaceQueryValueFunction"
+            }
+          ]
         }
       },
       "required": [
@@ -224,11 +227,14 @@
       "title": "DataSpaceQueryOptions",
       "properties": {
         "filter": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataViewFilter"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "filter/data-view-filter.ts.json#/$defs/DataViewFilter"
+            }
+          ]
         },
         "sort": {
           "type": "array",
@@ -300,7 +306,96 @@
         "children": {
           "type": "array",
           "items": {
-            "$ref": "../types.ts.json#/$defs/DataViewQueryChild"
+            "type": "object",
+            "properties": {
+              "modelName": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "filter": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "operator": {
+                        "$ref": "filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "$ref": "filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                            }
+                          },
+                          {
+                            "$ref": "filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "field",
+                      "operator"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "logic": {
+                        "enum": [
+                          "and",
+                          "or"
+                        ]
+                      },
+                      "filters": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                        }
+                      }
+                    },
+                    "required": [
+                      "logic",
+                      "filters"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "children": {
+                "type": "array",
+                "items": {
+                  "$ref": "../types.ts.json#/$defs/DataViewQueryChild"
+                }
+              }
+            },
+            "required": [
+              "modelName",
+              "fields"
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -370,10 +465,7 @@
           ],
           "additionalProperties": false
         },
-        "owner": {
-          "type": "object",
-          "title": "SmartBidExecutable"
-        },
+        "owner": true,
         "signature": {
           "type": "string"
         }
@@ -558,8 +650,8 @@
             },
             "type": {
               "enum": [
-                "parent",
-                "child"
+                "child",
+                "parent"
               ]
             }
           },
@@ -606,17 +698,20 @@
               },
               "OrderType": {
                 "enum": [
-                  null,
                   "ascending",
-                  "descending"
+                  "descending",
+                  null
                 ]
               },
               "ValueFun": {
-                "type": [
-                  "null",
-                  "object"
-                ],
-                "title": "DataSpaceQueryValueFunction"
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/$defs/DataSpaceQueryValueFunction"
+                  }
+                ]
               }
             },
             "required": [
@@ -695,8 +790,8 @@
         },
         "type": {
           "enum": [
-            "parent",
-            "child"
+            "child",
+            "parent"
           ]
         }
       },

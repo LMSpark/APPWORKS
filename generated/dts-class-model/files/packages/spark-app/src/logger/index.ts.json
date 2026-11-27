@@ -29,7 +29,8 @@
               "type": "string"
             },
             "meta": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -42,7 +43,8 @@
               "type": "string"
             },
             "meta": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -55,7 +57,8 @@
               "type": "string"
             },
             "meta": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -74,7 +77,8 @@
                   "title": "Error"
                 },
                 {
-                  "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 }
               ]
             }
@@ -89,7 +93,8 @@
               "type": "string"
             },
             "meta": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -242,7 +247,8 @@
               "type": "string"
             },
             "meta": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -255,7 +261,8 @@
               "type": "string"
             },
             "meta": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -268,7 +275,8 @@
               "type": "string"
             },
             "meta": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -287,7 +295,8 @@
                   "title": "Error"
                 },
                 {
-                  "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 }
               ]
             }
@@ -302,7 +311,8 @@
               "type": "string"
             },
             "meta": {
-              "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false

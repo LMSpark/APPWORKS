@@ -20,7 +20,38 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Host"
+          "properties": {
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(binding: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "runtime",
+            "scenarioId",
+            "projectId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
           "type": "object",

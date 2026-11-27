@@ -51,13 +51,7 @@
           },
           "additionalProperties": false
         },
-        "method.read.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "T"
-        },
+        "method.read.return": true,
         "method.toString.params": {
           "type": "object",
           "properties": {},

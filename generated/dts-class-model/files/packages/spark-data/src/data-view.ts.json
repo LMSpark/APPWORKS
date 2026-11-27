@@ -71,14 +71,14 @@
         },
         "state": {
           "enum": [
+            "confirmed",
             "not-applied",
-            "unknown",
-            "confirmed"
+            "unknown"
           ]
         },
         "error": {
           "type": "object",
-          "title": "ErrorDefault"
+          "title": "Error"
         }
       },
       "required": [
@@ -96,10 +96,10 @@
         "state": {
           "enum": [
             "none",
-            "not-applied",
-            "unknown",
             "confirmed",
-            "partial"
+            "not-applied",
+            "partial",
+            "unknown"
           ]
         },
         "views": {
@@ -130,11 +130,14 @@
           "items": false,
           "prefixItems": [
             {
-              "type": [
-                "null",
-                "object"
-              ],
-              "title": "DataRow"
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "types.ts.json#/$defs/DataRow"
+                }
+              ]
             },
             {
               "type": "string"
@@ -209,7 +212,13 @@
           "items": false,
           "prefixItems": [
             {
-              "$ref": "../../spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json#/$defs/DataViewRequestState"
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ]
             }
           ]
         },
@@ -461,8 +470,8 @@
       "properties": {
         "read": {
           "enum": [
-            "masked",
             "invisible",
+            "masked",
             "visible"
           ]
         },
@@ -488,8 +497,8 @@
         "writeMode": {
           "enum": [
             "required",
-            "readonly",
-            "editable"
+            "editable",
+            "readonly"
           ]
         }
       },
@@ -534,8 +543,8 @@
         },
         "resultKind": {
           "enum": [
-            "join",
             "entity",
+            "join",
             "navigation",
             "hierarchy",
             "aggregate"
@@ -617,7 +626,8 @@
           "additionalProperties": false
         },
         "method.prepareNewRow.return": {
-          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.newRowFieldAccess.params": {
           "type": "object",
@@ -645,7 +655,8 @@
           "additionalProperties": false
         },
         "method.prepareNewRowWithIdentity.return": {
-          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.isFieldReadOnly.params": {
           "type": "object",
@@ -923,10 +934,67 @@
         "filter": {
           "anyOf": [
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "operator": {
+                  "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                      }
+                    },
+                    {
+                      "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "operator"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+              "type": "object",
+              "properties": {
+                "logic": {
+                  "enum": [
+                    "and",
+                    "or"
+                  ]
+                },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                  }
+                }
+              },
+              "required": [
+                "logic",
+                "filters"
+              ],
+              "additionalProperties": false
             }
           ]
         }
@@ -975,7 +1043,11 @@
       "title": "DataViewQuerySaveRecoveryEntry",
       "properties": {
         "action": {
-          "$ref": "query/formal-owner/save-order.ts.json#/$defs/DataSpaceSaveAction"
+          "enum": [
+            "added",
+            "changed",
+            "deleted"
+          ]
         },
         "identity": {
           "$ref": "#/$defs/DataViewQuerySaveRecoveryIdentity"
@@ -1582,10 +1654,12 @@
           "type": "boolean"
         },
         "fieldOptions": {
-          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, DataColumnOptionsView>"
         },
         "aggregates": {
-          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, AggregateColumnConfig>"
         },
         "treeMode": {
           "enum": [
@@ -1661,8 +1735,7 @@
           "$ref": "types.ts.json#/$defs/SparkEventEmitter"
         },
         "logger": {
-          "type": "object",
-          "title": "import(\"@spark-appworks/spark-utils\").LoggerApi"
+          "$ref": "../../spark-utils/src/logger.ts.json#/$defs/LoggerApi"
         },
         "destroyed": {
           "type": "boolean"
@@ -2366,7 +2439,8 @@
           "type": "object",
           "properties": {
             "ctx": {
-              "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -2476,7 +2550,8 @@
           "additionalProperties": false
         },
         "method.buildServerPk.return": {
-          "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.requestData.params": {
           "type": "object",
@@ -2504,7 +2579,8 @@
           "type": "object",
           "properties": {
             "pk": {
-              "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "options": {
               "$ref": "types.ts.json#/$defs/RetrieveRecordOptions"
@@ -3443,7 +3519,8 @@
           "type": "object",
           "properties": {
             "aggregates": {
-              "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, AggregateColumnConfig>"
             }
           },
           "additionalProperties": false
@@ -3482,7 +3559,8 @@
                   "$ref": "types.ts.json#/$defs/ViewMetadata"
                 },
                 {
-                  "$ref": "../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 },
                 {
                   "type": "string"

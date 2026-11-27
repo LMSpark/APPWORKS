@@ -34,8 +34,8 @@
         },
         "kind": {
           "enum": [
-            "RECEIVED",
             "REJECTED",
+            "RECEIVED",
             "WITHDRAWAL_CONFIRMED"
           ]
         },
@@ -115,7 +115,7 @@
         "effects": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Effect"
+            "$ref": "../submission-reconciliation.ts.json#/$defs/Effect"
           }
         }
       },

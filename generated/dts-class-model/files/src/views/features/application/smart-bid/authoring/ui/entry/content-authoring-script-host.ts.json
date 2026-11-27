@@ -22,18 +22,18 @@
         "projectId": {
           "type": "string"
         },
-        "draftId": {
+        "dataViewKey": {
           "type": "string"
         },
         "assertCurrent": {
           "type": "object",
           "title": "() => void"
         },
+        "draftId": {
+          "type": "string"
+        },
         "runtime": {
           "$ref": "../../../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
-        },
-        "dataViewKey": {
-          "type": "string"
         },
         "actorUserId": {
           "type": "string"
@@ -45,10 +45,10 @@
       },
       "required": [
         "projectId",
-        "draftId",
-        "assertCurrent",
-        "runtime",
         "dataViewKey",
+        "assertCurrent",
+        "draftId",
+        "runtime",
         "actorUserId",
         "setPending"
       ],
@@ -185,8 +185,7 @@
         "volumeDestinations": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Destination"
+            "$ref": "../../../../../../../services/smart-bid/content/references/response/bid-volume-plan.ts.json#/$defs/Destination"
           }
         },
         "originalFormTemplate": {
@@ -475,7 +474,7 @@
               "writable": true
             },
             {
-              "name": "draftId",
+              "name": "dataViewKey",
               "readable": true,
               "writable": true
             },
@@ -485,12 +484,12 @@
               "writable": true
             },
             {
-              "name": "runtime",
+              "name": "draftId",
               "readable": true,
               "writable": true
             },
             {
-              "name": "dataViewKey",
+              "name": "runtime",
               "readable": true,
               "writable": true
             },

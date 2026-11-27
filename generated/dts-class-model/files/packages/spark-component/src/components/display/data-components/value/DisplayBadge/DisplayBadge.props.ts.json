@@ -54,17 +54,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -104,11 +104,11 @@
         "badgeType": {
           "enum": [
             "",
-            "info",
-            "warning",
+            "primary",
             "success",
-            "danger",
-            "primary"
+            "warning",
+            "info",
+            "danger"
           ]
         },
         "showZero": {
@@ -132,10 +132,7 @@
             }
           ]
         },
-        "badgeStyle": {
-          "type": "object",
-          "title": "SmartBidExecutable"
-        },
+        "badgeStyle": true,
         "badgeClass": {
           "type": "string"
         }

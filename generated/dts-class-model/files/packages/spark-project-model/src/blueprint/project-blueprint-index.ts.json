@@ -80,10 +80,7 @@
         },
         "method.getChildren.return": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "title": "TNode"
-          }
+          "items": true
         },
         "method.collectDescendants.params": {
           "type": "object",
@@ -96,10 +93,7 @@
         },
         "method.collectDescendants.return": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "title": "TNode"
-          }
+          "items": true
         },
         "method.nextChildOrder.params": {
           "type": "object",

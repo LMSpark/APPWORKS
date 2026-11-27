@@ -47,10 +47,10 @@
         },
         "alertType": {
           "enum": [
-            "info",
-            "error",
+            "success",
             "warning",
-            "success"
+            "info",
+            "error"
           ]
         },
         "closable": {

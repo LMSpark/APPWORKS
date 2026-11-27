@@ -625,8 +625,7 @@
         "volumeDestinations": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Destination"
+            "$ref": "../../../../../../services/smart-bid/content/references/response/bid-volume-plan.ts.json#/$defs/Destination"
           }
         },
         "originalFormTemplate": {
@@ -835,8 +834,8 @@
         },
         "role": {
           "enum": [
-            "head",
-            "candidate"
+            "candidate",
+            "head"
           ]
         },
         "nodeId": {
@@ -904,8 +903,8 @@
           "properties": {
             "operation": {
               "enum": [
-                "replace",
-                "insert"
+                "insert",
+                "replace"
               ]
             },
             "source": {

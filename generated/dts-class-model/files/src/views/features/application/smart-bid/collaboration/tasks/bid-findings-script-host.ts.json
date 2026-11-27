@@ -20,10 +20,71 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Host"
+          "properties": {
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(binding: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "runtime",
+            "scenarioId",
+            "projectId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
-          "$ref": "../../authoring/model/review/content-review-coverage-reader.ts.json#/$defs/CompletedCoverageSource"
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "completed": {
+              "type": "array",
+              "items": {
+                "$ref": "../../authoring/model/review/content-review-findings-reader.ts.json#/$defs/CompletedCoverage"
+              }
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            },
+            "resolveAnchor": {
+              "type": "object",
+              "title": "(anchor: unknown) => Pick<ReviewFinding, \"kind\" | \"targetId\">"
+            }
+          },
+          "required": [
+            "projectId",
+            "revisionId",
+            "completed",
+            "assertCurrent",
+            "resolveAnchor"
+          ],
+          "additionalProperties": false
         }
       ]
     },

@@ -21,14 +21,12 @@
           "type": "string"
         },
         "deadline": {
-          "type": "object",
-          "title": "Deadline"
+          "$ref": "content-deadline-field-reconciliation.ts.json#/$defs/Deadline"
         },
         "requiredFields": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Field"
+            "$ref": "content-deadline-field-reconciliation.ts.json#/$defs/Field"
           }
         },
         "assertCurrent": {
@@ -53,8 +51,7 @@
           "type": "string"
         },
         "deadline": {
-          "type": "object",
-          "title": "Deadline"
+          "$ref": "content-deadline-package-reconciliation.ts.json#/$defs/Deadline"
         },
         "requiredMembers": {
           "type": "array",

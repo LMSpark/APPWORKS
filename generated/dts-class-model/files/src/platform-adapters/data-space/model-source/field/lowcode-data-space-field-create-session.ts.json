@@ -24,11 +24,11 @@
       "title": "FieldCreateStatus",
       "enum": [
         "idle",
+        "editing",
+        "saving",
         "unknown",
         "readback",
-        "saving",
-        "different",
-        "editing"
+        "different"
       ]
     },
     "FieldCreateFlow": {
@@ -49,11 +49,14 @@
           ]
         },
         "expected": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataRow"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          ]
         },
         "stagedSnapshot": {
           "type": "string"
@@ -62,11 +65,14 @@
           "type": "string"
         },
         "capture": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataSpaceDefinitionCaptureBatch"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../data-space-definition-save.ts.json#/$defs/DataSpaceDefinitionCaptureBatch"
+            }
+          ]
         },
         "captureSignature": {
           "type": "string"
@@ -109,8 +115,7 @@
         "method.readDefinition.return": {
           "anyOf": [
             {
-              "type": "object",
-              "title": "DataSet"
+              "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             },
             {
               "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
@@ -156,8 +161,7 @@
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"
@@ -201,8 +205,7 @@
       "title": "FieldCreateHostInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "targetId": {
           "type": "string"

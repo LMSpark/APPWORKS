@@ -319,9 +319,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "WorkflowDesignLineType",
       "enum": [
+        "orthogonal",
         "straight",
-        "bezier",
-        "orthogonal"
+        "bezier"
       ]
     },
     "WorkflowDesignLineControlPoint": {
@@ -492,9 +492,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "WorkflowDesignNodeCreateKind",
       "enum": [
+        "node",
         "start",
-        "output",
-        "node"
+        "output"
       ]
     },
     "WorkflowDesignNodeCreateInput": {

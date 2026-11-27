@@ -20,8 +20,7 @@
       "title": "Input",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "nodeId": {
           "type": "string"
@@ -59,8 +58,7 @@
                   "type": "object",
                   "properties": {
                     "source": {
-                      "type": "object",
-                      "title": "DataSet"
+                      "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
                     }
                   },
                   "required": [

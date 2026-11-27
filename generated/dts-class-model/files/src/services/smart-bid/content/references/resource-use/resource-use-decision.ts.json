@@ -160,7 +160,106 @@
       "title": "Prepared",
       "properties": {
         "record": {
-          "$ref": "#/$defs/Decision"
+          "type": "object",
+          "properties": {
+            "sourceEnterpriseId": {
+              "type": "string"
+            },
+            "recipientEnterpriseId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "applicationRef": {
+              "type": "string"
+            },
+            "resourceVersionId": {
+              "type": "string"
+            },
+            "decisionChainId": {
+              "type": "string"
+            },
+            "decisionRef": {
+              "type": "string"
+            },
+            "requestKey": {
+              "type": "string"
+            },
+            "expectedVersion": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "intent": {
+              "$ref": "#/$defs/Intent"
+            },
+            "decisionEnterpriseId": {
+              "type": "string"
+            },
+            "decisionMakerId": {
+              "type": "string"
+            },
+            "authorityRef": {
+              "type": "string"
+            },
+            "effectiveAt": {
+              "type": "string"
+            },
+            "knownAt": {
+              "type": "string"
+            },
+            "uses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "purposeId": {
+                    "type": "string"
+                  },
+                  "recipientId": {
+                    "type": "string"
+                  },
+                  "fieldIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "expiresAt": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "purposeId",
+                  "recipientId",
+                  "fieldIds",
+                  "expiresAt"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "sourceEnterpriseId",
+            "recipientEnterpriseId",
+            "projectId",
+            "applicationRef",
+            "resourceVersionId",
+            "decisionChainId",
+            "decisionRef",
+            "requestKey",
+            "expectedVersion",
+            "intent",
+            "decisionEnterpriseId",
+            "decisionMakerId",
+            "authorityRef",
+            "effectiveAt",
+            "knownAt",
+            "uses"
+          ],
+          "additionalProperties": false
         },
         "requestDigest": {
           "type": "string"

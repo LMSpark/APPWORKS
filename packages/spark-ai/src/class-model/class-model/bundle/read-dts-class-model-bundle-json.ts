@@ -474,7 +474,7 @@ function parseEnumDeclarationPayload(
       record: payload,
       field: 'members',
       path: `${path}.members`,
-      parseEntry: parseAttributeMeta,
+      parseEntry: (value, entryPath) => parseAttributeMeta(value, entryPath, false),
     }) ?? [],
   }
 }
@@ -553,12 +553,13 @@ function parseDeclarationRelation(value: unknown, path: string): ClassModelDecla
   }
 }
 
-function parseAttributeMeta(value: unknown, path: string): AttributeMeta {
+function parseAttributeMeta(value: unknown, path: string, defaultToAnySchema = true): AttributeMeta {
   const record = requireJsonRecord(value, path)
   const provenance = readOptionalSourceProvenance(record, 'provenance', `${path}.provenance`)
+  const schema = readOptionalJsonSchema(record, 'schema', `${path}.schema`) ?? (defaultToAnySchema ? true : undefined)
   return {
     name: readRequiredString(record, 'name', `${path}.name`),
-    schema: readOptionalJsonSchema(record, 'schema', `${path}.schema`) ?? true,
+    ...(schema === undefined ? {} : {schema}),
     readable: readRequiredBoolean(record, 'readable', `${path}.readable`),
     writable: readRequiredBoolean(record, 'writable', `${path}.writable`),
     jsdoc: readOptionalString(record, 'jsdoc', `${path}.jsdoc`) ?? '',

@@ -586,11 +586,14 @@
       "title": "ResolvedViewRef",
       "properties": {
         "value": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataView"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          ]
         }
       },
       "required": [

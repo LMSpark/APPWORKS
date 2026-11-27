@@ -59,9 +59,9 @@
       "properties": {
         "level": {
           "enum": [
-            "info",
+            "error",
             "warn",
-            "error"
+            "info"
           ]
         },
         "code": {
@@ -217,8 +217,7 @@
           "$ref": "#/$defs/ClassModelAgentCompleteRejected"
         },
         {
-          "type": "object",
-          "title": "AiAgentToolResult<JsonValue>"
+          "$ref": "../tool-runtime/tool-runtime-types.ts.json#/$defs/AiAgentToolResult"
         }
       ]
     },
@@ -238,8 +237,7 @@
           "title": "ClassModelAgentAdapterConstructor<T>"
         },
         "metadata": {
-          "type": "object",
-          "title": "AiRuntimeApiMetadataJson"
+          "$ref": "../../class-model/metadata/ai-api-object-metadata-schema.ts.json#/$defs/AiRuntimeApiMetadataJson"
         },
         "options": {
           "type": "object",
@@ -410,8 +408,7 @@
           "title": "ClassModelAgentAdapterConstructor<T>"
         },
         "metadata": {
-          "type": "object",
-          "title": "AiRuntimeApiMetadataJson"
+          "$ref": "../../class-model/metadata/ai-api-object-metadata-schema.ts.json#/$defs/AiRuntimeApiMetadataJson"
         },
         "options": {
           "type": "object",
@@ -597,8 +594,7 @@
           "type": "string"
         },
         "knowledge": {
-          "type": "object",
-          "title": "ClassModelKnowledgeProvider"
+          "$ref": "../../class-model/knowledge/class-model-knowledge-service.ts.json#/$defs/ClassModelKnowledgeProvider"
         },
         "inputContract": {
           "type": "object",
@@ -659,10 +655,7 @@
           },
           "additionalProperties": false
         },
-        "method.resolveInstance.return": {
-          "type": "object",
-          "title": "T"
-        },
+        "method.resolveInstance.return": true,
         "method.dtsClassModelFetchJson.params": {
           "type": "object",
           "properties": {
@@ -679,10 +672,7 @@
         "method.systemPrompt.params": {
           "type": "object",
           "properties": {
-            "instance": {
-              "type": "object",
-              "title": "T"
-            },
+            "instance": true,
             "context": {
               "$ref": "scope-types.ts.json#/$defs/AiAgentRuntimeContext"
             }
@@ -695,10 +685,7 @@
         "method.beforeFunctionCall.params": {
           "type": "object",
           "properties": {
-            "instance": {
-              "type": "object",
-              "title": "T"
-            },
+            "instance": true,
             "options": {
               "$ref": "lifecycle-types.ts.json#/$defs/AiAgentBeforeFunctionCallOptions"
             }
@@ -719,10 +706,7 @@
         "method.afterFunctionCall.params": {
           "type": "object",
           "properties": {
-            "instance": {
-              "type": "object",
-              "title": "T"
-            },
+            "instance": true,
             "options": {
               "$ref": "lifecycle-types.ts.json#/$defs/AiAgentAfterFunctionCallOptions"
             }
@@ -743,10 +727,7 @@
         "method.agentCompleteAction.params": {
           "type": "object",
           "properties": {
-            "instance": {
-              "type": "object",
-              "title": "T"
-            },
+            "instance": true,
             "options": {
               "$ref": "#/$defs/ClassModelAgentCompleteActionOptions"
             }
@@ -767,10 +748,7 @@
         "method.onStartSession.params": {
           "type": "object",
           "properties": {
-            "instance": {
-              "type": "object",
-              "title": "T"
-            },
+            "instance": true,
             "context": {
               "$ref": "scope-types.ts.json#/$defs/AiAgentRuntimeContext"
             }
@@ -784,10 +762,7 @@
         "method.onEndBusinessInstance.params": {
           "type": "object",
           "properties": {
-            "instance": {
-              "type": "object",
-              "title": "T"
-            },
+            "instance": true,
             "context": {
               "$ref": "scope-types.ts.json#/$defs/AiAgentRuntimeContext"
             },
@@ -804,10 +779,7 @@
         "method.releaseModuleInstance.params": {
           "type": "object",
           "properties": {
-            "instance": {
-              "type": "object",
-              "title": "T"
-            },
+            "instance": true,
             "moduleInstanceId": {
               "type": "string"
             }

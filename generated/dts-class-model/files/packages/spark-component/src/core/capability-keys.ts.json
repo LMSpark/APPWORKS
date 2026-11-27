@@ -31,9 +31,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "ThemeMode",
       "enum": [
-        "auto",
         "light",
-        "dark"
+        "dark",
+        "auto"
       ]
     },
     "ThemeCapability": {
@@ -272,13 +272,7 @@
           },
           "additionalProperties": false
         },
-        "method.getApi.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "T"
-        },
+        "method.getApi.return": true,
         "method.getApisByType.params": {
           "type": "object",
           "properties": {
@@ -290,10 +284,7 @@
         },
         "method.getApisByType.return": {
           "type": "array",
-          "items": {
-            "type": "object",
-            "title": "T"
-          }
+          "items": true
         }
       }
     },

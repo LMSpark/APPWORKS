@@ -27,9 +27,9 @@
           "properties": {
             "role": {
               "enum": [
-                "system",
                 "user",
-                "assistant"
+                "assistant",
+                "system"
               ]
             },
             "content": {
@@ -112,7 +112,8 @@
           "type": "object",
           "properties": {
             "usageRaw": {
-              "$ref": "../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -229,8 +230,8 @@
         },
         "status": {
           "enum": [
-            "error",
-            "success"
+            "success",
+            "error"
           ]
         },
         "result": {

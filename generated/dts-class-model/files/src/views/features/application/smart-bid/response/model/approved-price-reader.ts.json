@@ -61,14 +61,12 @@
           "$ref": "../../../../../../services/smart-bid/content/references/commercial/approved-price-review.ts.json#/$defs/Detail"
         },
         "use": {
-          "type": "object",
-          "title": "Use"
+          "$ref": "../../../../../../services/smart-bid/content/references/commercial/approved-price-review.ts.json#/$defs/Use"
         },
         "findings": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Finding"
+            "$ref": "../../../../../../services/smart-bid/content/references/commercial/approved-price-review.ts.json#/$defs/Finding"
           }
         }
       },
@@ -83,8 +81,7 @@
       "title": "ReviewEvidence",
       "properties": {
         "use": {
-          "type": "object",
-          "title": "Use"
+          "$ref": "../../../../../../services/smart-bid/content/references/commercial/approved-price-review.ts.json#/$defs/Use"
         },
         "assertCurrent": {
           "type": "object",
@@ -93,8 +90,7 @@
         "findings": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Finding"
+            "$ref": "../../../../../../services/smart-bid/content/references/commercial/approved-price-review.ts.json#/$defs/Finding"
           }
         }
       },

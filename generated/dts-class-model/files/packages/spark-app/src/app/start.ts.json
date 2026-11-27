@@ -84,7 +84,20 @@
         "systemPageIdentityCompanions": {
           "type": "array",
           "items": {
-            "$ref": "../router/dynamic.ts.json#/$defs/SystemPageIdentityCompanion"
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "hostPath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "hostPath"
+            ],
+            "additionalProperties": false
           }
         },
         "applicationPathPrefix": {
@@ -164,8 +177,8 @@
         },
         "routerMode": {
           "enum": [
-            "hash",
-            "history"
+            "history",
+            "hash"
           ]
         },
         "mountTarget": {

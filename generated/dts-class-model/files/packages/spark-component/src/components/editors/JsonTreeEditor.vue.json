@@ -38,8 +38,8 @@
         },
         "rootKind": {
           "enum": [
-            "value",
-            "document"
+            "document",
+            "value"
           ]
         },
         "documentValue": {

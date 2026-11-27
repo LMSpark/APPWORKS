@@ -442,11 +442,14 @@
           "$ref": "spark-node.ts.json#/$defs/SparkNode"
         },
         "parent": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "SparkNode"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "spark-node.ts.json#/$defs/SparkNode"
+            }
+          ]
         },
         "index": {
           "type": "number"
@@ -758,7 +761,8 @@
                   "$ref": "spark-node.ts.json#/$defs/SparkNode"
                 },
                 {
-                  "$ref": "../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                  "type": "object",
+                  "title": "Record<string, unknown>"
                 },
                 {
                   "type": "string"

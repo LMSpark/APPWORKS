@@ -242,7 +242,8 @@
         "method.readInputParameters.return": {
           "type": "array",
           "items": {
-            "$ref": "../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+            "type": "object",
+            "title": "Record<string, unknown>"
           }
         },
         "method.prepareInputParameters.params": {
@@ -269,7 +270,8 @@
             "items": {
               "type": "array",
               "items": {
-                "$ref": "../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                "type": "object",
+                "title": "Record<string, unknown>"
               }
             },
             "changed": {
@@ -467,8 +469,7 @@
               "$ref": "#/$defs/DataSpaceFormalScenarioReadInput"
             },
             "metadata": {
-              "type": "object",
-              "title": "SparkData.DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -497,8 +498,7 @@
               "$ref": "#/$defs/DataSpaceFormalReadInput"
             },
             "metadata": {
-              "type": "object",
-              "title": "SparkData.DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -514,8 +514,7 @@
               "$ref": "#/$defs/DataSpaceFormalBatchReadInput"
             },
             "metadata": {
-              "type": "object",
-              "title": "SparkData.DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false
@@ -549,8 +548,7 @@
               "$ref": "#/$defs/DataSpaceFormalScenarioReadInput"
             },
             "metadata": {
-              "type": "object",
-              "title": "SparkData.DataSet"
+              "$ref": "../../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
             }
           },
           "additionalProperties": false

@@ -27,7 +27,7 @@
         },
         "sparkConsume": {
           "type": "object",
-          "title": "SparkCapabilityConsumer"
+          "title": "import(\"@spark-appworks/spark-utils\").SparkCapabilityConsumer"
         },
         "loading": {
           "type": "object",
@@ -41,8 +41,7 @@
           "$ref": "../../core/capability-keys.ts.json#/$defs/PageComponentRegistry"
         },
         "pageRuntimeServices": {
-          "type": "object",
-          "title": "PageRuntimeServicesCapability"
+          "$ref": "../../runtime/app-services.ts.json#/$defs/PageRuntimeServicesCapability"
         }
       },
       "required": [

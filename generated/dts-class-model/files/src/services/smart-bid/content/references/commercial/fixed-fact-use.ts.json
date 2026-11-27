@@ -132,9 +132,9 @@
         },
         "state": {
           "enum": [
-            "PENDING",
             "USABLE",
-            "RESTRICTED"
+            "RESTRICTED",
+            "PENDING"
           ]
         },
         "decisionRefs": {

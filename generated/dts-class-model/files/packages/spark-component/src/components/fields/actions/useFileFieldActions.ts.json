@@ -18,11 +18,14 @@
       "title": "UseFileFieldActionsOptions",
       "properties": {
         "pageService": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "PageServiceCapability"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../runtime/app-services.ts.json#/$defs/PageServiceCapability"
+            }
+          ]
         },
         "isEditable": {
           "type": "object",

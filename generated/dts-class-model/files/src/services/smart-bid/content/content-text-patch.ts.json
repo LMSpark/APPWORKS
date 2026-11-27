@@ -82,17 +82,20 @@
         },
         "operation": {
           "enum": [
-            "delete",
             "replace",
-            "insert"
+            "insert",
+            "delete"
           ]
         },
         "sourceRef": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "ContentTextSpan"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "content-text-span.ts.json#/$defs/ContentTextSpan"
+            }
+          ]
         },
         "targetRef": {
           "$ref": "content-text-span.ts.json#/$defs/ContentTextSpan"

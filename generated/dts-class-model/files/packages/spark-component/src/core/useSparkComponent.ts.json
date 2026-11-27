@@ -291,11 +291,14 @@
           ]
         },
         "parentContext": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "CapabilityContext"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../../spark-utils/src/capability/core.ts.json#/$defs/CapabilityContext"
+            }
+          ]
         }
       },
       "required": [
@@ -318,7 +321,20 @@
           "additionalProperties": true
         },
         "children": {
-          "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "$ref": "../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
+              }
+            ]
+          }
         },
         "id": {
           "type": "string"

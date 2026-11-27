@@ -126,8 +126,7 @@
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "directoryView": {
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"

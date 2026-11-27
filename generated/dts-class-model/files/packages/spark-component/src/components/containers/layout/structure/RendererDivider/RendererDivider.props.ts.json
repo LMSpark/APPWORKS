@@ -41,24 +41,24 @@
         },
         "direction": {
           "enum": [
-            "vertical",
-            "horizontal"
+            "horizontal",
+            "vertical"
           ]
         },
         "borderStyle": {
           "enum": [
-            "none",
-            "double",
             "solid",
             "dashed",
-            "dotted"
+            "dotted",
+            "double",
+            "none"
           ]
         },
         "contentPosition": {
           "enum": [
             "left",
-            "right",
-            "center"
+            "center",
+            "right"
           ]
         },
         "content": {

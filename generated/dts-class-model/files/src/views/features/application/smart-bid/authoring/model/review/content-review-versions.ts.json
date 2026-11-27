@@ -26,7 +26,7 @@
         "targets": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/ReviewTarget"
+            "$ref": "../../../../../../../services/smart-bid/content/review/review-coverage.ts.json#/$defs/ReviewTarget"
           }
         },
         "assertCurrent": {
@@ -136,7 +136,52 @@
             },
             "source": {
               "type": "object",
-              "title": "ApprovedField"
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "revisionId": {
+                  "type": "string"
+                },
+                "assignmentId": {
+                  "type": "string"
+                },
+                "fieldId": {
+                  "type": "string"
+                },
+                "responseId": {
+                  "type": "string"
+                },
+                "fieldRuleRef": {
+                  "type": "string"
+                },
+                "approvalRef": {
+                  "type": "string"
+                },
+                "versionHash": {
+                  "type": "string"
+                },
+                "valueHash": {
+                  "type": "string"
+                },
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "projectId",
+                "revisionId",
+                "assignmentId",
+                "fieldId",
+                "responseId",
+                "fieldRuleRef",
+                "approvalRef",
+                "versionHash",
+                "valueHash",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [

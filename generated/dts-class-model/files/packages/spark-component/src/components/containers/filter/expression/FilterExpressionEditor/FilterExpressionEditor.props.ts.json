@@ -31,8 +31,8 @@
         },
         "displayMode": {
           "enum": [
-            "inline",
-            "box"
+            "box",
+            "inline"
           ]
         },
         "placeholder": {
@@ -63,18 +63,74 @@
         "modelValue": {
           "anyOf": [
             {
-              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "operator": {
+                  "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterOperator"
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonValue"
+                      }
+                    },
+                    {
+                      "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterJsonObject"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "field",
+                "operator"
+              ],
+              "additionalProperties": false
             },
             {
-              "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+              "type": "object",
+              "properties": {
+                "logic": {
+                  "enum": [
+                    "and",
+                    "or"
+                  ]
+                },
+                "filters": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+                  }
+                }
+              },
+              "required": [
+                "logic",
+                "filters"
+              ],
+              "additionalProperties": false
             }
           ]
         },
         "columns": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "DataColumn"
+            "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
           }
         },
         "allowedOperators": {
@@ -256,7 +312,8 @@
       "title": "FilterExpressionEditorDraft",
       "properties": {
         "operatorLabels": {
-          "$ref": "../../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<Data.DataViewFilterOperator, string>"
         },
         "root": {
           "$ref": "#/$defs/FilterExpressionEditorGroup"
@@ -285,8 +342,7 @@
                 "columns": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "title": "Data.DataColumn"
+                    "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
                   }
                 },
                 "context": {
@@ -329,8 +385,7 @@
             "columns": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "Data.DataColumn"
+                "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataColumn"
               }
             },
             "allowedOperators": {

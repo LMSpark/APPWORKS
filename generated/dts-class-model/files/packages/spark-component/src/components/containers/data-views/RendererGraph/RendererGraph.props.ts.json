@@ -311,11 +311,11 @@
         },
         "tone": {
           "enum": [
-            "info",
-            "warning",
+            "primary",
             "success",
+            "warning",
             "danger",
-            "primary"
+            "info"
           ]
         }
       },
@@ -364,10 +364,10 @@
         },
         "side": {
           "enum": [
-            "left",
-            "right",
             "top",
-            "bottom"
+            "right",
+            "bottom",
+            "left"
           ]
         },
         "offset": {
@@ -568,11 +568,11 @@
               },
               "tone": {
                 "enum": [
-                  "info",
-                  "warning",
+                  "primary",
                   "success",
+                  "warning",
                   "danger",
-                  "primary"
+                  "info"
                 ]
               }
             },

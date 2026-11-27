@@ -120,16 +120,16 @@
         },
         "state": {
           "enum": [
-            "UNKNOWN",
             "UNEXECUTED",
-            "EXECUTED"
+            "EXECUTED",
+            "UNKNOWN"
           ]
         },
         "permission": {
           "enum": [
-            "UNKNOWN",
             "ALLOWED",
-            "DENIED"
+            "DENIED",
+            "UNKNOWN"
           ]
         },
         "permissionRef": {

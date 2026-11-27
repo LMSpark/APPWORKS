@@ -598,11 +598,14 @@
           "additionalProperties": false
         },
         "method.getNodeTree.return": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "SparkNodeTreeModel"
+          "anyOf": [
+            {
+              "$ref": "../../../spark-data/src/node-tree/spark-node-tree.ts.json#/$defs/SparkNodeTree"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "method.editNodeTree.params": {
           "type": "object",

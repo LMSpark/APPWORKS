@@ -53,10 +53,7 @@
         "method.create.params": {
           "type": "object",
           "properties": {
-            "data": {
-              "type": "object",
-              "title": "T"
-            },
+            "data": true,
             "config": {
               "$ref": "../../types.ts.json#/$defs/CrudOperationConfig"
             }
@@ -71,7 +68,8 @@
           "type": "object",
           "properties": {
             "pk": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "config": {
               "$ref": "../../types.ts.json#/$defs/CrudOperationConfig"
@@ -87,12 +85,10 @@
           "type": "object",
           "properties": {
             "pk": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
-            },
-            "data": {
               "type": "object",
-              "title": "T"
+              "title": "Record<string, unknown>"
             },
+            "data": true,
             "config": {
               "$ref": "../../types.ts.json#/$defs/CrudOperationConfig"
             }
@@ -107,7 +103,8 @@
           "type": "object",
           "properties": {
             "pk": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "config": {
               "$ref": "../../types.ts.json#/$defs/CrudOperationConfig"
@@ -159,10 +156,7 @@
           "properties": {
             "items": {
               "type": "array",
-              "items": {
-                "type": "object",
-                "title": "T"
-              }
+              "items": true
             },
             "config": {
               "$ref": "../../types.ts.json#/$defs/CrudOperationConfig"
@@ -179,10 +173,7 @@
           "properties": {
             "items": {
               "type": "array",
-              "items": {
-                "type": "object",
-                "title": "T"
-              }
+              "items": true
             },
             "config": {
               "$ref": "../../types.ts.json#/$defs/CrudOperationConfig"
@@ -200,7 +191,8 @@
             "pks": {
               "type": "array",
               "items": {
-                "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+                "type": "object",
+                "title": "Record<string, unknown>"
               }
             },
             "config": {
@@ -217,7 +209,8 @@
           "type": "object",
           "properties": {
             "file": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/File"
+              "type": "object",
+              "title": "File"
             },
             "config": {
               "$ref": "../../../../spark-utils/src/http/types.ts.json#/$defs/RequestConfig"

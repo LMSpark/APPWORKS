@@ -92,8 +92,7 @@
       "title": "DimensionSourceBindingEditorInput",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "target": {
           "$ref": "view-support.ts.json#/$defs/DimensionSourceTarget"

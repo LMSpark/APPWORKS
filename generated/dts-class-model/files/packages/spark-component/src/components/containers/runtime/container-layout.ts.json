@@ -36,11 +36,11 @@
             },
             {
               "type": "object",
-              "title": "import(\"vue\").Ref<number, number>"
+              "title": "import(\"vue\").ShallowRef<number, number>"
             },
             {
               "type": "object",
-              "title": "import(\"vue\").ShallowRef<number, number>"
+              "title": "import(\"vue\").Ref<number, number>"
             },
             {
               "type": "object",
@@ -147,11 +147,11 @@
             },
             {
               "type": "object",
-              "title": "import(\"vue\").Ref<number, number>"
+              "title": "import(\"vue\").ShallowRef<number, number>"
             },
             {
               "type": "object",
-              "title": "import(\"vue\").ShallowRef<number, number>"
+              "title": "import(\"vue\").Ref<number, number>"
             },
             {
               "type": "object",

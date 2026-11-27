@@ -1,5 +1,5 @@
 {
-  "gapCount": 9124,
+  "gapCount": 9145,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -11223,7 +11223,7 @@
       "chainBreak": "EntityPickerSelectedOption 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts",
-      "declarationLine": 25,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts",
       "componentLevel": "field-level",
       "componentLayer": "data-field",
@@ -11238,7 +11238,7 @@
       "chainBreak": "EntityPickerSelectedOption.label 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts",
-      "declarationLine": 26,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts",
       "componentLevel": "field-level",
       "componentLayer": "data-field",
@@ -11253,7 +11253,7 @@
       "chainBreak": "EntityPickerSelectedOption.value 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts",
-      "declarationLine": 27,
+      "declarationLine": 29,
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useEntityPickerState.ts",
       "componentLevel": "field-level",
       "componentLayer": "data-field",
@@ -18370,7 +18370,7 @@
       "chainBreak": "QueryResult.addActionState 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18382,7 +18382,7 @@
       "chainBreak": "QueryResult.assertIdentity 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18394,7 +18394,7 @@
       "chainBreak": "QueryResult.childResult 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18406,7 +18406,7 @@
       "chainBreak": "QueryResult.columns 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18418,7 +18418,7 @@
       "chainBreak": "QueryResult.countReported 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18430,7 +18430,7 @@
       "chainBreak": "QueryResult.createChildActionState 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18442,7 +18442,7 @@
       "chainBreak": "QueryResult.deleteActionState 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18454,7 +18454,7 @@
       "chainBreak": "QueryResult.editActionState 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18466,7 +18466,7 @@
       "chainBreak": "QueryResult.fieldAccess 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18478,7 +18478,7 @@
       "chainBreak": "QueryResult.hasPendingSavedRowPermissions 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18490,7 +18490,7 @@
       "chainBreak": "QueryResult.isFieldReadOnly 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18502,7 +18502,7 @@
       "chainBreak": "QueryResult.newRowFieldAccess 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18514,7 +18514,7 @@
       "chainBreak": "QueryResult.nextPageAvailable 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18526,7 +18526,7 @@
       "chainBreak": "QueryResult.pendingSavedRowIds 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18538,7 +18538,7 @@
       "chainBreak": "QueryResult.prepareNewRow 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18550,7 +18550,7 @@
       "chainBreak": "QueryResult.prepareNewRowWithIdentity 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18562,7 +18562,7 @@
       "chainBreak": "QueryResult.readFieldAccess 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18574,7 +18574,7 @@
       "chainBreak": "QueryResult.reportedPrimaryKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18586,7 +18586,7 @@
       "chainBreak": "QueryResult.resultKind 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18598,7 +18598,7 @@
       "chainBreak": "QueryResult.resultPrimaryKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18610,7 +18610,7 @@
       "chainBreak": "QueryResult.rowKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18622,7 +18622,7 @@
       "chainBreak": "QueryResult.rows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18634,7 +18634,7 @@
       "chainBreak": "QueryResult.total 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18646,7 +18646,7 @@
       "chainBreak": "QueryResult.undefinedChanges 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18658,7 +18658,7 @@
       "chainBreak": "QueryResult.viewActionState 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18669,7 +18669,7 @@
       "chainBreak": "QueryResult 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 10,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18681,7 +18681,7 @@
       "chainBreak": "DataSetCommandResourceIdentity.resourceType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 20,
+      "declarationLine": 29,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18693,7 +18693,7 @@
       "chainBreak": "DataSetCommandResourceIdentity.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 21,
+      "declarationLine": 30,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18704,7 +18704,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 23,
+      "declarationLine": 32,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18716,7 +18716,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.resource 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 26,
+      "declarationLine": 35,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18728,7 +18728,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.guard 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 27,
+      "declarationLine": 36,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18740,7 +18740,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.queryColumns 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 30,
+      "declarationLine": 39,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18752,7 +18752,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.loadRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 32,
+      "declarationLine": 41,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18764,7 +18764,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.loadPage 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 33,
+      "declarationLine": 42,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18775,7 +18775,7 @@
       "chainBreak": "EnsureDataSetResourceViewInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 40,
+      "declarationLine": 49,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18787,7 +18787,7 @@
       "chainBreak": "EnsureDataSetResourceViewInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 41,
+      "declarationLine": 50,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18799,7 +18799,7 @@
       "chainBreak": "EnsureDataSetResourceViewInput.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 42,
+      "declarationLine": 51,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18811,7 +18811,7 @@
       "chainBreak": "EnsureDataSetResourceViewInput.columns 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 45,
+      "declarationLine": 54,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18823,7 +18823,7 @@
       "chainBreak": "DataSetCommandRequestProof.requestKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 53,
+      "declarationLine": 62,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18835,7 +18835,7 @@
       "chainBreak": "DataSetCommandRequestProof.requestDigest 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 54,
+      "declarationLine": 63,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18847,7 +18847,7 @@
       "chainBreak": "BindCommandSubmitOptions.resource 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 65,
+      "declarationLine": 74,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18859,7 +18859,7 @@
       "chainBreak": "BindCommandSubmitOptions.guard 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 68,
+      "declarationLine": 77,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18871,7 +18871,7 @@
       "chainBreak": "BindCommandSubmitOptions.inputFields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 69,
+      "declarationLine": 78,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -18883,7 +18883,7 @@
       "chainBreak": "BindCommandSubmitOptions.createKey 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 70,
+      "declarationLine": 79,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18895,7 +18895,7 @@
       "chainBreak": "BindCommandSubmitOptions.submit 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 73,
+      "declarationLine": 82,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18907,7 +18907,7 @@
       "chainBreak": "BindCommandSubmitOptions.verify 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 74,
+      "declarationLine": 83,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -18919,7 +18919,7 @@
       "chainBreak": "BindCommandSubmitOptions.isUnconfirmed 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 75,
+      "declarationLine": 84,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -28002,18 +28002,6 @@
     {
       "kind": "attribute",
       "className": "TreeModel",
-      "memberName": "__@iterator@306065",
-      "reason": "missing-jsdoc",
-      "chainBreak": "TreeModel.__@iterator@306065 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-json-document/src/tree/tree-types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-json-document/src/tree/tree-types.ts",
-      "declarationLine": 50,
-      "sourceFile": "packages/spark-json-document/src/tree/tree-types.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "TreeModel",
       "memberName": "entries",
       "reason": "missing-jsdoc",
       "chainBreak": "TreeModel.entries 的成员语义链断开：attribute 声明没有 JSDoc。",
@@ -35150,7 +35138,7 @@
       "chainBreak": "HttpClientFactoryOptions.baseURL 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35162,7 +35150,7 @@
       "chainBreak": "HttpClientFactoryOptions.cache 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35174,7 +35162,7 @@
       "chainBreak": "HttpClientFactoryOptions.cacheExpiry 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35186,7 +35174,7 @@
       "chainBreak": "HttpClientFactoryOptions.cacheKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35198,7 +35186,7 @@
       "chainBreak": "HttpClientFactoryOptions.data 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35210,7 +35198,7 @@
       "chainBreak": "HttpClientFactoryOptions.headers 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35222,7 +35210,7 @@
       "chainBreak": "HttpClientFactoryOptions.keepalive 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35234,7 +35222,7 @@
       "chainBreak": "HttpClientFactoryOptions.meta 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35246,7 +35234,19 @@
       "chainBreak": "HttpClientFactoryOptions.method 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
+      "sourceFile": "packages/spark-utils/src/http/types.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "HttpClientFactoryOptions",
+      "memberName": "onTransportAttempt",
+      "reason": "missing-jsdoc",
+      "chainBreak": "HttpClientFactoryOptions.onTransportAttempt 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-utils/src/http/types.ts",
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35258,7 +35258,7 @@
       "chainBreak": "HttpClientFactoryOptions.params 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35270,7 +35270,7 @@
       "chainBreak": "HttpClientFactoryOptions.responseType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35282,7 +35282,7 @@
       "chainBreak": "HttpClientFactoryOptions.retry 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35294,7 +35294,7 @@
       "chainBreak": "HttpClientFactoryOptions.retryDelay 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35306,7 +35306,7 @@
       "chainBreak": "HttpClientFactoryOptions.signal 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35318,7 +35318,7 @@
       "chainBreak": "HttpClientFactoryOptions.timeout 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35330,7 +35330,7 @@
       "chainBreak": "HttpClientFactoryOptions.url 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -35342,7 +35342,7 @@
       "chainBreak": "HttpClientFactoryOptions.withCredentials 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-utils/src/http/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-utils/src/http/types.ts",
-      "declarationLine": 174,
+      "declarationLine": 178,
       "sourceFile": "packages/spark-utils/src/http/types.ts",
       "declarationKind": "typeAlias"
     },
@@ -36591,6 +36591,18 @@
       "sourceFile": "src/platform-adapters/api/design/file-mutation-state.ts"
     },
     {
+      "kind": "constructor",
+      "className": "FileMutationNotDispatchedError",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "FileMutationNotDispatchedError.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 src/platform-adapters/api/design/file-mutation-state.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/platform-adapters/api/design/file-mutation-state.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/platform-adapters/api/design/file-mutation-state.ts",
+      "declarationKind": "class"
+    },
+    {
       "kind": "attribute",
       "className": "LowcodeDesignApiOptions",
       "memberName": "http",
@@ -36862,7 +36874,7 @@
       "chainBreak": "LowcodeBinaryFileArea.appType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/api/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
-      "declarationLine": 27,
+      "declarationLine": 29,
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -36874,7 +36886,7 @@
       "chainBreak": "LowcodeBinaryFileArea.customPath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/api/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
-      "declarationLine": 28,
+      "declarationLine": 30,
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -36886,7 +36898,7 @@
       "chainBreak": "LowcodeDesignFileUpload.uploadWorkingText 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/api/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
-      "declarationLine": 62,
+      "declarationLine": 64,
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
       "declarationKind": "class"
     },
@@ -36898,7 +36910,7 @@
       "chainBreak": "LowcodeDesignFileUpload.uploadTextVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/api/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
-      "declarationLine": 63,
+      "declarationLine": 65,
       "sourceFile": "src/platform-adapters/api/design/lowcode-design-file-upload.ts",
       "declarationKind": "class"
     },
@@ -66371,7 +66383,7 @@
       "chainBreak": "FlowDesignPreparedViews 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 3,
+      "declarationLine": 28,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "typeAlias"
     },
@@ -66383,7 +66395,7 @@
       "chainBreak": "FlowDesignPreparedViews.documentViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 4,
+      "declarationLine": 29,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -66395,7 +66407,7 @@
       "chainBreak": "FlowDesignPreparedViews.modelTitle 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 5,
+      "declarationLine": 30,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -66407,7 +66419,7 @@
       "chainBreak": "FlowDesignPreparedViews.nodeViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 6,
+      "declarationLine": 31,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -66419,7 +66431,7 @@
       "chainBreak": "FlowDesignPreparedViews.edgeViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 7,
+      "declarationLine": 32,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -66431,7 +66443,7 @@
       "chainBreak": "FlowDesignPreparedViews.workFormViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 8,
+      "declarationLine": 33,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -66443,7 +66455,7 @@
       "chainBreak": "FlowDesignPreparedViews.graphLayout 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
-      "declarationLine": 9,
+      "declarationLine": 34,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-design-runtime.ts",
       "declarationKind": "interface"
     },
@@ -68589,7 +68601,7 @@
       "chainBreak": "PrepareFlowRunPageCommand.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
-      "declarationLine": 41,
+      "declarationLine": 43,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/flow-run-page-runtime.ts",
       "declarationKind": "typeAlias"
     },
@@ -107960,15 +107972,253 @@
     },
     {
       "kind": "attribute",
-      "className": "ApiConfigPageProps",
-      "memberName": "config",
+      "className": "RToolbarProps",
+      "memberName": "align",
       "reason": "missing-jsdoc",
-      "chainBreak": "ApiConfigPageProps.config 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.props.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
-      "declarationLine": 12,
-      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
-      "declarationKind": "interface"
+      "chainBreak": "RToolbarProps.align 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "children",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.children 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "class",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.class 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "dataField",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.dataField 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "dataMember",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.dataMember 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "dataSource",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.dataSource 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "dataViewKey",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.dataViewKey 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "gap",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.gap 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "id",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.id 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "justify",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.justify 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "permissionDeniedMode",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.permissionDeniedMode 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "position",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.position 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "showAggregateSummary",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.showAggregateSummary 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "showDataViewMeta",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.showDataViewMeta 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "showSelectionSummary",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.showSelectionSummary 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "tail",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.tail 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "type",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.type 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "wrap",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.wrap 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "RToolbarProps",
+      "memberName": "zoneGap",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps.zoneGap 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "RToolbarProps",
+      "reason": "missing-jsdoc",
+      "chainBreak": "RToolbarProps 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 3,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "TabName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "TabName 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/features/integration/api-management/ui/api-config-page.vue 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationLine": 4,
+      "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",

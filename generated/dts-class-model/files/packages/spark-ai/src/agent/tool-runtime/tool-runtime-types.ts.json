@@ -27,9 +27,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "AiAgentToolCheckLevel",
       "enum": [
-        "info",
+        "error",
         "warn",
-        "error"
+        "info"
       ]
     },
     "AiAgentToolCheck": {
@@ -163,10 +163,7 @@
         "ok": {
           "type": "boolean"
         },
-        "data": {
-          "type": "object",
-          "title": "TData"
-        },
+        "data": true,
         "checks": {
           "type": "array",
           "items": {
@@ -174,7 +171,8 @@
           }
         },
         "state": {
-          "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         }
       },
       "additionalProperties": false,
@@ -191,10 +189,7 @@
         "method.ok.params": {
           "type": "object",
           "properties": {
-            "data": {
-              "type": "object",
-              "title": "TData"
-            },
+            "data": true,
             "checks": {
               "type": "array",
               "items": {
@@ -202,7 +197,8 @@
               }
             },
             "state": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -220,7 +216,8 @@
               }
             },
             "state": {
-              "$ref": "../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -344,9 +341,9 @@
       "properties": {
         "level": {
           "enum": [
-            "info",
+            "error",
             "warn",
-            "error"
+            "info"
           ]
         },
         "code": {
@@ -373,9 +370,9 @@
       "properties": {
         "status": {
           "enum": [
-            "error",
             "ok",
-            "warning"
+            "warning",
+            "error"
           ]
         },
         "rootKinds": {

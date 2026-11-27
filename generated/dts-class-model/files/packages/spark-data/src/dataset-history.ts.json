@@ -161,11 +161,14 @@
           "type": "string"
         },
         "adapter": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataSetHistoryStorageAdapter"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/DataSetHistoryStorageAdapter"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -188,11 +191,14 @@
           "type": "string"
         },
         "adapter": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataSetHistoryStorageAdapter"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/DataSetHistoryStorageAdapter"
+            }
+          ]
         },
         "maxEntries": {
           "type": "number"
@@ -238,11 +244,14 @@
           "type": "string"
         },
         "adapter": {
-          "type": [
-            "null",
-            "object"
-          ],
-          "title": "DataSetHistoryStorageAdapter"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/DataSetHistoryStorageAdapter"
+            }
+          ]
         },
         "maxEntries": {
           "type": "number"

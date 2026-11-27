@@ -77,7 +77,7 @@
       "title": "Packing",
       "properties": {
         "record": {
-          "$ref": "../../../../../../../../services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "$ref": "../../../../../../../../services/smart-bid/content/review/delivery-zip-packing.ts.json#/$defs/FrozenSelection"
         },
         "positions": {
           "type": "array",
@@ -94,7 +94,7 @@
         },
         "openOriginal": {
           "type": "object",
-          "title": "(member: Readonly<{ manifestId: string; manifestVersion: string; position: string; fileVersionId: string; fileHash: string; }>) => Promise<Readonly<{ projectId: string; fileVersionId: string; bytes: ArrayBuffer; assertCurrent: () => void; }>>"
+          "title": "(member: Member) => Promise<OriginalFile>"
         }
       },
       "required": [

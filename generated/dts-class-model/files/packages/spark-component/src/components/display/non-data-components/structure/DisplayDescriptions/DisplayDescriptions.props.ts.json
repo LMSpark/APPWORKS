@@ -56,15 +56,15 @@
         },
         "direction": {
           "enum": [
-            "vertical",
-            "horizontal"
+            "horizontal",
+            "vertical"
           ]
         },
         "descriptionsSize": {
           "enum": [
-            "small",
+            "large",
             "default",
-            "large"
+            "small"
           ]
         }
       },

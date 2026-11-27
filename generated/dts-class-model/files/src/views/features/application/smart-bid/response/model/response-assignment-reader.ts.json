@@ -107,8 +107,8 @@
               },
               "kind": {
                 "enum": [
-                  "MATERIAL",
                   "FACT",
+                  "MATERIAL",
                   "QUALIFICATION"
                 ]
               }
@@ -123,8 +123,7 @@
         "evidence": {
           "type": "array",
           "items": {
-            "type": "object",
-            "title": "Evidence"
+            "$ref": "../../../../../../services/smart-bid/content/references/response/response-draft.ts.json#/$defs/Evidence"
           }
         }
       },
@@ -169,7 +168,40 @@
         "assignments": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Duty"
+            "type": "object",
+            "properties": {
+              "targetRef": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "DOCUMENT",
+                  "FORM_CELL",
+                  "PLATFORM_FIELD"
+                ]
+              },
+              "duty": {
+                "enum": [
+                  "LEAD",
+                  "SEPARATE",
+                  "EVIDENCE"
+                ]
+              },
+              "assigneeRef": {
+                "type": "string"
+              },
+              "dueAt": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "targetRef",
+              "kind",
+              "duty",
+              "assigneeRef",
+              "dueAt"
+            ],
+            "additionalProperties": false
           }
         },
         "assertCurrent": {

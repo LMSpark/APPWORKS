@@ -56,7 +56,7 @@
         },
         "contextDataMember": {
           "type": "object",
-          "title": "MaybeRefOrGetter<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"pageSize\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | undefined>"
+          "title": "MaybeRefOrGetter<\"page\" | \"columns\" | \"rows\" | \"total\" | \"requestState\" | DataMember | \"value\" | \"pageSize\" | \"selectedRows\" | \"mutating\" | \"loadingError\" | \"mutatingError\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"currentRow\" | undefined>"
         },
         "contextDataField": {
           "type": "object",
@@ -114,17 +114,11 @@
           },
           "additionalProperties": false
         },
-        "method.mapView.return": {
-          "type": "object",
-          "title": "TSource"
-        },
+        "method.mapView.return": true,
         "method.provideDataSource.params": {
           "type": "object",
           "properties": {
-            "source": {
-              "type": "object",
-              "title": "TSource"
-            }
+            "source": true
           },
           "additionalProperties": false
         },
@@ -173,10 +167,7 @@
         "method.provideDataSource.params": {
           "type": "object",
           "properties": {
-            "source": {
-              "type": "object",
-              "title": "TSource"
-            }
+            "source": true
           },
           "additionalProperties": false
         },

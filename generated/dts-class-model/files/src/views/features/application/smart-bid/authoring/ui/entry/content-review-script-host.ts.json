@@ -20,7 +20,38 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Host"
+          "properties": {
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(binding: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "runtime",
+            "scenarioId",
+            "projectId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -38,15 +69,13 @@
             "targets": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "ReviewTarget"
+                "$ref": "../../model/review/content-review-versions.ts.json#/$defs/ReviewTarget"
               }
             },
             "files": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "FileTarget"
+                "$ref": "../../model/review/content-review-workspace.ts.json#/$defs/FileTarget"
               }
             },
             "approvalIds": {
@@ -71,11 +100,11 @@
           "properties": {
             "openFile": {
               "type": "object",
-              "title": "OpenAuthorized"
+              "title": "(input: Readonly<{ projectId: string; producedFileId: string; productionRequestRef: string; }> & Readonly<{ resourceVersionId: string; }>) => Promise<Readonly<{ projectId: string; resourceVersionId: string; bytes: ArrayBuffer; assertCurrent: () => void; }>>"
             },
             "readField": {
               "type": "object",
-              "title": "(input: Readonly<{ projectId: string; revisionId: string; fieldId: string; }>) => Promise<Readonly<{ projectId: string; revisionId: string; assignmentId: string; ... 6 more ...; assertCurrent: () => void; }>>"
+              "title": "(input: Readonly<{ projectId: string; revisionId: string; fieldId: string; }>) => Promise<FieldProof>"
             },
             "readDecision": {
               "type": "object",
@@ -104,11 +133,87 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Host"
+          "properties": {
+            "runtime": {
+              "type": "object",
+              "properties": {
+                "resolveView": {
+                  "type": "object",
+                  "title": "(binding: string) => DataView | undefined"
+                }
+              },
+              "required": [
+                "resolveView"
+              ],
+              "additionalProperties": false
+            },
+            "scenarioId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "runtime",
+            "scenarioId",
+            "projectId",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
           "type": "object",
-          "title": "ApprovedField"
+          "properties": {
+            "projectId": {
+              "type": "string"
+            },
+            "revisionId": {
+              "type": "string"
+            },
+            "assignmentId": {
+              "type": "string"
+            },
+            "fieldId": {
+              "type": "string"
+            },
+            "responseId": {
+              "type": "string"
+            },
+            "fieldRuleRef": {
+              "type": "string"
+            },
+            "approvalRef": {
+              "type": "string"
+            },
+            "versionHash": {
+              "type": "string"
+            },
+            "valueHash": {
+              "type": "string"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "projectId",
+            "revisionId",
+            "assignmentId",
+            "fieldId",
+            "responseId",
+            "fieldRuleRef",
+            "approvalRef",
+            "versionHash",
+            "valueHash",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
           "type": "object",
@@ -349,8 +454,7 @@
       "items": false,
       "prefixItems": [
         {
-          "type": "object",
-          "title": "Request"
+          "$ref": "../../../../../../../services/smart-bid/content/review/production/production-recovery.ts.json#/$defs/Request"
         },
         {
           "type": "object",
@@ -445,7 +549,99 @@
       "prefixItems": [
         {
           "type": "object",
-          "title": "Prepared"
+          "properties": {
+            "request": {
+              "type": "object",
+              "properties": {
+                "inputDigest": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "documentId": {
+                  "type": "string"
+                },
+                "revisionId": {
+                  "type": "string"
+                },
+                "baselineId": {
+                  "type": "string"
+                },
+                "requestKey": {
+                  "type": "string"
+                },
+                "purpose": {
+                  "enum": [
+                    "REVIEW",
+                    "FORMAL"
+                  ]
+                },
+                "toolVersionRef": {
+                  "type": "string"
+                },
+                "outputOptions": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": true
+                },
+                "rootHash": {
+                  "type": "string"
+                },
+                "templateVersionRef": {
+                  "type": "string"
+                },
+                "ruleVersionRef": {
+                  "type": "string"
+                },
+                "formVersionRef": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "factRefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "attachmentRefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "inputDigest",
+                "projectId",
+                "documentId",
+                "revisionId",
+                "baselineId",
+                "requestKey",
+                "purpose",
+                "toolVersionRef",
+                "outputOptions",
+                "rootHash",
+                "templateVersionRef",
+                "ruleVersionRef",
+                "formVersionRef",
+                "factRefs",
+                "attachmentRefs"
+              ],
+              "additionalProperties": false
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "request",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         {
           "$ref": "../../../../../../../services/smart-bid/content/review/production/paper-output-registration.ts.json#/$defs/Paper"

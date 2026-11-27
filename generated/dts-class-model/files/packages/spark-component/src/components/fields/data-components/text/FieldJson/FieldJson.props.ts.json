@@ -30,34 +30,40 @@
           "type": "object",
           "properties": {
             "original": {
-              "$ref": "../../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
         },
         "method.read.return": {
-          "$ref": "../../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.write.params": {
           "type": "object",
           "properties": {
             "value": {
-              "$ref": "../../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             },
             "original": {
-              "$ref": "../../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
         },
         "method.write.return": {
-          "$ref": "../../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+          "type": "object",
+          "title": "Record<string, unknown>"
         },
         "method.canEdit.params": {
           "type": "object",
           "properties": {
             "original": {
-              "$ref": "../../../../../../../../src/services/smart-bid/content/review/delivery-freeze-recovery.ts.json#/$defs/Record"
+              "type": "object",
+              "title": "Record<string, unknown>"
             }
           },
           "additionalProperties": false
@@ -94,10 +100,10 @@
           "enum": [
             "text",
             "tree",
-            "rows",
-            "form",
             "table",
+            "rows",
             "properties",
+            "form",
             "outline"
           ]
         },
@@ -242,8 +248,8 @@
         },
         "rowEditMode": {
           "enum": [
-            "inline",
-            "row"
+            "row",
+            "inline"
           ]
         }
       },

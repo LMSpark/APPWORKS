@@ -294,10 +294,6 @@
                 "at": {
                   "type": "object",
                   "title": "(index: number) => string | undefined"
-                },
-                "__@iterator@305476": {
-                  "type": "object",
-                  "title": "() => StringIterator<string>"
                 }
               },
               "required": [
@@ -349,8 +345,7 @@
                 "trimRight",
                 "matchAll",
                 "replaceAll",
-                "at",
-                "__@iterator@305476"
+                "at"
               ],
               "additionalProperties": false
             }
@@ -502,8 +497,8 @@
         },
         "resultKind": {
           "enum": [
-            "join",
             "entity",
+            "join",
             "navigation",
             "hierarchy",
             "aggregate"

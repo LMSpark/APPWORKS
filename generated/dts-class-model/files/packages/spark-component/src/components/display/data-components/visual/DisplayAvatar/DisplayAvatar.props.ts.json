@@ -47,17 +47,17 @@
         },
         "dataMember": {
           "enum": [
-            "page",
-            "columns",
-            "rows",
-            "total",
-            "requestState",
             "value",
+            "rows",
+            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
             "selectionAggregateResult",
+            "total",
+            "page",
             "pageSize",
+            "requestState",
             "mutating",
             "loadingError",
             "mutatingError"
@@ -102,10 +102,10 @@
         },
         "fit": {
           "enum": [
-            "none",
             "fill",
             "contain",
             "cover",
+            "none",
             "scale-down"
           ]
         },

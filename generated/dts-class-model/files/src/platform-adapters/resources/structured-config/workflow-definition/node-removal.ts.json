@@ -20,8 +20,7 @@
       "title": "Input",
       "properties": {
         "dataSet": {
-          "type": "object",
-          "title": "DataSet"
+          "$ref": "../../../../../packages/spark-data/src/dataset.ts.json#/$defs/DataSet"
         },
         "workflowId": {
           "type": "string"
@@ -44,12 +43,12 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "Status",
       "enum": [
-        "staged",
-        "complete",
-        "cancelled",
         "ready",
+        "staged",
         "database",
         "layout",
+        "complete",
+        "cancelled",
         "not-applied"
       ]
     },

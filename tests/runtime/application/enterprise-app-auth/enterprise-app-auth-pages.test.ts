@@ -423,6 +423,24 @@ describe('申请应用授权', () => {
 })
 
 describe('申请列表', () => {
+  it.each([['auth_status', 'ACTIVE'], ['source_ent', 'OTHER'], ['request_type', 'GRANT'], ['hidden request_type', null]])('refuses to start a review with an invalid pending scope (%s)', async (field, value) => {
+    const {runtime, rows} = await open(ReviewPage, REVIEW)
+    expect(rows(`${REVIEW}@enterprise_app_auth@default`)).toEqual(['R1'])
+    const original = http.records['enterprise_app_auth']!.find(row => row['id'] === 'R1')!
+    if (value === null) http.hiddenFieldsById['enterprise_app_auth'] = {R1: ['request_type']}
+    else original[field] = value
+
+    await click('审核')
+
+    const audit = runtime().resolveView(`${REVIEW}@enterprise_app_auth@audit`)!
+    expect(audit.hasEditingChanges()).toBe(false)
+    expect(audit.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(buttons('通过').filter(button => !button.disabled)).toHaveLength(0)
+    expect(buttons('不通过').filter(button => !button.disabled)).toHaveLength(0)
+    expect(document.body.textContent).toContain('待审范围')
+    expect(http.saves).toHaveLength(0)
+  })
+
   it('audits the original request with separately named main and company tables', async () => {
     const original = pagedataText[REVIEW]!
     const {enterprise_app_auth: requestRows, Base_Enterprise_Info: companyRows, ...other} = reviewRequests.tables
@@ -459,6 +477,10 @@ describe('申请列表', () => {
         .toEqual(expect.arrayContaining([[listKey, 'R1'], [auditKey, 'R1']]))
       expect(forms).toHaveLength(2)
       expect(auditView?.queryContext['recordId']).toBe('R1')
+      expect(auditView?.queryContext['entShortName']).toBe('ME')
+      const detailRequest = authReads().find(request => request.includes('"recordId"'))
+      expect(detailRequest).toContain('{"Name":"recordId","Value":"R1"}')
+      expect(detailRequest).toContain('{"Name":"entShortName","Value":"ME"}')
       expect(rows(auditKey)).toEqual(['R1'])
       expect(document.body.textContent).toContain('拒绝原因（不通过时填写）')
       await click('通过')
@@ -501,6 +523,27 @@ describe('申请列表', () => {
     expect(http.saves).toHaveLength(1)
     expect(http.saves[0]?.changed).toEqual([expect.objectContaining({id: 'R1', auth_status: 'REJECTED'})])
     expect(http.records['enterprise_app_auth']?.find(row => row['id'] === 'R1')?.['review_comment']).toBe('请批准')
+  })
+
+  it('keeps a lost review receipt recoverable by its original key after the request leaves PENDING', async () => {
+    const {runtime} = await open(ReviewPage, REVIEW)
+    await click('审核')
+    const audit = runtime().resolveView(`${REVIEW}@enterprise_app_auth@audit`)!
+    const dataSet = audit.dataSet!
+    http.failAfterWrite = true
+    await click('不通过')
+    expect(document.body.textContent).toContain('保存结果未知')
+    expect(audit.hasUnconfirmedSaveFor(['R1'])).toBe(true)
+    expect(buttons('不通过')[0]?.disabled).toBe(true)
+    expect(http.saves).toHaveLength(1)
+    expect(http.records['enterprise_app_auth']?.find(row => row['id'] === 'R1')?.['auth_status']).toBe('REJECTED')
+
+    const batchId = dataSet.saveJournal.batchId
+    if (!batchId) throw Error('缺少原审核批次')
+    const recovered = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [audit], readbackViews: []})
+    expect(recovered.settlement).toBe('confirmed')
+    expect(audit.hasUnconfirmedSaveFor(['R1'])).toBe(false)
+    expect(http.saves).toHaveLength(1)
   })
 
   it('不通过写 REJECTED，留空保留申请说明，填写时写入拒绝原因；取消不写入', async () => {

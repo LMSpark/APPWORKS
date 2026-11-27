@@ -18,8 +18,13 @@
         },
         "audit": {
           "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
-          "scopeFilter": {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "recordId"}},
-          "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["id", "auth_status", "review_comment", "operator"]}
+          "scopeFilter": {"logic": "and", "filters": [
+            {"field": "id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "recordId"}},
+            {"field": "auth_status", "operator": "eq", "value": "PENDING"},
+            {"field": "source_ent", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "entShortName"}},
+            {"field": "request_type", "operator": "eq", "value": "REQUEST"}
+          ]},
+          "queryConfig": {"pagination": "none", "cacheType": "none", "fields": ["id", "auth_status", "source_ent", "request_type", "review_comment", "operator"]}
         }
       }
     },

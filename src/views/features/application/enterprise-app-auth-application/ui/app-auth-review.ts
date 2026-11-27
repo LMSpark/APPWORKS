@@ -21,9 +21,18 @@ type ReviewOptions = {
 }
 type ReviewRecord = {
   id: string | number
+  publisher: string
   listRow: DataRow
   assertList: () => void
   read?: {row: DataRow; assertCurrent: () => void; editComment: boolean; originalComment: unknown}
+}
+
+const pendingScopeFields = ['auth_status', 'source_ent', 'request_type'] as const
+
+function isPendingRequest(view: DataView, row: DataRow, publisher: unknown): publisher is string {
+  return typeof publisher === 'string' && publisher !== ''
+    && pendingScopeFields.every(field => view.fieldAccess(row, field).read === 'visible')
+    && row['auth_status'] === 'PENDING' && row['source_ent'] === publisher && row['request_type'] === 'REQUEST'
 }
 
 /** Preserve the original list and audit query proofs through the user's review decision. */
@@ -33,8 +42,8 @@ export function createAppAuthReview({list, audit, isCurrent, showSuccess}: Revie
 
   const canAudit = (row: unknown) => isDataRow(row) && listAccess(toRaw(row))
   const listAccess = (row: DataRow) => list.fieldAccess(row, 'auth_status').write === 'allowed'
-    && list.fieldAccess(row, 'auth_status').read === 'visible' && row['auth_status'] === 'PENDING'
-  const canDecide = (row: DataRow) => audit.fieldAccess(row, 'auth_status').write === 'allowed'
+    && isPendingRequest(list, row, list.queryContext['entShortName'])
+  const canWriteDecision = (row: DataRow) => audit.fieldAccess(row, 'auth_status').write === 'allowed'
     && audit.fieldAccess(row, 'operator').write === 'allowed'
   const owns = (record: ReviewRecord) => isCurrent() && active.value === record
 
@@ -46,24 +55,29 @@ export function createAppAuthReview({list, audit, isCurrent, showSuccess}: Revie
     let record: ReviewRecord | undefined
     try {
       if (id === undefined || id === '') throw new Error('缺少申请记录')
-      if (!listAccess(original)) throw new Error('无权审核该申请')
-      record = {id, listRow: original, assertList: list.captureReadRow(original, [list.primaryKey, 'auth_status'])}
+      const publisher = list.queryContext['entShortName']
+      if (!isPendingRequest(list, original, publisher) || list.fieldAccess(original, 'auth_status').write !== 'allowed') {
+        throw new Error('无权审核该申请')
+      }
+      record = {id, publisher, listRow: original, assertList: list.captureReadRow(original, [list.primaryKey, ...pendingScopeFields])}
       active.value = record
       loading.value = true
       if (audit.hasEditingChanges() || audit.dirtyTracking.hasPendingChanges() || audit.hasUnconfirmedSave) {
         throw new Error('上一次审核尚未提交或取消')
       }
-      audit.queryContext = {...audit.queryContext, recordId: String(id)}
+      audit.queryContext = {...audit.queryContext, recordId: String(id), entShortName: publisher}
       const result = await audit.requestRefresh({defer: false})
       if (!owns(record)) return
       record.assertList()
       if (audit.loadingError) throw audit.loadingError
       const auditRow = audit.rows.length === 1 ? audit.rows[0] : undefined
-      if (result.refreshStatus !== 'read' || !auditRow || audit.getPkKey(auditRow) !== id) throw new Error('未读取到唯一的申请记录')
-      if (!canDecide(auditRow)) throw new Error('无权审核该申请')
+      if (result.refreshStatus !== 'read' || !auditRow || audit.getPkKey(auditRow) !== id || !isPendingRequest(audit, auditRow, publisher)) {
+        throw new Error('未读取到当前待审范围内唯一可读的原申请记录')
+      }
+      if (!canWriteDecision(auditRow)) throw new Error('无权审核该申请')
       const editComment = audit.fieldAccess(auditRow, 'review_comment').write === 'allowed'
         && audit.fieldAccess(auditRow, 'review_comment').read === 'visible'
-      const assertCurrent = audit.captureReadRow(auditRow, [audit.primaryKey])
+      const assertCurrent = audit.captureReadRow(auditRow, [audit.primaryKey, ...pendingScopeFields])
       record.read = {row: auditRow, assertCurrent, editComment, originalComment: editComment ? auditRow['review_comment'] : undefined}
       if (editComment) audit.updateEditingValue(id, 'review_comment', '')
       ready.value = true
@@ -83,7 +97,9 @@ export function createAppAuthReview({list, audit, isCurrent, showSuccess}: Revie
     try {
       record.assertList()
       read.assertCurrent()
-      if (!listAccess(record.listRow) || !canDecide(read.row)) throw new Error('无权审核该申请')
+      if (!listAccess(record.listRow) || !isPendingRequest(audit, read.row, record.publisher) || !canWriteDecision(read.row)) {
+        throw new Error('无权审核该申请')
+      }
       const {userId} = readAppAuthSession()
       if (read.editComment) {
         if (audit.fieldAccess(read.row, 'review_comment').write !== 'allowed') throw new Error('无权修改审核意见')

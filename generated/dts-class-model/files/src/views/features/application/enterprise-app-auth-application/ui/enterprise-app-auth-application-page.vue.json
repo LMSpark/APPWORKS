@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
     "packageName": "app",
     "modulePath": "views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
-    "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page\n职责：申请列表：其他企业对本企业发布应用的待审批申请（C06D 场景常驻范围：PENDING、来源为本企业、REQUEST），逐条审核。\n边界：企业、应用名称经同场景选项视图查值显示；审核入口只依据本行 auth_status 写权限与 PENDING 状态，审批由审核弹窗按记录提交。",
+    "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page\n职责：以正式审核场景装配申请列表与审核工具。\n边界：列表和审核编辑使用同一调用中的不同正式视图，保留原页面入口。\nAI用途：变更审核页面时沿原生入口绑定已登记 C06D 场景，通过工具规则选择视图和页面交互。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-20T20:59:33.062Z",
+  "generatedAt": "2026-11-27T14:53:17.871Z",
   "models": {}
 }

@@ -3,8 +3,9 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, type Component} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
+import {SparkNodeTree} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {RendererButton, RendererTable, Spark, SparkPageRenderer, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererButton, RendererDialog, RendererForm, RendererTable, Spark, SparkPageRenderer, registerAllRenderers} from '@spark-appworks/spark-component'
 import {api, APPLY, BASE, MY, pagedataText, resetEnterpriseAppAuthFixture, REVIEW, session} from './enterprise-app-auth.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
 import myRequests from '../../../../config/pages/application/enterprise-app-auth/my-requests/pagedata.json'
@@ -328,12 +329,38 @@ describe('申请列表', () => {
     const {enterprise_app_auth: requestRows, Base_Enterprise_Info: companyRows, ...other} = reviewRequests.tables
     pagedataText[REVIEW] = JSON.stringify({...reviewRequests, tables: {requestRows, companyRows, ...other}})
     try {
-      const {runtime, rows} = await open(ReviewPage, REVIEW)
+      const {wrapper, observed, runtime, rows} = await open(ReviewPage, REVIEW)
+      const renderer = wrapper.getComponent(SparkPageRenderer)
+      const current = runtime()
+      expect(renderer.props('pageRuntime')).toBe(current)
+      expect(current.call.scenarioIds).toEqual([REVIEW])
+      const rule = SparkNodeTree.fromRuleJson(current.materialize().rule)
+      expect(rule.findByType({type: 'r-table'}).total).toBe(1)
+      expect(rule.findByType({type: 'r-dialog'}).total).toBe(1)
+      expect(rule.findByType({type: 'r-form'}).total).toBe(2)
+      const listKey = `${REVIEW}@enterprise_app_auth@default`
+      const auditKey = `${REVIEW}@enterprise_app_auth@audit`
+      const requests = current.getDataSet(REVIEW)
+      const listView = current.resolveView(listKey)
+      const auditView = current.resolveView(auditKey)
+      expect(listView).toBeDefined()
+      expect(auditView).toBeDefined()
+      expect(listView).toBe(requests?.getView('requestRows', 'default'))
+      expect(auditView).toBe(requests?.getView('requestRows', 'audit'))
+      expect(auditView).not.toBe(listView)
+      expect(renderer.getComponent(RendererTable).props('dataViewKey')).toBe(listKey)
       const companyView = runtime().resolveView(`${REVIEW}@Base_Enterprise_Info@byShortName`)
       expect(companyView?.tableName).toBe('companyRows')
       expect(companyView?.rows.some(row => row['ShortName'] === 'OTHER')).toBe(true)
       expect(rows(`${REVIEW}@enterprise_app_auth@default`)).toEqual(['R1'])
       await click('审核')
+      expect(observed.size).toBe(1)
+      const forms = renderer.getComponent(RendererDialog).findAllComponents(RendererForm)
+      expect(forms.map(form => [form.props('dataViewKey'), form.props('contextRowId')]))
+        .toEqual(expect.arrayContaining([[listKey, 'R1'], [auditKey, 'R1']]))
+      expect(forms).toHaveLength(2)
+      expect(auditView?.queryContext['recordId']).toBe('R1')
+      expect(rows(auditKey)).toEqual(['R1'])
       expect(document.body.textContent).toContain('拒绝原因（不通过时填写）')
       await click('通过')
       expect(http.saves).toEqual([{table: 'enterprise_app_auth', added: [], deleted: [],
@@ -358,6 +385,23 @@ describe('申请列表', () => {
     expect(http.saves[0]?.changed).toEqual([expect.objectContaining({id: 'R1', auth_status: 'INITIALIZING', operator: 'U1'})])
     expect(http.records['enterprise_app_auth']?.find(row => row['id'] === 'R1')?.['review_comment']).toBe('请批准')
     expect(rows(`${REVIEW}@enterprise_app_auth@default`)).toEqual([])
+  })
+
+  it('审核确认拒绝同键后继读取，关闭后可从新读取重新审核', async () => {
+    const {runtime} = await open(ReviewPage, REVIEW)
+    await click('审核')
+    await type('可选，拒绝时将写入审批意见', '本次的拒绝原因')
+    const list = runtime().resolveView(`${REVIEW}@enterprise_app_auth@default`)!
+    expect((await list.requestRefresh({defer: false})).refreshStatus).toBe('read')
+    await click('不通过')
+    expect(http.saves).toHaveLength(0)
+    expect(document.body.textContent).toContain('原查询身份或行已变化')
+    await click('取消')
+    await click('审核')
+    await click('不通过')
+    expect(http.saves).toHaveLength(1)
+    expect(http.saves[0]?.changed).toEqual([expect.objectContaining({id: 'R1', auth_status: 'REJECTED'})])
+    expect(http.records['enterprise_app_auth']?.find(row => row['id'] === 'R1')?.['review_comment']).toBe('请批准')
   })
 
   it('不通过写 REJECTED，留空保留申请说明，填写时写入拒绝原因；取消不写入', async () => {

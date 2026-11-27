@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/application/enterprise-app-auth-application/ui/app-auth-review",
+    "sourcePath": "src/views/features/application/enterprise-app-auth-application/ui/app-auth-review.ts",
+    "sourceFile": "src/views/features/application/enterprise-app-auth-application/ui/app-auth-review.ts",
+    "packageName": "app",
+    "modulePath": "views/features/application/enterprise-app-auth-application/ui/app-auth-review",
+    "jsdoc": "@module app:views/features/application/enterprise-app-auth-application/ui/app-auth-review\n职责：承接单次 C06D 审核工具的原记录选择、按键读回、审核决定和撤销未提交意见。\n边界：列表只提供展示和原行读取证明，查询审核详情、编辑和提交全部沿独立审核 DataView。\nAI用途：接入审核规则回调时复用这一能力，保持原记录、会话与操作结果的归属。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "ReviewOptions": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReviewOptions",
+      "properties": {
+        "list": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "audit": {
+          "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "required": [
+        "list",
+        "audit"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "method.isCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isCurrent.return": {
+          "type": "boolean"
+        },
+        "method.showSuccess.params": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.showSuccess.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-27T14:53:17.871Z",
+  "models": {
+    "ReviewOptions": {
+      "name": "ReviewOptions",
+      "jsdoc": "Single-call bindings supplied by the native review entry after it resolves both formal views.",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** Original list view for finding the selected request and retaining its read proof. */\n    list: DataView;\n    /** Record-scoped view for reading the formal request and saving authorized decision fields. */\n    audit: DataView;\n    /** Confirm that this review tool still belongs to the authorized page invocation. */\n    isCurrent: () => boolean;\n    /** Present the business message after the original save receipt confirms the decision. */\n    showSuccess: (message: string) => void;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "list",
+              "jsdoc": "Original list view for finding the selected request and retaining its read proof.",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "audit",
+              "jsdoc": "Record-scoped view for reading the formal request and saving authorized decision fields.",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "isCurrent",
+              "jsdoc": "Confirm that this review tool still belongs to the authorized page invocation.",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "showSuccess",
+              "jsdoc": "Present the business message after the original save receipt confirms the decision.",
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

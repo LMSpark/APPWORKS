@@ -1,0 +1,72 @@
+[
+  {
+    "id": "app-auth-review",
+    "type": "r-section",
+    "props": {
+      "class": "app-auth-review", "title": "申请列表", "bordered": false, "gridColumns": 1,
+      "header": {"children": [
+        {"type": "r-button", "props": {"label": "刷新", "action": "refresh", "dataViewKey": "C06D41607B6258106F35A0A319B71804@enterprise_app_auth@default"}}
+      ]}
+    },
+    "children": [
+      {"type": "r-alert", "props": {"alertType": "error", "closable": false, "onBeforeRender": "bindOpenError"}},
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "C06D41607B6258106F35A0A319B71804@enterprise_app_auth@default",
+          "autoColumns": false, "stripe": true, "showRowIndex": true, "highlightCurrentRow": true, "showDataViewMeta": false,
+          "pagination": {"pageSizes": [20], "showJumper": true},
+          "actions": {"wrap": false, "gap": 4, "children": [
+            {"type": "r-button", "props": {"label": "审核", "link": true, "buttonType": "primary", "icon": "Select", "dataViewKey": "C06D41607B6258106F35A0A319B71804@enterprise_app_auth@default", "onBeforeRender": "bindAuditAction", "onClick": "openAudit"}}
+          ]}
+        },
+        "children": [
+          {"type": "r-select", "props": {"field": "enterprise_id", "label": "申请企业", "width": 200, "readonly": true, "sortable": false, "showOverflowTooltip": true, "unmatchedText": "-", "cellTitleField": "ent_shortname", "optionDataViewKey": "C06D41607B6258106F35A0A319B71804@Base_Enterprise_Info@default", "optionValueField": "rowid", "optionLabelField": "CName"}},
+          {"type": "r-select", "props": {"field": "app_id", "label": "申请应用", "minWidth": 200, "readonly": true, "sortable": false, "showOverflowTooltip": true, "unmatchedText": "-", "cellTitleField": "app_id", "optionDataViewKey": "C06D41607B6258106F35A0A319B71804@Base_AppSystemList@default", "optionValueField": "rowid", "optionLabelField": "displayName"}},
+          {"type": "r-select", "props": {"field": "source_ent", "label": "来源企业", "width": 180, "readonly": true, "showOverflowTooltip": true, "unmatchedText": "-", "cellTitleField": "source_ent", "optionDataViewKey": "C06D41607B6258106F35A0A319B71804@Base_Enterprise_Info@byShortName", "optionValueField": "ShortName", "optionLabelField": "CName"}},
+          {"type": "r-text", "props": {"field": "requested_at", "label": "申请时间", "width": 160, "readonly": true, "valueAlign": "center", "emptyText": "-", "onBeforeRender": "bindRequestedAt"}},
+          {"type": "r-select", "props": {"field": "auth_status", "label": "状态", "width": 110, "readonly": true, "valueAlign": "center", "optionDataViewKey": "C06D41607B6258106F35A0A319B71804@app_auth_status@default", "optionValueField": "val", "optionLabelField": "txt", "valueTagTypes": {"PENDING": "warning"}}},
+          {"type": "r-text", "props": {"field": "review_comment", "label": "申请说明", "minWidth": 200, "readonly": true, "showOverflowTooltip": true}}
+        ]
+      }
+    ]
+  },
+  {
+    "id": "app-auth-review-dialog",
+    "type": "r-dialog",
+    "props": {
+      "modelValue": true, "title": "申请审核", "width": 640, "appendToBody": true, "onBeforeRender": "bindDialog",
+      "on": {"update:modelValue": "onDialogChange"},
+      "footer": {"children": [
+        {"type": "r-button", "props": {"label": "取消", "onBeforeRender": "bindCancel", "onClick": "closeAudit"}},
+        {"type": "r-button", "props": {"label": "通过", "buttonType": "success", "icon": "Select", "onBeforeRender": "bindDecision", "onClick": "approve"}},
+        {"type": "r-button", "props": {"label": "不通过", "buttonType": "danger", "icon": "CloseBold", "onBeforeRender": "bindDecision", "onClick": "reject"}}
+      ]}
+    },
+    "children": [
+      {"type": "r-text-display", "props": {"tag": "p", "role": "status", "value": "正在读取申请…", "onBeforeRender": "bindLoading"}},
+      {"type": "r-alert", "props": {"alertType": "error", "closable": false, "onBeforeRender": "bindAuditError"}},
+      {
+        "type": "r-form",
+        "props": {"dataViewKey": "C06D41607B6258106F35A0A319B71804@enterprise_app_auth@default", "autoColumns": false, "showDataViewMeta": false, "gridColumns": 2, "onBeforeRender": "bindRecord"},
+        "children": [
+          {"type": "r-select", "props": {"field": "enterprise_id", "label": "申请企业", "readonly": true, "sortable": false, "unmatchedText": "-", "optionDataViewKey": "C06D41607B6258106F35A0A319B71804@Base_Enterprise_Info@default", "optionValueField": "rowid", "optionLabelField": "CName"}},
+          {"type": "r-text", "props": {"field": "ent_shortname", "label": "企业简称", "readonly": true, "sortable": false, "emptyText": "-", "displayFallbackFields": ["enterprise_id"]}},
+          {"type": "r-select", "props": {"field": "app_id", "label": "申请应用", "readonly": true, "sortable": false, "unmatchedText": "-", "optionDataViewKey": "C06D41607B6258106F35A0A319B71804@Base_AppSystemList@default", "optionValueField": "rowid", "optionLabelField": "displayName"}},
+          {"type": "r-text", "props": {"field": "app_id", "label": "应用ID", "readonly": true, "sortable": false, "emptyText": "-"}},
+          {"type": "r-select", "props": {"field": "source_ent", "label": "来源企业", "readonly": true, "sortable": false, "unmatchedText": "-", "optionDataViewKey": "C06D41607B6258106F35A0A319B71804@Base_Enterprise_Info@byShortName", "optionValueField": "ShortName", "optionLabelField": "CName"}},
+          {"type": "r-text", "props": {"field": "source_ent", "label": "来源企业简称", "readonly": true, "sortable": false, "emptyText": "-"}},
+          {"type": "r-text", "props": {"field": "requested_at", "label": "申请时间", "readonly": true, "sortable": false, "emptyText": "-", "onBeforeRender": "bindRequestedAt"}},
+          {"type": "r-text", "props": {"field": "review_comment", "label": "申请说明", "readonly": true, "sortable": false, "emptyText": "-"}}
+        ]
+      },
+      {
+        "type": "r-form",
+        "props": {"dataViewKey": "C06D41607B6258106F35A0A319B71804@enterprise_app_auth@audit", "autoColumns": false, "showDataViewMeta": false, "gridColumns": 1, "onBeforeRender": "bindRecord"},
+        "children": [
+          {"type": "r-textarea", "props": {"field": "review_comment", "label": "拒绝原因（不通过时填写）", "rows": 3, "maxlength": 500, "showWordLimit": true, "placeholder": "可选，拒绝时将写入审批意见"}}
+        ]
+      }
+    ]
+  }
+]

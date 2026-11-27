@@ -25,7 +25,7 @@ export function createEnterpriseRegistrationBindings(input:Input):Pick<LowcodeDa
  if(bindings.length!==1||bindings[0]?.['modelId']!==enterprise.modelId)throw Error('ENTERPRISE_REGISTRATION_BINDING: 企业模型正式身份不符')
  const command=isRecord(tables)?tables[commandTable]:undefined
  if(!isRecord(command)||command['resourceType']!=='command'||command['resourceId']!==EnterpriseInitializationResource.resourceId)throw Error('ENTERPRISE_REGISTRATION_BINDING: 初始化命令资源身份不符')
- return{commandBindings:{[commandTable]:view=>{
+ return{commandBindings:{[EnterpriseInitializationResource.resourceId]:view=>{
   input.assertCurrent()
   const ds=view.dataSet
   const list=resolveDataViewKey(buildDataViewKey(enterprise.modelName,'default',scenarioId),ds)

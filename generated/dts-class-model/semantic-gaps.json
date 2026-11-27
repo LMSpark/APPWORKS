@@ -67531,7 +67531,7 @@
       "chainBreak": "FlowRunCommandResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
-      "declarationLine": 16,
+      "declarationLine": 18,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
       "declarationKind": "class"
     },
@@ -67543,7 +67543,7 @@
       "chainBreak": "FlowRunCommandResource.binding 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
-      "declarationLine": 21,
+      "declarationLine": 23,
       "sourceFile": "src/platform-adapters/resources/system/workflow/manage/flow-run-page/command/flow-run-command-resource.ts",
       "declarationKind": "class"
     },

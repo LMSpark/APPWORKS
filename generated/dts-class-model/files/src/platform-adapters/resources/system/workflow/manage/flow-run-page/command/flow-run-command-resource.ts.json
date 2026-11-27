@@ -76,6 +76,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "FlowRunCommandResource",
+      "properties": {
+        "resourceId": true
+      },
+      "additionalProperties": false,
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -130,7 +134,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.806Z",
+  "generatedAt": "2026-11-27T21:52:52.105Z",
   "models": {
     "Options": {
       "name": "Options",
@@ -281,6 +285,14 @@
           ]
         },
         "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "jsdoc": "审批命令 DataTable 的正式资源键，由场景声明与 owner 注册共同使用。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "assertCanPrepare",

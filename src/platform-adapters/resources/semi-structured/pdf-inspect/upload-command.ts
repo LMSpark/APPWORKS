@@ -35,7 +35,7 @@ export function createPdfInspectionUploadBindings(input: ConstructorParameters<t
     declared['resourceId'] !== PdfInspectionUploadResource.resourceId || Object.hasOwn(declared, 'modelBinding')) {
     throw Error('PDF_UPLOAD_BINDING: 正式上传资源声明不匹配')
   }
-  return {[PDF_INSPECTION_UPLOAD_TABLE]: view => bindPdfInspectionUpload(view, input)}
+  return {[PdfInspectionUploadResource.resourceId]: view => bindPdfInspectionUpload(view, input)}
 }
 
 /** 首次正式装配绑定原视图，由 SDK 执行单次派发及回执核验。 */

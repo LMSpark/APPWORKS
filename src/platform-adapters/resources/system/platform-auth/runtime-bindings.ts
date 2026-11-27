@@ -44,6 +44,6 @@ export function createPlatformAuthBindings(input: Input): Required<Pick<LowcodeD
   }
   return {
     projectionBindings: {[catalogTable]: view => resource.enterpriseCatalog(own(view, catalogTable))},
-    commandBindings: Object.fromEntries(Object.entries(commandTables).map(([name, key]) => [name, (view: DataView) => resource[key](own(view, name))])),
+    commandBindings: Object.fromEntries(Object.entries(commandTables).map(([name, key]) => [PlatformAuthResource.resources[key], (view: DataView) => resource[key](own(view, name))])),
   }
 }

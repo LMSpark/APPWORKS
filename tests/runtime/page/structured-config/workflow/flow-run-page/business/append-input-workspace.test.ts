@@ -38,7 +38,7 @@ it.each(['restricted', 'expanded', 'unknown', 'false', 'zero', 'stale-participan
   bindDataSetReadonlyCommandQuery(directory, {resource: {resourceType: 'service-query', resourceId: 'users'}, guard: () => {}, loadRows: async () => {directoryQueries++; return [{rowid: 'U2', UserName: '乙'}, {rowid: 'U3', UserName: '丙'}]}})
   const http = new AppendHttp(); http.mode = mode
   const config = new ScenarioViewConfig(scene, text), input = {config, http, readScope: () => ({token: 'fixture', headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}
-  const optionFactory = createApprovalOptionsBindings(input).projectionBindings?.['AppendOptions'], commandFactory = createApprovalCommandBindings(input).commandBindings?.['ApprovalCommand']
+  const optionFactory = createApprovalOptionsBindings(input).projectionBindings?.['AppendOptions'], commandFactory = createApprovalCommandBindings(input).commandBindings?.['workflow:approval']
   const options = ds.getView('AppendOptions')!, command = ds.getView('ApprovalCommand')!
   if (!optionFactory || !commandFactory) throw Error('missing factories')
   bindDataSetReadonlyCommandQuery(options, optionFactory(options)); bindDataSetCommandSubmit(command, commandFactory(command))

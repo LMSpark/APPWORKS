@@ -7,8 +7,8 @@ import {createLowcodeFileResourceExecutors} from '@/platform-adapters/resources/
 import { LowcodeApiError } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import config from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
-import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/creation'
-import {createAgentWorkflowPublicationBindings, AGENT_WORKFLOW_PUBLICATION_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/publication'
+import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE, AGENT_WORKFLOW_CREATE_RESOURCE} from '@/platform-adapters/resources/repository/agent-workflow/creation'
+import {createAgentWorkflowPublicationBindings, AGENT_WORKFLOW_PUBLICATION_TABLE, AGENT_WORKFLOW_PUBLICATION_RESOURCE} from '@/platform-adapters/resources/repository/agent-workflow/publication'
 
 type RegisteredFileResourceInput = Parameters<typeof createLowcodeFileResourceExecutors>[0]
 /** Test file API: only the reads the workflow resources use; other registry resources fail if touched. */
@@ -86,13 +86,13 @@ export function agentWorkflowOwnerInput(files: Map<string, string>, options: Rea
       }}), {api, fileUpload})
       if (options.creation) {
         const bindings = createAgentWorkflowCreationBindings({config: scenario, applicationId: 'APP', api, fileUpload, assertCurrent: () => undefined})
-        const view = ds.getView(AGENT_WORKFLOW_CREATE_TABLE), factory = bindings.commandBindings?.[AGENT_WORKFLOW_CREATE_TABLE]
+        const view = ds.getView(AGENT_WORKFLOW_CREATE_TABLE), factory = bindings.commandBindings?.[AGENT_WORKFLOW_CREATE_RESOURCE]
         if (!view || !factory) throw new Error('missing creation binding')
         bindDataSetCommandSubmit(view, factory(view))
       }
       if (options.publication) {
         const bindings = createAgentWorkflowPublicationBindings({config: scenario, applicationId: 'APP', api, fileUpload, assertCurrent: () => undefined})
-        const view = ds.getView(AGENT_WORKFLOW_PUBLICATION_TABLE), factory = bindings.commandBindings?.[AGENT_WORKFLOW_PUBLICATION_TABLE]
+        const view = ds.getView(AGENT_WORKFLOW_PUBLICATION_TABLE), factory = bindings.commandBindings?.[AGENT_WORKFLOW_PUBLICATION_RESOURCE]
         if (!view || !factory) throw new Error('missing publication binding')
         bindDataSetCommandSubmit(view, factory(view))
       }

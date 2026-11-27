@@ -28,7 +28,7 @@ it.each([false, true])('uses only the explicit original append view and preserve
     bindDataSetReadonlyCommandQuery(view, {resource: {resourceType: 'service-query', resourceId: view === objects ? 'objects' : 'steps'}, guard: () => {}, loadRows: async () => view === list ? rows.map(item => ({...item, STATUS: childStatus})) : rows})
     await view.refresh()
   }
-  const factory = createApprovalCommandBindings({config, http, readScope: () => ({token: 'fixture', headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).commandBindings?.['ApprovalCommand']
+  const factory = createApprovalCommandBindings({config, http, readScope: () => ({token: 'fixture', headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).commandBindings?.['workflow:approval']
   if (!factory) throw Error('missing command owner')
   bindDataSetCommandSubmit(command, factory(command))
   try {

@@ -31,7 +31,7 @@ export type LowcodeDataSpaceAssemblerInput = Readonly<{
  relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>
  /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */
  fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>
- /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */
+ /** 按声明的 command resourceId 注册工厂。每次装配传入当前视图，资源工厂校验实际配置与执行域。 */
  commandBindings?: Readonly<Record<string,(view:SparkData.DataView)=>BindCommandSubmitOptions>>
  /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */
  projectionBindings?: Readonly<Record<string,(view:SparkData.DataView)=>Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>
@@ -40,6 +40,13 @@ export type LowcodeDataSpaceAssemblerInput = Readonly<{
 }>
 /** 独立场景运行空间及无法解析结构关系的诊断；空间生命周期归调用方。 */
 export type LowcodeDataSpaceAssembly = Readonly<{ dataSet: DataSet; diagnostics: readonly string[] }>
+
+/** 用正式资源身份查找本次装配允许的命令工厂。 */
+export function resolveLowcodeCommandBinding(bindings: LowcodeDataSpaceAssemblerInput['commandBindings'], resourceId: unknown) {
+ if (!bindings || typeof resourceId !== 'string' || !Object.hasOwn(bindings, resourceId)) return undefined
+ const factory = bindings[resourceId]
+ return typeof factory === 'function' ? factory : undefined
+}
 
 function record(value: unknown, path: string): Record<string, unknown> {
  if (!isRecord(value)) throw new Error(`${path} 必须是对象`)
@@ -161,7 +168,7 @@ export class LowcodeDataSpaceAssembler {
     tables[tableName] = {tableName, ...structuredClone(table)}; continue
    }
    if(table['resourceType']==='command'){
-    if(!input.commandBindings?.[tableName])throw new Error(`SCENARIO_COMMAND_BINDING: ${tableName} 缺少命令资源绑定`)
+    if(!resolveLowcodeCommandBinding(input.commandBindings, table['resourceId']))throw new Error(`SCENARIO_COMMAND_BINDING: ${tableName} 缺少命令资源绑定`)
     tables[tableName]={tableName,...structuredClone(table)};continue
    }
    if (table['resourceType'] === 'file') {
@@ -246,7 +253,7 @@ export class LowcodeDataSpaceAssembler {
    }
    for(const table of Object.values(dataSet.tables)){
     if(table.resourceType!=='command')continue
-    const factory=input.commandBindings?.[table.tableName]
+    const factory=resolveLowcodeCommandBinding(input.commandBindings, table.resourceId)
     if(!factory)throw new Error(`SCENARIO_COMMAND_BINDING: ${table.tableName} 缺少命令资源绑定`)
     table.forEachView(view=>{
      const options=factory(view)

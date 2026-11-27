@@ -39,6 +39,8 @@ function nodeSignature(value: unknown): string {
 }
 
 export class FlowRunCommandResource {
+  /** 审批命令 DataTable 的正式资源键，由场景声明与 owner 注册共同使用。 */
+  static readonly resourceId = 'workflow:approval'
   public constructor(private readonly input: Options) {}
 
   /** 在原绑定owner校验当次输入；不创建命令、改变查询或执行HTTP。宿主须先经原view.refresh激活owner。 */
@@ -73,7 +75,7 @@ export class FlowRunCommandResource {
     const assertCurrent = () => {
       guard()
       if (view.destroyed || view.dataSet?.destroyed || view.dataTable?.resourceType !== 'command'
-        || view.dataTable.resourceId !== 'workflow:approval') throw Error('审批命令实例已失效')
+        || view.dataTable.resourceId !== FlowRunCommandResource.resourceId) throw Error('审批命令实例已失效')
       preflights.set(view, {assertAvailable, registerInputProof})
     }
     const assertAvailable = (row: Readonly<DataRow>) => {
@@ -111,7 +113,7 @@ export class FlowRunCommandResource {
       }
     }
     return {
-      resource: {resourceType: 'command', resourceId: 'workflow:approval'},
+      resource: {resourceType: 'command', resourceId: FlowRunCommandResource.resourceId},
       guard: assertCurrent,
       inputFields: [...inputFields, 'isReturn', 'nextNode', 'receiveUsers'],
       createKey: () => crypto.randomUUID(),

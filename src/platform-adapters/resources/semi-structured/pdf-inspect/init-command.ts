@@ -129,7 +129,7 @@ export function createPdfInspectionInitBindings(input: Options): NonNullable<Low
   const table = tables[PDF_INSPECTION_INIT_TABLE]
   if (!isRecord(table) || table['resourceType'] !== 'command' || table['resourceId'] !== PdfInspectionInitResource.resourceId ||
     Object.hasOwn(table, 'modelBinding')) throw Error('PDF_INSPECTION_INIT_BINDING: 正式命令声明不匹配')
-  return {[PDF_INSPECTION_INIT_TABLE]: view => bindInit(view, input)}
+  return {[PdfInspectionInitResource.resourceId]: view => bindInit(view, input)}
 }
 
 function bindInit(view: DataView, input: Options) {

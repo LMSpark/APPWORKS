@@ -34,7 +34,7 @@ export function createCacheScenarioBindings(input:Input):Pick<LowcodeDataSpaceAs
    [formal.CacheEntries.modelId]:new CachePageReadAdapter({scenarioId,...formal.CacheEntries}),
    [formal.CacheDeleteDefinition.modelId]:{kind:'command'},
   },
-  commandBindings:{CacheDeleteRequest:view=>{
+  commandBindings:{[resourceId]:view=>{
    input.assertCurrent()
    const ds=view.dataSet,list=ds?.getView('CacheEntries','default'),definition=ds?.getView('CacheDeleteDefinition','default')
    if(ds?.scenarioId!==scenarioId||view.viewId!=='default'||view.dataTable?.tableName!=='CacheDeleteRequest'||!list||!definition

@@ -93,5 +93,5 @@ function options(view: DataView, input: Input): BindCommandSubmitOptions {
 export function createAgentWorkflowCreationBindings(input: Input): Pick<LowcodeDataSpaceAssemblerInput, 'commandBindings'> {
   if (input.config.scenarioId !== AGENT_WORKFLOW_SCENARIO) return {}
   input.assertCurrent()
-  return {commandBindings: {[AGENT_WORKFLOW_CREATE_TABLE]: view => options(view, input)}}
+  return {commandBindings: {[AGENT_WORKFLOW_CREATE_RESOURCE]: view => options(view, input)}}
 }

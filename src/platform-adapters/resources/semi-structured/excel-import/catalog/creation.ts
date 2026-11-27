@@ -4,7 +4,7 @@
  * 边界：字段与回执仅保存在原DataView；此处只持身份、阶段及校验证据，不创建查询或保存owner。
  */
 import {RequestState,type DataRow,type DataSet,type DataView} from '@spark-appworks/spark-data'
-import { BusinessCodeAssignmentResource } from '@/platform-adapters/api'
+import { BusinessCodeAssignmentResource, ExcelTemplateUploadResource } from '@/platform-adapters/api'
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord,type HttpClientBase} from '@spark-appworks/spark-utils'
 import type {LowcodeDataSpaceAssemblerInput} from '../../../../data-space/lowcode-data-space-assembler'
@@ -60,7 +60,7 @@ export function createExcelCatalogBindings(input:Input):Pick<LowcodeDataSpaceAss
  input.assertCurrent()
  const tables=input.config.toJSON()['tables'],table=isRecord(tables)?tables[commandTable]:undefined,definition=isRecord(tables)?tables[model]:undefined,binding=isRecord(definition)?definition['modelBinding']:undefined
  if(!isRecord(table)||table['resourceType']!=='command'||table['resourceId']!==BusinessCodeAssignmentResource.resourceId||!isRecord(binding)||binding['modelId']!==`${scene}p000`||binding['modelName']!==model)throw Error('EXCEL_CREATION_BINDING: 正式方案或领码声明不符')
- return{commandBindings:{TemplateUpload:command=>bindExcelTemplate(command,{...input,creationReady:()=>{const ds=command.dataSet;if(!ds)return false;const phase=readExcelSchemeCreation(ds)?.phase;return phase===undefined||phase==='complete'||phase==='retained'}}),[commandTable]:command=>{
+ return{commandBindings:{[ExcelTemplateUploadResource.resourceId]:command=>bindExcelTemplate(command,{...input,creationReady:()=>{const ds=command.dataSet;if(!ds)return false;const phase=readExcelSchemeCreation(ds)?.phase;return phase===undefined||phase==='complete'||phase==='retained'}}),[BusinessCodeAssignmentResource.resourceId]:command=>{
   const ds=command.dataSet,catalog=ds?.getView(model),target=ds?.getView(model,'editorTarget')
   if(ds?.scenarioId !== scene||!catalog||!target||command.viewId!=='default'||states.has(ds)||catalog.dataTable?.modelBinding?.modelId!==`${scene}p000`||catalog.dataTable.modelBinding.modelName!==model)throw Error('EXCEL_CREATION_BINDING: 首次实例或原视图不符')
   const context=JSON.stringify(catalog.queryContext),execution=scopeSignature(input),declaration=()=>JSON.stringify([target.queryConfig,target.filterExpression,target.sortExpression]),targetDefinition=declaration()

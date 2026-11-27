@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1538,
+  "scannedFileCount": 1539,
   "files": {
     "backend-api-contracts/common.ts": {
       "file": "files/backend-api-contracts/common.ts.json",
@@ -13506,6 +13506,19 @@
         "modulePath": "platform-adapters/data-space/lowcode-public-scenario",
         "jsdoc": "@module app:lowcode/data-space/lowcode-public-scenario\n职责：登录前公开场景的装配入口：经仓内文件 DataView 读取已登记的公开 pagedata，以同一装配器装配独立 DataSet。\n边界：只接受命令表与无模型只读投影表，不读取服务端空间、模型或关系，也不进入应用/目录作用域；页面释放后 assertCurrent 阻止迟到写回。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/platform-adapters/data-space/lowcode-runtime-command-bindings.ts": {
+      "file": "files/src/platform-adapters/data-space/lowcode-runtime-command-bindings.ts.json",
+      "module": {
+        "name": "app:platform-adapters/data-space/lowcode-runtime-command-bindings",
+        "sourcePath": "src/platform-adapters/data-space/lowcode-runtime-command-bindings.ts",
+        "sourceFile": "src/platform-adapters/data-space/lowcode-runtime-command-bindings.ts",
+        "packageName": "app",
+        "modulePath": "platform-adapters/data-space/lowcode-runtime-command-bindings",
+        "jsdoc": "@module app:lowcode/data-space/lowcode-runtime-command-bindings\n职责：汇集一次运行场景的命令 owner 工厂及缓存模型首次绑定所需适配。\n边界：资源身份用于定位。场景和许可约束仍由各领域工厂校验，实例状态仅存在于绑定后的 owner。\nAI用途：定位场景声明与正式资源的装配入口，新增命令时在这里核对是否已有同资源工厂。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

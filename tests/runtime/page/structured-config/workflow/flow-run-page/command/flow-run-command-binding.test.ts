@@ -46,7 +46,7 @@ it('submits the captured instance and step through the original command view', a
   bindDataSetReadonlyCommandQuery(steps, {resource: {resourceType: 'service-query', resourceId: steps.tableName}, guard: () => {}, loadRows: async () => [{rowid: 'S1', WFOBJID: 'WF1'}]})
   objects.queryContext = {...objects.queryContext, rowid: 'WF1'}
   await Promise.all([steps.refresh(), objects.refresh()])
-  const factory = bindings.commandBindings?.['ApprovalCommand']
+  const factory = bindings.commandBindings?.['workflow:approval']
   if (!factory) throw Error('binding missing')
   bindDataSetCommandSubmit(command, factory(command))
   try {

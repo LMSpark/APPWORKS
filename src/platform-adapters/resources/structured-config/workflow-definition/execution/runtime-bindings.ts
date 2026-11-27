@@ -48,7 +48,7 @@ export function createWorkflowScenarioBindings(input:Input):Pick<LowcodeDataSpac
  input.assertCurrent()
  const tables=input.config.toJSON()['tables'],declared=isRecord(tables)?tables[tableName]:undefined
  if(!isRecord(declared)||declared['resourceType']!=='command'||declared['resourceId']!==WorkflowExecutionResource.resourceId)throw Error('WORKFLOW_EXECUTION_BINDING: 正式场景未声明执行命令')
- return{commandBindings:{[tableName]:view=>{
+ return{commandBindings:{[WorkflowExecutionResource.resourceId]:view=>{
   const ds=view.dataSet
   if(ds?.scenarioId !== scene||view.tableName!==tableName||view.viewId!=='default'||states.has(view))throw Error('WORKFLOW_EXECUTION_BINDING: 命令实例身份不符或重复绑定')
   const scope=()=>{input.assertCurrent();if(ds.destroyed||view.destroyed||ds.getView(tableName,'default')!==view)throw Error('工作流执行实例已失效')}

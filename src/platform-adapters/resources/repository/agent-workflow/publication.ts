@@ -161,5 +161,5 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
 export function createAgentWorkflowPublicationBindings(input: Input): Pick<LowcodeDataSpaceAssemblerInput, 'commandBindings'> {
   if (input.config.scenarioId !== AGENT_WORKFLOW_SCENARIO) return {}
   input.assertCurrent()
-  return {commandBindings: {[AGENT_WORKFLOW_PUBLICATION_TABLE]: view => commandOptions(view, input)}}
+  return {commandBindings: {[AGENT_WORKFLOW_PUBLICATION_RESOURCE]: view => commandOptions(view, input)}}
 }

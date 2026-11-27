@@ -65,7 +65,7 @@ describe('platform login public scenario', () => {
     const auth = new PlatformAuthResource({platform: lowcodeApi.platform, assertCurrent: () => undefined})
     const config = new ScenarioViewConfig(resource.scenarioId, text)
     const bindings = createPlatformAuthBindings({config, resource: auth, assertCurrent: () => undefined})
-    expect(Object.keys(bindings.commandBindings).sort()).toEqual(['EnterpriseRegistrationRequest', 'LoginRequest', 'UserRegistrationRequest', 'VerificationCodeRequest'])
+    expect(Object.keys(bindings.commandBindings).sort()).toEqual(['platform:enterprise-registration', 'platform:login', 'platform:user-registration', 'platform:verification-code'])
     expect(Object.keys(bindings.projectionBindings)).toEqual(['EnterpriseCatalog'])
     const altered = new ScenarioViewConfig(resource.scenarioId, text.replace('"platform:login"', '"platform:other"'))
     expect(() => createPlatformAuthBindings({config: altered, resource: auth, assertCurrent: () => undefined})).toThrow('PLATFORM_AUTH_BINDING')

@@ -3,7 +3,7 @@ import {DataSet, bindDataSetCommandSubmit, type DataView} from '@spark-appworks/
 import { LowcodeApiError } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import config from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
-import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/creation'
+import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE, AGENT_WORKFLOW_CREATE_RESOURCE} from '@/platform-adapters/resources/repository/agent-workflow/creation'
 import {projectWorkflowDesign, AGENT_WORKFLOW_DESIGN_TABLE, AGENT_WORKFLOW_NODE_TABLE, AGENT_WORKFLOW_LINE_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/agent-workflow-design-projection'
 
 function fixture(configure?: (view: DataView) => void) {
@@ -26,7 +26,7 @@ function fixture(configure?: (view: DataView) => void) {
     assertCurrent: () => {if (!active) throw new Error('scope stale')}})
   const view = ds.getView(AGENT_WORKFLOW_CREATE_TABLE)
   if (!view) throw new Error('formal creation table missing')
-  const factory = bindings.commandBindings?.[AGENT_WORKFLOW_CREATE_TABLE]
+  const factory = bindings.commandBindings?.[AGENT_WORKFLOW_CREATE_RESOURCE]
   if (!factory) throw new Error('creation binding missing')
   try {configure?.(view); bindDataSetCommandSubmit(view, factory(view))}
   catch (error) {ds.destroy(); throw error}

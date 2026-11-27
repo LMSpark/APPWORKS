@@ -23,7 +23,7 @@ export function createApiInterfaceBindings(input:Input):Pick<LowcodeDataSpaceAss
  }
  const command=isRecord(tables)?tables[commandTable]:undefined
  if(!isRecord(command)||command['resourceType']!=='command'||command['resourceId']!==RegisteredInterfaceCallResource.resourceId)throw Error('API_INTERFACE_BINDING: 接口调用命令资源身份不符')
- return{commandBindings:{[commandTable]:view=>{
+ return{commandBindings:{[RegisteredInterfaceCallResource.resourceId]:view=>{
   input.assertCurrent()
   const ds=view.dataSet,interfaces=ds?.getView(models.interfaces.modelName,'default'),parameters=ds?.getView(models.parameters.modelName,'default')
   if(ds?.scenarioId!==scenarioId||view.viewId!=='default'||view.dataTable?.tableName!==commandTable||!interfaces||!parameters

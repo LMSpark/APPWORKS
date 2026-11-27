@@ -53,7 +53,7 @@ it.each(['list', 'revoke', 'unknown', 'expired-refresh', 'expired-save', 'add-ca
   await objects.refresh()
   const http = new FlowAppendRevokeHttp(); http.badDictionary = outcome === 'dictionary-error'
   let appScope = 'fixture'
-  const factory = createApprovalCommandBindings({config: new ScenarioViewConfig(scene, readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8')), http, readScope: () => ({token: appScope, headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).commandBindings?.['ApprovalCommand']
+  const factory = createApprovalCommandBindings({config: new ScenarioViewConfig(scene, readFileSync('config/pages/workflow/flow-workbench/pagedata.json', 'utf8')), http, readScope: () => ({token: appScope, headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).commandBindings?.['workflow:approval']
   if (!factory) throw Error('missing original command owner')
   bindDataSetCommandSubmit(command, factory(command))
   const optionView = ds.getView('AppendOptions')!, optionFactory = createApprovalOptionsBindings({config: new ScenarioViewConfig(scene, pageText), http, readScope: () => ({token: appScope, headers: {'X-AppId': 'APP'}}), assertCurrent: () => {}}).projectionBindings?.['AppendOptions']

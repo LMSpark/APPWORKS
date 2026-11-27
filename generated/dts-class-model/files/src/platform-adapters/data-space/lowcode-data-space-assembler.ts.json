@@ -349,7 +349,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T07:22:10.739Z",
+  "generatedAt": "2026-11-27T07:00:09.131Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -459,11 +459,11 @@
       "jsdoc": "装配输入：同场景视图配置与后端正式模型、关系，不从物理资源猜定义。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: SparkData.DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    /** 按声明的 command resourceId 注册工厂。每次装配传入当前视图，资源工厂校验实际配置与执行域。 */\n    commandBindings?: Readonly<Record<string, (view: SparkData.DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: SparkData.DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>;\n    /** 按声明的 command resourceId 注册工厂。每次装配传入当前视图，资源工厂校验实际配置与执行域。 */\n    commandBindings?: Readonly<Record<string, (view: SparkData.DataView) => BindCommandSubmitOptions>>;\n    /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */\n    projectionBindings?: Readonly<Record<string, (view: SparkData.DataView) => Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -497,7 +497,7 @@
             },
             {
               "name": "commandBindings",
-              "jsdoc": "显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。",
+              "jsdoc": "按声明的 command resourceId 注册工厂。每次装配传入当前视图，资源工厂校验实际配置与执行域。",
               "readable": true,
               "writable": false
             },

@@ -3,7 +3,7 @@ import {DataSet, bindDataSetCommandSubmit, type DataView} from '@spark-appworks/
 import { LowcodeApiError } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import config from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
-import {createAgentWorkflowDeletionBindings, AGENT_WORKFLOW_DELETION_TABLE} from '@/platform-adapters/resources/repository/agent-workflow/deletion'
+import {createAgentWorkflowDeletionBindings, AGENT_WORKFLOW_DELETION_TABLE, AGENT_WORKFLOW_DELETION_RESOURCE} from '@/platform-adapters/resources/repository/agent-workflow/deletion'
 
 function fixture(configure?: (view: DataView) => void) {
   const files = new Map<string, string>()
@@ -46,7 +46,7 @@ function fixture(configure?: (view: DataView) => void) {
   }})
   const view = ds.getView(AGENT_WORKFLOW_DELETION_TABLE)
   if (!view) throw new Error('formal deletion table missing')
-  const factory = bindings.commandBindings?.[AGENT_WORKFLOW_DELETION_TABLE]
+  const factory = bindings.commandBindings?.[AGENT_WORKFLOW_DELETION_RESOURCE]
   if (!factory) throw new Error('deletion binding missing')
   try {
     configure?.(view)

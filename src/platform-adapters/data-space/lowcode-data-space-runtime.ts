@@ -7,7 +7,8 @@ import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogRuntimeDataSpac
  readLowcodeCatalogRuntimeRequestScope, verifyLowcodeNativeApplicationPlan } from '../lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { readRepositoryScenarioText } from '../resources/repository/scenarios/resource'
-import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
+import { LowcodeDataSpaceAssembler, resolveLowcodeCommandBinding, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
+import {createRuntimeCommandBindings} from './lowcode-runtime-command-bindings'
 import { isRecord } from '@spark-appworks/spark-utils'
 import { ProjectWorkspace, ScenarioDefinitionRecords, ScenarioDefinitionResource, ScenarioViewConfig, DataSpaceReferenceLayoutResource, ProjectToolResource, type PageRuntimeSource, type ProjectBlueprintTreeData } from '@spark-appworks/spark-project-model'
 import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
@@ -20,23 +21,12 @@ import {createLowcodeFileResourceExecutors} from '../resources/repository/file-r
 import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
 import {resolveSystemScenarioResource} from '@/registries/system-scenario-registry'
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
-import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
 import {createApprovalOptionsBindings} from '../resources/system/workflow/manage/flow-run-page/query/runtime-bindings'
-import {createApprovalCommandBindings} from '../resources/system/workflow/manage/flow-run-page/command/runtime-bindings'
 import {registerNavigationHostModelRules} from '../resources/system/navigation-host/model-rules'
 import {registerDimensionSourceModelRules} from '../resources/structured-config/dimension-source/model-rules'
 import {createDataRecoveryScenarioBindings} from '../resources/system/data-recovery/runtime-bindings'
-import {createEnterpriseRegistrationBindings} from '../resources/system/enterprise-registration/runtime-bindings'
-import {createApiInterfaceBindings} from '../resources/integration/api-management/runtime-bindings'
-import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
-import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
-import {createAgentWorkflowPublicationBindings} from '../resources/repository/agent-workflow/publication'
-import {createAgentWorkflowDeletionBindings} from '../resources/repository/agent-workflow/deletion'
 import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '../resources/structured-config/logic-view/design-ops'
-import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
 import {createPdfInspectionProjectionBindings} from '../resources/semi-structured/pdf-inspect/runtime-bindings'
-import {createPdfInspectionUploadBindings} from '../resources/semi-structured/pdf-inspect/upload-command'
-import {createPdfInspectionInitBindings} from '../resources/semi-structured/pdf-inspect/init-command'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -49,7 +39,7 @@ export type LoadScenarioDataSetInput = Readonly<{
  fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors']
  /** 显式非模型投影的只读绑定工厂。 */
  projectionBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['projectionBindings']
- /** 已声明命令的宿主绑定，不由页面构造提交owner。 */
+ /** 宿主按声明的 command resourceId 提供工厂，页面不构造 owner。 */
  commandBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['commandBindings']
  /** 按正式modelId选择首次绑定适配模式。 */
  modelAdapters?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['modelAdapters']
@@ -62,7 +52,7 @@ export type LoadScenarioDataSetInput = Readonly<{
  dataSpace?: DataSpaceApi
 }>
 
-/** 执行项目对应的请求作用域：应用目录（企业级、平台级）只带登录身份，其它为当前选中应用。 */
+/** 执行项目对应的请求作用域：无应用场景和选中应用均绑定当次执行身份。 */
 function executionScopeOf(projectId: string): Readonly<{dataSpace: DataSpaceApi; readScope: () => ReturnType<typeof lowcodeApi.readRequestScope>}> {
  return projectId === APPLICATION_CATALOG_PROJECT_ID
   ? {dataSpace: lowcodeCatalogRuntimeDataSpace, readScope: readLowcodeCatalogRuntimeRequestScope}
@@ -122,7 +112,7 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
    continue
   }
   if(isRecord(table)&&table['resourceType']==='command'){
-   if(!input.commandBindings?.[tableName])throw new Error(`SCENARIO_COMMAND_BINDING: ${tableName} 缺少命令资源绑定`)
+   if(!resolveLowcodeCommandBinding(input.commandBindings, table['resourceId']))throw new Error(`SCENARIO_COMMAND_BINDING: ${tableName} 缺少命令资源绑定`)
    continue
   }
   if (isRecord(table) && table['resourceType'] === 'file') {
@@ -185,52 +175,27 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  }
  assertCurrent()
  const {dataSpace, readScope} = executionScopeOf(projectId)
- const agentCreation = createAgentWorkflowCreationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
- const agentPublication = createAgentWorkflowPublicationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
- const agentDeletion = createAgentWorkflowDeletionBindings({config,applicationId:projectId,api:lowcodeApi.design,assertCurrent})
- const cacheBindings = createCacheScenarioBindings({config,runtime:dataSpace.runtime,assertCurrent})
- const approvalBindings = createApprovalCommandBindings({config,http:lowcodeHttp,readScope,assertCurrent})
- const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope,assertCurrent})
- const excelBindings = projectId === APPLICATION_CATALOG_PROJECT_ID ? {} : createExcelCatalogBindings({config,http:lowcodeHttp,readScope,assertCurrent})
+ const commands = createRuntimeCommandBindings({
+  config, applicationId: projectId, runtime: dataSpace.runtime, http: lowcodeHttp, readScope,
+  api: lowcodeApi.design, fileUpload: lowcodeDesignFileUpload, assertCurrent,
+  allowExcelCommands: projectId !== APPLICATION_CATALOG_PROJECT_ID,
+  readStorage: () => window.localStorage,
+  readOwner: () => {
+   const session = lowcodeApi.session.get()
+   const enterpriseId = session?.enterprise.id ?? session?.identity.enterpriseId
+   if (!session || !enterpriseId) throw new Error('PDF_INSPECTION_INIT_RECOVERY: 缺少当前企业认证会话')
+   return {enterpriseId, enterpriseShortName: session.enterprise.shortName,
+    actorId: session.identity.userId, applicationId: projectId, scenarioId}
+  },
+ })
  const recoveryBindings = createDataRecoveryScenarioBindings({config,assertCurrent})
- const enterpriseBindings = createEnterpriseRegistrationBindings({config,http:lowcodeHttp,readScope,assertCurrent})
- const apiInterfaceBindings = createApiInterfaceBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const approvalOptions = createApprovalOptionsBindings({config,http:lowcodeHttp,readScope,assertCurrent})
  const definitions = definitionBindings({projectId, scenarioId, config, assertCurrent,
    ...(input.owner?{owner:input.owner}:{}),
    ...(input.blueprintTreeProjection?{blueprintTreeProjection:input.blueprintTreeProjection}:{})})
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent, dataSpace,
-  ...agentCreation,
-  ...agentPublication,
-  ...agentDeletion,
-  ...cacheBindings,
-  ...workflowBindings,
-  ...excelBindings,
-  modelAdapters: {
-   ...cacheBindings.modelAdapters,
-   ...recoveryBindings.modelAdapters,
-  },
-  commandBindings: {
-   ...agentCreation.commandBindings,
-   ...agentPublication.commandBindings,
-   ...agentDeletion.commandBindings,
-   ...cacheBindings.commandBindings,
-   ...approvalBindings.commandBindings,
-   ...workflowBindings.commandBindings,
-   ...excelBindings.commandBindings,
-   ...enterpriseBindings.commandBindings,
-   ...apiInterfaceBindings.commandBindings,
-   ...createPdfInspectionUploadBindings({config,http:lowcodeHttp,readScope,assertCurrent}),
-   ...createPdfInspectionInitBindings({config,http:lowcodeHttp,readScope,assertCurrent,
-    readStorage: () => window.localStorage,
-    readOwner: () => {
-     const session = lowcodeApi.session.get()
-     const enterpriseId = session?.enterprise.id ?? session?.identity.enterpriseId
-     if (!session || !enterpriseId) throw Error('PDF_INSPECTION_INIT_RECOVERY: 缺少当前企业认证会话')
-     return {enterpriseId, enterpriseShortName: session.enterprise.shortName,
-      actorId: session.identity.userId, applicationId: projectId, scenarioId}
-    }}),
-  },
+  modelAdapters: {...commands.modelAdapters, ...recoveryBindings.modelAdapters},
+  commandBindings: commands.commandBindings,
   ...(input.getPage?{getPage:input.getPage}:{}),
   ...definitions,
   projectionBindings: {...definitions.projectionBindings, ...approvalOptions.projectionBindings,

@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:platform-adapters/data-space/lowcode-runtime-command-bindings",
+    "sourcePath": "src/platform-adapters/data-space/lowcode-runtime-command-bindings.ts",
+    "sourceFile": "src/platform-adapters/data-space/lowcode-runtime-command-bindings.ts",
+    "packageName": "app",
+    "modulePath": "platform-adapters/data-space/lowcode-runtime-command-bindings",
+    "jsdoc": "@module app:lowcode/data-space/lowcode-runtime-command-bindings\n职责：汇集一次运行场景的命令 owner 工厂及缓存模型首次绑定所需适配。\n边界：资源身份用于定位。场景和许可约束仍由各领域工厂校验，实例状态仅存在于绑定后的 owner。\nAI用途：定位场景声明与正式资源的装配入口，新增命令时在这里核对是否已有同资源工厂。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "RuntimeCommandBindingsInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RuntimeCommandBindingsInput",
+      "properties": {
+        "config": {
+          "$ref": "../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "applicationId": {
+          "type": "string"
+        },
+        "runtime": {
+          "$ref": "../../../packages/spark-data/src/query/formal-owner/runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        },
+        "http": {
+          "$ref": "../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "readScope": {
+          "type": "object",
+          "title": "() => Readonly<{ token: string; headers: Readonly<Record<string, string>>; }>"
+        },
+        "api": {
+          "$ref": "../api/design/lowcode-design-api.ts.json#/$defs/LowcodeDesignApi"
+        },
+        "fileUpload": {
+          "$ref": "../api/design/lowcode-design-file-upload.ts.json#/$defs/LowcodeDesignFileUpload"
+        },
+        "allowExcelCommands": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "readOwner": {
+          "type": "object",
+          "title": "() => PdfInspectionRecoveryOwner"
+        },
+        "readStorage": {
+          "type": "object",
+          "title": "() => PdfInspectionRecoveryStorage"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-27T21:53:03.866Z",
+  "models": {
+    "RuntimeCommandBindingsInput": {
+      "name": "RuntimeCommandBindingsInput",
+      "jsdoc": "由当前运行场景提供的装配输入，关联同一应用执行域和正式传输能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次场景的已解析声明，工厂据此检查所需的表和视图。 */\n    config: ScenarioViewConfig;\n    /** 当前正式应用身份，用于限定应用文件及命令归属。 */\n    applicationId: string;\n    /** 已绑定当前执行域的数据运行时，供缓存模型装配。 */\n    runtime: DataSpaceRuntimeApi;\n    /** 宿主 HTTP 传输，领域 owner 按原合同派发。 */\n    http: HttpClientBase;\n    /** 在正式派发前读取当前命令的请求作用域。 */\n    readScope: Parameters<typeof createWorkflowScenarioBindings>[0]['readScope'];\n    /** 正式设计文件能力，供使用工具文件的命令复用。 */\n    api: LowcodeDesignApi;\n    /** 保留原文件身份与回执的上传适配。 */\n    fileUpload: LowcodeDesignFileUpload;\n    /** 当前场景或原执行域失效时抛错。 */\n    assertCurrent: () => void;\n    /** 仅允许正式应用执行域注册 Excel 命令。 */\n    allowExcelCommands: boolean;\n    /** 查询 PDF 初始化续办所需的当前业务归属。 */\n    readOwner: Parameters<typeof createPdfInspectionInitBindings>[0]['readOwner'];\n    /** 取得 PDF 初始化原尝试记录使用的宿主存储。 */\n    readStorage: Parameters<typeof createPdfInspectionInitBindings>[0]['readStorage'];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次场景的已解析声明，工厂据此检查所需的表和视图。 */\n    config: ScenarioViewConfig;\n    /** 当前正式应用身份，用于限定应用文件及命令归属。 */\n    applicationId: string;\n    /** 已绑定当前执行域的数据运行时，供缓存模型装配。 */\n    runtime: DataSpaceRuntimeApi;\n    /** 宿主 HTTP 传输，领域 owner 按原合同派发。 */\n    http: HttpClientBase;\n    /** 在正式派发前读取当前命令的请求作用域。 */\n    readScope: Parameters<typeof createWorkflowScenarioBindings>[0]['readScope'];\n    /** 正式设计文件能力，供使用工具文件的命令复用。 */\n    api: LowcodeDesignApi;\n    /** 保留原文件身份与回执的上传适配。 */\n    fileUpload: LowcodeDesignFileUpload;\n    /** 当前场景或原执行域失效时抛错。 */\n    assertCurrent: () => void;\n    /** 仅允许正式应用执行域注册 Excel 命令。 */\n    allowExcelCommands: boolean;\n    /** 查询 PDF 初始化续办所需的当前业务归属。 */\n    readOwner: Parameters<typeof createPdfInspectionInitBindings>[0]['readOwner'];\n    /** 取得 PDF 初始化原尝试记录使用的宿主存储。 */\n    readStorage: Parameters<typeof createPdfInspectionInitBindings>[0]['readStorage'];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "jsdoc": "本次场景的已解析声明，工厂据此检查所需的表和视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationId",
+              "jsdoc": "当前正式应用身份，用于限定应用文件及命令归属。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "jsdoc": "已绑定当前执行域的数据运行时，供缓存模型装配。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "jsdoc": "宿主 HTTP 传输，领域 owner 按原合同派发。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readScope",
+              "jsdoc": "在正式派发前读取当前命令的请求作用域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "jsdoc": "正式设计文件能力，供使用工具文件的命令复用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileUpload",
+              "jsdoc": "保留原文件身份与回执的上传适配。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowExcelCommands",
+              "jsdoc": "仅允许正式应用执行域注册 Excel 命令。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readOwner",
+              "jsdoc": "查询 PDF 初始化续办所需的当前业务归属。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readStorage",
+              "jsdoc": "取得 PDF 初始化原尝试记录使用的宿主存储。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "当前场景或原执行域失效时抛错。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

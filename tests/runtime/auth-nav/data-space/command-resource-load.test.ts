@@ -11,7 +11,7 @@ import {loadScenarioDataSet} from '../../../../src/platform-adapters/data-space/
 function config(){return new ScenarioViewConfig('SPACE',JSON.stringify({scenarioId:'SPACE',schemaVersion:2,resourceRelations:[],tables:{Run:{resourceType:'command',resourceId:'test-command',columns:[{name:'commandId',type:'string',isPrimaryKey:true},{name:'key',type:'string'}],views:{default:{autoLoad:false,commitMode:'staged',queryConfig:{pagination:'none'}}}}}}))}
 it('loads configured commands without querying a fake formal model',async()=>{
  service.readModelBatch.mockClear()
- const result=await loadScenarioDataSet({scenarioId:'SPACE',config:config(),modelScope:'Run',commandBindings:{Run:(_view:DataView)=>({resource:{resourceType:'command',resourceId:'test-command'},inputFields:['key'],guard:()=>undefined,createKey:()=> 'C1',submit:async(row:DataRow)=>row,verify:async()=>undefined})}})
+ const result=await loadScenarioDataSet({scenarioId:'SPACE',config:config(),modelScope:'Run',commandBindings:{'test-command':(_view:DataView)=>({resource:{resourceType:'command',resourceId:'test-command'},inputFields:['key'],guard:()=>undefined,createKey:()=> 'C1',submit:async(row:DataRow)=>row,verify:async()=>undefined})}})
  try{expect(service.readModelBatch).not.toHaveBeenCalled();expect(result.dataSet.getTable('Run')?.resourceType).toBe('command');await result.dataSet.getView('Run')!.refresh()}
  finally{result.dataSet.destroy()}
 })

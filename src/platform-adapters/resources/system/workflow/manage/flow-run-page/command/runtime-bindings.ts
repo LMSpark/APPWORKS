@@ -19,8 +19,8 @@ export function createApprovalCommandBindings(input: Input): Pick<LowcodeDataSpa
   if (input.config.scenarioId !== FLOW_WORKBENCH_SCENARIO_ID) return {}
   const tables = input.config.toJSON()['tables']
   const table = isRecord(tables) ? tables['ApprovalCommand'] : undefined
-  if (!isRecord(table) || table['resourceType'] !== 'command' || table['resourceId'] !== 'workflow:approval') throw Error('审批场景缺少正式命令声明')
-  return {commandBindings: {ApprovalCommand: view => {
+  if (!isRecord(table) || table['resourceType'] !== 'command' || table['resourceId'] !== FlowRunCommandResource.resourceId) throw Error('审批场景缺少正式命令声明')
+  return {commandBindings: {[FlowRunCommandResource.resourceId]: view => {
     const ds = view.dataSet
     const guard = () => {
       input.assertCurrent()

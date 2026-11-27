@@ -3,7 +3,7 @@ import {DataSet, bindDataSetCommandSubmit} from '@spark-appworks/spark-data'
 import { LowcodeApiError, type LowcodeDesignApi, type LowcodeDesignFileUpload } from '@/platform-adapters/api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import config from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
-import {AGENT_WORKFLOW_PUBLICATION_TABLE, createAgentWorkflowPublicationBindings} from '@/platform-adapters/resources/repository/agent-workflow/publication'
+import {AGENT_WORKFLOW_PUBLICATION_TABLE, createAgentWorkflowPublicationBindings, AGENT_WORKFLOW_PUBLICATION_RESOURCE} from '@/platform-adapters/resources/repository/agent-workflow/publication'
 
 type FileLocator = Parameters<LowcodeDesignApi['readTextFile']>[0]
 type UploadText = Parameters<LowcodeDesignFileUpload['uploadTextVersion']>[0]
@@ -35,7 +35,7 @@ function fixture(options: Readonly<{existingDefinition?: string; afterUpload?: (
   const binding = createAgentWorkflowPublicationBindings({config: scenario, applicationId: 'APP',
     api: {readTextFile, readFileBytes}, fileUpload: {uploadTextVersion}, assertCurrent: options.assertCurrent ?? (() => undefined)})
   const view = dataSet.getView(AGENT_WORKFLOW_PUBLICATION_TABLE)
-  const factory = binding.commandBindings?.[AGENT_WORKFLOW_PUBLICATION_TABLE]
+  const factory = binding.commandBindings?.[AGENT_WORKFLOW_PUBLICATION_RESOURCE]
   if (!view) throw new Error(`formal publication command view is missing: ${scenario.scenarioId}`)
   if (!factory) throw new Error(`formal publication command binding is missing: ${scenario.scenarioId}`)
   bindDataSetCommandSubmit(view, factory(view))

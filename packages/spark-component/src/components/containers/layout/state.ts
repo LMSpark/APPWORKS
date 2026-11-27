@@ -88,7 +88,10 @@ export function useUnifiedValueBridge<TValue>(options: UnifiedValueBridgeOptions
   watch(
     () => options.value.value,
     () => {
-      state.value = readIncomingValue()
+      const incoming = readIncomingValue()
+      // An owner-controlled transition starts a new cycle for the same future user action.
+      if (hasLastEmittedValue && !isEqual(lastEmittedValue, incoming)) hasLastEmittedValue = false
+      state.value = incoming
     },
     { immediate: true }
   )

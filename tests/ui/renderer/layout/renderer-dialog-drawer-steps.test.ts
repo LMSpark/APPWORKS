@@ -138,6 +138,23 @@ const ElStepStub = defineComponent({
 })
 
 describe('RendererDialog, RendererDrawer and RendererSteps integration', () => {
+  it.each([RendererDialog, RendererDrawer])('forwards another close after its controlled owner reopens it', async component => {
+    let close: (() => void) | undefined
+    const wrapper = mount(component, {
+      props: {modelValue: true},
+      slots: {default: ({close: closeWindow}: {close: () => void}) => {close = closeWindow; return h('span', '原草稿')}},
+      global: {stubs: {'el-dialog': ElDialogStub, 'el-drawer': ElDrawerStub}},
+    })
+    try {
+      expect(close).toBeTypeOf('function')
+      close?.()
+      await wrapper.setProps({modelValue: false})
+      await wrapper.setProps({modelValue: true})
+      close?.()
+      await flushPromises()
+      expect(wrapper.emitted('update:modelValue')).toEqual([[false], [false]])
+    } finally {wrapper.unmount()}
+  })
   it('supports reference fullscreen toggling, viewport changes, close reset and listener disposal', async () => {
     const width = window.innerWidth
     Object.defineProperty(window, 'innerWidth', {configurable: true, value: 1100})

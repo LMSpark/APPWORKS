@@ -4369,7 +4369,7 @@ describe('native data-space design entry', () => {
     expect(f.fileWrites).toHaveLength(save?1:0);expect(writes(f)).toHaveLength(0)
   })
 
-  it.each([[false, false], [true, false], [true, true]])('shows remaining native relation edits after a stored receipt (unknown=%s, graph failure=%s)', async (unknown, graphFailure) => {
+  it.each([[false, false], [false, true], [true, false], [true, true]])('shows remaining native relation edits after a stored receipt (unknown=%s, graph failure=%s)', async (unknown, graphFailure) => {
     const f = fixture(); await f.open('A')
     const config = JSON.parse(f.stored.get('A')!)
     config.resourceRelations = [{relationId: 'R', parentTable: 'CustomersAlias', childTable: 'OrdersAlias', filterExpression: {field: 'parentId', operator: 'eq', value: 'C'}}]
@@ -4384,12 +4384,12 @@ describe('native data-space design entry', () => {
       await sourceButton(wrapper, 'save-relations').trigger('click'); await flushPromises()
       expect(f.fileWrites).toHaveLength(1)
       definitions.updateEditingValue(key, 'relationId', 'next-edge')
-      release(); await flushPromises()
+      const graphRead = graphFailure
+        ? vi.spyOn(f.sessions.at(-1)!, 'loadGraphRelations').mockRejectedValueOnce(new Error('画布隔离读取失败'))
+        : undefined
+      try {release(); await flushPromises()} finally {if (!unknown) graphRead?.mockRestore()}
       if (unknown) {
         const ordinarySave = vi.spyOn(definitions.dataSet!, 'saveChanges')
-        const graphRead = graphFailure
-          ? vi.spyOn(f.sessions.at(-1)!, 'loadGraphRelations').mockRejectedValueOnce(new Error('画布隔离读取失败'))
-          : undefined
         try {
           await sourceButton(wrapper, 'verify-relations').trigger('click'); await flushPromises()
           expect(ordinarySave).not.toHaveBeenCalled()
@@ -4402,6 +4402,9 @@ describe('native data-space design entry', () => {
       if (!graphFailure) expect(wrapper.get('[aria-label="模型关系编辑"]').text()).toContain('仍有修改待保存')
       expect(sourceButton(wrapper, 'save-relations').attributes('disabled')).toBeUndefined()
       expect((await f.open('A')).definitionDataSet!.resourceRelations?.map(item => item.relationId)).toEqual(['captured-edge'])
+      if (!unknown && graphFailure) {
+        expect(wrapper.get('[aria-label="模型关系编辑"]').text()).toContain('本轮保存已确认，画布回读失败：画布隔离读取失败')
+      }
       await sourceButton(wrapper, 'save-relations').trigger('click'); await flushPromises()
       expect(instance.isDirty).toBe(false); expect(f.fileWrites).toHaveLength(2)
       expect(wrapper.get('[aria-label="模型关系编辑"]').text()).toContain('关系配置已保存并回读确认')

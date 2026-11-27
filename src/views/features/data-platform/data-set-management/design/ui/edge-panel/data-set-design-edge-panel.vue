@@ -231,6 +231,14 @@ function selectIdentity(id: unknown, sourceId?: unknown, previousKey?: string | 
   }) ?? []
   emit('select', previousKey !== undefined && candidates.includes(previousKey) ? previousKey : candidates[0])
 }
+async function readGraphAfterConfirmation(confirmation: string): Promise<boolean> {
+  try {await props.session.loadGraphRelations()}
+  catch (cause) {
+    if (active) message.value = `${confirmation}，画布回读失败：${describe(cause)}`
+    return false
+  }
+  return true
+}
 async function save(): Promise<void> {
   if (blocked.value || editingFilter.value || newId.value) return
   const id = row.value?.['relationId'], sourceId = row.value?.['sourceRelationId'], key = props.rowKey
@@ -239,8 +247,9 @@ async function save(): Promise<void> {
     emit('select', undefined)
     try {
       const saved = await dataSet.saveChanges({views: [{tableName: 'DataResourceRelationDefinition', viewId: 'default'}]}); if (!saved.success) throw new Error(saved.message)
-      await props.session.loadGraphRelations()
-      if (active) message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存' : '关系配置已保存并回读确认'
+      if (await readGraphAfterConfirmation('本轮保存已确认') && active) {
+        message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存' : '关系配置已保存并回读确认'
+      }
     } finally {if (active) selectIdentity(id, sourceId, key)}
   })
 }
@@ -277,12 +286,9 @@ async function verify(): Promise<void> {
     if (!batchId) throw new Error('缺少原保存批次')
     const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [target], readbackViews: []})
     if (result.settlement !== 'confirmed') throw result.journal.originalError ?? new Error('原保存未完整确认')
-    try {await props.session.loadGraphRelations()}
-    catch (cause) {
-      if (active) message.value = `已核验并确认保存结果，画布回读失败：${describe(cause)}`
-      return
-    }
-    if (active) {emit('select', undefined); message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存' : '已核验并确认保存结果'}
+    if (!await readGraphAfterConfirmation('已核验并确认保存结果') || !active) return
+    emit('select', undefined)
+    message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存' : '已核验并确认保存结果'
   })
 }
 async function previewRemote(): Promise<void> {

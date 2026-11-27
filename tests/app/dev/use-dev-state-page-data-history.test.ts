@@ -835,6 +835,52 @@ describe('tool and shared scenario editing owners',()=>{
    return {page, state, save, wrapper}
   }
 
+  it.each(['disposed', 'denied'])('holds the delivery state while a browser lock is pending and recovers after it is %s', async outcome => {
+   configurePagedataAssembly()
+   const {page,state,save,wrapper}=await openPublication('[]')
+   let enterLock = (_granted: boolean): void => {}
+   let lockFinished: Promise<void> | undefined
+   const request = vi.fn((name: string, _options: LockOptions, enter: LockGrantedCallback<void>) => {
+    lockFinished = new Promise<boolean>(resolve => {enterLock = resolve})
+     .then(granted => enter(granted ? {name, mode:'exclusive'} : null))
+    return lockFinished
+   })
+   vi.stubGlobal('navigator', {locks:{request}})
+   let unmounted = false
+   try {
+    page.actions.value.saveDelivery()
+    expect(request).toHaveBeenCalledOnce()
+    const busyBeforeLock = page.delivering.value
+    if(outcome==='disposed') {
+     wrapper.unmount()
+     unmounted = true
+     expect(state.blueprintPageRuntime.value?.destroyed).toBe(false)
+    }
+    enterLock(outcome==='disposed')
+    await lockFinished?.catch(() => {})
+    await vi.waitFor(() => expect(page.delivering.value).toBe(false))
+    expect(save).not.toHaveBeenCalled()
+    expect(designVersions.size).toBe(0)
+    expect(designWorking.size).toBe(0)
+    expect(savedVersions.size).toBe(0)
+    expect(busyBeforeLock).toBe(true)
+    if(outcome==='denied') {
+     page.actions.value.saveDelivery()
+     expect(request).toHaveBeenCalledTimes(2)
+     enterLock(true)
+     await lockFinished
+     await vi.waitFor(() => expect(page.delivering.value).toBe(false))
+     expect(save).toHaveBeenCalledOnce()
+     expect(savedVersions.has('orders-page-node')).toBe(true)
+    }
+   } finally {
+    enterLock(false)
+    await lockFinished?.catch(() => {})
+    if(!unmounted)wrapper.unmount()
+    vi.unstubAllGlobals()
+   }
+  })
+
   function configurePublicationSources(kind: string) {
    const createPlan = (scenarioId: string) => buildRuntimeDataSetPlanText({
     scenarioId, space:{rowid:scenarioId, Name:scenarioId, Type:'数据源'},

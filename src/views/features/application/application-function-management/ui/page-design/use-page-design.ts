@@ -88,7 +88,10 @@ export function usePageDesign(state: DevState) {
     const scope=actionScope.value
     return scope?`${scope.runtime.instanceId}:${scope.projectId}:${scope.nodeId}:${scope.pageId}:${scope.key}`:'page-design-unbound'
   })
+  let disposed = false
+  onScopeDispose(() => { disposed = true })
   const isCurrentScope = (captured:NonNullable<typeof actionScope.value>):boolean => {
+    if (disposed) return false
     const current=actionScope.value
     return !!current&&current.runtime===captured.runtime&&current.owner===captured.owner&&current.projectId===captured.projectId
       &&current.key===captured.key&&current.nodeId===captured.nodeId&&current.pageId===captured.pageId
@@ -297,6 +300,8 @@ export function usePageDesign(state: DevState) {
 
   /** 四文件交付：工具、pagedata与发布说明均经原 DataView owner 生成不可覆盖快照，再切换 VersionId。 */
   async function saveDelivery(captured:NonNullable<typeof actionScope.value>): Promise<void> {
+    if (!isCurrentScope(captured) || delivering.value) return
+    delivering.value = true
     try {
       const session = lowcodeApi.session.get()
       if (!session?.identity.userId || !session.enterprise.shortName) throw new Error('发布需要当前登录身份和企业标识')
@@ -304,14 +309,19 @@ export function usePageDesign(state: DevState) {
       const owner = [JSON.stringify([session.enterprise.id, session.identity.enterpriseId]), session.enterprise.shortName,
         session.identity.userId, captured.projectId, captured.nodeId]
       await withPageToolPublication(owner, async journal => {
+        if (!isCurrentScope(captured)) throw new Error('发布面板已离开或交付目标已变化')
         if (scope !== lowcodeApi.readRequestScope().token) throw new Error('发布请求所属会话已变化')
         await publish(captured, journal)
       })
-    } catch (error) { state.addStatus(`发布未完成：${String(error)}`, 'error') }
+    } catch (error) {
+      state.addStatus(`发布未完成：${String(error)}`, 'error')
+    } finally {
+      delivering.value = false
+      state.notifyExternalDataViewChanged()
+    }
   }
 
   async function publish(captured:NonNullable<typeof actionScope.value>, journal:PageToolPublication): Promise<void> {
-    if (!isCurrentScope(captured) || delivering.value) return
     const {owner:current,runtime,nodeId,pageId,projectId}=captured
     if (!pageId) {state.addStatus('交付工具身份必须与当前项目及页面一致', 'error'); return}
     if (!canSaveDelivery.value) {state.addStatus('发布交付要求当前 DataView 可读 NavigationUrl、VersionId 且允许写 VersionId', 'warning'); return}
@@ -401,7 +411,6 @@ export function usePageDesign(state: DevState) {
         state.addStatus(`发布已确认，运行菜单刷新失败：${String(error)}`, 'warning')
       }
     }
-    delivering.value = true
     try {
       const digestOf = async (text: string) => {
         const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
@@ -690,9 +699,6 @@ export function usePageDesign(state: DevState) {
       await finishPublication()
     } catch (error) {
       state.addStatus(`交付保存失败: ${String(error)}；已确认快照：${written.join('、') || '无'}；已确认发布引用：${confirmed.join('、') || '无'}；已尝试快照：${attemptedSnapshots.join('、') || '无'}；已尝试发布引用：${attemptedReferences.join('、') || '无'}。未确认的请求须核查远端结果`, 'error')
-    } finally {
-      delivering.value = false
-      state.notifyExternalDataViewChanged()
     }
   }
 

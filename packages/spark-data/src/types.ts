@@ -1660,6 +1660,14 @@ export type DataSetSaveChangesResult = {
   /** 事务响应（mode='transaction' 时有效） */
   transaction?: DataSetTransactionResponse}
 
+/** 单视图实际提交的结算。后续失败保留已确认的原回执。 */
+export type DataSetViewSaveOutcome =
+  | Readonly<{state: 'not-submitted'}>
+  | Readonly<{state: 'failed' | 'unknown'; error: Error}>
+  | Readonly<{state: 'partial'; receipt: DataSetSaveChangesResult; error: Error}>
+  | Readonly<{state: 'confirmed'; receipt: DataSetSaveChangesResult}>
+  | Readonly<{state: 'follow-up-failed'; receipt: DataSetSaveChangesResult; error: Error}>
+
 // ═══════════════════════════════════════════════════════
 // 16. CRUD 服务类型
 //

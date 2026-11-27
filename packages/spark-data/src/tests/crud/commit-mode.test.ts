@@ -180,6 +180,22 @@ describe('commitMode: basic field semantics', () => {
 })
 
 describe('commitMode=staged: dirty tracking lifecycle', () => {
+  it('preserves confirmed and failed rows in a single view save result', async () => {
+    const {ds, view} = createStagedView()
+    const api = setupMockApi(view)
+    api.update.mockResolvedValueOnce({success: false, data: {_server: false}})
+    await view.editRowById(1, {name: 'Alice updated'})
+    await view.editRowById(2, {name: 'Bob updated'})
+
+    await expect(ds.saveView(view)).resolves.toMatchObject({
+      state: 'partial',
+      receipt: {savedCount: 1, failedCount: 1, viewResults: [{tableName: 'Users', failedIds: [1]}]},
+    })
+    expect(api.update).toHaveBeenCalledTimes(2)
+    expect(view.dirtyTracking.isDirty(1)).toBe(true)
+    expect(view.dirtyTracking.isDirty(2)).toBe(false)
+  })
+
   it('addRow in staged mode tracks pending-create (no remote call)', async () => {
     const { view } = createStagedView()
     setupMockApi(view)

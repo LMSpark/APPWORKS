@@ -18,6 +18,7 @@ import type {
   DataSetSaveJournal, DataSetSaveJournalPhase, DataSetSaveJournalView, DataSetSaveRecoverableAction,
   DataSetSaveJournalReadOptions, DataSetSaveJournalReadResult,
   DataSetSaveCompletionHandler,
+  DataSetViewSaveOutcome,
 } from './types'
 import { RequestState } from './types'
 import type { DataSetAppServices } from './types'
@@ -1996,6 +1997,67 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     journal.retainedDraft = false
     this.refreshSaveJournalCompletion()
     return this.saveJournal
+  }
+
+  /** 保存当前实例的一条记录。原批次尚未结算时保留原状态、原草稿，拒绝新的独立保存。 */
+  async saveRecord(view: DataView, id: string | number): Promise<DataSetSaveChangesResult> {
+    if (!this.ownsSaveRecoveryView(view)) throw Error('DATA_SET_SAVE_IDENTITY: 保存视图不属于当前实例')
+    if (view.hasUnconfirmedSave) throw Error('DATA_SET_SAVE_UNCONFIRMED: 请核验原保存结果')
+    if (this._saveChangesInFlight > 0) throw Error('DATA_SET_SAVE_JOURNAL_ACTIVE: 保存正在派发或结算')
+    if (this._saveJournal && !this._saveJournal.completed) {
+      throw Error('DATA_SET_SAVE_JOURNAL_CONFLICT: 原保存批次尚未结算')
+    }
+    const selection = {views: [{tableName:view.tableName, viewId:view.viewId, ids:[id]}]}
+    const deleting = view.dirtyTracking.isPendingDelete(id)
+    const prepared = this.prepareSaveJournal(selection)
+    try {
+      const result = await this.saveChanges(selection)
+      const batch = result.data
+      const receipt = batch?.viewResults[0]
+      if (!result.success || receipt?.failedCount || receipt?.failedEditingRows) {
+        throw Error(receipt?.failedErrors[String(id)] ?? result.message ?? result.error?.message ?? '原记录保存失败')
+      }
+      if (batch?.viewCount !== 1 || batch.viewResults.length !== 1 || receipt?.tableName !== view.tableName || receipt.viewId !== view.viewId
+        || receipt.deletedCount !== (deleting ? 1 : 0) || receipt.createdCount + receipt.savedCount !== (deleting ? 0 : 1)) {
+        throw Error('原记录没有已确认的保存回执')
+      }
+      return batch
+    } catch (cause) {
+      const current = this.saveJournal
+      if (prepared.batchId && current.batchId === prepared.batchId && current.currentRecoverableAction === 'discard-not-applied') {
+        this.releaseSettledSaveJournal(prepared.batchId)
+      }
+      throw cause
+    }
+  }
+
+  /** 提交本实例单视图的变更，按实际回执结算。未确认提交只经原批次核验。 */
+  async saveView(view: DataView): Promise<DataSetViewSaveOutcome> {
+    if (!this.ownsSaveRecoveryView(view)) throw Error('DATA_SET_SAVE_IDENTITY: 保存视图不属于当前实例')
+    const hasUnconfirmedSave = () => view.hasUnconfirmedSave
+    if (hasUnconfirmedSave()) return {state: 'unknown', error: Error('保存结果未知，请核验原提交')}
+
+    let result: CrudResult<DataSetSaveChangesResult>
+    try {
+      result = await this.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId}]})
+    } catch (cause) {
+      const error = toError(cause)
+      const originalUnknown = this._saveJournal?.phases.some(phase => phase.views.some(record =>
+        record.view === view && record.state === 'unknown' && record.originalError === error))
+      const state = hasUnconfirmedSave() || originalUnknown ? 'unknown' : 'failed'
+      return {state, error}
+    }
+    const receipt = result.data
+    if (!receipt) return {state: 'failed', error: result.error ?? Error(result.message ?? '缺少保存回执')}
+
+    const confirmed = receipt.createdCount + receipt.savedCount + receipt.deletedCount
+    if (!result.success || receipt.failedCount > 0 || receipt.failedEditingRows > 0) {
+      const error = result.error ?? Error(result.message ?? '部分或全部变更保存失败')
+      return confirmed > 0 ? {state: 'partial', receipt, error} : {state: 'failed', error}
+    }
+    if (confirmed === 0) return {state: 'not-submitted'}
+    if (receipt.followUpError) return {state: 'follow-up-failed', receipt, error: receipt.followUpError}
+    return {state: 'confirmed', receipt}
   }
 
   /**

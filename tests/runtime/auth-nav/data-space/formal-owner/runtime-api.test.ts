@@ -2308,3 +2308,30 @@ describe('DataView incremental append through the original runtime owner', () =>
     expect(base.total).toBe(1)
   })
 })
+
+it('single-record submission preserves an unresolved batch from another view', async () => {
+  const http = new DataSpaceFixtureHttpClient()
+  http.result = {primaryKeyField: 'rowid', data: {Items: ['ROW-1','ROW-2'].map(rowid => ({
+    rowid, salary: 100, lingma_sys_key: rowid, lingma_sys_params: {e: ['salary']},
+  })), Count: 2}}
+  const f = connectedView(http)
+  const other = f.ds.getView('Payroll','default')
+  if (!other) throw Error('Missing second view')
+  try {
+    other.bindQueryExecutor(f.executor)
+    await f.view.loadFromServer()
+    await other.loadFromServer()
+    f.view.updateEditingValue('ROW-1', 'salary', 110)
+    http.saveError = new Error('original write response lost')
+    await expect(f.ds.saveChanges({views:[{tableName:'Payroll',viewId:'list',ids:['ROW-1']}]})).rejects.toThrow('original write response lost')
+    const original = f.ds.saveJournal
+    other.updateEditingValue('ROW-2', 'salary', 120)
+    const attempted = await f.ds.saveRecord(other, 'ROW-2').catch((cause: unknown) => cause)
+    expect(http.saveRequests).toHaveLength(1)
+    expect(attempted).toMatchObject({message: 'DATA_SET_SAVE_JOURNAL_CONFLICT: 原保存批次尚未结算'})
+    expect(f.ds.saveJournal.batchId).toBe(original.batchId)
+    expect(f.ds.saveJournal.views).toMatchObject([{viewId:'list',ids:['ROW-1'],state:'unknown'}])
+    expect(other.hasUnconfirmedSave).toBe(false)
+    expect(other.getEditingRow('ROW-2')?.['salary']).toBe(120)
+  } finally { f.ds.destroy() }
+})

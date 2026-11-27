@@ -1,5 +1,5 @@
 {
-  "gapCount": 9151,
+  "gapCount": 9152,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -27630,13 +27630,25 @@
     },
     {
       "kind": "attribute",
+      "className": "DataSetViewSaveOutcome",
+      "memberName": "state",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DataSetViewSaveOutcome.state 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-data/src/types.ts",
+      "declarationLine": 1492,
+      "sourceFile": "packages/spark-data/src/types.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
       "className": "DataViewRefreshResult",
       "memberName": "refreshStatus",
       "reason": "missing-jsdoc",
       "chainBreak": "DataViewRefreshResult.refreshStatus 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/types.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/types.ts",
-      "declarationLine": 1507,
+      "declarationLine": 1525,
       "sourceFile": "packages/spark-data/src/types.ts",
       "declarationKind": "interface"
     },

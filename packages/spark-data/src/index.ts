@@ -265,6 +265,7 @@ export type {
   DataViewRefreshResult,
   DataSetSaveChangesOptions,
   DataSetSaveChangesResult,
+  DataSetViewSaveOutcome,
   DataSetPhasedSaveResult,
   DataSetSaveJournal,
   DataSetSaveJournalPhase,

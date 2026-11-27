@@ -89,6 +89,7 @@
       "DataSetSaveJournalReadResult",
       "DataSetSaveChangesViewResult",
       "DataSetSaveChangesResult",
+      "DataSetViewSaveOutcome",
       "CrudResult",
       "DataViewRefreshResult",
       "DataViewQueryChild",
@@ -3511,23 +3512,11 @@
               ],
               "additionalProperties": false
             },
-            "children": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/DataViewQueryChild"
-              }
-            },
             "fields": {
               "type": "array",
               "items": {
                 "type": "string"
               }
-            },
-            "pagination": {
-              "enum": [
-                "paged",
-                "none"
-              ]
             },
             "parentResult": {
               "type": "object",
@@ -3548,6 +3537,12 @@
             "outputType": {
               "type": "string"
             },
+            "pagination": {
+              "enum": [
+                "paged",
+                "none"
+              ]
+            },
             "allPages": {
               "enum": [
                 false,
@@ -3562,6 +3557,12 @@
             },
             "maxRows": {
               "type": "number"
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQueryChild"
+              }
             },
             "sourceInputMode": {
               "enum": [
@@ -6873,6 +6874,102 @@
       ],
       "additionalProperties": false
     },
+    "DataSetViewSaveOutcome": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataSetViewSaveOutcome",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "not-submitted"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "enum": [
+                "failed",
+                "unknown"
+              ]
+            },
+            "error": {
+              "type": "object",
+              "title": "Error"
+            }
+          },
+          "required": [
+            "state",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "partial"
+            },
+            "receipt": {
+              "$ref": "#/$defs/DataSetSaveChangesResult"
+            },
+            "error": {
+              "type": "object",
+              "title": "Error"
+            }
+          },
+          "required": [
+            "state",
+            "receipt",
+            "error"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "confirmed"
+            },
+            "receipt": {
+              "$ref": "#/$defs/DataSetSaveChangesResult"
+            }
+          },
+          "required": [
+            "state",
+            "receipt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "follow-up-failed"
+            },
+            "receipt": {
+              "$ref": "#/$defs/DataSetSaveChangesResult"
+            },
+            "error": {
+              "type": "object",
+              "title": "Error"
+            }
+          },
+          "required": [
+            "state",
+            "receipt",
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
     "CrudResult": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -7397,7 +7494,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-26T20:54:09.592Z",
+  "generatedAt": "2026-11-27T00:36:55.383Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -12121,6 +12218,50 @@
             {
               "name": "transaction",
               "jsdoc": "事务响应（mode='transaction' 时有效）",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetViewSaveOutcome": {
+      "name": "DataSetViewSaveOutcome",
+      "jsdoc": "单视图实际提交的结算。后续失败保留已确认的原回执。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    state: 'not-submitted';\n}> | Readonly<{\n    state: 'failed' | 'unknown';\n    error: Error;\n}> | Readonly<{\n    state: 'partial';\n    receipt: DataSetSaveChangesResult;\n    error: Error;\n}> | Readonly<{\n    state: 'confirmed';\n    receipt: DataSetSaveChangesResult;\n}> | Readonly<{\n    state: 'follow-up-failed';\n    receipt: DataSetSaveChangesResult;\n    error: Error;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    state: 'not-submitted';\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    state: 'failed' | 'unknown';\n    error: Error;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    state: 'partial';\n    receipt: DataSetSaveChangesResult;\n    error: Error;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    state: 'confirmed';\n    receipt: DataSetSaveChangesResult;\n}>",
+            "targetName": "Readonly"
+          },
+          {
+            "kind": "union",
+            "typeText": "Readonly<{\n    state: 'follow-up-failed';\n    receipt: DataSetSaveChangesResult;\n    error: Error;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
               "readable": true,
               "writable": false
             }

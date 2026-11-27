@@ -10926,6 +10926,7 @@
           "DataSetSaveJournalReadResult",
           "DataSetSaveChangesViewResult",
           "DataSetSaveChangesResult",
+          "DataSetViewSaveOutcome",
           "CrudResult",
           "DataViewRefreshResult",
           "DataViewQueryChild",
@@ -26797,6 +26798,10 @@
       "file": "files/packages/spark-data/src/types.ts.json"
     },
     "DataSetTransactionResponse": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataSetViewSaveOutcome": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },

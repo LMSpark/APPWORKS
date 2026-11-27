@@ -911,6 +911,42 @@
         "method.discardSaveJournalNotApplied.return": {
           "$ref": "types.ts.json#/$defs/DataSetSaveJournal"
         },
+        "method.saveRecord.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "data-view.ts.json#/$defs/DataView"
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveRecord.return": {
+          "type": "object",
+          "title": "Promise<DataSetSaveChangesResult>"
+        },
+        "method.saveView.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveView.return": {
+          "type": "object",
+          "title": "Promise<DataSetViewSaveOutcome>"
+        },
         "method.saveChanges.params": {
           "type": "object",
           "properties": {
@@ -1051,7 +1087,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T20:54:09.591Z",
+  "generatedAt": "2026-11-27T00:55:45.195Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -2494,6 +2530,72 @@
                 "type": "reference",
                 "name": "DataSetSaveJournal",
                 "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
+            {
+              "name": "saveRecord",
+              "jsdoc": "保存当前实例的一条记录。原批次尚未结算时保留原状态、原草稿，拒绝新的独立保存。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "number"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetSaveChangesResult",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "saveView",
+              "jsdoc": "提交本实例单视图的变更，按实际回执结算。未确认提交只经原批次核验。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetViewSaveOutcome",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                ]
               }
             },
             {

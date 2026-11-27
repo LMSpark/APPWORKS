@@ -125,7 +125,6 @@ import { computed, onMounted, onUnmounted, provide, reactive, ref, watch, type C
 import { useRoute, useRouter } from 'vue-router'
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import type { LowcodeApplicationSelectionReceipt } from '@/platform-adapters/api'
 import { PAGE_RUNTIME_SERVICES, PAGE_SERVICE, buildPageService } from '@spark-appworks/spark-component'
 import {
   MODULE_CONTEXT,
@@ -135,8 +134,6 @@ import {
 } from '@spark-appworks/spark-component'
 import type { ContextSnapshot } from '@spark-appworks/spark-utils'
 import {
-  activateLowcodeApplication,
-  enterLowcodeApplicationCatalog,
   hasLowcodeSession,
   lowcodeApi,
   lowcodeRequestHeaders,
@@ -158,8 +155,6 @@ import NavHeaderBar from '@/layout/NavHeaderBar.vue'
 import NavContextSelector from '@/layout/NavContextSelector.vue'
 import ThemeConfigurator from '@/layout/ThemeConfigurator.vue'
 import { onPageConfigChange, type FileChangeEvent } from '@/services/sse-events'
-import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import type { ProjectSwitchService } from '@/services/project/project-shell'
 import { loadProjectUiSettings, saveProjectUiSettings } from '@/services/project/project-settings'
 import { APPLICATION_CATALOG_PROJECT_ID, PLATFORM_PATH_PREFIX, buildApplicationPath, buildApplicationRootPath, parseApplicationPathScope, stripApplicationPath } from '@/services/application-scope'
 import { lowcodePlatformNavigation } from '@/platform-adapters/system-navigation'
@@ -255,11 +250,6 @@ function resolveActiveSettingsScope(): string | null {
   if (scoped !== null) return toProjectSettingsScope(scoped.projectId)
   const principal = readLowcodePrincipal()
   return toProjectSettingsScope(principal?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID)
-}
-
-function resolveProjectSettingsScope(projectId: string): string | null {
-  if (projectId === 'platform') return 'platform:platform'
-  return toProjectSettingsScope(projectId)
 }
 
 function normalizeSettingsScope(scopeKey: string | null): string | null {
@@ -369,67 +359,6 @@ function jumpToExpectedContext(): void {
   void router.replace(expectedPath)
 }
 
-/* ── 项目切换服务（供子组件注入） ── */
-let projectSwitchIntent = 0
-const projectSwitchService: ProjectSwitchService = {
-  async switchAndReload(projectId: string): Promise<LowcodeApplicationSelectionReceipt> {
-    const dynamic = getDynamicRouter()
-    dynamic?.assertPageRuntimesClean()
-    const previousProjectId = readLowcodePrincipal()?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
-    const intent = ++projectSwitchIntent
-    const receipt = await commitProjectSelection(projectId, intent)
-    try {
-      await reloadNavigation(receipt)
-      receipt.assertCurrent()
-    } catch (error: unknown) {
-      if (intent === projectSwitchIntent && previousProjectId !== projectId) {
-        await restoreProjectSelection(previousProjectId)
-      }
-      throw error
-    }
-    return receipt
-  },
-}
-
-async function commitProjectSelection(projectId: string, intent: number): Promise<LowcodeApplicationSelectionReceipt> {
-  const dynamic = getDynamicRouter()
-  const beforeCommit = (): void => {
-    if (intent !== projectSwitchIntent) throw new Error('APP_PROJECT_SWITCH_STALE: 项目切换已失效，请重新选择。')
-    dynamic?.assertPageRuntimesClean()
-  }
-  beforeCommit()
-  const ownerReceipt = projectId === APPLICATION_CATALOG_PROJECT_ID
-    ? enterLowcodeApplicationCatalog()
-    : await activateLowcodeApplication(projectId, undefined, beforeCommit)
-  const assertCurrent = (): void => {
-    if (intent !== projectSwitchIntent) throw new Error('APP_PROJECT_SWITCH_STALE: 项目切换已失效，请重新选择。')
-    ownerReceipt.assertCurrent()
-  }
-  const receipt: LowcodeApplicationSelectionReceipt = Object.freeze({ assertCurrent })
-  receipt.assertCurrent()
-  dynamic?.assertPageRuntimesClean()
-  dynamic?.resetSystemPageInstances()
-  dynamic?.disposePageRuntimes()
-  activeProjectId.value = projectId
-  applyProjectSettingsScope(resolveProjectSettingsScope(projectId))
-  return receipt
-}
-
-// A failed target navigation must not strand the shell on the public fallback tree; reselect the prior application.
-async function restoreProjectSelection(previousProjectId: string): Promise<void> {
-  const intent = ++projectSwitchIntent
-  try {
-    const receipt = await commitProjectSelection(previousProjectId, intent)
-    await reloadNavigation(receipt)
-    receipt.assertCurrent()
-    const current = router.currentRoute.value
-    await router.replace({ path: current.path, query: current.query, hash: current.hash, force: true })
-  } catch (restoreError: unknown) {
-    console.error('[App] 应用切换失败后恢复原应用失败', restoreError)
-  }
-}
-provide(PROJECT_SWITCH_KEY, projectSwitchService)
-
 const navigationActionRegistry = createNavigationActionRegistry()
 provide(NAVIGATION_ACTION_REGISTRY_KEY, navigationActionRegistry)
 
@@ -456,11 +385,7 @@ navigationActionRegistry.register('settings', () => {
 navigationActionRegistry.register('home', async () => {
   const principal = readLowcodePrincipal()
   try {
-    if (principal && principal.applicationId !== null) {
-      const receipt = await projectSwitchService.switchAndReload(APPLICATION_CATALOG_PROJECT_ID)
-      receipt.assertCurrent()
-      await router.push(buildApplicationPath({ projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
-    } else if (principal) {
+    if (principal) {
       await router.push(buildApplicationPath({ projectId: APPLICATION_CATALOG_PROJECT_ID }, '/app-list'))
     } else {
       await router.push('/')
@@ -471,11 +396,6 @@ navigationActionRegistry.register('home', async () => {
 })
 navigationActionRegistry.register('platform', async () => {
   try {
-    const principal = readLowcodePrincipal()
-    if (principal && principal.applicationId !== null) {
-      const receipt = await projectSwitchService.switchAndReload(APPLICATION_CATALOG_PROJECT_ID)
-      receipt.assertCurrent()
-    }
     const homePath = lowcodePlatformNavigation().homePath
     if (homePath === undefined) throw new Error('平台工作台没有登记页面')
     await router.push(`${PLATFORM_PATH_PREFIX}${homePath}`)
@@ -635,8 +555,8 @@ function syncAppNavProjectionFromRouter(): void {
   applyNavTree(getNavTree())
 }
 
-async function reloadNavigation(receipt?: LowcodeApplicationSelectionReceipt): Promise<void> {
-  await reloadAndSyncNavigation(receipt)
+async function reloadNavigation(): Promise<void> {
+  await reloadAndSyncNavigation()
 }
 
 function syncPageConfigSubscription(): void {
@@ -751,8 +671,6 @@ async function handleCrossAppNavigate(projectIdOrFullPath: string, pathArg?: str
   if (!principal) return
 
   try {
-    const receipt = await projectSwitchService.switchAndReload(targetProjectId)
-    receipt.assertCurrent()
     await router.push(buildApplicationPath({ projectId: targetProjectId }, targetPath))
   } catch (error: unknown) {
     pageService.showMessage(error instanceof Error ? error.message : String(error), 'error')

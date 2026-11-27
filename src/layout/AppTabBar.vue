@@ -46,40 +46,20 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 </template>
 
 <script setup lang="ts">
-import { inject, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useTabPages } from '@spark-appworks/spark-app'
 import type { TabPage } from '@spark-appworks/spark-app'
-import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import { parseApplicationPathScope } from '@/services/application-scope'
 import {consumeRequiredPageService, DisplayIcon, useSparkComponent} from '@spark-appworks/spark-component'
 
 const router = useRouter()
 const {sparkConsume} = useSparkComponent({type: 'app-tab-bar'})
 
 const pageService = consumeRequiredPageService(sparkConsume, 'app-tab-bar')
-const route = useRoute()
-const projectSwitchService = inject(PROJECT_SWITCH_KEY, null)
-
-function parseScopedProjectId(path: string): string | null {
-  return parseApplicationPathScope(path)?.projectId ?? null
-}
 
 async function navigateTab(fullPath: string): Promise<void> {
-  const targetProjectId = parseScopedProjectId(fullPath)
-  const currentProjectId = typeof route.params['projectId'] === 'string' ? route.params['projectId'] : null
-
-  if (
-    projectSwitchService !== null &&
-    targetProjectId !== null &&
-    currentProjectId !== null &&
-    targetProjectId !== currentProjectId
-  ) {
-    const receipt = await projectSwitchService.switchAndReload(targetProjectId)
-    receipt.assertCurrent()
-  }
-
-  if (await router.push(fullPath)) throw new Error('页面导航已取消，原实例保留')
+  const failure = await router.push(fullPath)
+  if (failure || router.currentRoute.value.fullPath !== fullPath) throw new Error('页面导航未完成，原实例保留')
 }
 
 const { tabs, activeTab, closeTab, closeOthers, closeAll, switchTo } = useTabPages({

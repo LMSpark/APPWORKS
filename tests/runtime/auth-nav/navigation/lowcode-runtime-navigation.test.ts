@@ -551,11 +551,13 @@ describe('lowcode project navigation projection', () => {
     await dynamic.registerRoutes()
     setDynamicRouter(dynamic)
     const guard = new ProjectNavigationGuard({
+      router, reportRecovery: () => undefined,
       publicPaths: new Set(['/login']),
       publicHomePath: '/login',
       isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
     })
-    router.beforeEach((to) => guard.resolve(to))
+    router.beforeEach((to, from) => guard.resolve(to, from))
+    router.beforeResolve((to) => guard.commit(to))
 
     await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
@@ -600,11 +602,13 @@ describe('lowcode project navigation projection', () => {
     await dynamic.registerRoutes()
     setDynamicRouter(dynamic)
     const guard = new ProjectNavigationGuard({
+      router, reportRecovery: () => undefined,
       publicPaths: new Set(['/login']),
       publicHomePath: '/login',
       isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
     })
-    router.beforeEach((to) => guard.resolve(to))
+    router.beforeEach((to, from) => guard.resolve(to, from))
+    router.beforeResolve((to) => guard.commit(to))
     await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
     const initialInstance = dynamic.getSystemPageInstance(router.currentRoute.value)
     if (!initialInstance) throw new Error('APP-A system-page fixture did not create a native instance')
@@ -660,11 +664,13 @@ describe('lowcode project navigation projection', () => {
     await dynamic.registerRoutes()
     setDynamicRouter(dynamic)
     const guard = new ProjectNavigationGuard({
+      router, reportRecovery: () => undefined,
       publicPaths: new Set(['/login']),
       publicHomePath: '/login',
       isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
     })
-    router.beforeEach((to) => guard.resolve(to))
+    router.beforeEach((to, from) => guard.resolve(to, from))
+    router.beforeResolve((to) => guard.commit(to))
     await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
 
     vi.spyOn(applicationCatalogReader, 'read').mockResolvedValue(application('APP-A'))
@@ -696,11 +702,13 @@ describe('lowcode project navigation projection', () => {
     await dynamic.registerRoutes()
     setDynamicRouter(dynamic)
     const guard = new ProjectNavigationGuard({
+      router, reportRecovery: () => undefined,
       publicPaths: new Set(['/login']),
       publicHomePath: '/login',
       isPlatformWorkspacePath: (path) => path.startsWith('/platform'),
     })
-    router.beforeEach((to) => guard.resolve(to))
+    router.beforeEach((to, from) => guard.resolve(to, from))
+    router.beforeResolve((to) => guard.commit(to))
     await router.push(`/apps/APP-A/dashboard?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=dashboard`)
 
     const appB = application('APP-B')

@@ -5,13 +5,12 @@ import { createMemoryHistory, createRouter, useRoute, useRouter } from 'vue-rout
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import { appPageUiState, closeAppDialog, useSystemPageDirtySource } from '@spark-appworks/spark-app'
 import { PAGE_SERVICE, useSparkComponent, type PageServiceCapability } from '@spark-appworks/spark-component'
-import type { LowcodeApplicationSelectionReceipt } from '@/platform-adapters/api'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
 import { SystemPageIdentityResolver } from '../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-resolver'
 import { setDynamicRouter } from '../../../../packages/spark-app/src/navigation/nav-access'
 import { NAVIGATION_ACTION_REGISTRY_KEY, type NavigationActionRegistry } from '../../../../packages/spark-app/src/navigation/action-registry'
 import { activateLowcodeApplication } from '@/platform-adapters/lowcode-runtime'
-import { PROJECT_SWITCH_KEY, type ProjectSwitchService } from '@/services/project/project-shell'
+import { ProjectNavigationGuard } from '@/services/project/navigation/project-navigation-guard'
 import App from '../../../../src/App.vue'
 
 const ThemeConfiguratorModeProbe = defineComponent({
@@ -64,24 +63,22 @@ afterEach(() => {
 
 vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   activateLowcodeApplication: vi.fn(), enterLowcodeApplicationCatalog: vi.fn(), hasLowcodeSession: () => true,
-  lowcodeApi: { platform: { logout: vi.fn(() => new Promise<void>(() => undefined)) } }, lowcodeRequestHeaders: () => ({}),
+  lowcodeApi: { platform: { logout: vi.fn(() => new Promise<void>(() => undefined)),
+    cancelPendingApplicationSelection: vi.fn(), captureAuthenticationScope: () => () => true } }, lowcodeRequestHeaders: () => ({}),
   readLowcodePrincipal: () => ({ enterpriseName: 'acme', applicationId: 'project', username: 'tester' }),
 }))
 vi.mock('@/services/project/project-shell', () => ({
-  PROJECT_SWITCH_KEY: Symbol('project-switch'), NAVIGATION_ACTION_REGISTRY_KEY: Symbol('navigation-actions'),
   registerShellNavRootListener: () => () => undefined, reloadAndSyncNavigation: vi.fn(),
   syncCommittedNavigationFromRouter: vi.fn(), resetAppProjectWorkspace: vi.fn(),
 }))
 vi.mock('@/services/sse-events', () => ({ onPageConfigChange: () => () => undefined }))
 vi.mock('@/registries/vue-page-registry', () => ({ getPublicPaths: () => new Set(['/login', '/']) }))
 
-let mountedProjectSwitch: ProjectSwitchService | null = null
 let mountedNavigationActions: NavigationActionRegistry | null = null
 let nativeUnmounts = 0
 
 const AppLayoutProbe = defineComponent({
   setup(_, { slots }) {
-    mountedProjectSwitch = inject(PROJECT_SWITCH_KEY, null)
     return () => h('main', Object.values(slots).flatMap(slot => slot?.() ?? []))
   },
 })
@@ -483,9 +480,18 @@ describe('system page identity pool', () => {
     await flushPromises()
     const assertClean = vi.spyOn(dynamic, 'assertPageRuntimesClean').mockImplementation(() => { throw new Error('dirty cfg page') })
     const resetNative = vi.spyOn(dynamic, 'resetSystemPageInstances')
-    const switchService = mountedProjectSwitch
-    if (!switchService) throw new Error('project switch service was not provided')
-    await expect(switchService.switchAndReload('other')).rejects.toThrow('dirty cfg page')
+    const guard = new ProjectNavigationGuard({
+      router,
+      publicPaths: new Set(['/login', '/']),
+      publicHomePath: '/',
+      isPlatformWorkspacePath: path => path.startsWith('/platform'),
+      reportRecovery: vi.fn(),
+    })
+    router.beforeEach((to, from) => guard.resolve(to, from))
+    router.beforeResolve(to => guard.commit(to))
+    router.onError(() => undefined)
+    await expect(router.push('/apps/other/dashboard')).rejects.toThrow('dirty cfg page')
+    expect(activateLowcodeApplication).not.toHaveBeenCalled()
     expect(resetNative).not.toHaveBeenCalled()
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
     const actions = mountedNavigationActions

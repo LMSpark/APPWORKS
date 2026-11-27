@@ -5482,7 +5482,7 @@
       "chainBreak": "DynamicRouter.getPageRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 141,
+      "declarationLine": 148,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5494,7 +5494,7 @@
       "chainBreak": "DynamicRouter.systemPageRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 142,
+      "declarationLine": 149,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5506,7 +5506,7 @@
       "chainBreak": "DynamicRouter.getSystemPageInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 143,
+      "declarationLine": 150,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5518,7 +5518,7 @@
       "chainBreak": "DynamicRouter.getSystemPageInstanceById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 144,
+      "declarationLine": 151,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5530,7 +5530,7 @@
       "chainBreak": "DynamicRouter.closeSystemPageInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 145,
+      "declarationLine": 152,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5542,7 +5542,7 @@
       "chainBreak": "DynamicRouter.resetSystemPageInstances 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 146,
+      "declarationLine": 153,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5554,7 +5554,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeView 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 147,
+      "declarationLine": 154,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5566,7 +5566,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeNames 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 148,
+      "declarationLine": 155,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5578,7 +5578,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 149,
+      "declarationLine": 156,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5590,7 +5590,7 @@
       "chainBreak": "DynamicRouter.closePageRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 150,
+      "declarationLine": 157,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5602,7 +5602,7 @@
       "chainBreak": "DynamicRouter.assertPageRuntimesClean 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 151,
+      "declarationLine": 158,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5614,7 +5614,7 @@
       "chainBreak": "DynamicRouter.disposePageRuntimes 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 152,
+      "declarationLine": 159,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -5626,7 +5626,7 @@
       "chainBreak": "DynamicRouter.markPageConfigPending 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 153,
+      "declarationLine": 160,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -71194,7 +71194,7 @@
       "chainBreak": "EnterpriseDefaultApplication.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/services/project/enterprise-landing.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/enterprise-landing.ts",
-      "declarationLine": 15,
+      "declarationLine": 14,
       "sourceFile": "src/services/project/enterprise-landing.ts",
       "declarationKind": "class"
     },
@@ -71206,7 +71206,7 @@
       "chainBreak": "EnterpriseDefaultApplication.load 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/enterprise-landing.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/enterprise-landing.ts",
-      "declarationLine": 16,
+      "declarationLine": 15,
       "sourceFile": "src/services/project/enterprise-landing.ts",
       "declarationKind": "class"
     },
@@ -71218,7 +71218,7 @@
       "chainBreak": "EnterpriseDefaultApplication.writable 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/enterprise-landing.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/enterprise-landing.ts",
-      "declarationLine": 20,
+      "declarationLine": 19,
       "sourceFile": "src/services/project/enterprise-landing.ts",
       "declarationKind": "class"
     },
@@ -71230,7 +71230,7 @@
       "chainBreak": "EnterpriseDefaultApplication.destroy 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/enterprise-landing.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/enterprise-landing.ts",
-      "declarationLine": 23,
+      "declarationLine": 22,
       "sourceFile": "src/services/project/enterprise-landing.ts",
       "declarationKind": "class"
     },
@@ -71286,7 +71286,7 @@
       "chainBreak": "ProjectNavigationGuardOptions.publicPaths 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/navigation/project-navigation-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/navigation/project-navigation-guard.ts",
-      "declarationLine": 3,
+      "declarationLine": 5,
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
       "declarationKind": "interface"
     },
@@ -71298,7 +71298,7 @@
       "chainBreak": "ProjectNavigationGuardOptions.publicHomePath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/navigation/project-navigation-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/navigation/project-navigation-guard.ts",
-      "declarationLine": 4,
+      "declarationLine": 6,
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
       "declarationKind": "interface"
     },
@@ -71310,7 +71310,7 @@
       "chainBreak": "ProjectNavigationGuardOptions.isPlatformWorkspacePath 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/navigation/project-navigation-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/navigation/project-navigation-guard.ts",
-      "declarationLine": 5,
+      "declarationLine": 7,
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
       "declarationKind": "typeAlias"
     },
@@ -71321,7 +71321,7 @@
       "chainBreak": "ProjectNavigationGuard 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/navigation/project-navigation-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/navigation/project-navigation-guard.ts",
-      "declarationLine": 7,
+      "declarationLine": 11,
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
       "declarationKind": "class"
     },
@@ -71333,7 +71333,7 @@
       "chainBreak": "ProjectNavigationGuard.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/services/project/navigation/project-navigation-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/navigation/project-navigation-guard.ts",
-      "declarationLine": 10,
+      "declarationLine": 15,
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
       "declarationKind": "class"
     },
@@ -71345,7 +71345,7 @@
       "chainBreak": "ProjectNavigationGuard.resolve 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/navigation/project-navigation-guard.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/navigation/project-navigation-guard.ts",
-      "declarationLine": 11,
+      "declarationLine": 18,
       "sourceFile": "src/services/project/navigation/project-navigation-guard.ts",
       "declarationKind": "class"
     },
@@ -72240,7 +72240,7 @@
       "chainBreak": "ProjectApiScope.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/services/project/project-shell.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/project-shell.ts",
-      "declarationLine": 22,
+      "declarationLine": 18,
       "sourceFile": "src/services/project/project-shell.ts",
       "declarationKind": "typeAlias"
     },
@@ -72251,7 +72251,7 @@
       "chainBreak": "ProjectApiScope 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/services/project/project-shell.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/services/project/project-shell.ts",
-      "declarationLine": 22,
+      "declarationLine": 18,
       "sourceFile": "src/services/project/project-shell.ts",
       "declarationKind": "typeAlias"
     },

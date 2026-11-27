@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
-import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
+import { createMemoryHistory, createRouter, RouterView, START_LOCATION } from 'vue-router'
 import type { PageFileReadCommand } from '@spark-appworks/spark-project-model'
 import { DataSet } from '@spark-appworks/spark-data'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
@@ -797,4 +797,26 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     expect(router.getRoutes().some(route => route.aliasOf !== undefined)).toBe(false)
     expect(router.getRoutes().some(route => route.path.endsWith('/login'))).toBe(true)
   })
+})
+
+it('leaves the initial URL to Vue Router when public root exists during first registration', async () => {
+  const router = createRouter({ history: createMemoryHistory(), routes: [] })
+  const replace = vi.spyOn(router, 'replace')
+  const loadNavigation = vi.fn(async () => TOOL_NAV)
+  const dynamic = createDynamicRouter({
+    router, pageComponent: DummyPage, loadNavigation, isAuthenticated: () => false,
+    preAuthNavTree: { ...PRE_AUTH_NAV, items: [
+      { id: 'public-home', title: 'Public', itemKind: 'system-page', path: '/' }, ...PRE_AUTH_NAV.items,
+    ] },
+    componentMap: { '/': DummyPage, '/login': DummyPage, '/demo/template-dsl': DummyPage },
+  })
+
+  await dynamic.registerRoutes()
+
+  expect(router.currentRoute.value).toBe(START_LOCATION)
+  expect(replace).not.toHaveBeenCalled()
+  expect(loadNavigation).not.toHaveBeenCalled()
+  await router.push('/login?source=direct#login')
+  expect(router.currentRoute.value.fullPath).toBe('/login?source=direct#login')
+  expect(router.currentRoute.value.meta['nodeId']).toBe('login')
 })

@@ -4,14 +4,13 @@
  * 边界：企业配置经入驻场景 tenantEnterprise 视图的 JSON 成员读写，只提交本企业行的 ent_config；
  *   默认应用须在当前可见应用目录中才进入；未设置、不可见或读取失败均提示后进入应用列表，不静默。
  */
-import type {Router} from 'vue-router'
+import {isNavigationFailure, NavigationFailureType, type Router} from 'vue-router'
 import type {PageServiceCapability} from '@spark-appworks/spark-component'
-import {getNavHomePath} from '@spark-appworks/spark-app'
 import type {DataRow, DataSet, DataView} from '@spark-appworks/spark-data'
 import {lowcodeApi} from '@/platform-adapters/lowcode-runtime'
 import {getFormalModelView, loadLowcodeEnterpriseCatalog, readLowcodeApplications} from '@/platform-adapters/lowcode-application-catalog'
-import {APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath} from '@/services/application-scope'
-import type {ProjectSwitchService} from './project-shell'
+import {APPLICATION_CATALOG_PROJECT_ID, buildApplicationPath, buildApplicationRootPath} from '@/services/application-scope'
+import {isCommittedApplicationPage} from './project-shell'
 
 const DEFAULT_APPLICATION = {field: 'ent_config', path: ['defaultApplicationId']} as const
 
@@ -65,13 +64,13 @@ export class EnterpriseDefaultApplication {
     if (this.view.hasEditingChanges() || this.view.hasUnconfirmedSave) throw new Error('上一次企业配置尚未保存或确认')
     this.view.updateEditingMember(this.recordId, {...DEFAULT_APPLICATION, value: applicationId ?? undefined})
     try {
-      await this.dataSet.saveChanges({views: [{tableName: this.view.tableName, viewId: this.view.viewId, ids: [this.recordId]}]})
+      await this.dataSet.saveRecord(this.view, this.recordId)
     } catch (error) {
       if (!this.view.hasUnconfirmedSaveFor([this.recordId])) this.view.discardPendingChanges([this.recordId])
       throw error
     }
-    const result = await this.view.requestRefresh()
-    if (!result.success) throw new Error('默认应用已提交，但回读失败，请刷新核对')
+    const result = await this.view.requestRefresh({defer: false})
+    if (result.refreshStatus !== 'read') throw new Error('默认应用已提交，但回读失败，请刷新核对')
     if (this.applicationId !== (applicationId ?? '')) throw new Error('默认应用回读结果与提交不一致，请刷新核对')
   }
 
@@ -106,27 +105,30 @@ async function resolveEnterpriseLanding(assertCurrent: () => void): Promise<Ente
 
 /** 登录后的统一落点：进入企业默认应用首页，否则提示原因并进入应用列表。 */
 export async function enterEnterpriseLanding(input: Readonly<{
-  router: Pick<Router, 'replace'>
-  projectSwitch?: ProjectSwitchService | null
+  router: Pick<Router, 'replace' | 'currentRoute'>
   ui: Pick<PageServiceCapability, 'showMessage'>
 }>): Promise<void> {
-  const landing = await resolveEnterpriseLanding(() => undefined)
+  const {router, ui} = input
+  const source = router.currentRoute.value
+  const authenticationIsCurrent = lowcodeApi.platform.captureAuthenticationScope()
+  const isCurrent = (): boolean => router.currentRoute.value === source && authenticationIsCurrent()
+  const landing = await resolveEnterpriseLanding(() => {
+    if (!isCurrent()) throw new Error('企业默认应用读取已失效')
+  })
+  if (!isCurrent()) return
   if ('applicationId' in landing) {
     try {
-      if (!input.projectSwitch) throw new Error('缺少应用切换服务')
-      const receipt = await input.projectSwitch.switchAndReload(landing.applicationId)
-      receipt.assertCurrent()
-      const failure = await input.router.replace(buildApplicationPath({projectId: landing.applicationId}, getNavHomePath()))
-      receipt.assertCurrent()
-      if (!failure) return
-      input.ui.showMessage('企业默认应用导航未完成，已进入应用列表', 'warning')
+      const failure = await router.replace(buildApplicationRootPath({projectId: landing.applicationId}))
+      if (!failure && isCommittedApplicationPage(router.currentRoute.value, landing.applicationId)) return
+      if (isNavigationFailure(failure, NavigationFailureType.cancelled)) return
+      if (!isCurrent()) return
+      ui.showMessage('企业默认应用导航未完成，正在进入应用列表', 'warning')
     } catch (error) {
-      input.ui.showMessage(`企业默认应用进入失败：${error instanceof Error ? error.message : String(error)}，已进入应用列表`, 'warning')
+      if (!isCurrent()) return
+      ui.showMessage(`企业默认应用进入失败：${error instanceof Error ? error.message : String(error)}，正在进入应用列表`, 'warning')
     }
-  } else if (landing.level === 'info') {
-    input.ui.showMessage(landing.message, 'info')
   } else {
-    input.ui.showMessage(landing.message, 'warning')
+    ui.showMessage(landing.message, landing.level)
   }
-  await input.router.replace(buildApplicationPath({projectId: APPLICATION_CATALOG_PROJECT_ID}, '/app-list'))
+  await router.replace(buildApplicationPath({projectId: APPLICATION_CATALOG_PROJECT_ID}, '/app-list'))
 }

@@ -4,27 +4,30 @@
  * 边界：不进入 spark-project-model 内核；蓝图 编辑宿主与 committed 投影分离。
  * AI用途：切换项目、同步运行菜单或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。
  */
-import type { InjectionKey } from 'vue'
+import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import type { LowcodeApplicationSelectionReceipt } from '@/platform-adapters/api'
 import { ProjectWorkspace } from '@spark-appworks/spark-project-model'
-import { getNavTree, refreshRoutes } from '@spark-appworks/spark-app'
+import { getDynamicRouter, getNavTree, refreshRoutes } from '@spark-appworks/spark-app'
 import {
   createLowcodeProjectGateways,
   readLowcodePrincipal,
 } from '@/platform-adapters/lowcode-runtime'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
+import { APPLICATION_CATALOG_PROJECT_ID, parseApplicationPathScope, stripApplicationPath } from '@/services/application-scope'
 import {loadLowcodeScenarioDefinitions} from '@/platform-adapters/data-space/lowcode-data-space-runtime'
 
-// --- project-switch ---
-
-/** Project Switch Service 的语义模型。 */
-export type ProjectSwitchService = {
-  /** 切换到指定项目并刷新壳层导航；projectId 为目标项目标识，切换后会重新加载路由和 ProjectWorkspace。 */
-  switchAndReload(projectId: string): Promise<LowcodeApplicationSelectionReceipt>
+/** 确认路由已提交到目标应用的一条有效页面记录，供应用目录和登录落点确认导航结果。 */
+export function isCommittedApplicationPage(route: RouteLocationNormalizedLoaded, projectId: string): boolean {
+  const nav = getDynamicRouter()?.getApplicationNavTree()
+  return readLowcodePrincipal()?.applicationId === projectId
+    && nav?.projectId === projectId
+    && parseApplicationPathScope(route.path)?.projectId === projectId
+    && stripApplicationPath(route.path).replace(/\//g, '') !== ''
+    && route.matched.length > 0
+    && route.meta['type'] !== 'invalid-config-page'
+    && route.meta['type'] !== 'invalid-system-page'
+    && route.meta['systemPageIdentityState'] !== 'error'
 }
-
-export const PROJECT_SWITCH_KEY: InjectionKey<ProjectSwitchService> = Symbol('project-switch')
 
 // --- project-workspace ---
 

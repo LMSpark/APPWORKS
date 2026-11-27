@@ -29,14 +29,14 @@ AI用途：需要理解未登录时如何经 SPARK data 命令视图登录、注
 </template>
 
 <script setup lang="ts">
-import {inject, onBeforeUnmount, onMounted, ref} from 'vue'
+import {onBeforeUnmount, onMounted, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererButton, useSparkComponent, type DataViewRecordEditingFinish, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {getPublicScenarioResource} from '@/registries/system-scenario-registry'
 import {loadLowcodePublicScenario} from '@/platform-adapters/data-space/lowcode-public-scenario'
-import {PROJECT_SWITCH_KEY, reloadAndSyncNavigation} from '@/services/project/project-shell'
+import {reloadAndSyncNavigation} from '@/services/project/project-shell'
 import {enterEnterpriseLanding} from '@/services/project/enterprise-landing'
 import LoginForm from './login/login-form.vue'
 import UserRegistrationDrawer from './login/user-registration-drawer.vue'
@@ -54,7 +54,6 @@ const keys = {catalog: buildDataViewKey(tables.catalog, 'default', scenarioId), 
   code: buildDataViewKey(tables.code, 'default', scenarioId)}
 
 const router = useRouter()
-const projectSwitch = inject(PROJECT_SWITCH_KEY, null)
 const requestedTab = sessionStorage.getItem(LOGIN_TAB_KEY)
 if (requestedTab) sessionStorage.removeItem(LOGIN_TAB_KEY)
 const {sparkProvide, sparkRemove, sparkConsume} = useSparkComponent({type: 'platform-login-page'})
@@ -173,7 +172,7 @@ async function enter(identity: Readonly<{enterpriseName: string; account: string
   try {
     localStorage.setItem(ENTERPRISE_KEY, identity.enterpriseName)
     await reloadAndSyncNavigation()
-    await enterEnterpriseLanding({router, projectSwitch, ui: pageService})
+    if (active) await enterEnterpriseLanding({router, ui: pageService})
   } catch (cause) {
     // 应用范围切换会卸载本页，失败只能经全局提示呈现，不得因本页已关闭而吞掉。
     pageService.showMessage(message(cause), 'error')

@@ -39,12 +39,12 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
 /**
  * @description 应用列表页面，以卡片网格展示已创建的项目/应用及入口；不作为 SparkNode 组件配置生成。
  */
-import { ref, shallowRef, onMounted, computed, inject, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, shallowRef, onMounted, computed, onBeforeUnmount } from 'vue'
+import { isNavigationFailure, NavigationFailureType, useRouter } from 'vue-router'
 import { lowcodeApi, readLowcodePrincipal } from '@/platform-adapters/lowcode-runtime'
-import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
-import { buildApplicationPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
-import { getNavHomePath, NativePageRuntimeSession } from '@spark-appworks/spark-app'
+import { buildApplicationRootPath, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
+import { isCommittedApplicationPage } from '@/services/project/project-shell'
+import { NativePageRuntimeSession } from '@spark-appworks/spark-app'
 import {PAGE_RUNTIME, RendererList, RendererPageHeader, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import {getSystemScenarioResource} from '@/registries/system-scenario-registry'
@@ -57,7 +57,6 @@ type ProjectItem = {
 }
 
 const router = useRouter()
-const projectSwitch = inject(PROJECT_SWITCH_KEY)
 const { sparkProvide, sparkRemove, sparkConsume } = useSparkComponent({ type: 'app-list' })
 const pageService = consumeRequiredPageService(sparkConsume, 'app-list')
 const runtimeError = ref('')
@@ -173,20 +172,16 @@ function validateScenarioView(view: DataView): void {
   }
 }
 
-function getProjectSwitch() {
-  if (!projectSwitch) throw new Error('应用管理页缺少项目切换服务，无法同步项目上下文')
-  return projectSwitch
-}
-
 async function handleSwitch(project: ProjectItem) {
   try {
     const principal = readLowcodePrincipal()
     if (!principal) throw new Error('未登录，无法切换应用')
-    const receipt = await getProjectSwitch().switchAndReload(project.projectId)
-    receipt.assertCurrent()
-    const failure = await router.push(buildApplicationPath({ projectId: project.projectId }, getNavHomePath()))
-    receipt.assertCurrent()
-    if (failure) throw new Error('应用页面导航未完成')
+    const failure = await router.push(buildApplicationRootPath({ projectId: project.projectId }))
+    if (failure) {
+      if (isNavigationFailure(failure, NavigationFailureType.cancelled)) return
+      throw new Error('应用页面导航未完成')
+    }
+    if (!isCommittedApplicationPage(router.currentRoute.value, project.projectId)) return
     pageService.showMessage(`已切换到「${project.name}」`, 'success')
   } catch (error: unknown) {
     pageService.showMessage(error instanceof Error ? error.message : '切换应用失败', 'error')

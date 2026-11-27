@@ -158,6 +158,25 @@
       ],
       "additionalProperties": false
     },
+    "DynamicRouteSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DynamicRouteSelection",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
     "DynamicRouter": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -323,7 +342,11 @@
         "method.removeRoute.return": true,
         "method.refreshRoutes.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "selection": {
+              "$ref": "#/$defs/DynamicRouteSelection"
+            }
+          },
           "additionalProperties": false
         },
         "method.refreshRoutes.return": {
@@ -374,7 +397,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T17:02:34.863Z",
+  "generatedAt": "2026-11-27T20:59:02.048Z",
   "models": {
     "SystemPageInstanceView": {
       "name": "SystemPageInstanceView",
@@ -569,6 +592,42 @@
               "name": "hostPath",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DynamicRouteSelection": {
+      "name": "DynamicRouteSelection",
+      "jsdoc": "当前切换的正式目标，供动态路由登记后交还原导航守卫提交。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次授权导航树必须属于的应用或无应用目录身份。 */\n    projectId: string;\n    /** 核对原切换仍有效，失效时禁止登记或回退到公开导航。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次授权导航树必须属于的应用或无应用目录身份。 */\n    projectId: string;\n    /** 核对原切换仍有效，失效时禁止登记或回退到公开导航。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "jsdoc": "本次授权导航树必须属于的应用或无应用目录身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "核对原切换仍有效，失效时禁止登记或回退到公开导航。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -816,8 +875,20 @@
             },
             {
               "name": "refreshRoutes",
-              "jsdoc": "刷新路由（重新加载导航树，保留静态组件映射），返回加载后的导航树",
-              "parameters": [],
+              "jsdoc": "刷新路由。应用切换由调用者验明当前意图并负责最终路由提交。",
+              "parameters": [
+                {
+                  "name": "selection",
+                  "type": {
+                    "type": "reference",
+                    "name": "DynamicRouteSelection",
+                    "sourcePath": "packages/spark-app/src/router/dynamic.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

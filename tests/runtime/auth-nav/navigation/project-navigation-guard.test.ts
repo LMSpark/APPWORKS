@@ -41,7 +41,7 @@ const testState = vi.hoisted((): GuardTestState => ({
 }))
 
 vi.mock('@/platform-adapters/lowcode-runtime', () => ({
-  lowcodeApi: { platform: { cancelPendingApplicationSelection: () => testState.cancelPendingSelection() } },
+  lowcodeApi: { platform: { captureAuthenticationScope: () => () => testState.loggedIn, cancelPendingApplicationSelection: () => testState.cancelPendingSelection() } },
   activateLowcodeApplication: vi.fn(async (applicationId: string, signal?: AbortSignal, beforeCommit?: () => void) => {
     return testState.activation(applicationId, signal, beforeCommit)
   }),
@@ -96,18 +96,23 @@ async function createGuardRouter(withPlatformNavigation = false) {
   })
   await dynamic.registerRoutes()
   setDynamicRouter(dynamic)
+  const reportRecovery = vi.fn()
   const guard = new ProjectNavigationGuard({
+    router,
+    reportRecovery,
     publicPaths: new Set(['/','/login','/about']),
     publicHomePath: '/',
     isPlatformWorkspacePath: (path) => path === '/platform' || path.startsWith('/platform/'),
   })
   const errors: unknown[] = []
   router.onError((error) => errors.push(error))
-  router.beforeEach((to) => guard.resolve(to))
+  router.beforeEach((to, from) => guard.resolve(to, from))
+  router.beforeResolve((to) => guard.commit(to))
   return {
     router,
     dynamic,
     errors,
+    reportRecovery,
     setLoadNavigation(loader: () => Promise<RuntimeNavigation>) { loadNavigation = loader },
   }
 }
@@ -153,18 +158,19 @@ describe('ProjectNavigationGuard', () => {
   })
 
   it('enters the platform workspace from the catalog scope, leaving an active application first', async () => {
-    const { router, dynamic } = await createGuardRouter()
+    const { router, dynamic } = await createGuardRouter(true)
     const refresh = vi.spyOn(dynamic, 'refreshRoutes')
 
-    await router.push('/platform?tab=audit#list')
-    expect(router.currentRoute.value.fullPath).toBe('/platform?tab=audit#list')
+    await router.push('/platform/audit?tab=audit#list')
+    expect(router.currentRoute.value.fullPath).toBe('/platform/audit?tab=audit#list')
     expect(vi.mocked(enterLowcodeApplicationCatalog)).toHaveBeenCalledOnce()
     expect(refresh).toHaveBeenCalledOnce()
-    expect(dynamic.getNavTree()?.projectId).toBe('homepage')
+    expect(dynamic.getApplicationNavTree()?.projectId).toBe('homepage')
+    expect(dynamic.getNavTree()?.id).toBe('platform')
 
     await router.push('/about')
-    await router.push('/platform')
-    expect(router.currentRoute.value.path).toBe('/platform')
+    await router.push('/platform/audit')
+    expect(router.currentRoute.value.path).toBe('/platform/audit')
     expect(vi.mocked(enterLowcodeApplicationCatalog)).toHaveBeenCalledOnce()
     expect(refresh).toHaveBeenCalledOnce()
   })
@@ -264,29 +270,23 @@ describe('ProjectNavigationGuard', () => {
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
   })
 
-  it('fails once when refresh succeeds with a navigation tree for the wrong application', async () => {
-    const { router, dynamic, errors, setLoadNavigation } = await createGuardRouter()
-    const refresh = vi.spyOn(dynamic, 'refreshRoutes')
-    let loadAttempts = 0
-    const repeatedLoad = new Error('unexpected repeated navigation owner refresh')
-    setLoadNavigation(async () => {
-      loadAttempts += 1
-      if (loadAttempts > 1) throw repeatedLoad
-      return navigationFor('APP-A')
-    })
+  it('restores the source and reports a wrong target navigation owner', async () => {
+    const { router, dynamic, reportRecovery, setLoadNavigation } = await createGuardRouter()
+    await router.push('/apps/APP-A/dashboard')
+    const original = dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId
+    const load = vi.fn(async () => navigationFor('APP-A'))
+    setLoadNavigation(load)
 
-    const outcome = await router.push('/apps/APP-B/dashboard?view=wrong-owner').then(
-      () => ({ error: null }),
-      (error: unknown) => ({ error }),
-    )
+    await router.push('/apps/APP-B/dashboard?view=wrong-owner')
 
-    expect(outcome.error).toBeInstanceOf(Error)
-    if (!(outcome.error instanceof Error)) throw new Error('navigation owner mismatch was not rejected')
-    expect(outcome.error.message).toContain('导航归属不一致')
-    expect(errors).toContain(outcome.error)
-    expect(vi.mocked(activateLowcodeApplication)).toHaveBeenCalledOnce()
-    expect(refresh).toHaveBeenCalledOnce()
-    expect(loadAttempts).toBe(1)
+    expect(router.currentRoute.value.fullPath).toBe('/apps/APP-A/dashboard')
+    expect(testState.principal?.applicationId).toBe('APP-A')
+    expect(dynamic.getApplicationNavTree()?.projectId).toBe('APP-A')
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId).toBeDefined()
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)?.instanceId).not.toBe(original)
+    expect(vi.mocked(activateLowcodeApplication).mock.calls.map(call => call[0])).toEqual(['APP-B', 'APP-A'])
+    expect(load).toHaveBeenCalledTimes(2)
+    expect(reportRecovery).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({message: expect.stringContaining('归属不一致')}))
   })
 
   it('cancels a stale activation failure without forwarding it to Router onError', async () => {
@@ -361,7 +361,7 @@ describe('ProjectNavigationGuard', () => {
     expect(dynamic.getNavTree()?.projectId).toBe('APP-B')
   })
 
-  it('preserves the same current activation and refresh errors on Router onError', async () => {
+  it('preserves the current activation error and reports both navigation and recovery failures', async () => {
     const activationFixture = await createGuardRouter()
     const activationError = new Error('activation failed')
     testState.activation = () => Promise.reject(activationError)
@@ -375,10 +375,11 @@ describe('ProjectNavigationGuard', () => {
       return testState.makeReceipt()
     }
     const refreshError = new Error('refresh failed')
-    refreshFixture.setLoadNavigation(() => Promise.reject(refreshError))
+    const recoveryError = new Error('directory navigation failed')
+    refreshFixture.setLoadNavigation(() => Promise.reject(testState.principal?.applicationId === null ? recoveryError : refreshError))
 
-    await expect(refreshFixture.router.push('/apps/APP-B/dashboard')).rejects.toBe(refreshError)
-    expect(refreshFixture.errors).toContain(refreshError)
+    await expect(refreshFixture.router.push('/apps/APP-B/dashboard')).rejects.toMatchObject({errors: [refreshError, recoveryError]})
+    expect(refreshFixture.errors).toEqual([expect.objectContaining({errors: [refreshError, recoveryError]})])
   })
 
   it('rejects a still-current guard when its platform receipt expires during refresh', async () => {
@@ -429,3 +430,70 @@ describe('ProjectNavigationGuard', () => {
   })
 })
 
+
+
+describe('initial application navigation', () => {
+  it.each(['activation', 'navigation'] as const)('opens the registered directory after initial %s failure and can retry', async (failure) => {
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const error = new Error('Initial target is unavailable')
+    let started = false
+    let targetAvailable = false
+    const navigationReads: string[] = []
+    const loadNavigation = async (): Promise<RuntimeNavigation> => {
+      const projectId = testState.principal?.applicationId ?? 'homepage'
+      navigationReads.push(projectId)
+      if (projectId === 'APP-B' && !targetAvailable) throw error
+      if (projectId === 'homepage') {
+        return { ...navigationFor('homepage'), homePath: '/app-list',
+          items: [{ id: 'app-list', title: 'Application directory', path: '/app-list', itemKind: 'system-page' }] }
+      }
+      return navigationFor(projectId)
+    }
+    const dynamic = createDynamicRouter({
+      router,
+      pageComponent: page,
+      applicationPathPrefix: '/apps/:projectId',
+      isAuthenticated: () => started,
+      preAuthNavTree: { id: 'public', title: 'Public', childPlacement: 'header',
+        items: [{ id: 'public-home', title: 'Public', path: '/', itemKind: 'system-page' }] },
+      loadNavigation,
+      componentMap: { '/': page, '/dashboard': page, '/app-list': page },
+    })
+    await dynamic.registerRoutes()
+    setDynamicRouter(dynamic)
+    const reportRecovery = vi.fn()
+    const guard = new ProjectNavigationGuard({
+      router,
+      publicPaths: new Set(['/']),
+      publicHomePath: '/',
+      isPlatformWorkspacePath: path => path.startsWith('/platform'),
+      reportRecovery,
+    })
+    router.beforeEach((to, from) => guard.resolve(to, from))
+    router.beforeResolve(to => guard.commit(to))
+    started = true
+    const activate = testState.activation
+    testState.activation = async (...args) => {
+      if (!targetAvailable && failure === 'activation') throw error
+      return activate(...args)
+    }
+
+    const original = '/apps/APP-B/dashboard?view=explicit#original'
+    await router.push(original)
+
+    const directory = router.currentRoute.value
+    expect(directory.fullPath).toBe('/apps/homepage/app-list')
+    expect(directory.redirectedFrom?.fullPath).toBe(original)
+    expect(directory.meta['nodeId']).toBe('app-list')
+    expect(testState.principal?.applicationId).toBeNull()
+    expect(navigationReads).toEqual(failure === 'activation' ? ['homepage'] : ['APP-B', 'homepage'])
+    expect(reportRecovery).toHaveBeenCalledExactlyOnceWith(error)
+
+    targetAvailable = true
+    await router.push(original)
+    expect(router.currentRoute.value.fullPath).toBe(original)
+    expect(router.currentRoute.value.meta['nodeId']).toBe('dashboard')
+    expect(dynamic.getApplicationNavTree()?.projectId).toBe('APP-B')
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
+  })
+})

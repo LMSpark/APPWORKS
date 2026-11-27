@@ -17585,7 +17585,6 @@
         "jsdoc": "@module app:services/project/project-shell\n职责：App 层项目壳——committed ProjectWorkspace 缓存、项目蓝图工作区单例、运行菜单同步、项目切换 inject。\n边界：不进入 spark-project-model 内核；蓝图 编辑宿主与 committed 投影分离。\nAI用途：切换项目、同步运行菜单或获取 committed ProjectWorkspace 单例时，用本模块定位壳层服务。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ProjectSwitchService",
           "ProjectWorkspaceScope",
           "ShellNavRootListener"
         ]
@@ -30632,10 +30631,6 @@
     "ProjectSummary": {
       "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts",
       "file": "files/packages/spark-project-model/src/io/project-reference-client.ts.json"
-    },
-    "ProjectSwitchService": {
-      "sourcePath": "src/services/project/project-shell.ts",
-      "file": "files/src/services/project/project-shell.ts.json"
     },
     "ProjectToolResource": {
       "sourcePath": "packages/spark-project-model/src/page-tool/project-tool-resource.ts",

@@ -7,7 +7,6 @@ import ElementPlus, {ElMessage} from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_SERVICE, RendererButton, RendererTable, Spark, registerAllRenderers, useSparkComponent, type PageServiceCapability} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
-import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
 import * as Fixture from './application-manager.fixture'
 import {pagedata} from '../../page/api-provider/api-provider.fixture'
 import applicationScenario from '../../../../config/pages/application/application-manager/pagedata.json'
@@ -101,7 +100,6 @@ async function open(wait = true) {
   ]})
   await router.push(`/apps/APP${APPLICATION_MANAGER_PATH}`)
   await router.isReady()
-  const switchAndReload = vi.fn(async () => ({assertCurrent: vi.fn()}))
   const pageService: PageServiceCapability = {
     copyText: async () => {},
     showMessage: (message, type = 'info') => { pageUi.showMessage(message, type); ElMessage({message, type}) },
@@ -126,7 +124,6 @@ async function open(wait = true) {
     global: {
       stubs: {transition: false},
       plugins: [router, ElementPlus, Spark.createPlugin()],
-      provide: {[PROJECT_SWITCH_KEY]: {switchAndReload}},
     },
   })
   wrappers.push(wrapper)
@@ -146,7 +143,7 @@ async function open(wait = true) {
     if (!found) throw new Error(`应用管理缺少视图 ${table}@${viewId}`)
     return found
   }
-  return {wrapper, router, observed, switchAndReload, dataSet, view}
+  return {wrapper, router, observed, dataSet, view}
 }
 
 function buttons(label: string): HTMLButtonElement[] {
@@ -558,19 +555,17 @@ describe('application manager restored with standard components and formal DataV
   })
 
   it('enters project management through the guarded application route', async () => {
-    const {wrapper, router, switchAndReload} = await open()
+    const {wrapper, router} = await open()
     rowButtonFor(wrapper, 'needle description', '项目管理').click(); await settle()
-    expect(switchAndReload).not.toHaveBeenCalled()
     expect(router.currentRoute.value.path).toBe('/apps/APP-1/features/application/application-function-management/ui/application-function-page')
     expect(Object.values(router.currentRoute.value.query)).toContain('7AB874097A1E8711A42FD845939A6E05')
     expect(http.saves).toHaveLength(0)
   })
   it('does not preselect another application when project navigation is cancelled', async () => {
-    const {wrapper, router, switchAndReload} = await open()
+    const {wrapper, router} = await open()
     const original = router.currentRoute.value.fullPath
     router.beforeEach(() => false)
     rowButtonFor(wrapper, 'needle description', '项目管理').click(); await settle()
-    expect(switchAndReload).not.toHaveBeenCalled()
     expect(router.currentRoute.value.fullPath).toBe(original)
     expect(pageUi.showMessage).toHaveBeenCalledWith(expect.stringContaining('导航未完成'), 'error')
     expect(http.saves).toHaveLength(0)

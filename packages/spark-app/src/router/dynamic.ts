@@ -10,7 +10,7 @@
  * 动态路由属于应用引导层（spark-app），页面节点能力来自 spark-project-model。
  */
 
-import type { Router, RouteRecordRaw, RouteLocationNormalizedLoaded } from 'vue-router'
+import { START_LOCATION, type Router, type RouteRecordRaw, type RouteLocationNormalizedLoaded } from 'vue-router'
 import type { Component } from 'vue'
 import type { Ref } from 'vue'
 import type {
@@ -147,6 +147,14 @@ export type DynamicRouterOptions = {
 export type SystemPageIdentityCompanion = Readonly<{
   path: string
   hostPath: string
+}>
+
+/** 当前切换的正式目标，供动态路由登记后交还原导航守卫提交。 */
+type DynamicRouteSelection = Readonly<{
+  /** 本次授权导航树必须属于的应用或无应用目录身份。 */
+  projectId: string
+  /** 核对原切换仍有效，失效时禁止登记或回退到公开导航。 */
+  assertCurrent: () => void
 }>
 
 type RouteRegistrationOptions = {
@@ -420,7 +428,7 @@ constructor(options: DynamicRouterOptions) {
   private async rematchCommittedCurrentRoute(currentWasManaged:boolean): Promise<void> {
     if(currentWasManaged)return
     const current=this.router.currentRoute.value
-    if(current.meta['systemPageIdentityState']==='error')return
+    if(current===START_LOCATION||current.meta['systemPageIdentityState']==='error')return
     const resolved=this.router.resolve(current.fullPath)
     const managed=resolved.matched.some(record=>this.registeredRoutes.has(record.path))
     const sameRecords=current.matched.length===resolved.matched.length
@@ -428,10 +436,13 @@ constructor(options: DynamicRouterOptions) {
     if(managed&&!sameRecords)await this.router.replace(current.fullPath)
   }
 
-  private async loadAndCommitRoutes(refresh: boolean): Promise<void> {
+  private async loadAndCommitRoutes(refresh: boolean, selection?: DynamicRouteSelection): Promise<void> {
+    selection?.assertCurrent()
     const generation = ++this.registrationGeneration
+    const assertSelectionCurrent = (): void => selection?.assertCurrent()
     const authenticated = this._isAuthenticated()
     if (!authenticated || !this._loadNavigation) {
+      if (selection !== undefined) throw new Error('应用导航需要有效的登录和导航读取器')
       if (this._preAuthNavTree) {
         const currentWasManaged=this.isCurrentRouteManaged()
         this.commitNavigation(null, null, this._preAuthNavTree)
@@ -446,14 +457,19 @@ constructor(options: DynamicRouterOptions) {
     const preAuthNavTree = this._preAuthNavTree
     try {
       appNavTree = await this._loadNavigation()
+      assertSelectionCurrent()
       if (generation !== this.registrationGeneration) return
+      if (selection !== undefined && appNavTree.projectId !== selection.projectId) {
+        throw new Error('正式导航和应用选择的归属不一致')
+      }
       if (this._loadPlatformNavigation && this._isPlatformNavigationEnabled()) {
         platformNavTree = await this._loadPlatformNavigation()
       }
     } catch (error: unknown) {
+      assertSelectionCurrent()
       const latest = generation === this.registrationGeneration
-      const unauthorizedFallback = latest && preAuthNavTree !== null && isUnauthorizedError(error)
-      if (unauthorizedFallback || (latest && preAuthNavTree !== null && refresh)) {
+      const unauthorizedFallback = selection === undefined && latest && preAuthNavTree !== null && isUnauthorizedError(error)
+      if (unauthorizedFallback || (selection === undefined && latest && preAuthNavTree !== null && refresh)) {
         routerLogger.warn('远程导航加载失败，回退到 preAuthNavTree', {
           reason: isUnauthorizedError(error) ? 'unauthorized' : 'refresh-failure',
           fallbackNodeCount: preAuthNavTree.items.length,
@@ -469,13 +485,14 @@ constructor(options: DynamicRouterOptions) {
       throw error
     }
 
+    assertSelectionCurrent()
     if (generation === this.registrationGeneration) {
       try {
         const currentWasManaged=this.isCurrentRouteManaged()
         this.commitNavigation(appNavTree, platformNavTree, null)
-        await this.rematchCommittedCurrentRoute(currentWasManaged)
+        if (selection === undefined) await this.rematchCommittedCurrentRoute(currentWasManaged)
       } catch (error: unknown) {
-        if (refresh && generation === this.registrationGeneration && preAuthNavTree !== null) {
+        if (selection === undefined && refresh && generation === this.registrationGeneration && preAuthNavTree !== null) {
           const currentWasManaged=this.isCurrentRouteManaged()
           this.commitNavigation(null, null, preAuthNavTree)
           await this.rematchCommittedCurrentRoute(currentWasManaged)
@@ -918,10 +935,10 @@ constructor(options: DynamicRouterOptions) {
     }
   }
 
-  /** 刷新路由（重新加载导航树，保留静态组件映射），返回加载后的导航树 */
-  async refreshRoutes(): Promise<RuntimeNavigation | null> {
+  /** 刷新路由。应用切换由调用者验明当前意图并负责最终路由提交。 */
+  async refreshRoutes(selection?: DynamicRouteSelection): Promise<RuntimeNavigation | null> {
     routerLogger.info('刷新动态路由')
-    await this.loadAndCommitRoutes(true)
+    await this.loadAndCommitRoutes(true, selection)
     routerLogger.info('路由刷新完成')
     return this._navTree
   }

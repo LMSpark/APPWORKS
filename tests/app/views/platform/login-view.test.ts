@@ -36,7 +36,7 @@ vi.mock('@/platform-adapters/data-space/lowcode-public-scenario', () => ({
     return dataSet
   },
 }))
-vi.mock('@/services/project/project-shell', () => ({PROJECT_SWITCH_KEY: Symbol('project-switch'), reloadAndSyncNavigation: state.reload}))
+vi.mock('@/services/project/project-shell', () => ({reloadAndSyncNavigation: state.reload}))
 vi.mock('@/services/project/enterprise-landing', () => ({enterEnterpriseLanding: state.landing}))
 
 const wrappers: VueWrapper[] = []

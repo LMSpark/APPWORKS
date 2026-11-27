@@ -19,6 +19,19 @@
       "type": "object",
       "title": "ProjectNavigationGuardOptions",
       "properties": {
+        "router": {
+          "type": "object",
+          "properties": {
+            "resolve": {
+              "type": "object",
+              "title": "{ <Name extends keyof RouteMap = string | symbol>(to: RouteLocationAsRelativeTyped<RouteMap, Name>, currentLocation?: RouteLocationNormalizedLoaded): RouteLocationResolved<Name>; (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, currentLocation?: RouteLocationNormalizedLoaded): RouteLocatio..."
+            }
+          },
+          "required": [
+            "resolve"
+          ],
+          "additionalProperties": false
+        },
         "publicPaths": {
           "type": "object",
           "title": "ReadonlySet<string>"
@@ -28,6 +41,7 @@
         }
       },
       "required": [
+        "router",
         "publicPaths",
         "publicHomePath"
       ],
@@ -44,7 +58,15 @@
         },
         "method.isPlatformWorkspacePath.return": {
           "type": "boolean"
-        }
+        },
+        "method.reportRecovery.params": {
+          "type": "object",
+          "properties": {
+            "cause": true
+          },
+          "additionalProperties": false
+        },
+        "method.reportRecovery.return": true
       }
     },
     "ProjectNavigationGuard": {
@@ -61,10 +83,28 @@
           },
           "additionalProperties": false
         },
+        "method.commit.params": {
+          "type": "object",
+          "properties": {
+            "to": {
+              "type": "object",
+              "title": "RouteLocationNormalized"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.commit.return": {
+          "type": "object",
+          "title": "NavigationGuardReturn"
+        },
         "method.resolve.params": {
           "type": "object",
           "properties": {
             "to": {
+              "type": "object",
+              "title": "RouteLocationNormalized"
+            },
+            "from": {
               "type": "object",
               "title": "RouteLocationNormalized"
             }
@@ -78,16 +118,22 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T08:02:15.401Z",
+  "generatedAt": "2026-11-27T21:00:24.529Z",
   "models": {
     "ProjectNavigationGuardOptions": {
       "name": "ProjectNavigationGuardOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    publicPaths: ReadonlySet<string>;\n    publicHomePath: string;\n    isPlatformWorkspacePath: (path: string) => boolean;\n}",
+        "declarationTypeText": "{\n    /** 在当前路由注册表解析恢复目标，确认其仍有实际匹配记录。 */\n    router: Pick<Router, 'resolve'>;\n    publicPaths: ReadonlySet<string>;\n    publicHomePath: string;\n    isPlatformWorkspacePath: (path: string) => boolean;\n    /** 由仍有效的切换报告原始失败，供界面展示恢复原因。 */\n    reportRecovery: (cause: unknown) => void;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "router",
+              "jsdoc": "在当前路由注册表解析恢复目标，确认其仍有实际匹配记录。",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "publicPaths",
               "readable": true,
@@ -115,6 +161,23 @@
                 "type": "intrinsic",
                 "name": "boolean"
               }
+            },
+            {
+              "name": "reportRecovery",
+              "jsdoc": "由仍有效的切换报告原始失败，供界面展示恢复原因。",
+              "parameters": [
+                {
+                  "name": "cause",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -141,10 +204,34 @@
         "members": {
           "methods": [
             {
+              "name": "commit",
+              "jsdoc": "Runs only after Vue Router has checked that earlier navigation steps were not superseded.",
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalized"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "NavigationGuardReturn"
+              }
+            },
+            {
               "name": "resolve",
               "parameters": [
                 {
                   "name": "to",
+                  "type": {
+                    "type": "reference",
+                    "name": "RouteLocationNormalized"
+                  }
+                },
+                {
+                  "name": "from",
                   "type": {
                     "type": "reference",
                     "name": "RouteLocationNormalized"

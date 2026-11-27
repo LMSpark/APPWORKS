@@ -55,7 +55,7 @@ async function open() {
   const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({setup: () => () => h('div')})}]})
   const pageService: PageServiceCapability = {
     copyText: async () => {},
-    showMessage: () => {},
+    showMessage: vi.fn(),
     showConfirm: async () => true,
     showPrompt: async () => null,
     showAlert: async () => {},
@@ -96,10 +96,38 @@ async function open() {
     await found.get('button').trigger('click')
     await flushPromises()
   }
-  return {wrapper, input, type, click}
+  return {wrapper, input, type, click, pageService}
 }
 
 describe('LoginView on the public login scenario', () => {
+
+  it('withholds the sent message and cooldown when the code command was withdrawn', async () => {
+    sessionStorage.setItem('spark_login_tab', 'register')
+    const f=await open()
+    await f.type('企业英文简称','lingma','.el-drawer')
+    await f.type('验证邮箱','b@example.com','.el-drawer')
+    const view=[...state.dataSets][0]?.getView('VerificationCodeRequest')
+    if(!view)throw Error('Missing verification command')
+    const add=view.addRow.bind(view)
+    const drop=vi.spyOn(view,'addRow').mockImplementationOnce(async input=>{
+      const row=await add(input),id=view.getPkKey(row)
+      if(id===undefined)throw Error('Missing code command key')
+      view.discardPendingChanges([id])
+      return row
+    })
+    try{
+      await f.click('发送验证码')
+      expect(drop).toHaveBeenCalledOnce()
+      expect(state.sendVerificationCode).not.toHaveBeenCalled()
+      expect(f.pageService.showMessage).toHaveBeenCalledWith('原记录没有已确认的保存回执','error')
+      expect(f.pageService.showMessage).not.toHaveBeenCalledWith('验证码已发送','success')
+      await f.click('发送验证码')
+      expect(state.sendVerificationCode).toHaveBeenCalledOnce()
+      expect(f.pageService.showMessage).toHaveBeenCalledWith('验证码已发送','success')
+    }finally{drop.mockRestore()}
+  })
+
+
   it('signs in through the login command, remembers the enterprise, and enters the landing', async () => {
     localStorage.setItem('spark_login_enterprise', 'lingma')
     const f = await open()

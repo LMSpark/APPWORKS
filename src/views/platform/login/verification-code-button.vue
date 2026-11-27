@@ -27,8 +27,7 @@ async function send(): Promise<void> {
   try {
     id = view.getPkKey(await view.addRow({...props.request}))
     if (id === undefined) throw new Error('发送验证码命令未生成记录身份')
-    const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
-    if (!result.success) throw result.error ?? new Error('验证码发送未确认')
+    await dataSet.saveRecord(view, id)
     if (!active) return
     pageService.showMessage('验证码已发送', 'success')
     remaining.value = 60

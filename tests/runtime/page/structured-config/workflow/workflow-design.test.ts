@@ -575,7 +575,7 @@ describe('workflow formal design page',()=>{
   await f.click('删除计算字段');await f.click('保存查询配置')
   expect(state.http.records['Base_DataModel_Field']).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false)
  })
- it('edits node test input through its command view, cancels without execution and shows the accepted result',async()=>{
+ it.each(['confirmed','withdrawn'] as const)('executes the original workflow test command (%s)',async receipt=>{
   const backend=new ExecutionBackend();backend.records=state.http.records;state.http=backend
   state.http.records['Base_WorkflowNodeDefinition']!.push({rowid:'START',workflow_id:'W1',position_type:0,node_type:'API_CALL',name:'开始',output_mapping:JSON.stringify([{rowid:'P_VALUE',pid:null,Name:'value',FieldType:'int',isParent:false},{rowid:'P_ENABLED',pid:null,Name:'enabled',FieldType:'boolean',isParent:false}])})
   state.http.records['Base_WorkflowConnectors']=[{rowid:'SN',workflow_id:'W1',sourceID:'START',targetID:'N1',params:'[]'}]
@@ -591,7 +591,26 @@ describe('workflow formal design page',()=>{
   }
   await f.click('测试当前节点');expect(backend.executions).toEqual([]);await edit()
   await f.click('取消测试输入');expect(backend.executions).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false)
-  await f.click('测试当前节点');await edit();await f.click('执行测试')
+  await f.click('测试当前节点');await edit()
+  if(receipt==='withdrawn'){
+   const ds=f.wrapper.getComponent(WorkflowExecutionPanel).props('dataSet'),view=ds.getView('WorkflowExecution')
+   if(!view)throw Error('Missing workflow test command')
+   const id=[...view.dirtyTracking.pendingCreateIds][0]
+   if(id===undefined)throw Error('Missing workflow test draft')
+   const save=ds.saveChanges.bind(ds)
+   const drop=vi.spyOn(ds,'saveChanges').mockImplementationOnce(options=>{
+    view.discardPendingChanges([id]);return save(options)
+   })
+   try{
+    await f.click('执行测试')
+    expect(drop).toHaveBeenCalledOnce()
+    expect(backend.executions).toEqual([])
+    expect(document.body.textContent).toContain('原记录没有已确认的保存回执')
+   }finally{drop.mockRestore()}
+   await f.click('关闭测试')
+   await f.click('测试当前节点');await edit()
+  }
+  await f.click('执行测试')
   expect(backend.executions).toHaveLength(1);expect(backend.executions[0]?.data).toEqual({workflowId:'W1',nodeId:'N1',inputParams:{START:[{value:0,enabled:false}]}})
   const result=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='result')!
   expect(result.props('readonly')).toBe(true);expect(result.props('mode')).toBe('tree');expect(result.getComponent({name:'JsonTreeEditor'}).props('modelValue')).toContain('SUCCESS');expect(state.dirty[0]?.isDirty).toBe(false)

@@ -125,7 +125,7 @@ async function run():Promise<void>{
   guardUI()
   if(bindingError.value||blockedReason.value)throw Error(bindingError.value||blockedReason.value)
   const id=rowId.value;if(typeof id!=='string')throw Error('原测试命令身份缺失')
-  const result=await ds.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId,ids:[id]}]});if(!result.success)throw Error(result.message??'测试执行未确认')
+  await ds.saveRecord(view,id)
  })
 }
 function cancel():void{

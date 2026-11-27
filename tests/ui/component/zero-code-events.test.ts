@@ -86,36 +86,7 @@ function createActionContext(overrides?: Partial<ActionExecutionContext>): Actio
     ...overrides,
   }
 
-  it('executes a configured host command with route-derived input', async () => {
-    const assertCurrent = vi.fn()
-    const invokeHostCommand = vi.fn(async () => ({assertCurrent}))
-    const showMessage = vi.fn()
-    const ctx=createActionContext({
-      invokeHostCommand,getRouteQuery:()=>({selectionRef:'SEL'}),
-      getPageService:()=>createPageService({showMessage}),
-    })
 
-    it('projects a host command result into a bound result DataView', async()=>{
-     const dataSet=SparkData.createDataSet({dataSetName:'HostResult',tables:{CommandResult:{
-      tableName:'CommandResult',columns:[{name:'name',type:'string'}],views:{default:{rows:[]}},
-     }}})
-     const view=dataSet.getView('CommandResult','default')
-     if(!view)throw Error('TEST_HOST_RESULT_VIEW_REQUIRED')
-     const replaceRows=vi.spyOn(view,'replaceRows')
-     const ctx=createActionContext({resolveView:binding=>binding==='S@CommandResult@default'?view:null,
-      invokeHostCommand:async()=>({record:{name:'A'},assertCurrent:()=>{}})})
-     await executeActionDescriptor({action:'host-command',command:'bid.read',
-      resultDataViewKey:'S@CommandResult@default',resultPath:'record'},ctx)
-     expect(replaceRows).toHaveBeenCalledExactlyOnceWith([{name:'A'}])
-     expect(view.rows).toEqual([{name:'A'}])
-    })
-    const descriptor:ActionDescriptor={action:'host-command',command:'bid.submit',
-      input:{selectionRef:{$route:'selectionRef'}},successMessage:'已提交'}
-    await executeActionDescriptor(descriptor,ctx)
-    expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('bid.submit',{selectionRef:'SEL'})
-    expect(assertCurrent).toHaveBeenCalledOnce()
-    expect(showMessage).toHaveBeenCalledExactlyOnceWith('已提交','success')
-  })
 }
 
 function createInlineDataSet(tableName: string, rows: DataRow[]) {
@@ -801,5 +772,76 @@ describe('集成测试 — RendererTable cancelDefault 全链路', () => {
     expect(pageService.showMessage).toHaveBeenCalledWith('clicked', 'info')
     // 无 cancelDefault → 默认行为应执行 → currentRow 被设置
     expect(view.currentRow).toMatchObject({ id: 1, name: 'Alice' })
+  })
+})
+
+
+describe('host command result views', () => {
+  it('executes a configured host command with route-derived input', async () => {
+    const assertCurrent = vi.fn()
+    const invokeHostCommand = vi.fn(async () => ({assertCurrent}))
+    const showMessage = vi.fn()
+    const ctx=createActionContext({
+      invokeHostCommand,getRouteQuery:()=>({selectionRef:'SEL'}),
+      getPageService:()=>createPageService({showMessage}),
+    })
+
+    const descriptor:ActionDescriptor={action:'host-command',command:'bid.submit',
+      input:{selectionRef:{$route:'selectionRef'}},successMessage:'已提交'}
+    await executeActionDescriptor(descriptor,ctx)
+    expect(invokeHostCommand).toHaveBeenCalledExactlyOnceWith('bid.submit',{selectionRef:'SEL'})
+    expect(assertCurrent).toHaveBeenCalledOnce()
+    expect(showMessage).toHaveBeenCalledExactlyOnceWith('已提交','success')
+  })
+
+    it('projects a host command result into a bound result DataView', async()=>{
+     const dataSet=SparkData.createDataSet({dataSetName:'HostResult',tables:{CommandResult:{
+      tableName:'CommandResult',columns:[{name:'name',type:'string'}],views:{default:{rows:[]}},
+     }}})
+     const view=dataSet.getView('CommandResult','default')
+     if(!view)throw Error('TEST_HOST_RESULT_VIEW_REQUIRED')
+     const replaceRows=vi.spyOn(view,'replaceRows')
+     const ctx=createActionContext({resolveView:binding=>binding==='S@CommandResult@default'?view:null,
+      invokeHostCommand:async()=>({record:{name:'A'},assertCurrent:()=>{}})})
+     await executeActionDescriptor({action:'host-command',command:'bid.read',
+      resultDataViewKey:'S@CommandResult@default',resultPath:'record'},ctx)
+     expect(replaceRows).toHaveBeenCalledExactlyOnceWith([{name:'A'}])
+     expect(view.rows).toEqual([{name:'A'}])
+    })
+
+  it('does not invoke the command if its declared result view is unavailable', async () => {
+    const command = vi.fn(async () => ({name: 'Result'}))
+    const showMessage = vi.fn()
+    const ctx = createActionContext({resolveView: () => null, invokeHostCommand: command,
+      getPageService: () => createPageService({showMessage})})
+    await executeActionDescriptor({
+      action: 'host-command', command: 'fixture.read', resultDataViewKey: 'Result@default',
+    }, ctx)
+    expect(showMessage).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('结果 DataView 未就绪'), 'error')
+    expect(command).not.toHaveBeenCalled()
+  })
+
+  it('does not project a delayed result into a replacement view', async () => {
+    const original = createInlineDataSet('Result', [])
+    const replacement = createInlineDataSet('Result', [{id: 2, name: 'Existing'}])
+    const originalView = original.getView('Result', 'default')
+    const replacementView = replacement.getView('Result', 'default')
+    if (originalView === undefined || replacementView === undefined) throw Error('missing test result view')
+    let current = originalView
+    let settle: (result: DataRow) => void = () => undefined
+    const invokeHostCommand = vi.fn(() => new Promise<DataRow>(resolve => {settle = resolve}))
+    const showMessage = vi.fn()
+    const ctx = createActionContext({resolveView: () => current, invokeHostCommand,
+      getPageService: () => createPageService({showMessage})})
+    const pending = executeActionDescriptor({
+      action: 'host-command', command: 'fixture.read', resultDataViewKey: 'Result@default',
+    }, ctx)
+    await vi.waitFor(() => expect(invokeHostCommand).toHaveBeenCalledOnce())
+    current = replacementView
+    settle({id: 1, name: 'Stale'})
+    await pending
+    expect(showMessage).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('结果 DataView 未就绪'), 'error')
+    expect(originalView.rows).toEqual([])
+    expect(replacementView.rows).toMatchObject([{id: 2, name: 'Existing'}])
   })
 })

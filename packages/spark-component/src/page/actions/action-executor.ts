@@ -510,6 +510,14 @@ async function dispatchAction(input: DispatchActionInput): Promise<void> {
       return
     case 'host-command': {
       if(!descriptor.command.trim()||!ctx.invokeHostCommand)throw Error('host-command 缺少命令宿主')
+      const resultBinding = descriptor.resultDataViewKey
+      const resultView = resultBinding ? ctx.resolveView(resultBinding) : null
+      const assertResultView = (): void => {
+        if (resultBinding && (!resultView || resultView.destroyed || ctx.resolveView(resultBinding) !== resultView)) {
+          throw Error('host-command 结果 DataView 未就绪')
+        }
+      }
+      assertResultView()
       const querySnapshotSource=ctx.getRouteQuery?.()??{}
       const pageService=ctx.getPageService()
       const promptValue=descriptor.prompt
@@ -532,8 +540,10 @@ async function dispatchAction(input: DispatchActionInput): Promise<void> {
        }
       }
       const commandInput=resolveHostCommandInput(descriptor.input,inputContext)
+      assertResultView()
       let result=await ctx.invokeHostCommand(descriptor.command,commandInput)
       assertRouteCurrent()
+      assertResultView()
       const assertCurrent = result !== null && typeof result === 'object' && 'assertCurrent' in result
         ? result['assertCurrent'] : undefined
       if(typeof assertCurrent==='function')Reflect.apply(assertCurrent,result,[])
@@ -545,15 +555,14 @@ async function dispatchAction(input: DispatchActionInput): Promise<void> {
         ? result['assertCurrent'] : undefined
        if(typeof methodAssert==='function')Reflect.apply(methodAssert,result,[])
       }
-      if(descriptor.resultDataViewKey){
-       const view=ctx.resolveView(descriptor.resultDataViewKey)
-       if(!view)throw Error('host-command 结果 DataView 未就绪')
+      if (resultView) {
+       assertResultView()
        const selected=descriptor.resultPath?readHostCommandResultPath(result,descriptor.resultPath):result
        const json=parseJsonValue(serializeHostCommandResult(selected))
        const values=Array.isArray(json)?json:[json]
        const rows:DataRow[]=[]
        for(const value of values)if(isRecord(value))rows.push({...value})
-       view.replaceRows(rows)
+       resultView.replaceRows(rows)
       }
       if(descriptor.resultAlertTitle){
        const selected=descriptor.resultAlertPath?readHostCommandResultPath(result,descriptor.resultAlertPath):result

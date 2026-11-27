@@ -5,6 +5,7 @@
  * AI用途：核对候选视图的授权范围、数量完整性和原办理身份。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {assertRegistrationViewRefreshable} from '../../../../authority/original-registration-view'
 import type {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/submission/channel-receipt-pairing'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
@@ -28,13 +29,16 @@ export async function readRegisteredReceiptCandidates(host:ContentRevisionReadHo
  if(scope.projectId!==projectId||![scenarioId,...Object.values(scope)].every(identity))throw Error('CHANNEL_RECEIPT_CANDIDATE_SCOPE')
  const key=buildDataViewKey('SubmissionAttempt','receiptCandidates',scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('CHANNEL_RECEIPT_CANDIDATE_VIEW_REQUIRED')
+ const stale='CHANNEL_RECEIPT_CANDIDATE_STALE'
+ assertRegistrationViewRefreshable(view,stale)
  view.queryContext={...view.queryContext,...scope}
  const assertScope=()=>{
   host.assertCurrent()
   if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
-   keys.some(field=>view.queryContext[field]!==scope[field]))throw Error('CHANNEL_RECEIPT_CANDIDATE_STALE')
+   keys.some(field=>view.queryContext[field]!==scope[field]))throw Error(stale)
  }
- await view.refresh()
+ const refreshed=await view.requestRefresh({defer:false})
+ if(refreshed.refreshStatus!=='read')throw Error(stale)
  assertScope()
  if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true)
   throw Error('CHANNEL_RECEIPT_CANDIDATE_INCOMPLETE')

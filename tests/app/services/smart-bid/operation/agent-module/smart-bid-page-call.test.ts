@@ -462,7 +462,7 @@ it('does not give a different published tool the Page14 deadline host by title',
  }})).toBeUndefined()
 })
 
-it.each(['exact','wrong-project','invalid-time','cached-view'] as const)('checks the published Page14 original deadline for %s',async outcome=>{
+it.each(['exact','wrong-project','invalid-time','cached-view','same-key-successor'] as const)('checks the published Page14 original deadline for %s',async outcome=>{
   const scenarioId='DEADLINE_SPACE',pageId='smart-bid-authoring-page14',projectId='PROJECT',deadlineRef='DEADLINE'
   const time='2026-11-18T10:00:00+08:00'
   const row={id:deadlineRef,projectId:outcome==='wrong-project'?'OTHER':projectId,lotId:'LOT',roundId:'ROUND',
@@ -478,11 +478,19 @@ it.each(['exact','wrong-project','invalid-time','cached-view'] as const)('checks
   if(!view)throw Error('Missing original deadline view')
   if(outcome==='cached-view')view.queryConfig={...view.queryConfig,cacheType:'page'}
   const table=new DataSpaceQueryTable({scenarioId,metaName:'SubmissionReconciliation'})
-  const read=vi.fn(async()=>new DataSpaceQueryContext({
+  const successorTime='2026-11-18T12:00:00+08:00'
+  const successor={...row,cutoffAt:successorTime,knownAt:successorTime,obligationIds:['SUCCESSOR-ONLY']}
+  const resultFor=(record:typeof row)=>new DataSpaceQueryContext({
    identity:table.identity,scope:'fixture',readScope:()=> 'fixture',snapshot:table.applyResult({Result:{
-    primaryKeyField:'id',data:{Count:1,Items:[{...row,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
+    primaryKeyField:'id',data:{Count:1,Items:[{...record,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]},
    }}),
-  }))
+  })
+  const read=vi.fn(async()=>resultFor(outcome==='same-key-successor'?successor:row))
+  let releaseOriginal:(()=>void)|undefined
+  if(outcome==='same-key-successor')read.mockImplementationOnce(async()=>{
+   await new Promise<void>(resolve=>{releaseOriginal=resolve})
+   return resultFor(row)
+  })
   const save=vi.fn(async()=>{throw Error('NO_DEADLINE_WRITE')})
   view.bindQueryExecutor({save,executeQuery:read})
   const tool=new PageTool({pageId})
@@ -517,8 +525,31 @@ it.each(['exact','wrong-project','invalid-time','cached-view'] as const)('checks
     const button=wrapper.findAll('button').find(item=>item.text()==='核对截止有效组合')
     if(!button)throw Error('The original deadline button is missing')
     await button.trigger('click')
+    if(outcome==='same-key-successor'){
+     await vi.waitFor(()=>expect(releaseOriginal).toBeTypeOf('function'))
+     try{
+      await view.refresh()
+      expect(read).toHaveBeenCalledTimes(2)
+      expect(view.rows[0]).toMatchObject({id:deadlineRef,projectId,cutoffAt:successorTime,obligationIds:['SUCCESSOR-ONLY']})
+      expect(alert).not.toHaveBeenCalled()
+     }finally{releaseOriginal?.()}
+    }
     await vi.waitFor(()=>expect(alert.mock.calls.length+error.mock.calls.length).toBe(1))
-    if(outcome==='exact'){
+    if(outcome==='same-key-successor'){
+     expect.soft(alert.mock.calls.map(([message])=>message)).not.toEqual(
+      expect.arrayContaining([expect.stringContaining(successorTime)]))
+     expect.soft(alert).not.toHaveBeenCalled()
+     expect.soft(error).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('SUBMISSION_DEADLINE_READ_STALE'))
+     alert.mockClear()
+     error.mockClear()
+     await button.trigger('click')
+     await vi.waitFor(()=>expect(alert).toHaveBeenCalledTimes(1))
+     expect(JSON.parse(alert.mock.calls[0]?.[0]??'null')).toMatchObject({
+      deadlineRef,cutoffAt:successorTime,knownAt:successorTime,obligationIds:['SUCCESSOR-ONLY'],
+     })
+     expect(error).not.toHaveBeenCalled()
+     expect(state.forwarded).not.toHaveBeenCalled()
+    }else if(outcome==='exact'){
      expect(error).not.toHaveBeenCalled()
      expect(alert).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('渠道回执与义务履行证据待核'),'截止有效组合')
      expect(JSON.parse(alert.mock.calls[0]?.[0]??'null')).toMatchObject({
@@ -536,7 +567,8 @@ it.each(['exact','wrong-project','invalid-time','cached-view'] as const)('checks
     }
    }finally{wrapper.unmount();config.global.stubs=previous}
    if(outcome!=='cached-view')expect(view.queryContext).toMatchObject({projectId,deadlineRef})
-   expect(read).toHaveBeenCalledTimes(outcome==='cached-view'?0:1)
+   const expectedReads={'cached-view':0,'same-key-successor':3,exact:1,'wrong-project':1,'invalid-time':1}
+   expect(read).toHaveBeenCalledTimes(expectedReads[outcome])
    expect(save).not.toHaveBeenCalled()
   }finally{runtime.dispose()}
 })

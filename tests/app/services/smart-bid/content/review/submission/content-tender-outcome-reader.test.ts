@@ -1,4 +1,4 @@
-import {expect,it} from 'vitest'
+import {expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import {readRegisteredTenderOutcome} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-tender-outcome-reader'
@@ -6,7 +6,7 @@ import {createContentSubmissionScriptHost} from '@/views/features/application/sm
 import {DataSpaceQueryTable} from '@spark-appworks/spark-data'
 import {DataSpaceQueryContext} from '@spark-appworks/spark-data'
 
-it('keeps recommendations and whole-round decisions separate and rejects another bidder',async()=>{
+it.each(['exact','subject','round'] as const)('keeps recommendations and whole-round decisions separate: %s',async mode=>{
  const scope={projectId:'P',lotId:'LOT',roundId:'R',stageId:'STAGE',subjectId:'ENT'}
  const time='2026-11-18T12:00:00+08:00'
  const row={...scope,id:'ROW',eventRef:'REC',kind:'RECOMMENDED',issuerRef:'ISSUER',documentVersionId:'DOC',
@@ -19,20 +19,40 @@ it('keeps recommendations and whole-round decisions separate and rejects another
  }}})
  const subject=ds.getView('TenderOutcome','officialSubjectEvents'),round=ds.getView('TenderOutcome','officialRoundEvents')
  if(!subject||!round)throw Error('TEST_OUTCOME_VIEWS_REQUIRED')
- let subjectId='ENT'
+ let subjectId='ENT',paused=false,successor=false
+ let release:()=>void=()=>{}
+ const gate=new Promise<void>(resolve=>{release=resolve})
+ const save=vi.fn(async()=>{throw Error('NO_WRITE')})
  for(const [view,isRound] of [[subject,false],[round,true]] as const){
   const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'TenderOutcome'})
   const original=isRound?{...row,id:'ROUND',eventRef:'STOP',kind:'ROUND_TERMINATED',subjectId:null}:row
-  view.bindQueryExecutor({save:async()=>{throw Error('NO_WRITE')},executeQuery:async()=>new DataSpaceQueryContext({
-   identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
-    data:{Count:1,Items:[{...original,subjectId:isRound?null:subjectId,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
-  })})
+  view.bindQueryExecutor({save,executeQuery:async()=>{
+   const selected=mode===(isRound?'round':'subject')
+   const eventRef=selected&&successor?'SUCCESSOR':original.eventRef
+   if(selected&&!paused){paused=true;await gate}
+   return new DataSpaceQueryContext({
+    identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:'id',
+     data:{Count:1,Items:[{...original,eventRef,subjectId:isRound?null:subjectId,lingma_sys_params:{r:[],e:[],h:[],m:[],d:false}}]}}}),
+   })
+  }})
  }
  const host={runtime:{resolveView:(key:string)=>key==='S@TenderOutcome@officialSubjectEvents'?subject:
   key==='S@TenderOutcome@officialRoundEvents'?round:undefined},scenarioId:'S',projectId:'P',assertCurrent:()=>{}}
  try{
   const page=createContentSubmissionScriptHost({...host.runtime,generation:1,isLoaded:true,destroyed:false},host)
   const signal=new AbortController().signal
+  if(mode!=='exact'){
+   const result=page.invoke('content.submission.readOutcome',{...scope,knownAt:time},signal).then(value=>({value}),error=>({error}))
+   await vi.waitFor(()=>expect(paused).toBe(true))
+   successor=true
+   const replaced=mode==='round'?round:subject
+   await replaced.refresh()
+   release()
+   expect(await result).toEqual({error:expect.objectContaining({message:'TENDER_OUTCOME_READ_STALE'})})
+   expect(replaced.rows[0]).toMatchObject({eventRef:'SUCCESSOR'})
+   expect(save).not.toHaveBeenCalled()
+   return
+  }
   const hostResult=await page.invoke('content.submission.readOutcome',{...scope,knownAt:time},signal)
   expect(hostResult).toMatchObject({subjectState:'RECOMMENDED',roundState:'TERMINATED'})
   const result=await readRegisteredTenderOutcome(host,{...scope,knownAt:time})
@@ -42,5 +62,6 @@ it('keeps recommendations and whole-round decisions separate and rejects another
   subjectId='OTHER'
   await expect(readRegisteredTenderOutcome(host,{...scope,knownAt:time})).rejects.toThrow('TENDER_OUTCOME_READ_SCOPE')
   expect(()=>result.assertCurrent()).toThrow('DATA_VIEW_READ_RESULT')
- }finally{ds.destroy()}
+  expect(save).not.toHaveBeenCalled()
+ }finally{release();ds.destroy()}
 })

@@ -5,6 +5,7 @@
  * AI用途：核对截止对账是否使用原时点、原阶段和完整应交义务。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {assertRegistrationViewRefreshable} from '../../../../authority/original-registration-view'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {parseSubmissionReconciliationTime} from '@/services/smart-bid/content/review/submission-reconciliation'
 import {hasCompleteSingleContentResult,hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
@@ -24,14 +25,17 @@ export async function readRegisteredDeadlineRecord(host:ContentRevisionReadHost,
  if(![scenarioId,projectId,deadlineRef].every(identity))throw Error(error)
  const key=buildDataViewKey('SubmissionReconciliation','originalDeadline',scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('SUBMISSION_DEADLINE_VIEW_REQUIRED')
+ const stale='SUBMISSION_DEADLINE_READ_STALE'
+ assertRegistrationViewRefreshable(view,stale)
  view.queryContext={...view.queryContext,projectId,deadlineRef}
  const assertScope=()=>{
   host.assertCurrent()
   if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
    view.queryContext['projectId']!==projectId||view.queryContext['deadlineRef']!==deadlineRef)
-   throw Error('SUBMISSION_DEADLINE_READ_STALE')
+   throw Error(stale)
  }
- await view.refresh()
+ const refreshed=await view.requestRefresh({defer:false})
+ if(refreshed.refreshStatus!=='read')throw Error(stale)
  assertScope()
  const row=view.rows[0]
  if(!row||!hasCompleteSingleContentResult(view))throw Error('SUBMISSION_DEADLINE_READ_NOT_UNIQUE')

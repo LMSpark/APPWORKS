@@ -5,6 +5,7 @@
  * AI用途：排查原回执为何仍待配对或指向唯一办理。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {assertRegistrationViewRefreshable} from '../../../../authority/original-registration-view'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {pairOriginalChannelReceipt} from '@/services/smart-bid/content/review/submission/channel-receipt-pairing'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
@@ -32,13 +33,16 @@ export async function readRegisteredChannelReceiptPairing(host:ContentRevisionRe
  if(![scenarioId,projectId,receiptRef].every(identity))throw Error(error)
  const key=buildDataViewKey('ChannelReceipt','originalPairing',scenarioId),view=runtime.resolveView(key)
  if(!view||!valid(view)||view.hasEditingChanges())throw Error('CHANNEL_RECEIPT_READ_VIEW_REQUIRED')
+ const stale='CHANNEL_RECEIPT_READ_STALE'
+ assertRegistrationViewRefreshable(view,stale)
  view.queryContext={...view.queryContext,projectId,receiptRef}
  const assertScope=()=>{
   host.assertCurrent()
   if(runtime.resolveView(key)!==view||!valid(view)||view.loadingError||view.hasEditingChanges()||
-   view.queryContext['projectId']!==projectId||view.queryContext['receiptRef']!==receiptRef)throw Error('CHANNEL_RECEIPT_READ_STALE')
+   view.queryContext['projectId']!==projectId||view.queryContext['receiptRef']!==receiptRef)throw Error(stale)
  }
- await view.refresh()
+ const refreshed=await view.requestRefresh({defer:false})
+ if(refreshed.refreshStatus!=='read')throw Error(stale)
  assertScope()
  const row=view.rows[0]
  if(!row||!hasCompleteSingleContentResult(view))throw Error('CHANNEL_RECEIPT_READ_NOT_UNIQUE')

@@ -5,6 +5,7 @@
  * AI用途：区分候选推荐、正式结果和整轮终止各自的证据。
  */
 import {buildDataViewKey,type DataView} from '@spark-appworks/spark-data'
+import {assertRegistrationViewRefreshable} from '../../../../authority/original-registration-view'
 import {projectTenderOutcome} from '@/services/smart-bid/content/review/submission/tender-outcome-evidence'
 import {snapshotReferenceIdentity as identity} from '@/services/smart-bid/content/references/snapshot-reference-values'
 import {hasContentScopeCondition,type ContentRevisionReadHost} from '../../content-revision-reader'
@@ -33,14 +34,18 @@ export async function readRegisteredTenderOutcome(host:ContentRevisionReadHost,s
   const key=buildDataViewKey('TenderOutcome',round?'officialRoundEvents':'officialSubjectEvents',scenarioId)
   const view=runtime.resolveView(key)
   if(!view||!valid(view,round)||view.hasEditingChanges())throw Error('TENDER_OUTCOME_VIEW_REQUIRED')
+  const stale='TENDER_OUTCOME_READ_STALE'
+  assertRegistrationViewRefreshable(view,stale)
   const context=round?{projectId,lotId,roundId,stageId}:scope
   view.queryContext={...view.queryContext,...context}
   const assertScope=()=>{
    host.assertCurrent()
    if(runtime.resolveView(key)!==view||!valid(view,round)||view.loadingError||view.hasEditingChanges()||
-    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error('TENDER_OUTCOME_READ_STALE')
+    Object.entries(context).some(([field,value])=>view.queryContext[field]!==value))throw Error(stale)
   }
-  await view.refresh();assertScope()
+  const refreshed=await view.requestRefresh({defer:false})
+  if(refreshed.refreshStatus!=='read')throw Error(stale)
+  assertScope()
   if(view.countReported!==true||view.total!==view.rows.length||view.nextPageAvailable===true)throw Error('TENDER_OUTCOME_READ_INCOMPLETE')
   const assertRead=view.captureReadResult()
   const events=view.rows.map((row):Event=>{

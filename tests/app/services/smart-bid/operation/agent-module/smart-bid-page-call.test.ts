@@ -13,6 +13,9 @@ import {canonicalSnapshotValue,hashCanonicalSnapshotText} from '@/services/smart
 import {contentSubmissionScenarioViews} from '@/views/features/application/smart-bid/authoring/model/review/submission/content-submission-scenario-views'
 import type {AiAgentTurnBridgeOptions} from '@/services/ai/ai-turn-bridge'
 import type {AiAgentTurnCallbacks} from '@spark-appworks/spark-ai/agent'
+import * as page19Target from '@/views/features/application/smart-bid/authoring/ui/entry/content-review-target'
+import * as page19ActionSource from '@/views/features/application/smart-bid/authoring/ui/entry/publication/smart-bid-action-source'
+import {prepareConfigurationRelease} from '@/services/smart-bid/content/references/configuration/configuration-release-decision'
 
 const app = 'D8490EC99436A8B9AFDE205BE3153802'
 const state=vi.hoisted(()=>({script:'',sent:false,mode:'',forwarded:vi.fn()}))
@@ -383,3 +386,37 @@ it.each(['exact','wrong-project','invalid-time','cached-view'] as const)('checks
    expect(save).not.toHaveBeenCalled()
   }finally{runtime.dispose()}
 })
+
+it.each([{operationId:'60',action:'ENABLE'}, {operationId:'61',action:'DISABLE'}] as const)(
+ 'passes the original Page19 cancellation signal into operation $operationId',async ({operationId,action})=>{
+  const select=vi.spyOn(page19Target,'preparePublishedConfigurationReleaseCall').mockReturnValue(undefined)
+  const submit=vi.fn<page19ActionSource.SmartBidPageActionSubmit>(async()=>({}))
+  const source=vi.spyOn(page19ActionSource,'createSmartBidPageActionSubmit').mockReturnValue(submit)
+  const pageId='smart-bid-configuration-page19',scenarioId='SPACE',projectId='PROJECT'
+  const tool=new PageTool({pageId})
+  const runtime=new PageRuntime({tool,scenarioIds:[scenarioId],mainScenarioId:scenarioId,
+   loadScenario:async()=>DataSet.fromJson({scenarioId,tables:{}})})
+  try{
+   preparePublishedSmartBidPageCall({path:`/apps/${app}/fixture`,query:{projectId,scenarioId},meta:{
+    title:'配置编审与启用',type:'config-page',nodeId:'NODE',pageId,blueprintScenarioId:scenarioId,tool:{projectId:app,pageId},
+   }})
+   const bind=select.mock.calls[0]?.[2]
+   if(!bind)throw Error('Missing the production release binding')
+   const assertCurrent=()=>undefined
+   const binding=bind(runtime,{projectId,scenarioId,assertCurrent})
+   const scope={kind:'recipe',key:'RECIPE',scopeId:projectId}
+   const common={...scope,authorityRef:'AUTHORITY',decisionRef:'DECISION',assertCurrent}
+   const version={versionId:'VERSION',digest:'a'.repeat(64)}
+   const decision=action==='ENABLE'
+    ? {...common,action,candidate:version,typeCheckRef:'TYPE',closureCheckRef:'CLOSURE',reviewRef:'REVIEW'}
+    : {...common,action,original:version,effectiveAt:'2026-11-27T10:00:00Z',stopScope:'NEW_SELECTION' as const}
+   const prepared=await prepareConfigurationRelease(scope,{requestKey:'REQUEST',expectedPointerVersion:'POINTER'},decision)
+   const controller=new AbortController()
+   controller.abort()
+   const callback=action==='ENABLE'?binding.submitEnable:binding.submitDisable
+   if(!callback)throw Error('Missing the configured production operation')
+   await callback(prepared,controller.signal)
+   expect(submit).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({operationId,requestKey:'REQUEST',inputs:prepared.record}),controller.signal)
+  }finally{runtime.dispose();source.mockRestore();select.mockRestore()}
+ })

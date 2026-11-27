@@ -70,10 +70,10 @@ export function preparePublishedSmartBidPageCall(route:ContentAuthoringRoute){
    const submitAction=createSmartBidPageActionSubmit(runtime,scope.projectId,assertCurrent)
    return {
     scopeId:scope.projectId,configurationScope:'PROJECT',assertCurrent,
-    submitEnable:async prepared=>submitAction({operationId:'60',requestKey:prepared.record.requestKey,
-     prompt:'启用已编审配置版本',inputs:prepared.record}),
-    submitDisable:async prepared=>submitAction({operationId:'61',requestKey:prepared.record.requestKey,
-     prompt:'停用已编审配置版本',inputs:prepared.record}),
+    submitEnable:async (prepared,signal)=>submitAction({operationId:'60',requestKey:prepared.record.requestKey,
+     prompt:'启用已编审配置版本',inputs:prepared.record},signal),
+    submitDisable:async (prepared,signal)=>submitAction({operationId:'61',requestKey:prepared.record.requestKey,
+     prompt:'停用已编审配置版本',inputs:prepared.record},signal),
    }
 
   })

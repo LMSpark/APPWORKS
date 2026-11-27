@@ -1,0 +1,59 @@
+[
+  {
+    "id": "my-app-auth",
+    "type": "r-section",
+    "props": {
+      "class": "my-app-auth",
+      "title": "我的申请",
+      "bordered": false,
+      "gridColumns": 1,
+      "onBeforeRender": "bindRequestStatus",
+      "header": {
+        "children": [
+          {"type": "r-button", "props": {"label": "申请应用授权", "buttonType": "primary", "onBeforeRender": "bindRequestAction", "onClick": "openApply"}},
+          {"type": "r-button", "props": {"label": "刷新", "dataViewKey": "47DA54EA853C8780976D43CF2369B096@enterprise_app_auth@default", "action": "refresh"}}
+        ]
+      }
+    },
+    "children": [
+      {
+        "type": "r-table",
+        "props": {
+          "dataViewKey": "47DA54EA853C8780976D43CF2369B096@enterprise_app_auth@default",
+          "autoColumns": false,
+          "stripe": true,
+          "showRowIndex": true,
+          "highlightCurrentRow": true,
+          "showDataViewMeta": false,
+          "pagination": {"pageSizes": [20], "showJumper": true},
+          "filter": {
+            "autoQuery": false,
+            "queryOnReset": true,
+            "firstPageOnSearch": true,
+            "showExpressionEditor": false,
+            "showDataViewMeta": false,
+            "children": [
+              {"type": "r-select", "props": {"field": "auth_status", "label": "状态", "placeholder": "全部状态", "clearable": true, "width": 160, "optionDataViewKey": "47DA54EA853C8780976D43CF2369B096@app_auth_status@default", "optionValueField": "val", "optionLabelField": "txt"}}
+            ]
+          },
+          "actions": {
+            "wrap": false,
+            "gap": 4,
+            "children": [
+              {"type": "r-button", "props": {"dataViewKey": "47DA54EA853C8780976D43CF2369B096@enterprise_app_auth@default", "label": "取消申请", "link": true, "buttonType": "danger", "onBeforeRender": "bindCancel", "onClick": "cancelRequest"}},
+              {"type": "r-button", "props": {"dataViewKey": "47DA54EA853C8780976D43CF2369B096@enterprise_app_auth@default", "label": "重新申请", "link": true, "buttonType": "primary", "onBeforeRender": "bindReapply", "onClick": "reapplyRequest"}}
+            ]
+          }
+        },
+        "children": [
+          {"type": "r-select", "props": {"field": "app_id", "label": "申请应用", "readonly": true, "minWidth": 220, "sortable": false, "showOverflowTooltip": true, "optionDataViewKey": "C06D41607B6258106F35A0A319B71804@Base_AppSystemList@default", "optionValueField": "rowid", "optionLabelField": "displayName", "unmatchedText": "-", "cellTitleField": "app_id"}},
+          {"type": "r-select", "props": {"field": "source_ent", "label": "来源企业", "readonly": true, "width": 160, "showOverflowTooltip": true, "optionDataViewKey": "02215DFBCA2079FBC076CEF7D91FBF6E@Base_Enterprise_Info@default", "optionValueField": "ShortName", "optionLabelField": "CName"}},
+          {"type": "r-select", "props": {"field": "request_type", "label": "发起方式", "readonly": true, "width": 110, "valueAlign": "center", "optionDataViewKey": "47DA54EA853C8780976D43CF2369B096@app_request_type@default", "optionValueField": "val", "optionLabelField": "txt"}},
+          {"type": "r-select", "props": {"field": "auth_status", "label": "状态", "readonly": true, "width": 120, "valueAlign": "center", "optionDataViewKey": "47DA54EA853C8780976D43CF2369B096@app_auth_status@default", "optionValueField": "val", "optionLabelField": "txt", "valueTagTypes": {"ACTIVE": "success", "PENDING": "warning", "FAILED": "danger", "REJECTED": "danger"}}},
+          {"type": "r-text", "props": {"field": "requested_at", "label": "申请时间", "readonly": true, "width": 160, "valueAlign": "center", "emptyText": "-", "onBeforeRender": "bindRequestedAt"}},
+          {"type": "r-text", "props": {"field": "noteText", "label": "说明/失败原因", "readonly": true, "minWidth": 180, "sortable": false, "showOverflowTooltip": true}}
+        ]
+      }
+    ]
+  }
+]

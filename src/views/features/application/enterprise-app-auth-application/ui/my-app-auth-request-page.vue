@@ -5,31 +5,29 @@
   可用性依据本行 auth_status 写权限及业务状态，不按身份放行。
 -->
 <template>
-  <RendererSection class="my-app-auth" title="我的申请" :bordered="false" :grid-columns="1">
-    <template #header-actions>
-      <RendererButton v-if="ready" label="申请应用授权" button-type="primary" :disabled="busy" @click="applyOpen = true" />
-      <RendererButton v-if="ready" :data-view-key="viewKey" label="刷新" action="refresh" />
-    </template>
+  <SparkPageRenderer v-if="rendererHost" :page-runtime="rendererHost.runtime" :route-snapshot="routeSnapshot" :host="rendererHost" :auto-load="false" />
+  <RendererSection v-else class="my-app-auth" title="我的申请" :bordered="false" :grid-columns="1">
     <p v-if="loading" role="status">正在读取我的申请…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <RendererButton v-if="error && !loading && !ready" label="重试" @click="loadCurrentRoute" />
-    <p v-if="actionError" role="alert">{{ actionError }}</p>
-    <RendererTable v-if="ready" :data-view-key="viewKey" :children="fields" :filter="filter" :actions="actions"
-      :auto-columns="false" :stripe="true" :show-row-index="true" :highlight-current-row="true"
-      :show-data-view-meta="false" :pagination="{pageSizes: [20], showJumper: true}" />
-    <RendererDialog v-if="applyOpen" :model-value="true" title="申请应用授权" :width="960" :append-to-body="true" @update:model-value="closeApply">
-      <ApplyAppAuthContent :embedded="true" @applied="closeApply" />
-    </RendererDialog>
   </RendererSection>
+  <RendererDialog v-if="ready && applyOpen" :model-value="true" title="申请应用授权" :width="960" :append-to-body="true" @update:model-value="closeApply">
+    <ApplyAppAuthContent :embedded="true" @applied="closeApply" />
+  </RendererDialog>
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue'
-import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {RendererButton, RendererDialog, RendererSection, RendererTable, useSparkComponent, type RFilterProps, consumeRequiredPageService} from '@spark-appworks/spark-component'
+import {computed, ref, toRaw, watch} from 'vue'
+import {useRoute} from 'vue-router'
+import {buildDataViewKey, isDataRow, type DataRow, type DataView} from '@spark-appworks/spark-data'
+import {PageTool} from '@spark-appworks/spark-project-model'
+import {RendererButton, RendererDialog, RendererSection, SparkPageRenderer, useSparkComponent, consumeRequiredPageService} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import {APP_AUTH_SCENARIOS, commitAppAuthRecord, confirmAppAuth, formatRequestedAt, readAppAuthSession} from '../model/enterprise-app-auth-application-model'
 import ApplyAppAuthContent from './apply-app-auth-content.vue'
+import rule from './request-tool/rule.json?raw'
+import script from './request-tool/script.js?raw'
+import style from './request-tool/style.css?raw'
 
 const {sparkConsume} = useSparkComponent({type: 'my-app-auth-request-page'})
 const pageService = consumeRequiredPageService(sparkConsume, 'my-app-auth-request-page')
@@ -37,55 +35,63 @@ const scenarioId = APP_AUTH_SCENARIOS.myRequests
 const modelName = 'enterprise_app_auth'
 const appNamesKey = buildDataViewKey('Base_AppSystemList', 'default', APP_AUTH_SCENARIOS.review)
 const enterpriseKey = buildDataViewKey('Base_Enterprise_Info', 'default', APP_AUTH_SCENARIOS.apply)
-const statusKey = buildDataViewKey('app_auth_status', 'default', scenarioId)
-const requestTypeKey = buildDataViewKey('app_request_type', 'default', scenarioId)
+const route = useRoute()
+const routeSnapshot = computed(() => {
+  const {path, fullPath, name, params, query, hash} = route
+  return {path, fullPath, name: name ?? null, params, query, hash}
+})
 const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName, componentType: 'my-app-auth-request-page', title: '我的申请',
+  tool: pageId => {
+    const tool = new PageTool({pageId})
+    tool.hydrateFileText('rule.json', rule)
+    tool.hydrateFileText('script.js', script)
+    tool.hydrateFileText('style.css', style)
+    tool.markLoaded()
+    return tool
+  },
   optionModels: ['app_auth_status', 'app_request_type'], peerScenarioIds: [APP_AUTH_SCENARIOS.apply, APP_AUTH_SCENARIOS.review], optionViews: [appNamesKey, enterpriseKey],
   queryContext: () => ({entShortName: readAppAuthSession().entShortName}),
 })
 const applyOpen = ref(false), busy = ref(false), actionError = ref(''), revision = ref(0)
 const REAPPLY_FROM = new Set(['REJECTED', 'CANCELLED', 'REVOKED', 'FAILED'])
 
-const dictionary = (key: string) => ({optionDataViewKey: key, optionValueField: 'val', optionLabelField: 'txt'})
-const fields: SparkNode[] = [
-  {type: 'r-select', props: {field: 'app_id', label: '申请应用', readonly: true, minWidth: 220, sortable: false, showOverflowTooltip: true,
-    optionDataViewKey: appNamesKey, optionValueField: 'rowid', optionLabelField: 'displayName', unmatchedText: '-', cellTitleField: 'app_id'}},
-  {type: 'r-select', props: {field: 'source_ent', label: '来源企业', readonly: true, width: 160, showOverflowTooltip: true,
-    optionDataViewKey: enterpriseKey, optionValueField: 'ShortName', optionLabelField: 'CName'}},
-  {type: 'r-select', props: {field: 'request_type', label: '发起方式', readonly: true, width: 110, valueAlign: 'center', ...dictionary(requestTypeKey)}},
-  {type: 'r-select', props: {field: 'auth_status', label: '状态', readonly: true, width: 120, valueAlign: 'center', ...dictionary(statusKey),
-    valueTagTypes: {ACTIVE: 'success', PENDING: 'warning', FAILED: 'danger', REJECTED: 'danger'}}},
-  {type: 'r-text', props: {field: 'requested_at', label: '申请时间', readonly: true, width: 160, valueAlign: 'center',
-    emptyText: '-', displayFormatter: formatRequestedAt}},
-  {type: 'r-text', props: {field: 'noteText', label: '说明/失败原因', readonly: true, minWidth: 180, sortable: false, showOverflowTooltip: true}},
-]
-const filter: RFilterProps = {
-  autoQuery: false, queryOnReset: true, firstPageOnSearch: true, showExpressionEditor: false, showDataViewMeta: false,
-  children: [{type: 'r-select', props: {field: 'auth_status', label: '状态', placeholder: '全部状态', clearable: true, width: 160, ...dictionary(statusKey)}}],
-}
 const listView = computed(() => ready.value ? session.runtime?.resolveView(viewKey.value) : undefined)
+watch(ready, value => {if (!value) applyOpen.value = false})
 
 function status(view: DataView, row: DataRow): string {
   const value = row['auth_status']
   return view.fieldAccess(row, 'auth_status').read === 'visible' && typeof value === 'string' ? value.trim() : ''
 }
-const writable = (view: DataView, row: DataRow) => !view.hasUnconfirmedSave && view.fieldAccess(row, 'auth_status').write === 'allowed'
+const writable = (view: DataView, row: DataRow) => !view.hasUnconfirmedSave
+  && view.fieldAccess(row, 'auth_status').write === 'allowed' && view.fieldAccess(row, 'operator').write === 'allowed'
 const canCancel = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
   Boolean(row && dataSource && writable(dataSource, row) && status(dataSource, row) === 'PENDING')
 const canReapply = ({row, dataSource}: {row?: DataRow | null; dataSource?: DataView | null}) =>
   Boolean(row && dataSource && writable(dataSource, row) && REAPPLY_FROM.has(status(dataSource, row)))
-const actions = computed(() => {
-  revision.value
-  return {wrap: false, gap: 4, children: [
-    {type: 'r-button', props: {dataViewKey: viewKey.value, label: '取消申请', link: true, buttonType: 'danger', onBeforeRender: canCancel,
-      onClick: (row: DataRow) => operate(row, {to: 'CANCELLED', verb: '取消对「{name}」的申请', title: '取消申请确认', success: '已取消申请'})}},
-    {type: 'r-button', props: {dataViewKey: viewKey.value, label: '重新申请', link: true, buttonType: 'primary', onBeforeRender: canReapply,
-      onClick: (row: DataRow) => operate(row, {to: 'PENDING', verb: '重新申请「{name}」', title: '重新申请确认', success: '已重新提交申请，等待审批'})}},
-  ]}
-})
-
 type Operation = Readonly<{to: 'CANCELLED' | 'PENDING'; verb: string; title: string; success: string}>
+const cancel: Operation = {to: 'CANCELLED', verb: '取消对「{name}」的申请', title: '取消申请确认', success: '已取消申请'}
+const reapply: Operation = {to: 'PENDING', verb: '重新申请「{name}」', title: '重新申请确认', success: '已重新提交申请，等待审批'}
+const rendererHost = computed(() => {
+  const runtime = session.runtime, view = listView.value
+  if (!view || !runtime) return undefined
+  const assertCurrent = () => {
+    if (!session.isCurrent(runtime) || listView.value !== view) throw new Error('我的申请运行实例已失效')
+  }
+  return {runtime, assertCurrent, async invoke(command: string, input: unknown) {
+    assertCurrent()
+    if (command === 'requests.connect') return {
+      state: () => ({busy: busy.value, error: actionError.value}),
+      canCancel: (row: unknown) => {revision.value; return isDataRow(row) && canCancel({row: toRaw(row), dataSource: view})},
+      canReapply: (row: unknown) => {revision.value; return isDataRow(row) && canReapply({row: toRaw(row), dataSource: view})},
+      formatRequestedAt,
+    }
+    if (command === 'requests.apply' && !busy.value) applyOpen.value = true
+    if (command === 'requests.cancel' && isDataRow(input)) await operate(input, cancel)
+    if (command === 'requests.reapply' && isDataRow(input)) await operate(input, reapply)
+    return undefined
+  }}
+})
 /** 显示名取 C06D 应用名称选项，查不到时用应用ID，再退为“该应用”。 */
 function appLabel(view: DataView, row: DataRow): string {
   const appId = view.fieldAccess(row, 'app_id').read === 'visible' && typeof row['app_id'] === 'string' ? row['app_id'].trim() : ''
@@ -95,22 +101,31 @@ function appLabel(view: DataView, row: DataRow): string {
   return typeof name === 'string' && name.trim() ? name.trim() : appId || '该应用'
 }
 async function operate(row: DataRow, operation: Operation): Promise<void> {
-  const view = listView.value
-  if (!view || busy.value) return
+  const view = listView.value, runtime = session.runtime
+  if (!view || !runtime || busy.value) return
+  const original = toRaw(row)
+  const allowed = operation.to === 'CANCELLED' ? canCancel : canReapply
+  const action = {row: original, dataSource: view}
   actionError.value = ''
-  const id = view.getPkKey(row)
-  if (id === undefined || id === '') {actionError.value = '缺少申请记录'; return}
-  if (!await confirmAppAuth(`确定要${operation.verb.replace('{name}', appLabel(view, row))}吗？`, operation.title, pageService)) return
   busy.value = true
   try {
+    const id = view.getPkKey(original)
+    if (id === undefined || id === '') throw new Error('缺少申请记录')
+    const assertOriginal = view.captureReadRow(original, [view.primaryKey, 'auth_status'])
+    if (!allowed(action)) throw new Error('当前申请状态或权限不允许此操作')
     const {userId} = readAppAuthSession()
+    if (!await confirmAppAuth(`确定要${operation.verb.replace('{name}', appLabel(view, original))}吗？`, operation.title, pageService)) return
+    if (!session.isCurrent(runtime) || listView.value !== view) return
+    assertOriginal()
+    if (!allowed(action)) throw new Error('当前申请状态或权限不允许此操作')
     view.updateEditingValue(id, 'auth_status', operation.to)
     view.updateEditingValue(id, 'operator', userId)
     await commitAppAuthRecord(view, id)
+    if (!session.isCurrent(runtime) || listView.value !== view) return
     pageService.showMessage(operation.success, 'success')
     await view.refresh()
   } catch (cause) {
-    actionError.value = cause instanceof Error ? cause.message : String(cause)
+    if (session.isCurrent(runtime)) actionError.value = cause instanceof Error ? cause.message : String(cause)
   } finally {
     busy.value = false; revision.value++
   }
@@ -120,7 +135,3 @@ function closeApply(): void {
   void listView.value?.refresh()
 }
 </script>
-
-<style scoped>
-.my-app-auth {padding: 24px}
-</style>

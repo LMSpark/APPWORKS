@@ -4,7 +4,7 @@ import {defineComponent, h, type Component} from 'vue'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererButton, RendererTable, Spark, SparkPageRenderer, registerAllRenderers} from '@spark-appworks/spark-component'
 import {api, APPLY, BASE, MY, pagedataText, resetEnterpriseAppAuthFixture, REVIEW, session} from './enterprise-app-auth.fixture'
 import {provideTestPageService} from '../../../support/helpers/page-service-host'
 import myRequests from '../../../../config/pages/application/enterprise-app-auth/my-requests/pagedata.json'
@@ -14,6 +14,10 @@ const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Pr
 vi.mock('element-plus', async importOriginal => {
   const original = await importOriginal<typeof import('element-plus')>()
   return {...original, ElMessageBox: {...original.ElMessageBox, confirm: confirmBox}}
+})
+vi.mock('@/views/features/application/enterprise-app-auth-application/ui/request-tool/style.css?raw', async () => {
+  const {readFileSync} = await import('node:fs')
+  return {default: readFileSync('src/views/features/application/enterprise-app-auth-application/ui/request-tool/style.css', 'utf8')}
 })
 vi.mock('@/platform-adapters/lowcode-runtime', () => ({
   get lowcodeHttp() {return api.state.http},
@@ -137,6 +141,12 @@ describe('我的申请', () => {
   it('在同一运行实例装配 47DA、0221 与 C06D，常驻范围只列本企业的 REQUEST，名称经选项视图显示', async () => {
     const {wrapper, observed, runtime, rows} = await open(MyPage, MY)
     expect(observed.size).toBe(1)
+    const renderer = wrapper.getComponent(SparkPageRenderer)
+    expect(renderer.props('pageRuntime')).toBe(runtime())
+    expect(runtime().call.mainScenarioId).toBe(MY)
+    const list = renderer.getComponent(RendererTable)
+    expect(runtime().resolveView(list.props('dataViewKey')!)).toBe(runtime().getDataSet(MY)?.getView('enterprise_app_auth', 'default'))
+    expect(renderer.get('style').text()).toContain(`[data-page="${runtime().instanceId}"].spark-page-container .my-app-auth`)
     for (const id of [MY, APPLY, REVIEW]) expect(runtime().getDataSet(id)).toBeDefined()
     expect(rows(`${MY}@enterprise_app_auth@default`)).toEqual(['A1', 'A2', 'A3'])
     const actions = wrapper.findAllComponents(RendererButton).filter(item => ['取消申请', '重新申请'].includes(item.props('label') ?? ''))
@@ -177,7 +187,62 @@ describe('我的申请', () => {
       changed: [expect.objectContaining({id: 'A2', auth_status: 'PENDING', operator: 'U1'})]})
     expect(http.records['enterprise_app_auth']?.find(row => row['id'] === 'A2')?.['review_comment']).toBe('不合适')
   })
-
+  it.each([
+    {change: 'principal', action: '取消申请', title: '取消申请确认', id: 'A1', status: 'PENDING'},
+    {change: 'query', action: '重新申请', title: '重新申请确认', id: 'A2', status: 'REJECTED'},
+    {change: 'none', action: '取消申请', title: '取消申请确认', id: 'A1', status: 'PENDING'},
+  ])('settles only the original request confirmation after $change', async ({change, action, title, id, status}) => {
+    const initialUser = session.identity.userId
+    api.service.readRequestScope.mockImplementation(() => ({
+      token: session.identity.userId === initialUser ? 'scope' : 'replacement-principal-scope',
+      headers: {'X-AppId': 'APP'},
+    }))
+    const {runtime} = await open(MyPage, MY)
+    const view = runtime().resolveView(`${MY}@enterprise_app_auth@default`)
+    const original = view?.rows.find(row => row['id'] === id)
+    if (!view || !original) throw Error('Expected the original request row')
+    const assertOriginal = view.captureReadRow(original, ['id', 'auth_status'])
+    const beforeSave = vi.fn(() => Promise.resolve())
+    http.beforeSave = beforeSave
+    let accept: (() => void) | undefined
+    confirmBox.mockImplementationOnce(() => new Promise<string>(resolve => {accept = () => resolve('confirm')}))
+    try {
+      await click(action)
+      expect(confirmBox).toHaveBeenCalledTimes(1)
+      expect(confirmBox).toHaveBeenCalledWith(expect.any(String), title, expect.anything())
+      if (!accept) throw Error('The original confirmation did not open')
+      expect(beforeSave).not.toHaveBeenCalled()
+      if (change === 'query') {
+        expect((await view.requestRefresh({defer: false})).refreshStatus).toBe('read')
+        const replacement = view.rows.find(row => row['id'] === id)
+        expect(replacement?.['auth_status']).toBe(status)
+        expect(assertOriginal).toThrow()
+      }
+      if (change !== 'none') {
+        view.updateEditingValue('A3', 'review_comment', 'same-view sibling draft')
+      }
+      const edit = vi.spyOn(view, 'updateEditingValue')
+      if (change === 'principal') session.identity.userId = 'U2'
+      accept()
+      await settle()
+      if (change === 'none') {
+        expect(beforeSave).toHaveBeenCalledTimes(1)
+        expect(http.saves).toEqual([{table: 'enterprise_app_auth', added: [], deleted: [],
+          changed: [expect.objectContaining({id, auth_status: 'CANCELLED', operator: initialUser})]}])
+        expect(view.rows.find(row => row['id'] === id)?.['auth_status']).toBe('CANCELLED')
+        return
+      }
+      expect.soft(edit).not.toHaveBeenCalled()
+      expect.soft(beforeSave).not.toHaveBeenCalled()
+      expect.soft(http.saves).toHaveLength(0)
+      expect.soft(http.records['enterprise_app_auth']?.find(row => row['id'] === id))
+        .toMatchObject({id, auth_status: status, operator: 'U0'})
+      expect.soft(view.hasEditingChanges(id)).toBe(false)
+      expect(view.getEditingRow('A3')?.['review_comment']).toBe('same-view sibling draft')
+    } finally {
+      session.identity.userId = initialUser
+    }
+  })
 
   it('does not confirm an authorization update when the original DataSet rejects the editing row', async () => {
     const {runtime} = await open(MyPage, MY)

@@ -151,6 +151,8 @@ describe('class-model-incremental-build', () => {
         repoRoot,
         manifestPath,
         writeFileSync,
+        inputFingerprint: 'build-inputs',
+        declarationFingerprints: new Map([['class-model-emit/packages/demo/src/widget.d.ts', 'emitted-widget']]),
         manifest: {
           files: {
             [manifestSourcePath]: {
@@ -163,9 +165,11 @@ describe('class-model-incremental-build', () => {
 
       const snapshot = JSON.parse(readFileSync(manifestPath, 'utf8'))
       expect(snapshot.schemaVersion).toBe(1)
+      expect(snapshot.inputFingerprint).toBe('build-inputs')
       expect(snapshot.entries[manifestSourcePath]).toMatchObject({
         sourceFile: manifestSourcePath,
         sourceModifiedAt: mtime.toISOString(),
+        declarationFingerprint: 'emitted-widget',
       })
     } finally {
       rmSync(root, { recursive: true, force: true })
@@ -262,7 +266,7 @@ describe('class-model-incremental-build', () => {
     ])
   })
 
-  it('augmentIncrementalPlanWithConfigDrift tracks config-only paths separately', () => {
+  it('keeps emitted dependency shards that are not direct configuration roots', () => {
     const plan = {
       mode: 'incremental',
       changedSourcePaths: new Set(),
@@ -279,6 +283,7 @@ describe('class-model-incremental-build', () => {
       existingManifest: {
         files: {
           'packages/demo/a.ts': { file: 'files/packages/demo/a.ts.json' },
+          'packages/demo/dependency.ts': { file: 'files/packages/demo/dependency.ts.json' },
         },
       },
       existingDtsManifest: { schemaVersion: 1, entries: {} },
@@ -289,13 +294,53 @@ describe('class-model-incremental-build', () => {
     expect(augmented.removedSourcePaths.size).toBe(0)
   })
 
-  it('canSkipDeclarationEmit ignores newConfigSourcePaths', () => {
+  it('canSkipDeclarationEmit detects new emitted source candidates', () => {
     expect(canSkipDeclarationEmit({
       mode: 'incremental',
       changedSourcePaths: new Set(),
       removedSourcePaths: new Set(),
       newConfigSourcePaths: new Set(['class-model-emit/phantom.d.ts']),
-    })).toBe(true)
+    })).toBe(false)
+  })
+
+  it('refreshes inferred declarations and reverse consumers when source times are unchanged', () => {
+    const root = mkdtempSync(join(tmpdir(), 'spark-dts-consumers-'))
+    try {
+      const names = ['owner', 'inline', 'consumer', 'unrelated']
+      const outputDir = join(root, 'generated/dts-class-model')
+      const timestamp = new Date('2026-01-02T03:04:05.000Z')
+      const files = {}
+      const entries = {}
+      const fingerprints = new Map<string, string>()
+      for (const name of names) {
+        const sourceFile = `${name}.ts`
+        const file = join(root, sourceFile)
+        const shardFile = `files/${sourceFile}.json`
+        const emitKey = `class-model-emit/${name}.d.ts`
+        mkdirSync(join(outputDir, 'files'), { recursive: true })
+        writeFileSync(file, `export const ${name} = 1\n`)
+        utimesSync(file, timestamp, timestamp)
+        writeFileSync(join(outputDir, shardFile), JSON.stringify({module:{symbols:[name]}}))
+        Object.assign(files, {[sourceFile]:{file:shardFile,module:{sourceFile}}})
+        Object.assign(entries, {[sourceFile]:{sourceFile,shardFile,sourceModifiedAt:timestamp.toISOString(),declarationFingerprint:'prior'}})
+        fingerprints.set(emitKey,name==='owner'||name==='inline'?'next':'prior')
+      }
+      const emitSourcePaths = [...fingerprints.keys()]
+      const plan = planIncrementalBundleBuild({
+        repoRoot:root,outputDir,emitSourcePaths,dtsFiles:emitSourcePaths.map(path=>resolve(root,path)),
+        existingManifest:{files},existingDtsManifest:{schemaVersion:1,entries},declarationFingerprints:fingerprints,
+        resolveDependentSourcePaths:(changed:ReadonlySet<string>)=>{
+          expect([...changed]).toEqual(['class-model-emit/inline.d.ts','class-model-emit/owner.d.ts'])
+          return ['class-model-emit/consumer.d.ts']
+        },
+        resolveProgramRootFiles:()=>[],
+      })
+      expect([...plan.changedSourcePaths]).toEqual(['class-model-emit/inline.d.ts','class-model-emit/owner.d.ts','class-model-emit/consumer.d.ts'])
+      expect([...plan.unchangedSourcePaths]).toEqual(['class-model-emit/unrelated.d.ts'])
+      expect([...plan.knownClassNamesBySourcePath.keys()]).toEqual(['class-model-emit/unrelated.d.ts'])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
   })
 
   it('canSkipDeclarationEmit is true only when manifest shards unchanged and none removed', () => {

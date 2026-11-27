@@ -17,6 +17,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { createRequire } from 'node:module'
+import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import { dirname, isAbsolute, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -80,15 +81,17 @@ const existingManifest = existsSync(existingManifestPath) ? readJsonFile(existin
 const existingSemanticReport = existsSync(existingSemanticJsonPath) ? readJsonFile(existingSemanticJsonPath) : undefined
 const existingDtsManifest = readDtsManifestSnapshot(dtsManifestPath)
 
-const emitSourcePathsFromConfig = listClassModelEmitSourcePathsFromConfig({
+const {emitSourcePaths: emitSourcePathsFromConfig, inputFingerprint} = readClassModelEmitInputs({
   repoRoot,
   configPath: classModelEmitConfigPath,
+  emitBackend,
 })
+const forceFullRebuild = cliOptions.forceFullRebuild || existingDtsManifest?.inputFingerprint !== inputFingerprint
 const emitSourcePathsForPrePlan = resolveEmitSourcePathsForIncrementalPlan({
   configEmitSourcePaths: emitSourcePathsFromConfig,
   existingManifest,
 })
-const preEmitIncrementalPlan = targetedBuildRequested || cliOptions.forceFullRebuild
+const preEmitIncrementalPlan = targetedBuildRequested || forceFullRebuild
   ? undefined
   : augmentIncrementalPlanWithConfigDrift(
       planIncrementalBundleBuild({
@@ -106,12 +109,7 @@ const preEmitIncrementalPlan = targetedBuildRequested || cliOptions.forceFullReb
         configEmitSourcePaths: emitSourcePathsFromConfig,
         existingManifest,
         existingDtsManifest,
-        resolveProgramRootFiles: changedSourcePaths => collectDtsDependencyClosure({
-          repoRoot,
-          dtsFiles: changedSourcePaths.map(sourcePath => resolve(repoRoot, sourcePath)),
-          compilerHost: undefined,
-          targetSourcePaths: changedSourcePaths,
-        }),
+        resolveProgramRootFiles: () => [],
       },
     )
 const skipDeclarationEmit = canSkipDeclarationEmit(preEmitIncrementalPlan)
@@ -137,6 +135,9 @@ if (preEmitIncrementalPlan !== undefined) {
     }
     process.exit(0)
   }
+} else if (cliOptions.planOnly) {
+  console.log(targetedBuildRequested ? 'Targeted ClassModel compile required.' : 'Full ClassModel compile required.')
+  process.exit(0)
 }
 
 let dtsFiles
@@ -194,6 +195,9 @@ const targetedBuild = targetedBuildRequested
 const emitSourcePaths = skipDeclarationEmit
   ? emitSourcePathsFromConfig
   : dtsFiles.map(fileName => normalizeRepoPath(fileName, repoRoot))
+const declarationFingerprints = skipDeclarationEmit ? undefined : new Map(
+  [...declarationEmit.files].map(([file, declaration]) => [normalizeRepoPath(file, repoRoot), fingerprint(declaration)]),
+)
 
 const incrementalPlan = skipDeclarationEmit
   ? preEmitIncrementalPlan
@@ -206,13 +210,15 @@ const incrementalPlan = skipDeclarationEmit
         compilerHost: declarationCompilerHost,
         existingManifest,
         existingDtsManifest,
-        forceFullRebuild: cliOptions.forceFullRebuild,
-        resolveProgramRootFiles: changedSourcePaths => collectDtsDependencyClosure({
+        forceFullRebuild,
+        declarationFingerprints,
+        resolveDependentSourcePaths: changedSourcePaths => collectDtsDependentSources({
           repoRoot,
           dtsFiles,
           compilerHost: declarationCompilerHost,
-          targetSourcePaths: changedSourcePaths,
+          changedSourcePaths,
         }),
+        resolveProgramRootFiles: () => dtsFiles,
       })
     : undefined
 const buildRootFiles = targetedBuild?.rootFiles ?? incrementalPlan?.programRootFiles ?? dtsFiles
@@ -348,12 +354,16 @@ if (
 if (targetedBuild !== undefined) {
   removeTreeSync(targetedBuild.tempOutputDir)
 }
-writeDtsManifestSnapshot({
-  repoRoot,
-  manifest: publishedResult.manifest,
-  manifestPath: dtsManifestPath,
-  writeFileSync,
-})
+if (!skipDeclarationEmit) {
+  writeDtsManifestSnapshot({
+    repoRoot,
+    manifest: publishedResult.manifest,
+    manifestPath: dtsManifestPath,
+    writeFileSync,
+    // Targeted compilation does not observe all dirty declarations. Invalidate the automatic baseline.
+    ...(targetedBuild === undefined ? {inputFingerprint, declarationFingerprints} : {}),
+  })
+}
 removeTreeSync(resolve(outputDir, 'runtime'))
 timings.mark('build-bundle')
 buildDebugBreak('class-model-generate:complete', {
@@ -486,11 +496,21 @@ function parseClassModelEmitProject(command) {
   return { parsed, compilerOptions }
 }
 
-/** 从 tsconfig.class-model-emit.json 推导虚拟 emit 键，供 emit 前增量规划。 */
-function listClassModelEmitSourcePathsFromConfig(command) {
+function fingerprint(content) {
+  return createHash('sha256').update(content).digest('hex')
+}
+
+/** 只有可发射源码进入候选清单，环境声明或配置变化使既有快照失效。 */
+function readClassModelEmitInputs(command) {
   const { parsed } = parseClassModelEmitProject(command)
   const emitPaths = new Set()
+  const configuration = [command.configPath, 'tsconfig.typecheck.json', 'tsconfig.json', 'pnpm-lock.yaml']
+    .map(file => resolve(command.repoRoot, file))
   for (const absolutePath of parsed.fileNames) {
+    if (/\.d\.(?:ts|mts|cts)$/u.test(absolutePath)) {
+      configuration.push(absolutePath)
+      continue
+    }
     const repoRelativePath = normalizeRepoPath(absolutePath, command.repoRoot)
     try {
       emitPaths.add(toClassModelEmitPath(repoRelativePath))
@@ -498,7 +518,11 @@ function listClassModelEmitSourcePathsFromConfig(command) {
       // skip paths that cannot map to ClassModel emit virtual keys
     }
   }
-  return [...emitPaths].sort((left, right) => left.localeCompare(right))
+  const inputs = configuration.sort().map(file => [normalizeRepoPath(file, command.repoRoot), fingerprint(readFileSync(file))])
+  return {
+    emitSourcePaths: [...emitPaths].sort((left, right) => left.localeCompare(right)),
+    inputFingerprint: fingerprint(JSON.stringify([1, ts.version, command.emitBackend, inputs])),
+  }
 }
 
 function emitDeclarationsWithVueTscToMemory(options) {
@@ -928,6 +952,45 @@ function normalizeDtsSourcePathInput(input, repoRoot) {
   return toClassModelEmitPath(repoPath)
 }
 
+/** Follow dependents through the emitted declaration host, including alias and barrel resolution. */
+function collectDtsDependentSources({repoRoot, dtsFiles, compilerHost, changedSourcePaths}) {
+  const byPath = createDtsFileBySourcePath(dtsFiles, repoRoot)
+  for (const sourcePath of changedSourcePaths) {
+    const file = byPath.get(sourcePath)
+    const text = file === undefined ? undefined : compilerHost.readFile(file)
+    if (text === undefined) return undefined
+    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
+    if (!ts.isExternalModule(source) || source.statements.some(statement => ts.isModuleDeclaration(statement)
+      && (ts.isStringLiteral(statement.name) || (statement.flags & ts.NodeFlags.GlobalAugmentation) !== 0))) return undefined
+  }
+
+  const importedBy = new Map()
+  const compilerOptions = createDtsCompilerOptions()
+  for (const [source, file] of byPath) {
+    const text = compilerHost.readFile(file)
+    if (text === undefined) return undefined
+    const {importedFiles, referencedFiles} = ts.preProcessFile(text, true, true)
+    const literals = importedFiles.map(item => ts.factory.createStringLiteral(item.fileName))
+    const imports = compilerHost.resolveModuleNameLiterals(literals, file, undefined, compilerOptions, undefined, undefined)
+    const targets = [
+      ...imports.flatMap(item => item.resolvedModule === undefined ? [] : [item.resolvedModule.resolvedFileName]),
+      ...referencedFiles.map(item => ts.resolveTripleslashReference(item.fileName, file)),
+    ]
+    for (const target of targets) {
+      const dependency = normalizeRepoPath(target, repoRoot)
+      if (!byPath.has(dependency)) continue
+      const consumers = importedBy.get(dependency) ?? new Set()
+      consumers.add(source)
+      importedBy.set(dependency, consumers)
+    }
+  }
+  const affected = new Set(changedSourcePaths)
+  for (const source of affected) {
+    for (const consumer of importedBy.get(source) ?? []) affected.add(consumer)
+  }
+  return affected
+}
+
 function collectDtsDependencyClosure(options) {
   const dtsFileBySourcePath = createDtsFileBySourcePath(options.dtsFiles, options.repoRoot)
   const rootNames = options.targetSourcePaths.map(sourcePath => {
@@ -1072,19 +1135,26 @@ function mergeBundleManifest(command) {
   }
   Object.assign(files, command.targetManifest.files)
   const rebuiltIndex = rebuildClassIndexFromBundleFiles(command.outputDir, files)
+  const manifest = {...command.existingManifest}
+  delete manifest.componentIndex
+  delete manifest.duplicates
 
   return {
-    ...command.existingManifest,
+    ...manifest,
     scannedFileCount: Object.keys(files).length,
     files: sortRecord(files),
     classIndex: sortRecord(rebuiltIndex.classIndex),
     ...(rebuiltIndex.duplicates.length === 0 ? {} : { duplicates: rebuiltIndex.duplicates }),
+    ...(rebuiltIndex.componentIndex === undefined ? {} : {componentIndex: rebuiltIndex.componentIndex}),
   }
 }
 
 function rebuildClassIndexFromBundleFiles(outputDir, files) {
   const classIndex = {}
   const duplicates = []
+  const componentEntries = {}
+  const componentFields = ['name', 'type', 'level', 'layer', 'directory']
+  const componentBuckets = new Map(componentFields.map(field => [field, new Map()]))
   const entries = Object.entries(files).sort(([left], [right]) => left.localeCompare(right))
   for (const [sourcePath, entry] of entries) {
     const shard = readJsonFile(resolve(outputDir, entry.file))
@@ -1102,9 +1172,26 @@ function rebuildClassIndexFromBundleFiles(outputDir, files) {
         sourcePath,
         file: entry.file,
       }
+      const component = shard.models?.[className]?.component
+      if (component === undefined || Object.keys(component).length === 0) continue
+      componentEntries[className] = {className, sourcePath, file: entry.file, component}
+      for (const [field, bucket] of componentBuckets) {
+        const value = component[field]
+        if (!value) continue
+        const names = bucket.get(value) ?? []
+        names.push(className)
+        bucket.set(value, names)
+      }
     }
   }
-  return { classIndex, duplicates }
+  const componentIndex = Object.keys(componentEntries).length === 0 ? undefined : {
+    entries: sortRecord(componentEntries),
+    ...Object.fromEntries([...componentBuckets].map(([field, bucket]) => [
+      `by${field[0].toUpperCase()}${field.slice(1)}`,
+      sortRecord(Object.fromEntries([...bucket].map(([key, names]) => [key, names.sort((left, right) => left.localeCompare(right))]))),
+    ])),
+  }
+  return {classIndex, duplicates, componentIndex}
 }
 
 function writeDtsManifestFromBundleManifest(repoRoot, outputDir, manifest) {

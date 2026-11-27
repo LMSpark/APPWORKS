@@ -26,7 +26,7 @@ export function readDtsManifestSnapshot(manifestPath) {
 }
 
 /**
- * 规划增量 bundle：对照 shard 是否存在 + 源文件 mtime，仅变化项进入投影落盘。
+ * 规划增量 bundle：已发射声明和源文件变化均参与失效，再展开本轮实际依赖。
  */
 export function planIncrementalBundleBuild(command) {
   const emitSourcePaths = [...command.emitSourcePaths].sort((left, right) => left.localeCompare(right))
@@ -56,6 +56,19 @@ export function planIncrementalBundleBuild(command) {
     if (!emitSet.has(resolveClassModelEmitPath(sourcePath))) removedSourcePaths.add(sourcePath)
   }
 
+  if (command.declarationFingerprints !== undefined && (removedSourcePaths.size > 0
+    || emitSourcePaths.some(path => readManifestFileEntry(command.existingManifest, path) === undefined))) {
+    return createFullBuildPlan(emitSourcePaths, command.dtsFiles)
+  }
+
+  if (changedSourcePaths.size > 0 && command.resolveDependentSourcePaths !== undefined) {
+    const affected = command.resolveDependentSourcePaths(changedSourcePaths)
+    if (affected === undefined) return createFullBuildPlan(emitSourcePaths, command.dtsFiles)
+    for (const path of affected) {
+      if (unchangedSourcePaths.delete(path)) changedSourcePaths.add(path)
+    }
+  }
+
   const knownClassNamesBySourcePath = loadKnownClassNamesBySourcePath({
     outputDir: command.outputDir,
     manifest: command.existingManifest,
@@ -81,13 +94,13 @@ export function planIncrementalBundleBuild(command) {
 }
 
 /**
- * 增量计划显示无需重编译时，可跳过内存 declaration emit。
- * config 独有路径（newConfigSourcePaths）不阻断跳过：稳定态下多为 tsconfig 推导幽灵项。
+ * 增量计划仅在已发布分片保持有效且没有新 emit 根时跳过声明编译。
  */
 export function canSkipDeclarationEmit(plan) {
   return plan?.mode === 'incremental'
     && plan.changedSourcePaths.size === 0
     && plan.removedSourcePaths.size === 0
+    && (plan.newConfigSourcePaths?.size ?? 0) === 0
 }
 
 /**
@@ -104,12 +117,10 @@ export function resolveEmitSourcePathsForIncrementalPlan(command) {
 
 /**
  * 将 tsconfig 与 manifest 漂移合并进增量计划（new/removed）。
- * config 独有路径记入 newConfigSourcePaths，不并入 changedSourcePaths，避免阻断 emit 跳过。
+ * config 独有的可发射路径进入 newConfigSourcePaths；间接引用文件以正式 emit 集判定移除。
  */
 export function augmentIncrementalPlanWithConfigDrift(plan, command) {
   if (plan === undefined || plan.mode !== 'incremental') return plan
-  const configSet = new Set(command.configEmitSourcePaths)
-  const manifestFiles = command.existingManifest?.files ?? {}
   const newConfigSourcePaths = new Set(plan.newConfigSourcePaths ?? [])
 
   for (const sourcePath of command.configEmitSourcePaths) {
@@ -123,10 +134,6 @@ export function augmentIncrementalPlanWithConfigDrift(plan, command) {
     if (sourceModifiedAt === undefined) continue
     newConfigSourcePaths.add(sourcePath)
     plan.unchangedSourcePaths.delete(sourcePath)
-  }
-
-  for (const sourcePath of Object.keys(manifestFiles)) {
-    if (!configSet.has(resolveClassModelEmitPath(sourcePath))) plan.removedSourcePaths.add(sourcePath)
   }
 
   plan.newConfigSourcePaths = newConfigSourcePaths
@@ -158,6 +165,8 @@ function isSourceShardUnchanged(command, sourcePath) {
   if (!existsSync(shardPath)) return false
 
   const snapshotEntry = readDtsManifestSnapshotEntry(command.existingDtsManifest, sourcePath)
+  const declarationFingerprint = command.declarationFingerprints?.get(sourcePath)
+  if (declarationFingerprint !== undefined && declarationFingerprint !== snapshotEntry?.declarationFingerprint) return false
   const sourceModifiedAt = readSourceModifiedAtIso({
     repoRoot: command.repoRoot,
     emitSourcePath: sourcePath,
@@ -236,19 +245,23 @@ export function writeDtsManifestSnapshot(command) {
   const entries = {}
   for (const [sourcePath, entry] of Object.entries(command.manifest.files ?? {})) {
     const sourceFile = entry.module?.sourceFile ?? sourceFileFromEmitPath(sourcePath)
+    const emitSourcePath = resolveClassModelEmitPath(sourcePath)
     const sourceModifiedAt = readSourceModifiedAtIso({
       repoRoot: command.repoRoot,
-      emitSourcePath: resolveClassModelEmitPath(sourcePath),
+      emitSourcePath,
       sourceFile,
     })
+    const declarationFingerprint = command.declarationFingerprints?.get(emitSourcePath)
     entries[sourcePath] = {
       sourceFile,
       shardFile: entry.file,
       ...(sourceModifiedAt === undefined ? {} : { sourceModifiedAt }),
+      ...(declarationFingerprint === undefined ? {} : { declarationFingerprint }),
     }
   }
   const snapshot = {
     schemaVersion: DTS_MANIFEST_SCHEMA_VERSION,
+    ...(command.inputFingerprint === undefined ? {} : { inputFingerprint: command.inputFingerprint }),
     entries,
   }
   command.writeFileSync(command.manifestPath, `${JSON.stringify(snapshot, null, 2)}\n`, 'utf8')

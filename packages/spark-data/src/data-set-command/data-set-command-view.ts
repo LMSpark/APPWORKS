@@ -8,6 +8,7 @@ import {isRecord,toErrorMessage} from '@spark-appworks/spark-utils'
 import type {DataSet} from '../dataset'
 import type {DataTable} from '../data-table'
 import {DataViewSaveNotAppliedError, type DataView} from '../data-view'
+import {RequestState} from '../types'
 import type {DataColumn, DataRow, QueryParams} from '../types'
 
 /** 创建时保留字段元数据；重复装配核资源、类型、主键及显式必填/枚举声明。 */
@@ -56,6 +57,11 @@ export async function submitDataSetCommand(view: DataView, input: DataRow, execu
     assertCurrent()
   })
   try {
+    if (view.requestState === RequestState.Idle) {
+      const initial = await view.requestRefresh()
+      assertCurrent()
+      if (initial.refreshStatus !== 'read') throw Error(initial.message ?? 'DATA_SET_COMMAND_NOT_READY: 原命令视图未就绪')
+    }
     const row = await view.addRow(input)
     const key = view.getPkKey(row)
     if (key === undefined) throw Error('DATA_SET_COMMAND_KEY: 暂存命令缺少正式键')

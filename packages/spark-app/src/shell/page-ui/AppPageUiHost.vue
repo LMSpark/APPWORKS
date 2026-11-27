@@ -91,6 +91,9 @@ AI用途：需要理解应用层如何把路由、服务和组件系统组装起
       </div>
 
       <div v-else class="app-page-selector-empty">{{ appPageUiState.selector.emptyText }}</div>
+      <p v-if="appPageUiState.selector.selectionStatus" class="app-page-selector-status" role="status">
+        {{ appPageUiState.selector.selectionStatus }}
+      </p>
     </div>
 
     <template #footer>
@@ -144,6 +147,7 @@ function handleSearchKeywordUpdate(value: string): void {
 }
 
 function toggleSelectorOption(option: PageSelectorOption, checked: boolean): void {
+  appPageUiState.selector.selectionStatus = ''
   const key = String(option.value)
   if (checked) {
     if (!appPageUiState.selector.selectedValues.includes(key)) {
@@ -162,6 +166,7 @@ function handleSelectorCheckboxChange(option: PageSelectorOption, event: Event):
 }
 
 function selectSingleOption(option: PageSelectorOption): void {
+  appPageUiState.selector.selectionStatus = ''
   appPageUiState.selector.selectedValues = [String(option.value)]
 }
 </script>
@@ -231,5 +236,10 @@ function selectSingleOption(option: PageSelectorOption): void {
   padding: 32px 0;
   color: #909399;
   text-align: center;
+}
+
+.app-page-selector-status {
+  margin: 0;
+  color: var(--el-color-warning-dark-2);
 }
 </style>

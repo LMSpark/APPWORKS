@@ -689,12 +689,12 @@
     "packages/spark-app/src/shell/page-ui/AppPageUiHost.vue": {
       "sourceFile": "packages/spark-app/src/shell/page-ui/AppPageUiHost.vue",
       "shardFile": "files/packages/spark-app/src/shell/page-ui/AppPageUiHost.vue.json",
-      "sourceModifiedAt": "2026-11-26T15:32:59.796Z"
+      "sourceModifiedAt": "2026-11-27T03:26:40.065Z"
     },
     "packages/spark-app/src/shell/page-ui/pageUiService.ts": {
       "sourceFile": "packages/spark-app/src/shell/page-ui/pageUiService.ts",
       "shardFile": "files/packages/spark-app/src/shell/page-ui/pageUiService.ts.json",
-      "sourceModifiedAt": "2026-11-26T15:32:59.795Z"
+      "sourceModifiedAt": "2026-11-27T03:26:24.764Z"
     },
     "packages/spark-app/src/shell/plugins/index.ts": {
       "sourceFile": "packages/spark-app/src/shell/plugins/index.ts",

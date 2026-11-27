@@ -1,10 +1,10 @@
 import {afterEach, expect, it, vi} from 'vitest'
-import {config, flushPromises, mount} from '@vue/test-utils'
+import {config, DOMWrapper, flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
 import {DataSet, ensureDataSetResourceView, ensureDataSetStaticInputTable, bindDataSetReadonlyCommandQuery, bindDataSetCommandSubmit} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {appPageUiService, appPageUiState, cancelAppSelector, closeAppSelector, confirmAppSelector} from '@spark-appworks/spark-app'
+import {AppPageUiHost, appPageUiService, appPageUiState, cancelAppSelector, closeAppSelector, confirmAppSelector} from '@spark-appworks/spark-app'
 import {PAGE_RUNTIME, PAGE_SERVICE, RendererForm, Spark, registerAllRenderers, useSparkComponent, type PageSelectorOption} from '@spark-appworks/spark-component'
 import {createTestPageService} from '../../../../../../support/helpers/page-service-host'
 import {createFlowRunCandidatesBinding} from '@/platform-adapters/resources/system/workflow/manage/flow-run-page/query/candidates-binding'
@@ -187,4 +187,125 @@ it('selects directory people through the same standard picker and refuses a late
     expect(f.input.getEditingRow(f.id)?.['nextNode'] ?? f.input.rows[0]?.['nextNode']).toEqual([{NodeId: 'N1', ExecUserList: []}])
     expect(f.dispatch).not.toHaveBeenCalled()
   } finally {f.wrapper.unmount(); f.runtime.dispose()}
+})
+
+function mountSelectorHost() {
+  const wrapper = mount(AppPageUiHost, {
+    attachTo: document.body,
+    global: {plugins: [ElementPlus], stubs: {ElDialog: false, ElButton: false, teleport: false}},
+  })
+  const body = new DOMWrapper(document.body)
+  function dialog() {
+    const rendered = body.findAll('.el-dialog').find(item => item.find('.app-page-selector-body').exists())
+    if (!rendered) throw new Error('未找到原应用壳选择弹窗')
+    return rendered
+  }
+  async function click(label: string) {
+    const control = dialog().findAll('button').find(item => item.text() === label)
+    if (!control) throw new Error(`未找到选择器动作 ${label}`)
+    await control.trigger('click')
+    await flushPromises()
+  }
+  return {wrapper, dialog, click}
+}
+
+it.each([
+  {nodeId: 'N1', previous: ['U1:张三', 'U9:不可解析样本'], returned: ['U1:张三']},
+  {nodeId: 'N2', previous: ['U9:不可解析样本'], returned: []},
+])('keeps unresolved original people on ordinary confirmation for $nodeId', async ({nodeId, previous, returned}) => {
+  const f = await fixture(false, nodeId, true), host = mountSelectorHost()
+  try {
+    const before = [{NodeId: nodeId, ExecUserList: previous}]
+    f.input.updateEditingValue(f.id, 'nextNode', before)
+    await flushPromises()
+    const changes = vi.fn()
+    f.input.events.on('editingFieldChanged', changes)
+    try {
+      await f.wrapper.get('.primary-action-button').trigger('click')
+      await flushPromises()
+      expect(appPageUiState.selector.options.map(item => item.value)).toEqual(returned)
+      expect(appPageUiState.selector.selectedValues).toEqual(previous)
+      expect(host.dialog().text()).not.toContain('U9:不可解析样本')
+      if (returned.length === 0) expect(host.dialog().text()).toContain('暂无可选项')
+      await host.click('确定')
+      expect(f.dispatch).not.toHaveBeenCalled()
+      expect({visible: appPageUiState.selector.visible, value: f.input.getEditingRow(f.id)?.['nextNode'], writeEvents: changes.mock.calls.length})
+        .toEqual({visible: true, value: before, writeEvents: 0})
+      expect(appPageUiState.selector.selectedValues).toEqual(previous)
+      expect(appPageUiState.selector.options.map(item => item.value)).toEqual(returned)
+      expect(host.dialog().get('[role="status"]').text()).toContain('原选择中有当前候选无法核对的项')
+      expect(host.dialog().text()).not.toContain('U9:不可解析样本')
+    } finally {f.input.events.off('editingFieldChanged', changes)}
+  } finally {
+    f.wrapper.unmount()
+    host.wrapper.unmount()
+    closeAppSelector()
+    f.runtime.dispose()
+  }
+})
+
+it('preserves an original unresolved person on actual cancel and explicitly clears the field', async () => {
+  const f = await fixture(false, 'N1', true), host = mountSelectorHost()
+  try {
+    const before = [{NodeId:'N1', ExecUserList:['U1:张三','U9:不可解析样本']}]
+    f.input.updateEditingValue(f.id, 'nextNode', before)
+    await flushPromises()
+    await f.wrapper.get('.primary-action-button').trigger('click')
+    await flushPromises()
+    await host.click('取消')
+    expect(f.input.getEditingRow(f.id)?.['nextNode']).toEqual(before)
+    await f.wrapper.get('.clear-action-button').trigger('click')
+    await flushPromises()
+    expect(f.input.getEditingRow(f.id)?.['nextNode']).toEqual([{NodeId:'N1', ExecUserList:[]}])
+    expect(f.dispatch).not.toHaveBeenCalled()
+  } finally {
+    f.wrapper.unmount()
+    host.wrapper.unmount()
+    closeAppSelector()
+    f.runtime.dispose()
+  }
+})
+
+it('uses the explicitly chosen replacement in the actual single selector dialog', async () => {
+  const host = mountSelectorHost()
+  try {
+    const result = appPageUiService.selectEntities({
+      currentValue: 'U9:不可解析样本',
+      options: [{label: '新候选', value: 'U1:张三'}],
+    })
+    await flushPromises()
+    const choice = host.dialog().get('input[type="radio"]')
+    expect(choice.attributes('checked')).toBeUndefined()
+    await host.click('确定')
+    expect(host.dialog().get('[role="status"]').text()).toContain('原选择中有当前候选无法核对的项')
+    await choice.setValue(true)
+    expect(host.dialog().find('[role="status"]').exists()).toBe(false)
+    await host.click('确定')
+    await expect(result).resolves.toEqual([{label: '新候选', value: 'U1:张三'}])
+  } finally {
+    host.wrapper.unmount()
+    closeAppSelector()
+  }
+})
+it('confirms an initially empty selection and an explicitly unchecked visible option', async () => {
+  const host = mountSelectorHost()
+  try {
+    const initiallyEmpty = appPageUiService.selectEntities({multiple: true, currentValue: [], options: []})
+    await flushPromises()
+    await host.click('确定')
+    await expect(initiallyEmpty).resolves.toEqual([])
+
+    const visible = appPageUiService.selectEntities({
+      multiple: true,
+      currentValue: ['U1:张三'],
+      options: [{label: '张三', value: 'U1:张三'}],
+    })
+    await flushPromises()
+    await host.dialog().get('input[type="checkbox"]').setValue(false)
+    await host.click('确定')
+    await expect(visible).resolves.toEqual([])
+  } finally {
+    host.wrapper.unmount()
+    closeAppSelector()
+  }
 })

@@ -36,6 +36,7 @@ type SelectorState = {
   cancelText: string
   emptyText: string
   searchKeyword: string
+  selectionStatus: string
   options: PageSelectorOption[]
   selectedValues: string[]}
 
@@ -61,6 +62,7 @@ const selectorState = reactive<SelectorState>({
   cancelText: '取消',
   emptyText: '暂无可选项',
   searchKeyword: '',
+  selectionStatus: '',
   options: [],
   selectedValues: [],
 })
@@ -92,6 +94,7 @@ async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageS
   selectorState.cancelText = options.cancelText ?? '取消'
   selectorState.emptyText = options.emptyText ?? '暂无可选项'
   selectorState.searchKeyword = ''
+  selectorState.selectionStatus = ''
   selectorState.options = options.options?.slice() ?? []
   selectorState.selectedValues = normalizeSelectorKeys(options.currentValue)
   return await new Promise<PageSelectorResult>((resolve) => {
@@ -137,6 +140,7 @@ function resolveSelector(result: PageSelectorResult): void {
   selectorResolver = null
   selectorState.visible = false
   selectorState.searchKeyword = ''
+  selectorState.selectionStatus = ''
   selectorState.options = []
   selectorState.selectedValues = []
   if (resolver) resolver(result)
@@ -165,9 +169,15 @@ export function closeAppDialog(): void {
 }
 
 export function confirmAppSelector(): void {
-  const selected = selectorState.selectedValues
-    .map((selectedValue) => selectorState.options.find((option: PageSelectorOption) => String(option.value) === selectedValue) ?? null)
-    .filter((option): option is PageSelectorOption => option !== null)
+  const selected: PageSelectorOption[] = []
+  for (const value of selectorState.selectedValues) {
+    const option = selectorState.options.find(candidate => String(candidate.value) === value)
+    if (!option) {
+      selectorState.selectionStatus = '原选择中有当前候选无法核对的项。请核对原值后再确认。'
+      return
+    }
+    selected.push(option)
+  }
   resolveSelector(selectorState.multiple ? selected : selected.slice(0, 1))
 }
 

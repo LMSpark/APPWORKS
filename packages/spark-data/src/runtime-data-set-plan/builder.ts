@@ -235,33 +235,18 @@ function planViewsAndFields(input: BuildRuntimeDataSetPlanInput, modelsById: Rea
       const cascadeDependencies: RuntimeDataSetPlanDependency[] = []
       const dependentFilters: RuntimePlanFilter[] = []
       for (const [cascadeIndex, rawCascade] of cascades.entries()) {
-        if (!isRecord(rawCascade)) continue
-        if (rawCascade['kind'] === 'field') continue
-        if (rawCascade['childTable'] !== tableName || rawCascade['childViewId'] !== viewId) continue
-        const inputBindings = rawCascade['inputBindings']
-        if (inputBindings !== undefined && (!Array.isArray(inputBindings) || inputBindings.length > 0)) {
-          throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}].inputBindings: ${tableName}@${viewId} 不支持查询输入级联（场景 ${input.scenarioId}）`)
-        }
-        if (rawCascade['autoLoad'] === false) {
-          throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}].autoLoad: ${tableName}@${viewId} 不支持手动查询级联（场景 ${input.scenarioId}）`)
-        }
-        const bindings = rawCascade['filterBindings']
-        if (!Array.isArray(bindings)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}]: filterBindings 无效`)
+        if (!isPlanQueryCascadeForView(rawCascade, tableName, viewId)) continue
+        const bindings = requirePlanQueryCascadeBindings(rawCascade, cascadeIndex, input.scenarioId)
         const parentViewRecordId = viewIdentity.get(JSON.stringify([rawCascade['parentTable'], rawCascade['parentViewId']]))
         if (!parentViewRecordId) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}]: 源视图不存在`)
         const parentTable = text(rawCascade['parentTable']), parentView = tableViewsByName(configTables, parentTable)
         const parentBinding = parentView?.['modelBinding']
         if (!isRecord(parentBinding)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}]: 源模型无效`)
         for (const [bindingIndex, dependencyBinding] of bindings.entries()) {
-          if (!isRecord(dependencyBinding)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.viewCascades[${cascadeIndex}]: 绑定无效`)
           const dependKey = `${text(rawCascade['cascadeId']) || `cascade-${cascadeIndex}`}-${bindingIndex}`
           const sourceField = text(dependencyBinding['sourceField'])
-          const targetField = identity(dependencyBinding['targetField'], `viewCascades[${cascadeIndex}].filterBindings[${bindingIndex}].targetField`)
+          const targetField = text(dependencyBinding['targetField'])
           const configuredOperator = dependencyBinding['operator']
-          if (configuredOperator !== undefined && configuredOperator !== 'eq' && configuredOperator !== 'in') {
-            const path = `viewCascades[${cascadeIndex}].filterBindings[${bindingIndex}].operator`
-            throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}: ${tableName}@${viewId}.${targetField} 不支持 ${String(configuredOperator)}（场景 ${input.scenarioId}）`)
-          }
           const source = configuredOperator === 'in' || (configuredOperator === undefined && sourceField === '') ? 'In' : 'Equal'
           cascadeDependencies.push({
             dependKey, sourceDataViewId: parentViewRecordId,
@@ -348,15 +333,55 @@ function assertPlanViewDefaults(view: RuntimePlanRecord, viewIdentity: string): 
   }
 }
 
-/** 核同一工作场景的视图默认查询配置可由 Plan v1 表达，用于已有 Plan 的新发布。 */
+function isPlanQueryCascadeForView(cascade: unknown, tableName: string, viewId: string): cascade is RuntimePlanRecord {
+  return isRecord(cascade) && cascade['kind'] !== 'field'
+    && cascade['childTable'] === tableName && cascade['childViewId'] === viewId
+}
+
+/** 生成与发布共用同一套 Plan v1 查询级联表达检查。 */
+function requirePlanQueryCascadeBindings(cascade: RuntimePlanRecord, index: number, scenarioId: string): RuntimePlanRecord[] {
+  const path = `viewCascades[${index}]`
+  const view = `${text(cascade['childTable'])}@${text(cascade['childViewId'])}`
+  const inputs = cascade['inputBindings']
+  if (inputs !== undefined && (!Array.isArray(inputs) || inputs.length > 0)) {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}.inputBindings: ${view} 不支持查询输入级联（场景 ${scenarioId}）`)
+  }
+  if (cascade['autoLoad'] === false) {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}.autoLoad: ${view} 不支持手动查询级联（场景 ${scenarioId}）`)
+  }
+  const when = cascade['when']
+  if (when !== undefined && (!Array.isArray(when) || when.length > 0)) {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}.when: ${view} 不支持条件查询级联（场景 ${scenarioId}）`)
+  }
+  const bindings = cascade['filterBindings']
+  if (!Array.isArray(bindings)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}: filterBindings 无效`)
+  return bindings.map((binding: unknown, bindingIndex) => {
+    if (!isRecord(binding)) throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${path}: 绑定无效`)
+    const bindingPath = `${path}.filterBindings[${bindingIndex}]`
+    const targetField = identity(binding['targetField'], `${bindingPath}.targetField`)
+    const operator = binding['operator']
+    if (operator !== undefined && operator !== 'eq' && operator !== 'in') {
+      throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.${bindingPath}.operator: ${view}.${targetField} 不支持 ${String(operator)}（场景 ${scenarioId}）`)
+    }
+    return binding
+  })
+}
+
+/** 核工作场景的视图默认查询配置和查询级联可由 Plan v1 表达，用于已有 Plan 的新发布。 */
 export function assertRuntimeDataSetPlanViewDefaults(input: Pick<BuildRuntimeDataSetPlanInput, 'scenarioId' | 'scenarioConfig'>): void {
   const tables = input.scenarioConfig['tables']
   if (!isRecord(tables)) return
+  const rawCascades = input.scenarioConfig['viewCascades']
+  const cascades: readonly unknown[] = Array.isArray(rawCascades) ? rawCascades : []
   for (const [tableName, table] of Object.entries(tables)) {
     if (!isRecord(table) || table['resourceType'] === 'file' || table['resourceType'] === 'command'
       || !isRecord(table['modelBinding']) || !isRecord(table['views'])) continue
     for (const [viewId, view] of Object.entries(table['views'])) {
-      if (isRecord(view)) assertPlanViewDefaults(view, `${input.scenarioId} ${tableName}@${viewId}`)
+      if (!isRecord(view)) continue
+      assertPlanViewDefaults(view, `${input.scenarioId} ${tableName}@${viewId}`)
+      for (const [index, cascade] of cascades.entries()) {
+        if (isPlanQueryCascadeForView(cascade, tableName, viewId)) requirePlanQueryCascadeBindings(cascade, index, input.scenarioId)
+      }
     }
   }
 }

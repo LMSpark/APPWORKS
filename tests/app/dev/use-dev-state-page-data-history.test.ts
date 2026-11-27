@@ -914,7 +914,17 @@ describe('tool and shared scenario editing owners',()=>{
    return {assembled, sources}
   }
 
+  const materializeCascade = (options: Record<string, unknown>) => {
+   const scenario=JSON.parse(fixtureText(20))
+   scenario.viewCascades=[{kind:'query',cascadeId:'orders-parent',parentTable:'Orders',parentViewId:'detail',childTable:'Orders',childViewId:'default',
+    filterBindings:[{sourceField:'id',targetField:'id',operator:'eq'}],...options}]
+   return JSON.stringify(scenario)
+  }
   const unsupportedPlanDefaults = [
+   {member:'viewCascades input bindings',working:materializeCascade({inputBindings:[{sourceField:'id',target:'queryContext.parentId'}]}),error:'不支持查询输入级联'},
+   {member:'viewCascades manual trigger',working:materializeCascade({autoLoad:false}),error:'不支持手动查询级联'},
+   {member:'viewCascades text match',working:materializeCascade({filterBindings:[{sourceField:'id',targetField:'id',operator:'contains'}]}),error:'Orders@default.id 不支持 contains'},
+   {member:'viewCascades when',working:materializeCascade({when:[{field:'id',equals:'READY'}]}),error:'不支持条件查询级联'},
    {member:'queryConfig.fields',working:explicitFieldsText,error:'不支持保存显式 queryConfig.fields'},
    {member:'queryConfig.maxRows',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"queryConfig":{"allPages":true,"maxRows":1}'),error:'不支持保存非默认 queryConfig.maxRows'},
    {member:'queryContext',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"queryContext":{"region":"north"}'),error:'不支持保存非空 queryContext'},
@@ -923,7 +933,7 @@ describe('tool and shared scenario editing owners',()=>{
   ]
   it.each(unsupportedPlanDefaults.flatMap(definition=>
    (['initial','assembly','pointer'] as const).map(phase=>({...definition,phase}))
-  ))('rejects the stored Plan when $member is found at $phase',async ({phase,working,error})=>{
+  ))('rejects the stored Plan when $member is found at $phase',async ({member,phase,working,error})=>{
    configurePublicationSources('Dataset Plan')
    const {page,state,save,wrapper}=await openPublication('[]')
    expect(working).not.toBe(fixtureText(20))
@@ -954,7 +964,11 @@ describe('tool and shared scenario editing owners',()=>{
     page.actions.value.saveDelivery()
     const status=()=>state.statusMessages.value.map(message=>message.text).join(' ')
     await vi.waitFor(()=>expect(status()).toMatch(/交付保存失败|发布指针已一次切换并读回/))
-    expect(status()).toContain(`scene Orders@default ${error}`)
+    if(member.startsWith('viewCascades')){
+     expect(status()).toContain('Orders@default')
+     expect(status()).toContain(`场景 scene`)
+     expect(status()).toContain(error)
+    }else expect(status()).toContain(`scene Orders@default ${error}`)
     expect(savedVersions.has('orders-page-node')).toBe(false)
     expect(scenarioVersions.size).toBe(0)
     expect(httpPut).not.toHaveBeenCalled()

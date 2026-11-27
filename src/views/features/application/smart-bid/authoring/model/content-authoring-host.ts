@@ -44,14 +44,14 @@ export type ContentAuthoringBinding = Readonly<{
  readOriginalAdoption:(selection:ContentAdoptionSelection)=>ReturnType<typeof readContentAdoption>
 }>
 
+function hasRequiredEquality(filter:DataViewFilterTree,field:string,matches:(value:unknown)=>boolean):boolean {
+ if('logic' in filter)return filter.logic==='and'&&filter.filters.some(child=>hasRequiredEquality(child,field,matches))
+ return filter.field===field&&filter.operator==='eq'&&matches(filter.value)
+}
 function scoped(view:DataView, field:string, parameter:string):boolean {
- const includes=(node:DataViewFilterTree):boolean=>{
-  if('logic' in node)return node.logic==='and' && node.filters.some(includes)
-  const value=node.value
-  return node.field===field && node.operator==='eq' && isRecord(value)
-   && value['Type']==='GetInputParam' && value['ParamName']===parameter
- }
- return view.scopeFilter!==undefined && includes(view.scopeFilter)
+ const filter=view.scopeFilter
+ return filter!==undefined&&hasRequiredEquality(filter,field,value=>isRecord(value)
+  &&value['Type']==='GetInputParam'&&value['ParamName']===parameter)
 }
 function validScope(project:DataView,draft:DataView):boolean {
  return project.dataTable?.modelBinding?.modelName==='ContentProject'
@@ -62,10 +62,12 @@ function readableProject(view:DataView,projectId:string):boolean {
  const row=view.rows[0]
  return hasCompleteSingleContentResult(view)&&row?.['projectId']===projectId&&view.fieldAccess(row,'projectId').read==='visible'
 }
-function readableOwnDraft(view:DataView,target:ContentAuthoringTarget,actorUserId:string):boolean {
- const row=view.getEditingRow(target.draftId)
- return row?.['projectId']===target.projectId&&row['userId']===actorUserId&&
-  view.fieldAccess(row,'projectId').read==='visible'&&view.fieldAccess(row,'userId').read==='visible'
+function readOwnDraft(view:DataView,target:ContentAuthoringTarget,actorUserId:string) {
+ const row=view.rows[0]
+ if(hasCompleteSingleContentResult(view)&&row!==undefined&&view.getPkKey(row)===target.draftId&&
+  row['projectId']===target.projectId&&row['userId']===actorUserId&&
+  [view.primaryKey,'projectId','userId','draft'].every(field=>view.fieldAccess(row,field).read==='visible'))return row
+ return undefined
 }
 
 /** 一次正文编制宿主；未保存输入/原视图编辑均阻止换目标，过期装配不能发布新绑定。 */
@@ -101,7 +103,7 @@ export class ContentAuthoringHost {
  get binding():ContentAuthoringBinding|undefined{return this.#binding}
  get hasPending():boolean{return this.#pending || (this.borrowedRuntime??this.#session.runtime)?.isDirty===true}
 
- /** 装配正式空间并只查询本次项目与作者的视图；目标或认证代次变化创建新实例。 */
+ /** 装配正式空间，按本次项目、认证作者和正式草稿键查询；目标或认证代次变化创建新实例。 */
  async open(input:ContentAuthoringTarget,tool?:PageTool):Promise<ContentAuthoringBinding> {
   const target=Object.freeze({...input})
   if((['applicationId','pageId','scenarioId','projectId','draftId'] as const).some(name=>{
@@ -134,30 +136,40 @@ export class ContentAuthoringHost {
     &&(borrowed!==undefined||this.#session.isCurrent(runtime))
    const projectKey=buildDataViewKey('ContentProject','selectedProject',target.scenarioId)
    const draftKey=buildDataViewKey('WorkingDraft','personalDraft',target.scenarioId)
-   let views:DataView[]=[],loaded=false
-   const assertCurrent=()=>{
+   let views:DataView[]=[]
+   const assertScope=()=>{
     session.assertCurrent()
     const [project,draft]=views
     if(own!==this.#generation||!runtimeCurrent()
      ||views.some(view=>view.queryContext['projectId']!==target.projectId||view.queryContext['currentUserId']!==actorUserId)
      ||views.length>0 && (!project||!draft||runtime.resolveView(projectKey)!==project
-      ||runtime.resolveView(draftKey)!==draft||!validScope(project,draft))
-     ||loaded && (!project||!draft||project.loadingError||draft.loadingError||
-      !readableProject(project,target.projectId)||!readableOwnDraft(draft,target,actorUserId)))
+      ||runtime.resolveView(draftKey)!==draft||!validScope(project,draft)))
      throw Error('CONTENT_AUTHORING_STALE: 正文编制的会话或目标已失效')
    }
-   assertCurrent()
+   assertScope()
    const project=runtime.resolveView(projectKey)
    const draft=runtime.resolveView(draftKey)
    if(!project||!draft||!validScope(project,draft))
     throw Error('CONTENT_AUTHORING_SCOPE_REQUIRED: 缺少项目或当前作者的正式常驻范围')
-   views=[project,draft];assertCurrent()
-   await Promise.all(views.map(view=>view.refresh()));assertCurrent()
+   views=[project,draft];assertScope()
+   const originalKey:DataViewFilterTree={field:draft.primaryKey,operator:'eq',value:target.draftId}
+   const existingFilter=draft.filterExpression
+   if(!existingFilter||!hasRequiredEquality(existingFilter,draft.primaryKey,value=>value===target.draftId)){
+    draft.filterExpression=existingFilter?{logic:'and',filters:[existingFilter,originalKey]}:originalKey
+   }
+   await Promise.all(views.map(view=>view.refresh()));assertScope()
    const failed=views.find(view=>view.loadingError)
    if(failed?.loadingError)throw failed.loadingError
-   if(!readableProject(project,target.projectId)||!readableOwnDraft(draft,target,actorUserId))
+   const draftRow=readOwnDraft(draft,target,actorUserId)
+   if(!readableProject(project,target.projectId)||!draftRow)
     throw Error('CONTENT_AUTHORING_TARGET_UNAVAILABLE: 本项目或当前作者的指定草稿不可读取')
-   loaded=true
+   const assertDraftRead=draft.captureReadRow(draftRow,[draft.primaryKey,'projectId','userId'])
+   const assertCurrent=()=>{
+    assertScope()
+    if(project.loadingError||draft.loadingError||!readableProject(project,target.projectId)||!readOwnDraft(draft,target,actorUserId))
+     throw Error('CONTENT_AUTHORING_STALE: 正文编制的会话或目标已失效')
+    assertDraftRead()
+   }
    const binding:ContentAuthoringBinding=Object.freeze({runtime,
     dataViewKey:draftKey,
     projectId:target.projectId,draftId:target.draftId,actorUserId,assertCurrent,

@@ -85,6 +85,10 @@ it('loads the original views with fixed project and trusted session-author input
  const filters=f.queries.mock.calls.map(([,params])=>JSON.stringify(params.filter))
  expect(filters.join(' ')).toContain('projectId')
  expect(filters.join(' ')).toContain('userId')
+ const draftFilter=f.queries.mock.calls.find(([view])=>view.dataTable?.modelBinding?.modelName==='WorkingDraft')?.[1].filter
+ expect(draftFilter).toMatchObject({logic:'and',filters:expect.arrayContaining([
+  {field:'draftId',operator:'eq',value:'D'},
+ ])})
  binding.assertCurrent();host.close()
 })
 it('rejects a partial project result even when the only loaded row matches the requested project',async()=>{

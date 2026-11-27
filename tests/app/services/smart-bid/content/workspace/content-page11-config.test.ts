@@ -1,5 +1,5 @@
 import {expect,it,vi} from 'vitest'
-import {DataSet,DataSpaceQueryContext,DataSpaceQueryTable,type SparkNode} from '@spark-appworks/spark-data'
+import {DataSpaceQueryContext,DataSpaceQueryTable,type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime,PageTool} from '@spark-appworks/spark-project-model'
 import {buildPageService} from '@spark-appworks/spark-component'
 import {createMemoryHistory,createRouter} from 'vue-router'
@@ -44,8 +44,8 @@ function context(overrides:Partial<ActionExecutionContext>={}):ActionExecutionCo
  }
 }
 
-it('uses declarative DataView bindings instead of page script handlers',()=>{
- expect(script.trim()).toBe('')
+it('uses the original DataView and gates its standard form and cancel button on the authoring host',()=>{
+ expect(script).toContain("$page.invokeHostCommand('content.authoring.connect')")
  expect(rule[0]).toMatchObject({
   type:'r-section',
   props:{title:'标书正文编制'},
@@ -56,11 +56,16 @@ it('uses declarative DataView bindings instead of page script handlers',()=>{
   props:{
    dataViewKey:'D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft',
    dataMember:'currentRow',
+   contextRowId:{$route:'draftId'},
+   onBeforeRender:'bindDraftForm',
   },
  })
  expect(buttons(rule).map(node=>node.props?.['label'])).toEqual(expect.arrayContaining([
   '取消本次草稿编辑','查看分册策划依据','预演候选变更','重查原保存结果',
  ]))
+ const cancel=buttons(rule).find(item=>item.props?.['label']==='取消本次草稿编辑')
+ expect(cancel?.props).toMatchObject({onBeforeRender:'bindDraftCancel',onClick:'cancelDraft'})
+ expect(cancel?.props).not.toHaveProperty('action')
 })
 
 it('dispatches the original-save lookup through the standard host-command action',async()=>{
@@ -79,26 +84,6 @@ it('dispatches the original-save lookup through the standard host-command action
  })
  expect(assertCurrent).toHaveBeenCalledOnce()
  expect(showAlert).toHaveBeenCalledWith(expect.any(String),'原保存结果',{})
-})
-
-it('routes cancellation through the standard DataView discard action',async()=>{
- const dataSet=DataSet.fromJson({scenarioId:'D3BBA1F0780056C837AC35E9825CAD5A',tables:{WorkingDraft:{
-  tableName:'WorkingDraft',columns:[{name:'id',isPrimaryKey:true}],views:{
-   default:{},personalDraft:{rows:[{id:'D'}]},
-  },
- }}})
- const view=dataSet.getView('WorkingDraft','personalDraft')
- if(!view)throw Error('TEST_WORKING_DRAFT_VIEW_REQUIRED')
- view.setCurrentRow(view.rows[0]!)
- vi.spyOn(view,'hasEditingChanges').mockReturnValue(true)
- const discardPendingChanges=vi.spyOn(view,'discardPendingChanges').mockReturnValue(1)
- const action=descriptor('取消本次草稿编辑')
- await executeActionDescriptor(action,context({
-  resolveView:key=>key==='D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft'?view:null,
-  getPageService:()=>({showMessage:vi.fn()}) as never,
- }))
- expect(discardPendingChanges).toHaveBeenCalledExactlyOnceWith(['D'])
- dataSet.destroy()
 })
 
 const auth=vi.hoisted(()=>({applicationId:'D8490EC99436A8B9AFDE205BE3153802',token:'candidate-test-session'}))

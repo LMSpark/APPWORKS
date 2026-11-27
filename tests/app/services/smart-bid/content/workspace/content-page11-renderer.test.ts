@@ -46,8 +46,9 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
   views:{default:{},personalDraft:{commitMode:'staged'}}}}})
  const view=ds.getView('WorkingDraft','personalDraft')!,table=new DataSpaceQueryTable({scenarioId,metaName:'WorkingDraft'})
  const row={[primaryKey]:'D',projectId:'P',userId:'U',draft:JSON.stringify({nodes,responseChanges:[]})}
- const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:primaryKey,data:{Count:1,
-  Items:[{...row,lingma_sys_params:{r:[],e:editable?['draft']:[],h:[],m:[],d:false}}]}}})}))
+ const neighbor={...row,[primaryKey]:'NEIGHBOR',draft:JSON.stringify({nodes:[],responseChanges:[]})}
+ const query=vi.fn(async()=>new DataSpaceQueryContext({identity:table.identity,scope:'q',readScope:()=> 'q',snapshot:table.applyResult({Result:{primaryKeyField:primaryKey,data:{Count:2,
+  Items:[neighbor,row].map(item=>({...item,lingma_sys_params:{r:[],e:editable?['draft']:[],h:[],m:[],d:false}}))}}})}))
  const save=vi.fn(async()=>{throw Error('NO_WRITE')})
  view.queryContext={projectId:'P',currentUserId:'U'};view.bindQueryExecutor({executeQuery:query,save});await view.refresh()
  for(const [model,viewName] of [['ContentProject','selectedProject'],['SubmissionObligation','originalBaselineObligations']] as const){
@@ -98,18 +99,31 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
   project.queryConfig=queryConfig
  }
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/',component:defineComponent({render:()=>h('div')})}]})
- await router.push('/?projectId=P&draftId=D');await router.isReady()
+ const path=hasHost?'/?projectId=P&draftId=D':'/'
+ await router.push(path);await router.isReady()
  const previous={...config.global.stubs},stubs={...previous}
  for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key]
  config.global.stubs=stubs
  const errors=vi.fn()
- const wrapper=mount(SparkPageRenderer,{attachTo:document.body,props:{pageRuntime:runtime,...(host?{host}:{}),
-  routeSnapshot:{path:'/',fullPath:'/?projectId=P&draftId=D',name:null,params:{},query:{projectId:'P',draftId:'D'},hash:''},onError:errors,onRuntimeError:errors},
+ let unblock:()=>void=()=>{}
+ const pending=new Promise<void>(resolve=>{unblock=resolve})
+ const delayedHost=host?{...host,async invoke(...args:Parameters<typeof host.invoke>){
+  await pending
+  return host.invoke(...args)
+ }}:undefined
+ const wrapper=mount(SparkPageRenderer,{attachTo:document.body,props:{pageRuntime:runtime,...(delayedHost?{host:delayedHost}:{}),
+  routeSnapshot:{path:'/',fullPath:path,name:null,params:{},query:hasHost?{projectId:'P',draftId:'D'}:{},hash:''},onError:errors,onRuntimeError:errors},
   global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
  try{
   await flushPromises()
   expect(errors).not.toHaveBeenCalled()
-  expect(wrapper.text()).toContain('标书正文编制');expect(wrapper.text()).toContain('实施方案')
+  expect(wrapper.text()).toContain('标书正文编制')
+  expect(wrapper.text()).not.toContain('正文内容')
+  expect(wrapper.text()).not.toContain('取消本次草稿编辑')
+  unblock()
+  if(!hasHost)return
+  await vi.waitFor(()=>expect(wrapper.text()).toContain('实施方案'))
+  expect(view.currentRow?.[primaryKey]).toBe('NEIGHBOR')
   expect(wrapper.text()).toContain('逻辑册');expect(wrapper.text()).toContain('章节');expect(wrapper.text()).toContain('标题')
   if(hasHost&&!editable)expect(wrapper.text()).not.toContain('保存全部')
   const identityField=wrapper.findAll('.el-form-item').find(item=>item.text().includes('工作草稿'))
@@ -124,12 +138,22 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
   expect(query).toHaveBeenCalledTimes(1);expect(save).not.toHaveBeenCalled();expect(runtime.isDirty).toBe(false)
   expect(runtime.getDataSet(scenarioId)).toBe(ds)
   if(editable){
-   expect(wrapper.findAll('button').some(item=>item.text()==='取消本次草稿编辑')).toBe(true)
-    expect(wrapper.findAllComponents({name:'JsonTreeEditor'}).length).toBeGreaterThan(0)
-    expect(save).not.toHaveBeenCalled()
+   const changed=JSON.stringify({nodes:[],responseChanges:[{}]})
+   view.updateEditingValue('D','draft',changed)
+   view.updateEditingValue('NEIGHBOR','draft',changed)
+   await flushPromises()
+   const cancel=wrapper.findAll('button').find(item=>item.text()==='取消本次草稿编辑')
+   if(!cancel)throw Error('原草稿确认后缺少取消按钮')
+   expect(cancel.attributes('disabled')).toBeUndefined()
+   await cancel.trigger('click');await flushPromises()
+   expect(view.hasEditingChanges('D')).toBe(false)
+   expect(view.hasEditingChanges('NEIGHBOR')).toBe(true)
+   expect(save).not.toHaveBeenCalled()
+   view.discardPendingChanges(['NEIGHBOR'])
   }
   await view.refresh();await flushPromises()
-  expect(wrapper.text()).toContain('正文内容')
+  expect(wrapper.text()).not.toContain('正文内容')
+  expect(wrapper.text()).not.toContain('取消本次草稿编辑')
   expect(errors).not.toHaveBeenCalled()
- }finally{wrapper.unmount();commands?.dispose();runtime.dispose();config.global.stubs=previous}
+ }finally{unblock();wrapper.unmount();commands?.dispose();runtime.dispose();config.global.stubs=previous}
 })

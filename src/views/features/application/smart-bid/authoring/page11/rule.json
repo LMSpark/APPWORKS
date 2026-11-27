@@ -5,7 +5,7 @@
     "children":[
       {"type":"r-toolbar","props":{"dataViewKey":"D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft","dataMember":"currentRow","wrap":true},
         "children":[
-          {"type":"r-button","props":{"label":"取消本次草稿编辑","action":"discard-changes","target":"current","dataViewKey":"D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft","successMessage":"已取消本次草稿编辑"}},
+          {"type":"r-button","props":{"label":"取消本次草稿编辑","onBeforeRender":"bindDraftCancel","onClick":"cancelDraft"}},
           {"type":"r-button","props":{"label":"查看分册策划依据","action":"host-command","command":"content.authoring.readObligations","input":{},"resultAlertTitle":"分册策划依据"}},
           {"type":"r-button","props":{"label":"核对原表映射","action":"host-command","command":"content.authoring.readOriginalForm","input":{"templateRef":{"$route":"formTemplateRef"},"templateVersion":{"$route":"formTemplateVersion"}},"routeQueryRequired":["formTemplateRef","formTemplateVersion"],"resultAlertTitle":"原表映射"}},
           {"type":"r-button","props":{"label":"核对换表差异","action":"host-command","command":"content.authoring.compareOriginalForms","input":{"templateRef":{"$route":"formTemplateRef"},"previousVersion":{"$route":"previousFormTemplateVersion"},"currentVersion":{"$route":"formTemplateVersion"}},"routeQueryRequired":["formTemplateRef","previousFormTemplateVersion","formTemplateVersion"],"resultAlertTitle":"换表差异"}},
@@ -17,7 +17,7 @@
           {"type":"r-button","props":{"label":"重查原保存结果","action":"host-command","command":"content.authoring.readOriginalSave","input":{"requestKey":{"$route":"saveRequestKey"},"requestDigest":{"$route":"saveRequestDigest"},"contentDigest":{"$route":"saveContentDigest"},"expectedDraftVersion":{"$route":"saveExpectedDraftVersion"}},"routeQueryRequired":["saveRequestKey","saveRequestDigest","saveContentDigest"],"resultAlertTitle":"原保存结果","errorMessage":"原保存结果无法核验"}}
         ]
       },
-      {"id":"original-draft","type":"r-form","props":{"dataViewKey":"D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft","dataMember":"currentRow","autoColumns":false},
+      {"id":"original-draft","type":"r-form","props":{"dataViewKey":"D3BBA1F0780056C837AC35E9825CAD5A@WorkingDraft@personalDraft","dataMember":"currentRow","contextRowId":{"$route":"draftId"},"onBeforeRender":"bindDraftForm","autoColumns":false},
         "children":[
           {"type":"r-text","props":{"label":"工作草稿","readonly":true,"value":"当前个人草稿"}},
           {"type":"r-json","props":{"label":"正文大纲","field":"draft","dataMember":"currentRow","valueFormat":"text","valuePath":["nodes"],"mode":"outline","outlineIdField":"nodeId","outlineParentField":"parentId","outlineRootValue":{"$route":"projectId"},"readonly":true},"children":[

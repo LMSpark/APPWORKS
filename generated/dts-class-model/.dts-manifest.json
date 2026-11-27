@@ -6294,7 +6294,7 @@
     "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts",
       "shardFile": "files/src/views/features/application/smart-bid/authoring/model/content-authoring-host.ts.json",
-      "sourceModifiedAt": "2026-11-23T08:02:15.310Z"
+      "sourceModifiedAt": "2026-11-27T05:02:16.019Z"
     },
     "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts": {
       "sourceFile": "src/views/features/application/smart-bid/authoring/model/content-baseline-reader.ts",

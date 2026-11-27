@@ -239,7 +239,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T08:02:15.310Z",
+  "generatedAt": "2026-11-27T05:02:16.019Z",
   "models": {
     "ContentAuthoringTarget": {
       "name": "ContentAuthoringTarget",
@@ -593,7 +593,7 @@
           "methods": [
             {
               "name": "open",
-              "jsdoc": "装配正式空间并只查询本次项目与作者的视图；目标或认证代次变化创建新实例。",
+              "jsdoc": "装配正式空间，按本次项目、认证作者和正式草稿键查询；目标或认证代次变化创建新实例。",
               "parameters": [
                 {
                   "name": "input",

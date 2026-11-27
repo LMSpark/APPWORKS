@@ -308,10 +308,12 @@ flowchart LR
 
 | 优先级 | 断点 | 当前源码事实 | 风险 | 解除条件 |
 |---|---|---|---|---|
-| 已关闭（源码/fixture） | 普通 CRUD 原请求无权威终态 | save capture 固定正式主键、字段与 digest；unknown 仅按原 key exact readback，确认后接纳，不能证明时保留 unknown；不会重发 | 源码层已闭环，但服务侧仍无 durable request terminal | 保留精确回读；真实 service write、丢回执与重开仍按页面逐项验收 |
-| 部分实服验证 | 正式导航与授权菜单 | 正确的新 SmartBid 应用 D849 已有 28/28 蓝图（根 + 6 模块 + 21 能力）与 Page11 正式 proof；并非 19 个业务页均已绑定同版四文件 | 蓝图可达不等于全部业务页、场景 command owner 或持久结果已闭环 | 逐页绑定正式 `nodeId/pageId/scenarioId`，回读四文件/manifest，完成 cold-open 与业务回读 |
-| P1 | 混合 owner 分阶段恢复 | `saveChangesInPhases` 有顺序保护，无跨来源事务；数据库、pagedata、工具、业务数据分别确认 | partial 后续可能误重放或误报整体失败 | 每阶段固定原视图集合和 receipt；unknown 只核原捕获；UI 显示逐阶段结果 |
-| 已关闭（源码/fixture） | 四文件逐文件缓存无原子集 | publication manifest 固定 rule/script/style/pagedata snapshot 与 SHA-256；PageRuntime 只在整组 proof 通过后物化 | 实服 SmartBid 尚无发布 manifest | 服务节点指向该 manifest 后由真实冷开验收 |
+| 待修订 | 普通 CRUD 原请求与核验重试 | 原捕获按正式键和字段进行只读核验。报表和脱敏规则的离线对照均证实，首次回读失败后，日志以旧异常识别捕获，第二次核验发出零次读取 | 暂时回读故障会卡住原批次，服务端持久请求终态仍待核 | 保持原捕获身份稳定，恢复后继续只读核验，再验证实服写入、回执与独立重开。 [恢复证据](../../notes/data-space-retirement-ledger.md#shared-save-recovery-capture-20261125) |
+| 部分实服验证 | 正式导航与授权菜单 | [2026-11-22 实施台账](../../notes/data-space-retirement-ledger.md#smartbid-d849-publication-20261122)记录 D849 有 28 个蓝图节点（根 + 6 模块 + 21 能力），Page04–11、13、15–19 共 14 套工具完成发布回读。Page12、14 的父节点新增权限仍是该次验收的阻断点 | 已发布工具的授权入口、业务命令和持久结果仍需逐项验收 | 缺入口的页面先取得正式父节点许可。逐页核对 `nodeId/pageId/scenarioId`、发布 proof、独立重开及业务回执 |
+| 源码修复，正式发布只读复验 | 已发布工具文件读取 | ProjectToolFile 声明视图和显式文件操作视图按各自目标首次绑定。D849 的 17 个授权节点均取得 READY，浏览器可挂载 16 个，Page05 缺资料历史视图 | Page05 补齐视图后仍需生产资料宿主及原件读取合同 | 核配置与宿主后复验 Page05，按获准对象验工作台真实写入及各页业务消费。 [Page05](../../notes/data-space-retirement-ledger.md#d849-page05-authority-host-and-original-20261125) |
+| 已批准范围已实施，补充待批准 | 认证代际和迟到 401 | 平台门面已经按操作代际接纳登录、退出及刷新。迟到 401 仍可在宿主层清除新会话，续期排队的文件请求也缺派发前归属复核 | 应用切换、会话轮换和明确未派发分类受到影响 | 同时核派发前 scope 和响应归属，覆盖正常续期、旧 401、明确零上传及已上传但响应丢失。 [会话问题与验收](../../notes/data-space-retirement-ledger.md#platform-session-generation-20261125) |
+| P1 | 混合 owner 分阶段恢复 | `saveChangesInPhases` 依阶段调度。文件对照显示未派发的后续视图被误记 `applied`，并发回执还可结算另一批次 | 原草稿仍未保存时，恢复入口可能误报批次已完成 | 用本次实际派发和回执结算，固定原批次及阶段，验证后续文件续办和晚到回执隔离。 [并发证据](../../notes/data-space-retirement-ledger.md#save-journal-concurrent-settlement-20261125) |
+| 部分实服验证，发布校验待实施 | 四文件整组证明与固定场景 | 首版 manifest 固定三文件与 pagedata。第二版验证独立 Plan 摘要，但仍读取工作 Plan，内容变化会使旧发布重开失败 | 页面可以在引用视图缺失时进入发布，旧版独立重开受工作 Plan 影响 | 首个快照前验证命名视图，固定第二版原 Plan 及正式模型投影，逐节点验证实际消费。 [两版发布对照](../../notes/data-space-retirement-ledger.md#d849-publication-scenario-proof-20261125) |
 | P1 | 时间戳版本碰撞 | `readRuntimeFile` 以修改时间判定命中，不是内容 hash | 同毫秒不同内容可能命中旧缓存 | 后端返回 ETag/hash，或相同时间时强制正文读取 |
 | P1 | 系统场景/动态场景双来源 | 仓内系统场景与动态应用场景读取路径不同，但共享装配器 | 装配语义一致性依赖宿主适配 | 保持单一 `loadScenarioDataSet`，为系统/动态来源建立契约测试 |
 | P1 | 设计、运行、预览仍是不同生命周期 | 正式运行读已保存文件；预览可由临时定义装配；设计器持有额外草稿 owner | 预览结果、已保存结果与工作草稿可能混淆 | 每次结果携带 source revision / generation / saved-or-preview 标记 |

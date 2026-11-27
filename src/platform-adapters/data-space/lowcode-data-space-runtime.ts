@@ -294,15 +294,20 @@ function configureMyMiniappViews(dataSet: DataSet): void {
   {tableName:'base_channel_miniapp_template_application',viewId:'applications',fields:['id','channel_account_id','status','user_version','deployment_id']},
   {tableName:'base_channel_miniapp_deployment',viewId:'deployments',fields:['id','channel_account_id','status','user_version','provider']},
   {tableName:'base_channel_account_application',viewId:'bindings',fields:['id','channel_account_id','usage_code','status']},
+  {tableName:'Base_AppSystemList',viewId:'businessApplications',fields:['rowid','AppName']},
  ]
  for (const {tableName,viewId,fields} of declarations) {
   const table=dataSet.getTable(tableName)
   if(!table || table.getView(viewId) || fields.some(field=>!table.columns.some(column=>column.name===field))) {
    throw Error(`NATIVE_DATASET_PLAN_MODEL: 我的账号正式视图 ${tableName}@${viewId} 装配不完整`)
   }
-  table.getOrCreateView(viewId).applyViewConfig({queryConfig:{fields,pagination:'paged',allPages:false,autoQuery:false},
-   sortExpression:[{field:'id',direction:'asc'}],page:1,pageSize:10,allowDelete:false})
+  const primaryKey=tableName==='Base_AppSystemList'?'rowid':'id'
+  const view=table.getOrCreateView(viewId)
+  if(view.primaryKey!==primaryKey) throw Error('NATIVE_DATASET_PLAN_MODEL: 我的账号正式视图主键不符')
+  view.applyViewConfig({queryConfig:{fields,pagination:'paged',allPages:false,autoQuery:false},
+   sortExpression:[{field:primaryKey,direction:'asc'}],page:1,pageSize:10,allowDelete:false})
  }
+ configureMiniappTemplateViews(dataSet,'installable')
 }
 
 /** 运营号视图继承正式模型来源，独立于专用账号投影。 */
@@ -317,9 +322,8 @@ function configureChannelOperators(dataSet: DataSet): void {
 }
 
 /** 在正式绑定前配置目录和安装候选，确保不同用途继承同表 owner 及字段权限。 */
-function configureMiniappTemplateViews(dataSet: DataSet): void {
- const model = MP_TEMPLATE_CATALOG_WORKING_PLAN.models[0]
- const table = model ? dataSet.getTable(model.name) : undefined
+function configureMiniappTemplateViews(dataSet: DataSet, usage: 'catalog'|'installable' = 'catalog'): void {
+ const table = dataSet.getTable('base_channel_miniapp_template')
  const fields = ['id', 'provider', 'display_name', 'catalog_visible', 'active']
  if (!table || fields.some(field => !table.columns.some(column => column.name === field))) {
   throw new Error('NATIVE_DATASET_PLAN_MODEL: 小程序模板目录缺少正式字段')
@@ -327,7 +331,7 @@ function configureMiniappTemplateViews(dataSet: DataSet): void {
  for (const [channel, provider] of [['Wechat','WECHAT_OPEN'],['Douyin','DOUYIN_OPEN']] as const) {
   const providerFilter: DataViewFilterTree = {field: 'provider',operator: 'eq',value: provider}
   const scopes: ReadonlyArray<readonly [string, DataViewFilterTree]> = [
-   [`catalog${channel}`, providerFilter],
+   ...(usage==='catalog' ? [[`catalog${channel}`, providerFilter] as const] : []),
    [`installable${channel}`, {logic: 'and', filters: [providerFilter,
     {field: 'catalog_visible',operator: 'eq',value: true}, {field: 'active',operator: 'eq',value: true}]}],
   ]

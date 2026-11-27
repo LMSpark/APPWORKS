@@ -10,10 +10,15 @@ AI用途：恢复原小程序管理直链的账号查询及关联读取，授权
     <p v-if="error || selectionError" role="alert">{{ error || selectionError }}</p>
     <RendererButton v-if="error && !loading" label="重试" @click="loadCurrentRoute" />
     <template v-if="ready">
+      <RendererButton label="查看候选" @click="candidateOpen = true" />
       <RendererTable :data-view-key="viewKey" :children="columns" :filter="filter" :actions="actions" :auto-columns="false" />
       <RendererDialog v-if="selected !== null" :key="selected" :model-value="true" :append-to-body="true"
         title="小程序账号关联" width="min(1100px, 94vw)" @update:model-value="closeRelations">
         <MyMiniappRelations :account-key="selected" />
+      </RendererDialog>
+      <RendererDialog v-if="candidateOpen" :model-value="true" :append-to-body="true"
+        title="小程序候选" width="min(1000px, 94vw)" @update:model-value="candidateOpen = $event">
+        <MyMiniappCandidateBrowser />
       </RendererDialog>
     </template>
   </RendererSection>
@@ -25,6 +30,7 @@ import {type DataRow, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererDialog, RendererSection, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 import MyMiniappRelations from './my-miniapp-relations.vue'
+import MyMiniappCandidateBrowser from './my-miniapp-candidate-browser.vue'
 
 const scenarioId = '547CB8AD9613D81428C2280A8FC22819'
 const {viewKey,session,ready,loading,error,loadCurrentRoute} = useFeaturePageRuntime({
@@ -33,6 +39,7 @@ const {viewKey,session,ready,loading,error,loadCurrentRoute} = useFeaturePageRun
 })
 const selected = ref<string|number|null>(null)
 const selectionError = ref('')
+const candidateOpen = ref(false)
 const columns: SparkNode[] = [
   {type:'r-text',props:{field:'nick_name',label:'账号名称',readonly:true}},
   {type:'r-text',props:{field:'authorizer_appid',label:'授权 AppId',readonly:true}},
@@ -69,5 +76,5 @@ function openRelations(row: DataRow): void {
   }
 }
 function closeRelations(open:boolean):void {if(!open) selected.value=null}
-watch(ready,value=>{if(!value){selected.value=null;selectionError.value=''}})
+watch(ready,value=>{if(!value){selected.value=null;candidateOpen.value=false;selectionError.value=''}})
 </script>

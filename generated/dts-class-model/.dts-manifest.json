@@ -3949,7 +3949,7 @@
     "src/platform-adapters/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/platform-adapters/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-27T07:55:10.520Z"
+      "sourceModifiedAt": "2026-11-27T08:53:45.535Z"
     },
     "src/platform-adapters/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/platform-adapters/data-space/lowcode-model-relation-adapter.ts",
@@ -7411,10 +7411,15 @@
       "shardFile": "files/src/views/features/integration/mp-open/ui/channels-page.vue.json",
       "sourceModifiedAt": "2026-11-27T07:56:25.572Z"
     },
+    "src/views/features/integration/mp-open/ui/my-miniapp-candidate-browser.vue": {
+      "sourceFile": "src/views/features/integration/mp-open/ui/my-miniapp-candidate-browser.vue",
+      "shardFile": "files/src/views/features/integration/mp-open/ui/my-miniapp-candidate-browser.vue.json",
+      "sourceModifiedAt": "2026-11-27T08:53:45.537Z"
+    },
     "src/views/features/integration/mp-open/ui/my-miniapp-page.vue": {
       "sourceFile": "src/views/features/integration/mp-open/ui/my-miniapp-page.vue",
       "shardFile": "files/src/views/features/integration/mp-open/ui/my-miniapp-page.vue.json",
-      "sourceModifiedAt": "2026-11-27T07:55:12.360Z"
+      "sourceModifiedAt": "2026-11-27T08:53:45.536Z"
     },
     "src/views/features/integration/mp-open/ui/my-miniapp-relations.vue": {
       "sourceFile": "src/views/features/integration/mp-open/ui/my-miniapp-relations.vue",

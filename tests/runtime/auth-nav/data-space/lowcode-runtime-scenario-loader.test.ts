@@ -857,6 +857,58 @@ describe('D99 application entry explicitly reads its working Dataset Plan', () =
     } finally {dataSet.destroy()}
   })
 
+  it('binds candidate lists to the formal models of the My Miniapp working Plan', async () => {
+    const miniappScenario = '547CB8AD9613D81428C2280A8FC22819'
+    const definitions = [
+      {id:'29391cd6-5164-439d-95a0-e28af992853f', model:'base_channel_miniapp_template_application',
+        fields:['id','channel_account_id','status','user_version','deployment_id']},
+      {id:'37f50083-7d99-4db4-b93d-a2137fc016df', model:'Base_AppSystemList', fields:['rowid','AppName']},
+      {id:'42c4bc92-cf0d-461e-a8fc-c32bcff7810a', model:'base_channel_account_application',
+        fields:['id','channel_account_id','usage_code','status']},
+      {id:'5fd93d86-2d6e-4d21-af30-55ebabaf7ae3', model:'base_channel_miniapp_deployment',
+        fields:['id','channel_account_id','status','user_version','provider']},
+      {id:'9cc27e89-e1cf-492b-b5db-2a93a68c9611', model:'base_enterprise_channel_account',
+        fields:['id','provider','account_type','nick_name','authorizer_appid','authorization_status','enabled']},
+      {id:'a8d2e26a-8f73-46f3-a36a-45b5f6b50adf', model:'base_channel_miniapp_template', fields:catalogFields},
+    ]
+    const models = definitions.map(({id,model}) => ({...planModel,id,name:model,metaName:model}))
+    const modelFields = definitions.flatMap(({id,fields}) => fields.map((name,order) => ({
+      id:`${id}:${name}`,dataModelId:id,name,asName:'',fieldType:name==='id'?'bigint':'string',
+      isPKey:order===0,isOutput:true,order,orderType:'',group:0,type:'dataModel',description:'',
+    })))
+    mocks.readTextFile.mockResolvedValue(plan({scenarioId:miniappScenario,name:'我的小程序',models,modelFields,
+      source:{dataSetId:miniappScenario,exportedFrom:'data-space-design',graphFile:`${miniappScenario}.json`}}))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:miniappScenario,name:'我的小程序'})
+    mocks.readModelBatch.mockResolvedValue(models.map(model => ({...model,sourceName:model.metaName,
+      sourceId:'fixture-database',primaryKey:model.metaName==='Base_AppSystemList'?'rowid':'id',businessMain:false,raw:{},
+      fields:modelFields.filter(field=>field.dataModelId===model.id).map(field=>({...field,modelId:model.id,
+        canonicalName:field.name,type:field.fieldType,primaryKey:field.isPKey,output:true,computed:false,raw:{}}))})))
+    const dataSet=await loadLowcodeRuntimeScenario({projectId,scenarioId:miniappScenario,
+      workingSource:{nodeId:miniappScenario,routePath:'/features/integration/mp-open/ui/my-miniapp-page',assertCurrent(){}}})
+    try {
+      const template=dataSet.getTable('base_channel_miniapp_template')
+      const wechat=template?.getView('installableWechat')
+      const douyin=template?.getView('installableDouyin')
+      const applications=dataSet.getView('Base_AppSystemList','businessApplications')
+      expect(template?.modelBinding?.modelId).toBe('a8d2e26a-8f73-46f3-a36a-45b5f6b50adf')
+      expect(template?.getView('catalogWechat')).toBeUndefined()
+      expect(wechat).toBeDefined()
+      expect(wechat).not.toBe(douyin)
+      expect([wechat,douyin].map(view=>view?.scopeFilter)).toEqual(['WECHAT_OPEN','DOUYIN_OPEN'].map(provider=>({
+        logic:'and',filters:[{field:'provider',operator:'eq',value:provider},
+          {field:'catalog_visible',operator:'eq',value:true},{field:'active',operator:'eq',value:true}],
+      })))
+      expect(wechat?.sortExpression).toEqual([{field:'id',direction:'asc'}])
+      expect(wechat?.pageSize).toBe(10)
+      expect(applications?.primaryKey).toBe('rowid')
+      expect(applications?.queryConfig.fields).toEqual(['rowid','AppName'])
+      expect(applications?.sortExpression).toEqual([{field:'rowid',direction:'asc'}])
+      expect([wechat,douyin,applications].every(view=>view?.hasQueryExecutorBinding())).toBe(true)
+      expect(mocks.request).not.toHaveBeenCalled()
+    } finally {dataSet.destroy()}
+  })
+
+
   it('rejects a catalog Plan when one of the two formal model identities is wrong', async () => {
     mockCatalogPlan([templateModel, {...accountModel, metaName:'base_other_account'}])
     await expect(loadLowcodeRuntimeScenario(catalogCommand)).rejects.toThrow('NATIVE_DATASET_PLAN_MODEL')

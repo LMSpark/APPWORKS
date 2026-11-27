@@ -41,7 +41,7 @@
       <template v-else-if="ownUnconfirmed">
         <RendererButton label="核验原保存结果" button-type="primary" :disabled="busy" @click="save" />
       </template>
-      <template v-else-if="actionable">
+      <template v-else-if="actionable && !approvalConfirmed">
         <RendererButton label="通过" button-type="success" :disabled="busy || approving || !current || foreignRecovery || recoveryEnded" @click="approve" />
         <RendererButton label="不通过" button-type="danger" :disabled="busy || approving || !current || foreignRecovery || recoveryEnded" @click="reject" />
       </template>
@@ -50,7 +50,8 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue'
+import {computed, ref, toRaw} from 'vue'
+import {submitDataSetCommand} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import type {DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 const {PAGE_RUNTIME, RendererDialog, RendererSection, RendererForm, RendererButton, FieldText, FieldImage, useSparkComponent, useDataViewRecordEditing, consumeRequiredPageService} = Components
@@ -65,7 +66,7 @@ const {view, originalRow, busy, current, error, ownUnconfirmed, foreignRecovery,
   onFinish: result => emit('close', result),
 })
 const command = runtime()?.resolveView(props.commandKey)
-const approving = ref(false), hint = ref(''), revision = ref(0)
+const approving = ref(false), approvalConfirmed = ref(false), hint = ref(''), revision = ref(0)
 const pendingCommandId = computed(() => {
   revision.value
   const row = command?.rows.find(item => item['enterpriseId'] === props.recordId && command.hasUnconfirmedSaveFor([String(item['commandId'])]))
@@ -86,25 +87,42 @@ async function confirmed(message: string, title: string): Promise<boolean> {
     return false
   }
 }
-async function submitCommand(id: string): Promise<void> {
-  if (!command?.dataSet) throw new Error('入驻管理缺少企业初始化命令视图')
-  await command.dataSet.saveChanges({views: [{tableName: command.tableName, viewId: command.viewId, ids: [id]}]})
+/** 确认与实际派发必须基于打开时的同一企业行。 */
+async function confirmAudit(message: string, title: string): Promise<(() => void) | undefined> {
+  const read = view.captureReadRow(toRaw(originalRow), [view.primaryKey, 'CheckState'])
+  const assertCurrent = () => {
+    if (!current.value || !actionable.value) throw new Error('原企业审核入口已失效')
+    read()
+  }
+  assertCurrent()
+  if (!await confirmed(message, title)) return undefined
+  assertCurrent()
+  return assertCurrent
+}
+async function showConfirmedApproval(): Promise<void> {
+  approvalConfirmed.value = true
+  pageService.showMessage('企业初始化已完成，审核状态为已入驻', 'success')
+  try {
+    const result = await view.requestRefresh()
+    if (result.refreshStatus !== 'read') throw Error(result.message ?? '企业列表未完成读取')
+    cancel()
+  } catch (cause) {
+    hint.value = `审核已确认，列表刷新失败：${cause instanceof Error ? cause.message : String(cause)}`
+  }
 }
 async function approve(): Promise<void> {
   hint.value = ''
-  if (!command || !await confirmed(`确定要审核通过"${displayName.value}"吗？通过后将初始化企业，不能撤销。`, '审核通过确认')) return
+  if (!command || approvalConfirmed.value || approving.value || busy.value) return
   approving.value = true
-  let id = ''
   try {
-    const added = command.getPkKey(await command.addRow({enterpriseId: props.recordId}))
-    if (added === undefined) throw new Error('企业初始化命令缺少原生身份')
-    id = String(added)
-    await submitCommand(id)
-    pageService.showMessage('企业初始化已完成，审核状态为已入驻', 'success')
-    await view.refresh()
-    cancel()
+    const assertOriginal = await confirmAudit(`确定要审核通过"${displayName.value}"吗？通过后将初始化企业，不能撤销。`, '审核通过确认')
+    if (!assertOriginal) return
+    await submitDataSetCommand(command, {enterpriseId: props.recordId}, {assertCurrent: () => {
+      assertOriginal()
+      if (runtime()?.resolveView(props.commandKey) !== command) throw Error('原企业审核入口已失效')
+    }})
+    await showConfirmedApproval()
   } catch (cause) {
-    if (id && !command.hasUnconfirmedSaveFor([id])) command.discardPendingChanges([id])
     hint.value = `审核通过未确认：${cause instanceof Error ? cause.message : String(cause)}`
   } finally {
     approving.value = false
@@ -113,14 +131,17 @@ async function approve(): Promise<void> {
 }
 async function verifyApproval(): Promise<void> {
   const id = pendingCommandId.value
-  if (!id) return
+  const dataSet = command?.dataSet
+  const batchId = dataSet?.saveJournal.batchId
+  if (!id || !command || !dataSet || !batchId || approving.value) return
   hint.value = ''
   approving.value = true
   try {
-    await submitCommand(id)
-    pageService.showMessage('企业初始化已完成，审核状态为已入驻', 'success')
-    await view.refresh()
-    cancel()
+    const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [command], readbackViews: []})
+    const receipt = result.journal.views.find(item => item.tableName === command.tableName && item.viewId === command.viewId
+      && item.ids.length === 1 && item.ids[0] === id)
+    if (receipt?.state !== 'applied') throw Error(receipt?.originalError?.message ?? '原企业初始化仍未确认')
+    if (runtime()?.resolveView(props.commandKey) === command) await showConfirmedApproval()
   } catch (cause) {
     hint.value = cause instanceof Error ? cause.message : String(cause)
   } finally {
@@ -129,10 +150,18 @@ async function verifyApproval(): Promise<void> {
   }
 }
 async function reject(): Promise<void> {
+  if (approving.value || busy.value) return
   hint.value = ''
-  if (!await confirmed(`确定要审核不通过"${displayName.value}"吗？`, '审核不通过确认')) return
-  const original = originalRow['CheckState']
-  view.updateEditingValue(props.recordId, 'CheckState', typeof original === 'number' ? 2 : '2')
-  await save()
+  approving.value = true
+  try {
+    if (!await confirmAudit(`确定要审核不通过"${displayName.value}"吗？`, '审核不通过确认')) return
+    const original = originalRow['CheckState']
+    view.updateEditingValue(props.recordId, 'CheckState', typeof original === 'number' ? 2 : '2')
+    await save()
+  } catch (cause) {
+    hint.value = cause instanceof Error ? cause.message : String(cause)
+  } finally {
+    approving.value = false
+  }
 }
 </script>

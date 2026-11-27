@@ -30,13 +30,14 @@
       </template>
     </RendererDialog>
     <template #footer>
+      <RendererButton v-if="pendingReceipt" label="核验原授权结果" :disabled="busy" @click="verifyOriginalReceipt" />
       <RendererButton label="关闭" :disabled="busy || unconfirmed" @click="close" />
     </template>
   </RendererDialog>
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
+import {computed, onBeforeUnmount, onMounted, ref, shallowRef, toRaw} from 'vue'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 const {PAGE_RUNTIME, RendererDialog, RendererSection, RendererTable, RendererForm, RendererButton, FieldTextarea, useSparkComponent, consumeRequiredPageService} = Components
@@ -58,6 +59,9 @@ function resolve(key: string): DataView {
 }
 const apps = resolve(appKey), auths = resolve(authKey), navigation = resolve(navigationKey), modules = resolve(moduleKey)
 const loading = ref(true), ready = ref(false), busy = ref(false), error = ref(''), revision = ref(0), revokeId = ref('')
+const originalRuntime = sparkConsume(PAGE_RUNTIME)
+let active = true
+const pendingReceipt = shallowRef<{view:DataView; id:string; batchId:string; success:string}>()
 const bump = () => {revision.value++}
 const watched = [apps, auths, navigation, modules]
 const events = ['rowsChanged', 'currentRowChanged', 'editingChanged', 'requestStateChanged'] as const
@@ -175,33 +179,87 @@ onMounted(async () => {
   }
 })
 onBeforeUnmount(() => {
+  active = false
   for (const view of watched) for (const event of events) view.events.off(event, bump)
 })
 
 async function confirmed(message: string, title: string): Promise<boolean> {
+  let accepted: boolean
   try {
-    if (!await pageService.showConfirm(message, title, {type: 'warning', confirmText: '确定', cancelText: '取消'})) return false
-    return true
+    accepted = await pageService.showConfirm(message, title, {type: 'warning', confirmText: '确定', cancelText: '取消'})
   } catch {
     return false
   }
+  if (accepted && (!active || sparkConsume(PAGE_RUNTIME) !== originalRuntime)) throw new Error('原企业授权入口已失效')
+  return accepted
 }
 async function commit(view: DataView, id: string, success: string): Promise<boolean> {
-  if (!view.dataSet) throw new Error('授权视图未接入数据空间')
+  const dataSet = view.dataSet
+  if (!dataSet) throw new Error('授权视图未接入数据空间')
+  const deleting = view.dirtyTracking.isPendingDelete(id)
   try {
-    await view.dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
+    const result = await dataSet.saveRecord(view, id)
     pageService.showMessage(success, 'success')
-    await view.refresh()
-    return true
+    if (result.followUpError) error.value = '保存已确认，后续处理失败：' + result.followUpError.message
   } catch (cause) {
-    if (!view.hasUnconfirmedSaveFor([id])) view.discardPendingChanges([id])
-    error.value = `${view.hasUnconfirmedSaveFor([id]) ? '保存结果未知，请刷新核对，不要重复操作：' : '保存失败：'}${cause instanceof Error ? cause.message : String(cause)}`
+    if (view.hasUnconfirmedSaveFor([id])) {
+      const batchId = dataSet.saveJournal.batchId
+      if (batchId) pendingReceipt.value = {view,id,batchId,success}
+      error.value = '保存结果未知，请核验原授权结果'
+    } else {
+      view.discardPendingChanges([id])
+      error.value = '保存失败：' + (cause instanceof Error ? cause.message : String(cause))
+      if (deleting) {
+        // 本地还原的删除快照不提供新的原行证明，下一次人工提交前先按原视图读取。
+        try {
+          const readback = await view.requestRefresh({defer: false})
+          if (readback.refreshStatus !== 'read') throw new Error(readback.message ?? '查询未完成')
+        } catch (cause) {
+          error.value += `。授权列表尚未重新读取：${cause instanceof Error ? cause.message : String(cause)}`
+        }
+      }
+    }
     return false
+  }
+  try {
+    const readback = await view.requestRefresh()
+    if (readback.refreshStatus !== 'read') error.value = '保存已确认，授权列表读取失败：' + (readback.message ?? '')
+  } catch (cause) {
+    error.value = '保存已确认，授权列表读取失败：' + (cause instanceof Error ? cause.message : String(cause))
+  }
+  return true
+}
+
+async function verifyOriginalReceipt(): Promise<void> {
+  const pending = pendingReceipt.value
+  const dataSet = pending?.view.dataSet
+  if (!pending || !dataSet || busy.value) return
+  busy.value = true
+  error.value = ''
+  try {
+    const {view,id,batchId,success} = pending
+    const result = await dataSet.verifySaveJournalAndRead({batchId,receiptViews:[view],readbackViews:[view],discardNotApplied:true})
+    const receipt = result.journal.views.find(item => item.tableName===view.tableName && item.viewId===view.viewId
+      && item.ids.length===1 && item.ids[0]===id)
+    if (receipt?.state==='applied') {
+      pendingReceipt.value = undefined
+      pageService.showMessage(success, 'success')
+      const readback = result.readbacks[0]
+      if (readback?.refreshStatus!=='read') error.value = '保存已确认，授权列表读取失败：' + (readback?.message ?? '')
+    } else if (receipt?.state==='not-applied') {
+      pendingReceipt.value = undefined
+      error.value = '原授权提交未生效'
+    } else error.value = receipt?.originalError?.message ?? '原授权结果仍未知'
+  } catch (cause) {
+    error.value = cause instanceof Error ? cause.message : String(cause)
+  } finally {
+    busy.value = false
+    bump()
   }
 }
 const flag = (original: unknown, value: 0 | 1) => typeof original === 'string' ? String(value) : value
 async function run(action: () => Promise<void>): Promise<void> {
-  if (busy.value) return
+  if (busy.value || unconfirmed.value) return
   error.value = ''
   busy.value = true
   try { await action() } catch (cause) {
@@ -214,10 +272,18 @@ async function run(action: () => Promise<void>): Promise<void> {
 
 function authorize(app: DataRow): Promise<void> {
   return run(async () => {
-    const appId = readText(apps, app, 'rowid'), name = readText(apps, app, 'displayName')
+    const original = toRaw(app)
+    const appId = readText(apps, original, 'rowid'), name = readText(apps, original, 'displayName')
     if (!appId) throw new Error('应用身份不可读')
+    const readApp = apps.captureReadRow(original, ['rowid'])
+    const readRelations = auths.captureReadResult()
+    const record = authOf(original)
+    const readRelation = record && auths.captureReadRow(record, [auths.primaryKey, 'app_id', 'authorized'])
     if (!await confirmed(`确定授权应用"${name || appId}"给本企业吗？`, '应用授权确认')) return
-    const record = authOf(app)
+    readApp()
+    readRelations()
+    readRelation?.()
+    if (authOf(original) !== record || !canAuthorize({row: original})) throw new Error('原应用授权关系已变化或不可写入')
     let id: string
     if (record) {
       id = pk(auths, record)
@@ -260,10 +326,16 @@ function authorizeModule(node: DataRow): Promise<void> {
 }
 function cancelModule(node: DataRow): Promise<void> {
   return run(async () => {
-    const name = readText(navigation, node, 'FunName')
-    if (!await confirmed(`确定取消模块"${name}"的授权吗？`, '取消模块授权')) return
-    const record = moduleRecordOf(node)
+    const original = toRaw(node)
+    const name = readText(navigation, original, 'FunName')
+    const readNode = navigation.captureReadRow(original, ['rowid', 'prowid'])
+    const record = moduleRecordOf(original)
     if (!record) throw new Error('未找到模块授权记录')
+    const readRelation = modules.captureReadRow(record, [modules.primaryKey, 'nav_id'])
+    if (!await confirmed(`确定取消模块"${name}"的授权吗？`, '取消模块授权')) return
+    readNode()
+    readRelation()
+    if (moduleRecordOf(original) !== record || !canModuleCancel({row: original})) throw new Error('原模块授权关系已变化或不可删除')
     const id = pk(modules, record)
     await modules.removeRow(id)
     await commit(modules, id, '已取消模块授权')

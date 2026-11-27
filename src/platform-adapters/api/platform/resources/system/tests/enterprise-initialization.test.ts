@@ -5,11 +5,14 @@ import * as Api from '@/platform-adapters/api'
 import {HttpClientBase,isRecord,type HttpResponse,type RequestConfig} from '@spark-appworks/spark-utils'
 
 type Enterprise={rowid:string;ShortName:string;CheckState:string}
+const initializationPath = '/api/Enterprise/initEnt'
 class EnterpriseHttp extends HttpClientBase{
  enterprises:Enterprise[]=[{rowid:'E1',ShortName:'acme',CheckState:'0'},{rowid:'E2',ShortName:'beta',CheckState:'1'}]
  editable=['CheckState'];posts:unknown[]=[];completeOnPost=true;failure:'none'|'forbidden'|'lost'='none'
+ invalidateAfterAcceptance = false
+ invalidateBeforeTransport = false
  protected override async executeRequest(request:RequestConfig):Promise<HttpResponse<unknown>>{
-  if(request.url==='/api/Enterprise/initEnt'){
+  if(request.url===initializationPath){
    this.posts.push(request.params)
    if(this.failure==='forbidden')return{status:200,statusText:'OK',headers:{},data:{Code:403,Message:'只有主租户可以初始化企业'}}
    if(this.completeOnPost)this.enterprises=this.enterprises.map(item=>isRecord(request.params)&&item.ShortName===request.params['entShortName']?{...item,CheckState:'1'}:item)
@@ -43,7 +46,10 @@ async function fixture(configure:(http:EnterpriseHttp)=>void=()=>undefined){
    description:name,output:true,computed:false,order:0,orderType:'',raw:{}}))}
  const list=ds.getView('enterpriseRows')!,readback=ds.getView('enterpriseRows','initializationReadback')!,command=ds.getView('EnterpriseInitializationRequest')!
  runtime.bindModelView(list,formal);runtime.bindModelView(readback,formal)
- const binding=new Api.EnterpriseInitializationResource({list,readback,http,readScope,assertCurrent:()=>undefined}).binding(command)
+ const binding=new Api.EnterpriseInitializationResource({list,readback,http,readScope,assertCurrent:()=>{
+  if (http.invalidateBeforeTransport) throw Error('fixture scope changed before transport')
+  if (http.invalidateAfterAcceptance && http.posts.length > 0) throw Error('fixture scope changed after transport')
+ }}).binding(command)
  bindDataSetCommandSubmit(command,binding)
  await list.refresh();await command.refresh()
  return{list,command,http,binding,save:()=>ds.saveChanges({views:[{tableName:'EnterpriseInitializationRequest',viewId:'default'}]})}
@@ -83,4 +89,42 @@ it.each([
 it('rejects a source changed after capture before dispatch',async()=>{
  const f=await fixture();await f.command.addRow({enterpriseId:'E1'});f.list.rows[0]!['ShortName']='other'
  await expect(f.save()).rejects.toThrow(/DATA_VIEW_READ_ROW|ENTERPRISE_INIT/);expect(f.http.posts).toEqual([])
+})
+
+it('classifies a request interceptor rejection as unsent', async () => {
+  const f = await fixture()
+  f.http.interceptors.request.use({onRequest: request => {
+    if (request.url === initializationPath) throw Error('fixture rejected before transport')
+    return request
+  }})
+  await f.command.addRow({enterpriseId: 'E1'})
+  await expect(f.save()).rejects.toThrow('fixture rejected before transport')
+  expect(f.http.posts).toHaveLength(0)
+  expect(f.command.hasUnconfirmedSave).toBe(false)
+  expect(f.command.dataSet?.saveJournal.views).toMatchObject([{state: 'not-applied'}])
+})
+
+it('retains the original batch when the guard changes after acceptance', async () => {
+  const f = await fixture(http => { http.invalidateAfterAcceptance = true })
+  await f.command.addRow({enterpriseId: 'E1'})
+  await expect(f.save()).rejects.toThrow('fixture scope changed after transport')
+  expect(f.http.posts).toHaveLength(1)
+  expect(f.command.hasUnconfirmedSave).toBe(true)
+  expect(f.command.dataSet?.saveJournal.views).toMatchObject([{state: 'unknown'}])
+  f.http.invalidateAfterAcceptance = false
+  await f.save()
+  expect(f.http.posts).toHaveLength(1)
+  expect(f.command.hasUnconfirmedSave).toBe(false)
+})
+
+it('rechecks the original scope immediately before transport', async () => {
+  const f = await fixture()
+  f.http.interceptors.request.use({onRequest: request => {
+    if (request.url === initializationPath) f.http.invalidateBeforeTransport = true
+    return request
+  }})
+  await f.command.addRow({enterpriseId: 'E1'})
+  await expect(f.save()).rejects.toThrow('fixture scope changed before transport')
+  expect(f.http.posts).toHaveLength(0)
+  expect(f.command.hasUnconfirmedSave).toBe(false)
 })

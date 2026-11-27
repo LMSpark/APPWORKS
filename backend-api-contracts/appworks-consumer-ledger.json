@@ -1339,13 +1339,13 @@
     {
       "expression": "/api/Enterprise/initEnt",
       "sourceFile": "src/platform-adapters/api/platform/resources/system/enterprise-initialization-resource.ts",
-      "sourceLine": 91,
+      "sourceLine": 92,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Enterprise/initEnt",
       "sourceFile": "src/platform-adapters/api/platform/resources/system/tests/enterprise-initialization.test.ts",
-      "sourceLine": 12,
+      "sourceLine": 8,
       "scope": "app-composition"
     },
     {

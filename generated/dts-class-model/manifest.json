@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1533,
+  "scannedFileCount": 1535,
   "files": {
     "backend-api-contracts/common.ts": {
       "file": "files/backend-api-contracts/common.ts.json",
@@ -23405,6 +23405,32 @@
         "packageName": "app",
         "modulePath": "views/features/integration/mp-open/ui/channels-page",
         "jsdoc": "@module app:views/features/integration/mp-open/ui/channels-page\n职责：展示视频号已授权账号与运营号，各自呈现本次正式读取、空结果及失败。\n边界：专用账号走独立的服务授权 DataView，运营号走正式模型，两个区域消费同一授权 PageRuntime。\nAI用途：恢复视频号渠道只读入口，保持列表许可和后续挂载动作的合同相互独立。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/mp-open/ui/my-miniapp-page.vue": {
+      "file": "files/src/views/features/integration/mp-open/ui/my-miniapp-page.vue.json",
+      "module": {
+        "name": "app:views/features/integration/mp-open/ui/my-miniapp-page",
+        "sourcePath": "src/views/features/integration/mp-open/ui/my-miniapp-page.vue",
+        "sourceFile": "src/views/features/integration/mp-open/ui/my-miniapp-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/mp-open/ui/my-miniapp-page",
+        "jsdoc": "@module app:views/features/integration/mp-open/ui/my-miniapp-page\n职责：按当前登录人授权查询小程序及视频号账号目录，按正式小程序账号键打开关联读取工作区。\n边界：目录只提交查询条件；关联查询由独立 PageRuntime 及命名视图承接，账号类型和正式原行读取权限决定可用入口。\nAI用途：恢复原小程序管理直链的账号查询及关联读取，授权和渠道动作由正式服务另行承接。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/mp-open/ui/my-miniapp-relations.vue": {
+      "file": "files/src/views/features/integration/mp-open/ui/my-miniapp-relations.vue.json",
+      "module": {
+        "name": "app:views/features/integration/mp-open/ui/my-miniapp-relations",
+        "sourcePath": "src/views/features/integration/mp-open/ui/my-miniapp-relations.vue",
+        "sourceFile": "src/views/features/integration/mp-open/ui/my-miniapp-relations.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/mp-open/ui/my-miniapp-relations",
+        "jsdoc": "@module app:views/features/integration/mp-open/ui/my-miniapp-relations\n职责：以当前小程序的正式原账号键分别读取安装申请、渠道部署和生效运行绑定。\n边界：每次打开有独立授权 PageRuntime，固定三项查询范围；绑定视图只展示经正式权限读取的关系字段。\nAI用途：查看或独立重开一个账号的关联结果，账套和渠道命令都不从结果推导。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

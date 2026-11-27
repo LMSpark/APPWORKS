@@ -3949,7 +3949,7 @@
     "src/platform-adapters/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/platform-adapters/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/platform-adapters/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-27T07:56:24.055Z"
+      "sourceModifiedAt": "2026-11-27T07:55:10.520Z"
     },
     "src/platform-adapters/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/platform-adapters/data-space/lowcode-model-relation-adapter.ts",
@@ -7410,6 +7410,16 @@
       "sourceFile": "src/views/features/integration/mp-open/ui/channels-page.vue",
       "shardFile": "files/src/views/features/integration/mp-open/ui/channels-page.vue.json",
       "sourceModifiedAt": "2026-11-27T07:56:25.572Z"
+    },
+    "src/views/features/integration/mp-open/ui/my-miniapp-page.vue": {
+      "sourceFile": "src/views/features/integration/mp-open/ui/my-miniapp-page.vue",
+      "shardFile": "files/src/views/features/integration/mp-open/ui/my-miniapp-page.vue.json",
+      "sourceModifiedAt": "2026-11-27T07:55:12.360Z"
+    },
+    "src/views/features/integration/mp-open/ui/my-miniapp-relations.vue": {
+      "sourceFile": "src/views/features/integration/mp-open/ui/my-miniapp-relations.vue",
+      "shardFile": "files/src/views/features/integration/mp-open/ui/my-miniapp-relations.vue.json",
+      "sourceModifiedAt": "2026-11-27T07:55:12.362Z"
     },
     "src/views/features/integration/report/ui/report-create-dialog.vue": {
       "sourceFile": "src/views/features/integration/report/ui/report-create-dialog.vue",

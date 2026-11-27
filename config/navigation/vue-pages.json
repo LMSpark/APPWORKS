@@ -82,6 +82,13 @@
       "hidden": true
     },
     {
+      "path": "/features/integration/mp-open/ui/my-miniapp-page",
+      "title": "我的小程序",
+      "scope": "app",
+      "source": "src/views/features/integration/mp-open/ui/my-miniapp-page.vue",
+      "hidden": true
+    },
+    {
       "path": "/features/integration/api-management/ui/api-management-page",
       "title": "外部服务管理",
       "scope": "enterprise",

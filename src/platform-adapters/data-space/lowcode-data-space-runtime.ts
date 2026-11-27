@@ -272,7 +272,38 @@ const MP_CHANNELS_WORKING_PLAN = Object.freeze({
   {id:'94e2d837-f384-44f6-b3dc-8fe5b8dec4fa',name:'base_enterprise_channel_account'},
  ],
 })
-const nativeWorkingPlans = [MP_APPLICATION_WORKING_PLAN, MP_TEMPLATE_CATALOG_WORKING_PLAN, MP_CHANNELS_WORKING_PLAN]
+const MP_MY_MINIAPP_WORKING_PLAN = Object.freeze({
+ projectId: MP_APPLICATION_WORKING_PLAN.projectId,
+ nodeId: '547CB8AD9613D81428C2280A8FC22819', scenarioId: '547CB8AD9613D81428C2280A8FC22819',
+ routePath: '/features/integration/mp-open/ui/my-miniapp-page',
+ models: [
+  {id:'29391cd6-5164-439d-95a0-e28af992853f',name:'base_channel_miniapp_template_application'},
+  {id:'37f50083-7d99-4db4-b93d-a2137fc016df',name:'Base_AppSystemList'},
+  {id:'42c4bc92-cf0d-461e-a8fc-c32bcff7810a',name:'base_channel_account_application'},
+  {id:'5fd93d86-2d6e-4d21-af30-55ebabaf7ae3',name:'base_channel_miniapp_deployment'},
+  {id:'9cc27e89-e1cf-492b-b5db-2a93a68c9611',name:'base_enterprise_channel_account'},
+  {id:'a8d2e26a-8f73-46f3-a36a-45b5f6b50adf',name:'base_channel_miniapp_template'},
+ ],
+})
+const nativeWorkingPlans = [MP_APPLICATION_WORKING_PLAN, MP_TEMPLATE_CATALOG_WORKING_PLAN, MP_CHANNELS_WORKING_PLAN, MP_MY_MINIAPP_WORKING_PLAN]
+
+/** 原生目录和关联各有明确命名视图；首次查询只由实际消费者派发。 */
+function configureMyMiniappViews(dataSet: DataSet): void {
+ const declarations = [
+  {tableName:'base_enterprise_channel_account',viewId:'accounts',fields:['id','provider','account_type','nick_name','authorizer_appid','authorization_status','enabled']},
+  {tableName:'base_channel_miniapp_template_application',viewId:'applications',fields:['id','channel_account_id','status','user_version','deployment_id']},
+  {tableName:'base_channel_miniapp_deployment',viewId:'deployments',fields:['id','channel_account_id','status','user_version','provider']},
+  {tableName:'base_channel_account_application',viewId:'bindings',fields:['id','channel_account_id','usage_code','status']},
+ ]
+ for (const {tableName,viewId,fields} of declarations) {
+  const table=dataSet.getTable(tableName)
+  if(!table || table.getView(viewId) || fields.some(field=>!table.columns.some(column=>column.name===field))) {
+   throw Error(`NATIVE_DATASET_PLAN_MODEL: 我的账号正式视图 ${tableName}@${viewId} 装配不完整`)
+  }
+  table.getOrCreateView(viewId).applyViewConfig({queryConfig:{fields,pagination:'paged',allPages:false,autoQuery:false},
+   sortExpression:[{field:'id',direction:'asc'}],page:1,pageSize:10,allowDelete:false})
+ }
+}
 
 /** 运营号视图继承正式模型来源，独立于专用账号投影。 */
 function configureChannelOperators(dataSet: DataSet): void {
@@ -372,7 +403,8 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{
    throw new Error('NATIVE_DATASET_PLAN_MODEL: 工作 Plan 未绑定本入口的正式模型')
   }
   const configureViews = expected === MP_TEMPLATE_CATALOG_WORKING_PLAN ? configureMiniappTemplateViews
-   : expected === MP_CHANNELS_WORKING_PLAN ? configureChannelOperators : undefined
+   : expected === MP_CHANNELS_WORKING_PLAN ? configureChannelOperators
+    : expected === MP_MY_MINIAPP_WORKING_PLAN ? configureMyMiniappViews : undefined
   const dataSet = await assembleLowcodeRuntimeDataSetPlan({projectId, scenarioId, text, assertCurrent,
    ...(configureViews ? {configureViews} : {}), ...(command.getPage ? {getPage: command.getPage} : {})})
   try {

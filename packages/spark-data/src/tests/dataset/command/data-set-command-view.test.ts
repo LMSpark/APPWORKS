@@ -276,6 +276,42 @@ describe('DataSet command view helper', () => {
     expect(view.fieldAccess(view.rows[0]!,'caption').write).toBe('denied')
     ds.destroy()
   })
+
+  it.each(['rows', 'page'] as const)('preserves the captured output projection through the %s owner', async mode => {
+    const dataSet = DataSet.fromJson({scenarioId: 'HISTORY', tables: {}})
+    const resource = {resourceType: 'service-query', resourceId: 'history'}
+    try {
+      const view = ensureDataSetResourceView({dataSet, tableName: 'History', resource,
+        columns: [{name: 'id', primary: true}, {name: 'caption'}, {name: 'extra'}]})
+      view.fieldProjection = ['id', 'caption', 'extra'].map(name => ({
+        fieldId: name, source: 'resource', resourceFieldId: null, resourceField: name, viewField: name,
+        type: 'string', label: name, output: name === 'caption', sortOrder: 0, sortDirection: null, group: 0,
+        distinct: false, primaryKey: name === 'id', value: '', valueFunction: '', expression: '',
+      }))
+      view.pageSize = 1
+      view.page = 2
+      const second = {id: 'H2', caption: 'second record', extra: 'excluded field'}
+      const guard = () => undefined
+      if (mode === 'rows') bindDataSetReadonlyCommandQuery(view, {resource, guard,
+        loadRows: async () => [{id: 'H1', caption: 'first record'}, second]})
+      else bindDataSetReadonlyCommandQuery(view, {resource, guard,
+        loadPage: async (_view, params) => {
+          expect(params.page).toBe(2)
+          return {rows: [second], total: 2}
+        }})
+
+      expect(await view.requestRefresh()).toMatchObject({success: true})
+      expect(view.total).toBe(2)
+      expect(view.rows).toHaveLength(1)
+      const [row] = view.rows
+      if (row === undefined) throw new Error('expected the second row')
+      expect(row).toMatchObject({id: 'H2', caption: 'second record'})
+      expect(row).not.toHaveProperty('extra')
+      expect(view.fieldAccess(row, 'caption')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(view.fieldAccess(row, 'extra').read).toBe('invisible')
+    } finally {dataSet.destroy()}
+  })
+
   it('rejects a server page when the original scope changed while loading',async()=>{
     const ds=DataSet.fromJson({scenarioId:'PAGE',tables:{}}),resource={resourceType:'service-query',resourceId:'paged'}
     const view=ensureDataSetResourceView({dataSet:ds,tableName:'History',resource,columns:[{name:'id',primary:true}]})

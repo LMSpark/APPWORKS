@@ -111,7 +111,11 @@ export class DataViewLocalQuery {
     if(primaryKey&&!fields.has(primaryKey))throw Error('DATA_SET_READONLY_QUERY_FIELDS: 主键不在本次来源字段范围')
     const selected=this.select({
       rows:[...rows],fields,primaryKeys:primaryKey?[primaryKey]:[],
-      params:input.serverTotal===undefined?params:{...(params.fields?{fields:params.fields}:{}),allPages:true,treeMode:'flat'},
+      params:input.serverTotal===undefined?params:{
+        ...(params.fields?{fields:params.fields}:{}),
+        ...(params.projection?{projection:params.projection}:{}),
+        allPages:true,treeMode:'flat',
+      },
     })
     const guardConsumer=()=>{if(input.guardConsumers)assertCurrent()}
     const rowKey=(row:Readonly<DataRow>)=>{assertCurrent();return primaryKey?row[primaryKey]:undefined}

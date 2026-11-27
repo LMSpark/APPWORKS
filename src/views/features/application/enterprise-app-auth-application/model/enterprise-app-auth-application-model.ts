@@ -40,18 +40,9 @@ export async function confirmAppAuth(
  */
 export async function commitAppAuthRecord(view: DataView, id: string | number): Promise<void> {
   if (!view.dataSet) throw new Error('授权视图未接入数据空间')
+  if (view.dirtyTracking.isPendingDelete(id)) throw new Error('授权记录保存不允许删除')
   try {
-    const result = await view.dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
-    const outcomes = result.data?.viewResults
-    const receipt = outcomes?.[0]
-    if (!result.success || receipt?.failedEditingRows || receipt?.failedCount) {
-      throw new Error(receipt?.failedErrors[String(id)] ?? result.message ?? result.error?.message ?? '原记录保存失败')
-    }
-    if (outcomes?.length !== 1 || receipt?.tableName !== view.tableName || receipt.viewId !== view.viewId
-      || receipt.createdCount + receipt.savedCount !== 1 || receipt.deletedCount !== 0
-      || view.hasUnconfirmedSaveFor([id])) {
-      throw new Error('原记录没有已确认的保存回执')
-    }
+    await view.dataSet.saveRecord(view, id)
   } catch (cause) {
     const unknown = view.hasUnconfirmedSaveFor([id])
     if (!unknown) view.discardPendingChanges([id])

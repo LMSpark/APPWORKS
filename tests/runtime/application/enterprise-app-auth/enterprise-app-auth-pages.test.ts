@@ -269,6 +269,20 @@ describe('我的申请', () => {
     expect(http.saves).toHaveLength(0)
   })
 
+  it('rejects a staged deletion before dispatching the authorization save', async () => {
+    const {runtime} = await open(MyPage, MY)
+    const view = runtime().resolveView(`${MY}@enterprise_app_auth@default`)
+    const row = view?.rows.find(item => item['id'] === 'A1')
+    if (!view || !row || !view.dataSet) throw Error('Expected the original request row')
+    view.dirtyTracking.trackDelete('A1', row)
+    const save = vi.spyOn(view.dataSet, 'saveRecord')
+    const {commitAppAuthRecord} = await import('@/views/features/application/enterprise-app-auth-application/model/enterprise-app-auth-application-model')
+    await expect(commitAppAuthRecord(view, 'A1')).rejects.toThrow('授权记录保存不允许删除')
+    expect(save).not.toHaveBeenCalled()
+    expect(http.saves).toHaveLength(0)
+    expect(view.dirtyTracking.isPendingDelete('A1')).toBe(true)
+  })
+
   it('本行 auth_status 不可写时不提供取消与重新申请', async () => {
     http.readonlyFields = {enterprise_app_auth: ['auth_status']}
     await open(MyPage, MY)

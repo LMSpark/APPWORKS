@@ -486,8 +486,14 @@ navigationActionRegistry.register('platform', async () => {
 navigationActionRegistry.register('logout', () => {
   getDynamicRouter()?.resetSystemPageInstances()
   resetAppProjectWorkspace()
-  void lowcodeApi.platform.logout().finally(() => {
-    window.location.replace(router.resolve('/').href)
+  void lowcodeApi.platform.logout().catch((error: unknown) => {
+    if (lowcodeApi.session.get() === null) {
+      pageService.showMessage(error instanceof Error ? error.message : String(error), 'error')
+    }
+  }).finally(() => {
+    if (lowcodeApi.session.get() === null) {
+      window.location.replace(router.resolve('/').href)
+    }
   })
 })
 navigationActionRegistry.register('search', () => {

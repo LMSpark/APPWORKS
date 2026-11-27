@@ -1,10 +1,11 @@
 /**
  * lowcode 客户端根门面：组装各子域 API，并在 HTTP 拦截器层统一注入会话 Bearer。
- * 构造时会注册 request 拦截器；access 过期且 refresh 仍有效时会自动刷新，失败则按原 session 继续（不静默伪造凭证）。
+ * 构造时注册 request 拦截器。access 过期且 refresh 仍有效时，等待当前会话刷新成功后再发送原请求。
  */
-import type { HttpClientBase } from '@spark-appworks/spark-utils'
+import type { HttpClientBase, RequestConfig } from '@spark-appworks/spark-utils'
 
 import { LowcodeCatalogApi } from './catalog/lowcode-catalog-api.js'
+import { LowcodeApiError } from './core/lowcode-api-error.js'
 import { LowcodeDesignApi } from './design/lowcode-design-api.js'
 import { LowcodeApplicationStore } from './platform/lowcode-application-store.js'
 import { DataSpaceApi } from './platform/data-space/data-space-api.js'
@@ -33,6 +34,12 @@ export type LowcodeApiOptions = Readonly<{
   readNavigationRootId?: LowcodePlatformApiOptions['readNavigationRootId']
 }>
 
+/** 派发守卫与清理会话的归属来自同次请求。显式续期只需要认证仍当前才可派发。 */
+type LowcodeRequestOwnership = Readonly<{
+  canDispatch(): boolean
+  canExpireSession(): boolean
+}>
+
 /** lowcode 平台统一入口，按子域划分只读/读写能力，共享同一 `HttpClientBase` 与 `LowcodeSessionStore`。 */
 export class LowcodeApi {
   public readonly catalog: LowcodeCatalogApi
@@ -42,6 +49,7 @@ export class LowcodeApi {
   public readonly platform: LowcodePlatformApi
   public readonly permission: PermissionApi
   public readonly session: LowcodeSessionStore
+  private readonly requestOwners = new WeakMap<RequestConfig, LowcodeRequestOwnership>()
 
   public constructor(options: LowcodeApiOptions) {
     this.session = new LowcodeSessionStore({
@@ -67,30 +75,55 @@ export class LowcodeApi {
     this.permission = new PermissionApi(options.http)
     options.http.interceptors.request.use({
       onRequest: async (config) => {
+        if (config.meta?.['lowcodeSkipAuth'] === true) return config
+
         const headers = config.headers ?? {}
-        if (
-          config.meta?.['lowcodeSkipAuth'] === true
-          || (
-            headers['Authorization'] !== undefined
-            && headers['X-Authorization'] !== undefined
-          )
-        ) {
-          return config
-        }
         let session = this.session.get()
         if (session === null) return config
+        const authenticationIsCurrent = this.platform.captureAuthenticationScope()
+        const applicationRevision = this.application.revision
+        const ownsAuthentication = () => authenticationIsCurrent() && this.session.get() === session
+        const ownsApplicationRequest = () => ownsAuthentication() && this.application.revision === applicationRevision
+
+        const authorization = headers['Authorization']
+        const refreshAuthorization = headers['X-Authorization']
+        if (authorization !== undefined && refreshAuthorization !== undefined) {
+          if (authorization === `Bearer ${session.accessToken}`
+            && refreshAuthorization === `Bearer ${session.refreshToken}`) {
+            this.requestOwners.set(config, { canDispatch: ownsAuthentication, canExpireSession: ownsApplicationRequest })
+          }
+          return config
+        }
         if (session.accessExpiresAt <= Date.now() && session.refreshExpiresAt > Date.now()) {
           session = await this.platform.refreshSession()
+          if (!ownsApplicationRequest()) {
+            throw new LowcodeApiError(409, '刷新期间认证会话或应用已切换，原请求已失效')
+          }
         }
-        return {
+        const authenticated = {
           ...config,
           headers: {
             ...headers,
             Authorization: `Bearer ${session.accessToken}`,
           },
         }
+        this.requestOwners.set(authenticated, { canDispatch: ownsApplicationRequest, canExpireSession: ownsApplicationRequest })
+        return authenticated
+      },
+      beforeDispatch: (config) => {
+        if (this.requestOwners.get(config)?.canDispatch() === false) {
+          throw new LowcodeApiError(409, '认证会话或应用已切换，原请求已失效')
+        }
       },
     })
+  }
+
+  /** 仅当返回 401 的派发请求仍归当前认证和应用时，使该会话失效。 */
+  public expireUnauthorizedRequest(dispatchedConfig?: RequestConfig): boolean {
+    if (dispatchedConfig === undefined || this.requestOwners.get(dispatchedConfig)?.canExpireSession() !== true) return false
+    this.application.clear()
+    this.session.clear()
+    return true
   }
 
   /** 已认证登录身份的请求范围；Bearer 由共享 HTTP 拦截器注入，不包含应用头或凭据。 */

@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 243,
+  "consumerCount": 244,
   "directUnmatchedCount": 114,
   "consumers": [
     {
@@ -1049,93 +1049,99 @@
       "scope": "app-composition"
     },
     {
+      "expression": "/api/LoginAuthority/UserLogoutByEnt",
+      "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
+      "sourceLine": 252,
+      "scope": "app-composition"
+    },
+    {
       "expression": "/api/LoginAuthority/UserLoginByEnt",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 931,
+      "sourceLine": 1060,
       "scope": "app-composition"
     },
     {
       "expression": "/api/DataOperation/GetBaseData",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 975,
+      "sourceLine": 1104,
       "scope": "app-composition"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1029,
+      "sourceLine": 1158,
       "scope": "app-composition"
     },
     {
       "expression": "/api/LoginAuthority/UserLogoutByEnt",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1072,
+      "sourceLine": 1201,
       "scope": "app-composition"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1161,
+      "sourceLine": 1290,
       "scope": "app-composition"
     },
     {
       "expression": "/api/File/content/text",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1168,
+      "sourceLine": 1297,
       "scope": "app-composition"
     },
     {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1220,
+      "sourceLine": 1349,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1255,
+      "sourceLine": 1384,
       "scope": "app-composition"
     },
     {
       "expression": "/api/LoginAuthority/UserLoginByEnt",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "sourceLine": 255,
+      "sourceLine": 268,
       "scope": "app-composition"
     },
     {
       "expression": "/api/DataOperation/GetBaseData",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "sourceLine": 284,
+      "sourceLine": 303,
       "scope": "app-composition"
     },
     {
       "expression": "/api/message/code/send/public",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "sourceLine": 295,
+      "sourceLine": 314,
       "scope": "app-composition"
     },
     {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "sourceLine": 310,
+      "sourceLine": 329,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "sourceLine": 334,
+      "sourceLine": 353,
       "scope": "app-composition"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "sourceLine": 369,
+      "sourceLine": 397,
       "scope": "app-composition"
     },
     {
       "expression": "/api/LoginAuthority/UserLogoutByEnt",
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "sourceLine": 398,
+      "sourceLine": 428,
       "scope": "app-composition"
     },
     {

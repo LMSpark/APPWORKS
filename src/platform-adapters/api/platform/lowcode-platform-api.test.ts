@@ -20,8 +20,9 @@ class FixtureHttpClient extends HttpClientBase {
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requestConfig = config
     this.requestConfigs.push(config)
+    const response = Array.isArray(this.fixture) ? this.fixture[this.fixtureIndex++] : this.fixture
     return {
-      data: Array.isArray(this.fixture) ? this.fixture[this.fixtureIndex++] : this.fixture,
+      data: response instanceof Promise ? await response : response,
       status: 200,
       statusText: 'OK',
       headers: {},
@@ -126,7 +127,135 @@ function deferred<T>(): Readonly<{
   return { promise, resolve: resolvePromise, reject: rejectPromise }
 }
 
+const nextCredentials = { enterpriseName: 'Next', account: 'next', password: 'fixture-password' }
+
+function refreshResult(token: string) {
+  return { Code: 200, Result: {
+    token, refreshToken: `${token}-refresh`, expire: Date.now() + 60_000, refreshExpire: Date.now() + 120_000,
+  } }
+}
+
+function loginResult(account: string) {
+  const response = refreshResult(account)
+  return { ...response, Result: { ...response.Result,
+    userinfo: { ROWID: `user-${account}`, LoginName: account, EntId: 'E2', EntShortName: 'Next' },
+    entinfo: { rowid: 'E2', ShortName: 'Next' },
+  } }
+}
+
 describe('LowcodePlatformApi', () => {
+  it('does not restore a signed-out session from a late refresh', async () => {
+    const oldResponse = deferred<unknown>()
+    const http = new FixtureHttpClient([oldResponse.promise, { Code: 200, Result: null }])
+    const api = authenticatedFileApi(http)
+
+    const refreshing = api.platform.refreshSession()
+    await vi.waitFor(() => expect(http.requestConfigs).toHaveLength(1))
+    await api.platform.logout()
+    const stale = expect(refreshing).rejects.toThrow()
+    oldResponse.resolve(refreshResult('old'))
+
+    await stale
+    expect(api.session.get()).toBeNull()
+    expect(api.application.get()).toBeNull()
+  })
+
+  it('does not replace a newer login or its application when the earlier login completes', async () => {
+    const earlierResponse = deferred<unknown>()
+    const http = new FixtureHttpClient([earlierResponse.promise, loginResult('next')])
+    const api = authenticatedFileApi(http)
+
+    const earlier = api.platform.login({ ...nextCredentials, account: 'earlier' })
+    await vi.waitFor(() => expect(http.requestConfigs).toHaveLength(1))
+    const current = await api.platform.login(nextCredentials)
+    selectFixtureApplication(api)
+    const stale = expect(earlier).rejects.toThrow()
+    earlierResponse.resolve(loginResult('earlier'))
+
+    await stale
+    expect(api.session.get()).toBe(current)
+    expect(api.application.get()?.application.id).toBe('APP-1')
+  })
+
+  it.each([200, 401])('leaves the new session and application intact when the previous logout returns %i', async (code) => {
+    const logoutResponse = deferred<unknown>()
+    const http = new FixtureHttpClient([logoutResponse.promise, loginResult('next')])
+    const api = authenticatedFileApi(http)
+
+    const logout = api.platform.logout()
+    await vi.waitFor(() => expect(http.requestConfigs).toHaveLength(1))
+    const current = await api.platform.login(nextCredentials)
+    selectFixtureApplication(api)
+    const settlement = code === 200 ? expect(logout).resolves.toBeUndefined() : expect(logout).rejects.toBeInstanceOf(LowcodeApiError)
+    logoutResponse.resolve({ Code: code, Result: null, Message: 'fixture logout failed' })
+
+    await settlement
+    expect(api.session.get()).toBe(current)
+    expect(api.application.get()?.application.id).toBe('APP-1')
+    expect(http.requestConfigs[0]?.headers?.['Authorization']).toBe('Bearer fixture-access')
+  })
+
+  it('keeps refresh work separate across logins and coalesces requests for the new session', async () => {
+    const oldResponse = deferred<unknown>()
+    const newResponse = deferred<unknown>()
+    const http = new FixtureHttpClient([oldResponse.promise, loginResult('next'), newResponse.promise])
+    const api = authenticatedFileApi(http)
+
+    const oldRefresh = api.platform.refreshSession()
+    await vi.waitFor(() => expect(http.requestConfigs).toHaveLength(1))
+    const current = await api.platform.login(nextCredentials)
+    selectFixtureApplication(api)
+    const newRefresh = api.platform.refreshSession()
+    const stale = expect(oldRefresh).rejects.toThrow()
+    oldResponse.resolve(refreshResult('old'))
+
+    await stale
+    expect(api.session.get()).toBe(current)
+    expect(api.platform.refreshSession()).toBe(newRefresh)
+    newResponse.resolve(refreshResult('new'))
+    await expect(newRefresh).resolves.toMatchObject({ accessToken: 'new', identity: current.identity })
+    expect(http.requestConfigs).toHaveLength(3)
+    expect(http.requestConfigs[2]?.headers).toMatchObject({ Authorization: 'Bearer next', 'X-Authorization': 'Bearer next-refresh' })
+    expect(api.application.get()?.application.id).toBe('APP-1')
+  })
+
+  it('does not send the original scoped request when login overtakes its automatic refresh', async () => {
+    const oldResponse = deferred<unknown>()
+    const http = new FixtureHttpClient([oldResponse.promise, loginResult('next'), { Code: 200, Result: 'old file' }])
+    const api = authenticatedFileApi(http)
+    const initial = api.session.get()
+    if (initial === null) throw new Error('session fixture missing')
+    api.session.save({ ...initial, accessExpiresAt: 0 })
+
+    const read = api.design.readTextFile({ appType: 'vue', customPath: '', fileName: 'page.json' })
+    await vi.waitFor(() => expect(http.requestConfigs).toHaveLength(1))
+    const current = await api.platform.login(nextCredentials)
+    const stale = expect(read).rejects.toThrow()
+    oldResponse.resolve(refreshResult('old'))
+
+    await stale
+    expect(api.session.get()).toBe(current)
+    expect(http.requestConfigs).toHaveLength(2)
+  })
+
+  it('sends the captured logout token without refreshing it and clears the current session on remote failure', async () => {
+    const http = new FixtureHttpClient({ Code: 401, Message: 'fixture logout failed' })
+    const api = authenticatedFileApi(http)
+    const initial = api.session.get()
+    if (initial === null) throw new Error('session fixture missing')
+    api.session.save({ ...initial, accessExpiresAt: 0 })
+
+    await expect(api.platform.logout()).rejects.toThrow('fixture logout failed')
+
+    expect(http.requestConfigs).toHaveLength(1)
+    expect(http.requestConfigs[0]).toMatchObject({
+      url: '/api/LoginAuthority/UserLogoutByEnt',
+      headers: { Authorization: 'Bearer fixture-access' },
+    })
+    expect(api.session.get()).toBeNull()
+    expect(api.application.get()).toBeNull()
+  })
+
   it('rejects a changed host condition before saving the selected application', async () => {
     const api = authenticatedFileApi(new FixtureHttpClient({}))
     const gate = deferred<string>()

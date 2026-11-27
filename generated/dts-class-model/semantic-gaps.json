@@ -37135,7 +37135,7 @@
       "chainBreak": "LowcodeApi.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/api/lowcode-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/api/lowcode-api.ts",
-      "declarationLine": 39,
+      "declarationLine": 40,
       "sourceFile": "src/platform-adapters/api/lowcode-api.ts",
       "declarationKind": "class"
     },
@@ -38505,7 +38505,7 @@
       "chainBreak": "LowcodePlatformApi.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/api/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "declarationLine": 124,
+      "declarationLine": 126,
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
       "declarationKind": "class"
     },
@@ -38517,7 +38517,7 @@
       "chainBreak": "LowcodePlatformApi.session 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/api/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "declarationLine": 125,
+      "declarationLine": 127,
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
       "declarationKind": "class"
     },
@@ -38529,7 +38529,7 @@
       "chainBreak": "LowcodePlatformApi.application 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/api/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
-      "declarationLine": 126,
+      "declarationLine": 128,
       "sourceFile": "src/platform-adapters/api/platform/lowcode-platform-api.ts",
       "declarationKind": "class"
     },
@@ -52508,7 +52508,7 @@
       "chainBreak": "LowcodePageNavigationReceiptCommand 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 72,
+      "declarationLine": 76,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "typeAlias"
     },
@@ -52520,7 +52520,7 @@
       "chainBreak": "LowcodePageNavigationReceiptCommand.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 73,
+      "declarationLine": 77,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52532,7 +52532,7 @@
       "chainBreak": "LowcodePageNavigationReceiptCommand.pageId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 74,
+      "declarationLine": 78,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52544,7 +52544,7 @@
       "chainBreak": "LowcodePageNavigationReceiptCommand.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 75,
+      "declarationLine": 79,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52556,7 +52556,7 @@
       "chainBreak": "LowcodePageNavigationReceiptCommand.mainScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 76,
+      "declarationLine": 80,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52568,7 +52568,7 @@
       "chainBreak": "LowcodePageNavigationReceiptCommand.scenarioIds 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 77,
+      "declarationLine": 81,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52579,7 +52579,7 @@
       "chainBreak": "LowcodeReceiptFileReader 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 79,
+      "declarationLine": 83,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "typeAlias"
     },
@@ -52591,7 +52591,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.applicationName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 87,
+      "declarationLine": 91,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52603,7 +52603,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 88,
+      "declarationLine": 92,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52615,7 +52615,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.navigationRootId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 89,
+      "declarationLine": 93,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52627,7 +52627,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.records 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 90,
+      "declarationLine": 94,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52639,7 +52639,7 @@
       "chainBreak": "LowcodeRuntimeNavigationAssemblyInput.authorization 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 91,
+      "declarationLine": 95,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52651,7 +52651,7 @@
       "chainBreak": "LowcodeProjectGateways.blueprint 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 106,
+      "declarationLine": 110,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52663,7 +52663,7 @@
       "chainBreak": "LowcodeProjectGateways.projectReferences 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 107,
+      "declarationLine": 111,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },
@@ -52675,7 +52675,7 @@
       "chainBreak": "LowcodeProjectGateways.scenarioViews 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/platform-adapters/lowcode-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/platform-adapters/lowcode-runtime.ts",
-      "declarationLine": 108,
+      "declarationLine": 112,
       "sourceFile": "src/platform-adapters/lowcode-runtime.ts",
       "declarationKind": "interface"
     },

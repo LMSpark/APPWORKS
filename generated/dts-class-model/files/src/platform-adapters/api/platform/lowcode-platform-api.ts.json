@@ -531,6 +531,15 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.captureAuthenticationScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.captureAuthenticationScope.return": {
+          "type": "object",
+          "title": "() => boolean"
+        },
         "method.selectApplication.params": {
           "type": "object",
           "properties": {
@@ -582,7 +591,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T08:13:33.171Z",
+  "generatedAt": "2026-11-27T20:52:02.677Z",
   "models": {
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
@@ -1187,7 +1196,7 @@
     },
     "LowcodePlatformApi": {
       "name": "LowcodePlatformApi",
-      "jsdoc": "低代码平台 HTTP 门面；并发 refreshSession 共享同一 in-flight Promise，避免重复刷新。",
+      "jsdoc": "低代码平台 HTTP 门面。认证结果只更新发起操作时的会话，并发刷新仅在当前会话内合并。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -1333,7 +1342,7 @@
             },
             {
               "name": "refreshSession",
-              "jsdoc": "刷新 token 对；并发调用合并为单次请求，无会话时 401。",
+              "jsdoc": "只刷新当前会话。登录或登出等待服务应答期间暂停新的刷新请求。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1349,7 +1358,7 @@
             },
             {
               "name": "logout",
-              "jsdoc": "登出；远端失败仍本地清空会话与应用上下文，避免残留凭据。",
+              "jsdoc": "登出发送原会话的 access token。只有当前登出结算时清空本地会话与应用上下文。",
               "parameters": [],
               "type": {
                 "type": "reference",
@@ -1360,6 +1369,25 @@
                     "name": "void"
                   }
                 ]
+              }
+            },
+            {
+              "name": "captureAuthenticationScope",
+              "jsdoc": "判定捕获时的登录操作和执行身份是否仍有效。同身份续期保留执行身份。",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "boolean"
+                      }
+                    }
+                  ]
+                }
               }
             },
             {

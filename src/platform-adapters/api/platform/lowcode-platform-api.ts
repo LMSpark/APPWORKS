@@ -113,6 +113,17 @@ type ApplicationSelectionFence = Readonly<{
   signal?: AbortSignal
 }>
 
+type AuthenticationFence = Readonly<{
+  intent: number
+  sessionRevision: number
+}>
+
+type SessionRefreshRequest = Readonly<{
+  fence: AuthenticationFence
+  session: LowcodeSession
+  promise: Promise<LowcodeSession>
+}>
+
 type ApplicationSelectionExpectation = Readonly<{
   applicationId: string
   navigationRootId: string
@@ -226,13 +237,15 @@ function parseEnterprise(
 }
 
 /**
- * 低代码平台 HTTP 门面；并发 refreshSession 共享同一 in-flight Promise，避免重复刷新。
+ * 低代码平台 HTTP 门面。认证结果只更新发起操作时的会话，并发刷新仅在当前会话内合并。
  */
 export class LowcodePlatformApi {
   private readonly client: LowcodeClient
   private readonly readApplicationById: LowcodePlatformApiOptions['readApplicationById']
   private readonly readNavigationRootId: LowcodePlatformApiOptions['readNavigationRootId']
-  private refreshPromise: Promise<LowcodeSession> | null = null
+  private authenticationIntent = 0
+  private authenticationTransitionPending = false
+  private refreshRequest: SessionRefreshRequest | null = null
   private applicationSelectionIntent = 0
   private pendingApplicationSelectionIntent: number | null = null
 
@@ -249,33 +262,39 @@ export class LowcodePlatformApi {
 
   /** 企业域登录；响应须含 userinfo、entinfo、token、refreshToken、expire、refreshExpire，成功后清空应用上下文。 */
   public async login(credentials: LowcodeLoginCredentials): Promise<LowcodeSession> {
-    this.applicationSelectionIntent += 1
-    this.pendingApplicationSelectionIntent = null
-    const result = await this.client.requestResult({
-      path: '/api/LoginAuthority/UserLoginByEnt',
-      method: 'POST',
-      data: {
-        strUser: credentials.account,
-        strPwd: credentials.password,
-        entName: credentials.enterpriseName,
-      },
-      authenticated: false,
-    })
-    if (!isRecord(result)) throw new LowcodeApiError(0, '登录 Result 不是对象')
+    const fence = this.beginAuthenticationTransition()
+    try {
+      const result = await this.client.requestResult({
+        path: '/api/LoginAuthority/UserLoginByEnt',
+        method: 'POST',
+        data: {
+          strUser: credentials.account,
+          strPwd: credentials.password,
+          entName: credentials.enterpriseName,
+        },
+        authenticated: false,
+      })
+      if (!this.isAuthenticationCurrent(fence)) {
+        throw new LowcodeApiError(409, '登录操作已失效')
+      }
+      if (!isRecord(result)) throw new LowcodeApiError(0, '登录 Result 不是对象')
 
-    const userInfo = readRequiredRecord(result, 'userinfo', '登录响应')
-    const enterpriseInfo = readRequiredRecord(result, 'entinfo', '登录响应')
-    const session: LowcodeSession = {
-      accessToken: stripBearer(readRequiredString(result, 'token', '登录响应')),
-      refreshToken: stripBearer(readRequiredString(result, 'refreshToken', '登录响应')),
-      accessExpiresAt: readRequiredNumber(result, 'expire', '登录响应'),
-      refreshExpiresAt: readRequiredNumber(result, 'refreshExpire', '登录响应'),
-      identity: parseIdentity(userInfo, credentials),
-      enterprise: parseEnterprise(enterpriseInfo, credentials),
+      const userInfo = readRequiredRecord(result, 'userinfo', '登录响应')
+      const enterpriseInfo = readRequiredRecord(result, 'entinfo', '登录响应')
+      const session: LowcodeSession = {
+        accessToken: stripBearer(readRequiredString(result, 'token', '登录响应')),
+        refreshToken: stripBearer(readRequiredString(result, 'refreshToken', '登录响应')),
+        accessExpiresAt: readRequiredNumber(result, 'expire', '登录响应'),
+        refreshExpiresAt: readRequiredNumber(result, 'refreshExpire', '登录响应'),
+        identity: parseIdentity(userInfo, credentials),
+        enterprise: parseEnterprise(enterpriseInfo, credentials),
+      }
+      this.application.clear()
+      this.session.save(session)
+      return session
+    } finally {
+      this.finishAuthenticationTransition(fence)
     }
-    this.application.clear()
-    this.session.save(session)
-    return session
   }
 
   /** 拉取公开企业目录；无需已登录会话。 */
@@ -354,17 +373,26 @@ export class LowcodePlatformApi {
     return registrationResult(result)
   }
 
-  /** 刷新 token 对；并发调用合并为单次请求，无会话时 401。 */
+  /** 只刷新当前会话。登录或登出等待服务应答期间暂停新的刷新请求。 */
   public refreshSession(): Promise<LowcodeSession> {
-    this.refreshPromise ??= this.performRefresh().finally(() => {
-      this.refreshPromise = null
+    if (this.authenticationTransitionPending) {
+      return Promise.reject(new LowcodeApiError(409, '登录或登出进行中，无法刷新会话'))
+    }
+    const session = this.session.get()
+    if (session === null) return Promise.reject(new LowcodeApiError(401, '没有可刷新的 lowcode 会话'))
+
+    const pending = this.refreshRequest
+    if (pending?.session === session && this.isAuthenticationCurrent(pending.fence)) return pending.promise
+
+    const fence = { intent: this.authenticationIntent, sessionRevision: this.session.revision }
+    const promise = this.performRefresh(fence, session).finally(() => {
+      if (this.refreshRequest?.promise === promise) this.refreshRequest = null
     })
-    return this.refreshPromise
+    this.refreshRequest = { fence, session, promise }
+    return promise
   }
 
-  private async performRefresh(): Promise<LowcodeSession> {
-    const session = this.session.get()
-    if (session === null) throw new LowcodeApiError(401, '没有可刷新的 lowcode 会话')
+  private async performRefresh(fence: AuthenticationFence, session: LowcodeSession): Promise<LowcodeSession> {
     const result = await this.client.requestResult({
       path: '/api/LoginAuthority/refresh',
       method: 'POST',
@@ -374,6 +402,9 @@ export class LowcodePlatformApi {
         'X-Authorization': bearer(session.refreshToken),
       },
     })
+    if (!this.isAuthenticationCurrent(fence) || this.session.get() !== session) {
+      throw new LowcodeApiError(409, '刷新操作已失效')
+    }
     if (!isRecord(result)) throw new LowcodeApiError(0, '刷新 Result 不是对象')
 
     const refreshed: LowcodeSession = {
@@ -387,23 +418,48 @@ export class LowcodePlatformApi {
     return refreshed
   }
 
-  /** 登出；远端失败仍本地清空会话与应用上下文，避免残留凭据。 */
+  /** 登出发送原会话的 access token。只有当前登出结算时清空本地会话与应用上下文。 */
   public async logout(): Promise<void> {
-    this.applicationSelectionIntent += 1
-    this.pendingApplicationSelectionIntent = null
-    const session = this.session.get()
+    const fence = this.beginAuthenticationTransition()
     try {
+      const session = this.session.get()
       if (session !== null) {
         await this.client.requestResult({
           path: '/api/LoginAuthority/UserLogoutByEnt',
           method: 'GET',
           headers: { Authorization: bearer(session.accessToken) },
+          authenticated: false,
         })
       }
     } finally {
-      this.application.clear()
-      this.session.clear()
+      this.finishAuthenticationTransition(fence)
+      if (this.isAuthenticationCurrent(fence)) {
+        this.application.clear()
+        this.session.clear()
+      }
     }
+  }
+
+  /** 判定捕获时的登录操作和执行身份是否仍有效。同身份续期保留执行身份。 */
+  public captureAuthenticationScope(): () => boolean {
+    const fence = { intent: this.authenticationIntent, sessionRevision: this.session.revision }
+    const settled = !this.authenticationTransitionPending
+    return () => settled && !this.authenticationTransitionPending && this.isAuthenticationCurrent(fence)
+  }
+
+  private beginAuthenticationTransition(): AuthenticationFence {
+    this.applicationSelectionIntent += 1
+    this.pendingApplicationSelectionIntent = null
+    this.authenticationTransitionPending = true
+    return { intent: ++this.authenticationIntent, sessionRevision: this.session.revision }
+  }
+
+  private finishAuthenticationTransition(fence: AuthenticationFence): void {
+    if (fence.intent === this.authenticationIntent) this.authenticationTransitionPending = false
+  }
+
+  private isAuthenticationCurrent(fence: AuthenticationFence): boolean {
+    return fence.intent === this.authenticationIntent && fence.sessionRevision === this.session.revision
   }
 
   /** 选中应用并持久化应用上下文（含 navigationRootId）；返回解析到的导航根 id。 */

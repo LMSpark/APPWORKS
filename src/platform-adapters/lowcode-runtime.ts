@@ -101,10 +101,8 @@ const scenarioFileUpload = new LowcodePlatform.LowcodeDesignFileUpload({
 export {scenarioFileUpload as lowcodeDesignFileUpload}
 
 lowcodeHttp.interceptors.response.use({
-  onResponseError: (error) => {
-    if (error.status === 401) {
-      lowcodeApi.application.clear()
-      lowcodeApi.session.clear()
+  onResponseError: (error, dispatchedConfig) => {
+    if (error.status === 401 && lowcodeApi.expireUnauthorizedRequest(dispatchedConfig)) {
       if (typeof window !== 'undefined' && window.location.pathname !== '/') {
         window.location.href = '/'
       }

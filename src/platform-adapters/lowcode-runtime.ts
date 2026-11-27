@@ -77,6 +77,23 @@ export const lowcodeCatalogDataSpace = new LowcodePlatform.DataSpaceApi({
   readScope: () => lowcodeApi.readAuthenticatedRequestScope(),
 })
 
+/** 无应用系统页的请求随应用选择代次失效，沿用原认证请求头。 */
+export function readLowcodeCatalogRuntimeRequestScope(): ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope> {
+  let scope: ReturnType<typeof lowcodeApi.readAuthenticatedRequestScope>
+  try { scope = lowcodeApi.readAuthenticatedRequestScope() }
+  catch (cause) { throw new Error('SPARK_EXECUTION_SCOPE_STALE: 目录作用域登录会话已失效', {cause}) }
+  if (lowcodeApi.application.get() !== null) {
+    throw new Error('SPARK_EXECUTION_SCOPE_STALE: 当前已选中应用，目录场景已失效')
+  }
+  return { ...scope, token: JSON.stringify([scope.token, lowcodeApi.application.revision]) }
+}
+
+/** 无应用 PageRuntime 共用正式模型 owner，查询缓存与保存基线沿同一执行代次。 */
+export const lowcodeCatalogRuntimeDataSpace = new LowcodePlatform.DataSpaceApi({
+  http: lowcodeHttp,
+  readScope: readLowcodeCatalogRuntimeRequestScope,
+})
+
 const scenarioFileUpload = new LowcodePlatform.LowcodeDesignFileUpload({
   http: lowcodeHttp,
   readScope: () => lowcodeApi.readRequestScope(),

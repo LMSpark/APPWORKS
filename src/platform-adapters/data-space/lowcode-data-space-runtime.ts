@@ -3,7 +3,8 @@
  * 职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。
  */
 import { DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceApi } from '@/platform-adapters/api'
-import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogDataSpace, lowcodeDesignFileUpload, lowcodeHttp, verifyLowcodeNativeApplicationPlan } from '../lowcode-runtime'
+import { createLowcodeProjectGateways, lowcodeApi, lowcodeCatalogRuntimeDataSpace, lowcodeDesignFileUpload, lowcodeHttp,
+ readLowcodeCatalogRuntimeRequestScope, verifyLowcodeNativeApplicationPlan } from '../lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { readRepositoryScenarioText } from '../resources/repository/scenarios/resource'
 import { LowcodeDataSpaceAssembler, type LowcodeDataSpaceAssembly } from './lowcode-data-space-assembler'
@@ -64,7 +65,7 @@ export type LoadScenarioDataSetInput = Readonly<{
 /** 执行项目对应的请求作用域：应用目录（企业级、平台级）只带登录身份，其它为当前选中应用。 */
 function executionScopeOf(projectId: string): Readonly<{dataSpace: DataSpaceApi; readScope: () => ReturnType<typeof lowcodeApi.readRequestScope>}> {
  return projectId === APPLICATION_CATALOG_PROJECT_ID
-  ? {dataSpace: lowcodeCatalogDataSpace, readScope: () => lowcodeApi.readAuthenticatedRequestScope()}
+  ? {dataSpace: lowcodeCatalogRuntimeDataSpace, readScope: readLowcodeCatalogRuntimeRequestScope}
   : {dataSpace: lowcodeApi.dataSpace, readScope: () => lowcodeApi.readRequestScope()}
 }
 
@@ -490,12 +491,11 @@ async function loadCatalogRuntimeScenario(command: Readonly<{ projectId: string;
  const {projectId, scenarioId} = command
  const resource = resolveSystemScenarioResource(scenarioId)
  if (!resource) throw new Error(`CATALOG_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统场景，目录作用域不能装配`)
- const token = lowcodeApi.readAuthenticatedRequestScope().token
+ const token = readLowcodeCatalogRuntimeRequestScope().token
  const assertCurrent = (): void => {
-  let current: string
-  try {current = lowcodeApi.readAuthenticatedRequestScope().token}
-  catch {throw new Error('SPARK_EXECUTION_SCOPE_STALE: 目录作用域登录会话已失效')}
-  if (current !== token || lowcodeApi.application.get() !== null) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 目录作用域登录会话或应用选择已变化')
+  if (readLowcodeCatalogRuntimeRequestScope().token !== token) {
+   throw new Error('SPARK_EXECUTION_SCOPE_STALE: 目录作用域登录会话或应用代次已变化')
+  }
  }
  assertCurrent()
  const text = await readRepositoryScenarioText(resource, assertCurrent)

@@ -154,8 +154,11 @@ export class DataSpaceRuntimeApi {
       isCurrent: () => !view.isDestroyed() && !view.dataSet?.destroyed,
       ...(accept === undefined ? {} : {accept}),
     } : undefined
+    const output = options.outputType
+    const queryOwner = output === 'Join' || output === 'Navigation' || output === 'HierarchyData' ? undefined : view
     const flight = this.queryCache.query({
       ...(assertQueryCurrent ? {assertQueryCurrent} : {}),
+      ...(queryOwner === undefined ? {} : { queryOwner }),
       ...(input.projection === undefined ? {} : {projection: input.projection}),
       identity: normalized,
       options,
@@ -608,11 +611,12 @@ export class DataSpaceRuntimeApi {
       }))
       this.assertScope(scope)
       changes.forEach(change => this.assertContextOwner(scope, change))
+      const pending = pendingFor()
+      if (!pending) this.assertNoOtherPendingSave(scope, changes)
       this.invalidateQueryCache()
       let receipts: DataSpaceRuntimeSaveResult
       let responseAccepted = false
       try {
-        const pending = pendingFor()
         if (pending !== undefined) {
           try { receipts = await this.verifyUnconfirmedSave({changes: pending.captures, scope, keys}) }
           catch (cause) {
@@ -674,6 +678,23 @@ export class DataSpaceRuntimeApi {
         if (this.#mutationFlights.get(key) === tail) this.#mutationFlights.delete(key)
       })
     })
+  }
+
+  /** An independent context cannot write a formal key whose earlier save remains unconfirmed in this owner. */
+  private assertNoOtherPendingSave(scope: string, changes: readonly DataSpaceRuntimePreparedSaveChange[]): void {
+    if (this.#unconfirmed.size === 0) return
+    const rowKeys = (resource: string, change: DataSpaceRuntimePreparedSaveChange) =>
+      change.recovery.entries.map(entry => JSON.stringify([resource, change.recovery.primaryKey,
+        String(entry.identity[change.recovery.primaryKey]).trim()]))
+    const submitted = new Set(changes.flatMap(change => rowKeys(this.resourceKey(scope, change.identity), change)))
+    for (const record of new Set(this.#unconfirmed.values())) {
+      for (const capture of record.captures) {
+        const owner = this.#contexts.get(capture.context)
+        if (owner !== undefined && rowKeys(owner, capture).some(key => submitted.has(key))) {
+          throw new Error('SPARK_SAVE_OTHER_RECEIPT_PENDING: 同一正式记录的另一笔写入仍待原实例核验')
+        }
+      }
+    }
   }
 
   /** Read each original model once by captured formal keys; no mutation endpoint is involved. */

@@ -673,8 +673,14 @@ export class DataSpaceQueryContext {
       .map(row => {
         const proof = changedByKey.get(canonicalSaveRecoveryValue(this.rowKeyValue(row)))
         if (proof === undefined) return row
-        const patch = Object.fromEntries(proof.entry.changedFields.map(field => [field, structuredClone(proof.raw[field])]))
-        return {...row, ...patch}
+        const refreshed = {...row}
+        for (const field of proof.entry.changedFields) refreshed[field] = structuredClone(proof.raw[field])
+        // The exact-key query owns the recovered row's permission and write credential together.
+        for (const field of ['lingma_sys_params', 'lingma_sys_key']) {
+          if (Object.hasOwn(proof.raw, field)) refreshed[field] = proof.raw[field]
+          else Reflect.deleteProperty(refreshed, field)
+        }
+        return refreshed
       })
     const keys = new Set(retained.map(row => canonicalSaveRecoveryValue(this.rowKeyValue(row))))
     for (const row of addedRows) {

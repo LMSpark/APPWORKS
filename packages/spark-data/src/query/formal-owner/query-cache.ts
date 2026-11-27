@@ -35,6 +35,8 @@ type DataSpaceQueryCacheQueryInput = Readonly<{
   options?: DataSpaceQueryOptions
   config?: DataSpaceRequestConfig
   cache?: ResultCacheRequest
+  /** 可能提供写入权限的正式结果由本次 DataView 持有。 */
+  queryOwner?: object
 }>
 
 type DataSpaceQueryCacheLoadInput = Readonly<{
@@ -89,7 +91,7 @@ export class DataSpaceQueryCache {
     const scope = this.currentScope()
     const normalized = new DataSpaceQueryTable(input.identity).identity
     const { singleFlight: _singleFlight, ...executionOptions } = options
-    const key = this.cacheKey([scope, normalized, config.endpoint, config.timeout, cache?.definition, input.assertQueryCurrent,
+    const key = this.cacheKey([scope, normalized, config.endpoint, config.timeout, cache?.definition, input.queryOwner, input.assertQueryCurrent,
       input.projection?.owner, input.projection?.signature, input.projection?.columns, { ...executionOptions,
       ...(executionOptions.filter === undefined ? {} : { filter: executionOptions.filter?.toJSON() ?? null }) }])
     const load = () => this.load({key, normalized, executionOptions, config, ...(cache?.accept ? {accept: cache.accept} : {}),

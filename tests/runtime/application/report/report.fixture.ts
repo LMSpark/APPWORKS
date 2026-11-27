@@ -13,6 +13,8 @@ const fields = {
   功能导航状态字典: ['rowid', 'val', 'txt'],
 }
 
+const sharedReportOwners = new WeakMap<ApiBackend, DataSpaceRuntimeApi>()
+
 function createReportBackend() {
   const http = new ApiBackend()
   http.records = {
@@ -35,7 +37,8 @@ export async function createReportRuntime(scenario: string, http = createReportB
         queryConfig: {fields: names, allPages: true}}} : {}),
       ...(name === 'Base_DataSet' ? {picker: {queryConfig: {fields: names}}} : {})},
   }]))
-  const api = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
+  const api = sharedReportOwners.get(http) ?? new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
+  sharedReportOwners.set(http, api)
   const config = new ScenarioViewConfig(scenario, JSON.stringify({scenarioId: scenario, tables}))
   const dataSet = new LowcodeDataSpaceAssembler(api, http).assemble({
     config, space: {dataSpaceId: scenario, name: 'Report'}, models: buildFormalModels(fields), relations: [],

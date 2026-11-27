@@ -846,3 +846,40 @@ describe('报表保存只沿原SPARK Data日志恢复', () => {
     } finally {f.dataSet.destroy()}
   })
 })
+
+it('keeps the original report receipt in its own runtime when the same record is edited twice', async () => {
+  const {ApiBackend} = await import('../../page/api-provider/api-provider.fixture')
+  const http = new ApiBackend()
+  http.records = {
+    Base_ReportInfo: [{rowid: 'RECOVERY-REPORT', RptName: '复核报表', RptDesc: '提交前'}],
+    Base_Report: [],
+  }
+  const scenario = 'report-runtime-receipt-test'
+  const [first, second] = await Promise.all([createReportRuntime(scenario, http), createReportRuntime(scenario, http)])
+  const target = 'RECOVERY-REPORT'
+  const save = (view: DataView) => commitReportChanges({label: '保存报表说明', kind: 'update', targets: [{view, ids: [target]}]})
+  try {
+    await first.info.editRowById(target, {RptDesc: '本次提交'})
+    http.failAfterWrite = true
+    await expect(save(first.info)).rejects.toThrow('核验原保存结果')
+    await second.info.editRowById(target, {RptDesc: '本次提交'})
+    const readsBefore = http.reads.length
+    await expect(save(second.info)).rejects.toThrow('SPARK_SAVE_OTHER_RECEIPT_PENDING')
+    expect(http.reads).toHaveLength(readsBefore)
+    expect(http.saves).toHaveLength(1)
+    expect(first.dataSet.saveJournal.views).toMatchObject([{state: 'unknown', ids: [target]}])
+    expect(second.info.hasUnconfirmedSave).toBe(false)
+    expect(second.dataSet.saveJournal.views).toMatchObject([{state: 'not-applied', ids: [target], completed: true}])
+    const batchId = first.dataSet.saveJournal.batchId
+    if (!batchId) throw new Error('Missing original report save batch')
+    await expect(first.dataSet.verifySaveJournalAndRead({batchId, receiptViews: [first.info], readbackViews: []}))
+      .resolves.toMatchObject({settlement: 'confirmed', journal: {batchId, completed: true}})
+    expect(http.reads).toHaveLength(readsBefore + 1)
+    expect(http.saves).toHaveLength(1)
+    const reopened = await readPersistedReport(scenario, http)
+    expect(reopened.info.rows.find(row => row['rowid'] === target)?.['RptDesc']).toBe('本次提交')
+  } finally {
+    first.runtime.dispose()
+    second.runtime.dispose()
+  }
+})

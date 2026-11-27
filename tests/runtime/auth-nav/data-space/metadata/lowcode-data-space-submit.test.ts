@@ -148,7 +148,7 @@ describe('persisted DataTable submission configuration', () => {
     } finally {f.dataSet.destroy()}
   })
 
-  it.each(['equivalent', 'url', 'headers', 'params', 'timeout'] as const)('isolates in-flight queries by effective %s configuration', async difference => {
+  it.each(['equivalent', 'url', 'headers', 'params', 'timeout'] as const)('keys read-only in-flight queries by effective %s configuration', async difference => {
     const storage = fixture()
     const first = await storage.save({api: {list: {url: '/api/list', headers: {'X-Profile': 'one'},
       params: {a: 1, b: 2}}}, crudConfig: {timeout: 1000}})
@@ -160,6 +160,8 @@ describe('persisted DataTable submission configuration', () => {
         headers: {'x-profile': difference === 'headers' ? 'two' : 'one'},
         params: {b: 2, a: difference === 'params' ? 2 : 1}}})
       second.table.setCrudConfig({timeout: difference === 'timeout' ? 2000 : 1000})
+      first.view.queryConfig = {outputType: 'Navigation'}
+      second.view.queryConfig = {outputType: 'Navigation'}
       first.http.queryResponse = () => new Promise(resolve => {pending.push(resolve)})
       loads.push(first.view.loadFromServer(), second.view.loadFromServer())
       const count = difference === 'equivalent' ? 1 : 2
@@ -171,11 +173,8 @@ describe('persisted DataTable submission configuration', () => {
       expect(first.view.rows[0]?.['title']).toBe('Result 0')
       expect(second.view.rows[0]?.['title']).toBe(`Result ${count - 1}`)
       expect(first.view.rows[0]).not.toBe(second.view.rows[0])
-      await first.view.editRowById('A', {title: 'Changed'})
-      await first.view.saveChanges()
-      expect(first.http.requests.at(-1)?.data).toMatchObject([{CrudModel: {Changed: [
-        {id: 'A', title: 'Changed', lingma_sys_key: 'SIGNED-0'},
-      ]}}])
+      expect(first.view.editActionState(first.view.rows[0]!)).not.toBe('enabled')
+      expect(second.view.editActionState(second.view.rows[0]!)).not.toBe('enabled')
     } finally {
       pending.forEach(resolve => resolve(first.http.query))
       await Promise.allSettled(loads)
@@ -364,18 +363,39 @@ describe('persisted DataTable submission configuration', () => {
     } finally {runtime.dataSet.destroy()}
   })
 
-  it('uses the submitting table when two instances share an in-flight query context', async () => {
+  it('uses each submitting table and its original query when both instances have the same list configuration', async () => {
     const storage = fixture()
     const first = await storage.save({api: {update: {url: '/api/first'}}})
     const second = await storage.reopen(first)
     try {
       second.table.setApi({update: {url: '/api/second'}})
+      let queries = 0
+      first.http.queryResponse = async () => {
+        const index = ++queries
+        return {primaryKeyField: 'id', allowAdd: false, data: {Items: [{id: `Order-${index}`, title: 'Before',
+          lingma_sys_key: `SIGNED-${index}`, lingma_sys_params: {e: ['title']}}], Count: 1}}
+      }
       await Promise.all([first.view.loadFromServer(), second.view.loadFromServer()])
-      expect(first.http.requests).toHaveLength(1)
-      await first.view.editRowById('A', {title: 'Changed'})
-      await first.view.saveChanges()
-      expect(first.http.requests.at(-1)?.url).toBe('/api/first')
-      expect(second.table.api?.update?.url).toBe('/api/second')
+      expect(first.http.requests.map(request => request.url)).toEqual([
+        '/api/DataOperation/GetData', '/api/DataOperation/GetData',
+      ])
+      const orderedViews = [first.view, second.view]
+      for (const [offset, view] of orderedViews.entries()) {
+        const sequence = offset + 1
+        const id = `Order-${sequence}`
+        const title = `Changed-${sequence}`
+        expect(view.rows[0]?.['id']).toBe(id)
+        expect(view.rows[0]).not.toHaveProperty('lingma_sys_key')
+        expect(await view.editRowById(id, {title})).toBe(true)
+        first.http.receipt = {maplistedit: [{PhysicalOrders: [{id, title}]}]}
+        await expect(view.saveChanges()).resolves.toMatchObject({success: true, data: {savedCount: 1}})
+        expect(view.rows[0]?.['title']).toBe(title)
+      }
+      expect(first.http.requests.slice(2)).toMatchObject(['/api/first', '/api/second'].map((url, offset) => {
+        const index = offset + 1
+        return {url, data: [{CrudModel: {Changed: [{id: `Order-${index}`, title: `Changed-${index}`,
+          lingma_sys_key: `SIGNED-${index}`}]}}]}
+      }))
     } finally {first.dataSet.destroy(); second.dataSet.destroy()}
   })
 

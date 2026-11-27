@@ -782,13 +782,13 @@ describe('DataView session result cache', () => {
     } finally {ds.destroy()}
   })
 
-  it.each(['page', 'browser'] as const)('isolates page instances and reuses only browser mode: %s', async cacheType => {
+  it.each(['page', 'browser'] as const)('refetches an editable result for another instance in %s mode', async cacheType => {
     const http = new DataSpaceFixtureHttpClient(), first = connectedView(http), next = connectedView(http, false)
     try {
       first.view.queryConfig = {cacheType}; next.view.queryConfig = {cacheType}
       next.view.bindQueryExecutor(first.executor)
       await first.view.loadFromServer(); first.ds.destroy(); await next.view.loadFromServer()
-      expect(http.queryRequests).toHaveLength(cacheType === 'browser' ? 1 : 2)
+      expect(http.queryRequests).toHaveLength(2)
       expect(next.view.rows[0]?.['salary']).toBe(100)
       expect(next.view.rows[0]).not.toHaveProperty('lingma_sys_key')
       first.api.session.clear()
@@ -858,7 +858,7 @@ describe('DataView session result cache', () => {
     } finally {ds.destroy()}
   })
 
-  it('does not retain a rejected response and keeps cached views independently editable', async () => {
+  it('does not retain a rejected response and keeps views independently editable', async () => {
     const http = new DataSpaceFixtureHttpClient(), first = connectedView(http), second = connectedView(http, false)
     try {
       first.view.queryConfig = {cacheType: 'browser'}; second.view.queryConfig = {cacheType: 'browser'}
@@ -868,7 +868,7 @@ describe('DataView session result cache', () => {
       await expect(first.view.loadFromServer()).rejects.toThrow()
       http.result = valid
       await first.view.loadFromServer(); await second.view.loadFromServer()
-      expect(http.queryRequests).toHaveLength(2)
+      expect(http.queryRequests).toHaveLength(3)
       expect(first.view.rows[0]).not.toBe(second.view.rows[0])
       first.view.updateEditingValue('ROW-1', 'salary', 150)
       expect(second.view.getEditingRow('ROW-1')?.['salary']).toBe(100)
@@ -2092,7 +2092,7 @@ describe('DataView original query execution boundary', () => {
     expect(() => view.addActionState()).toThrow()
   })
 
-  it('does not release a shared original context when another view is destroyed', async () => {
+  it('keeps an independent writable context when another view is destroyed', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const { ds, view, executor } = connectedView(http)
     const sibling = ds.getView('Payroll', 'default')
@@ -2100,7 +2100,7 @@ describe('DataView original query execution boundary', () => {
     sibling.queryContext = { ...view.queryContext }
     sibling.bindQueryExecutor(executor)
     await Promise.all([view.loadFromServer(), sibling.loadFromServer()])
-    expect(http.queryRequests).toHaveLength(1)
+    expect(http.queryRequests).toHaveLength(2)
     view.destroy()
     expect(sibling.fieldAccess(sibling.rows[0] ?? null, 'salary').write).toBe('allowed')
     expect(sibling.rows[0]?.['rowid']).toBe('ROW-1')
@@ -2308,6 +2308,193 @@ describe('DataView incremental append through the original runtime owner', () =>
     expect(base.total).toBe(1)
   })
 })
+
+describe('independent formal save ownership', () => {
+  const row = (id: string, salary: number, proof = `query-proof-${id}`) => ({
+    rowid: id, salary, lingma_sys_key: proof,
+    lingma_sys_params: {r: ['salary'], e: ['salary'], d: true},
+  })
+  const result = (...items: ReturnType<typeof row>[]) => ({
+    primaryKeyField: 'rowid', data: {Items: items, Count: items.length},
+  })
+
+  it('uses the refreshed row permissions when verifying a lost save response', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    const refreshed = { ...row('ROW-1', 120), lingma_sys_params: {r: [], e: [], d: false} }
+    http.result = result(row('ROW-1', 100), row('ROW-2', 200))
+    const first = connectedView(http), reopened = connectedView(http, false)
+    try {
+      await first.view.loadFromServer()
+      expect(first.view.fieldAccess(findRow(first.view, 'ROW-1'), 'salary').write).toBe('allowed')
+      first.view.updateEditingValue('ROW-1', 'salary', 120)
+      http.saveError = new Error('original response lost')
+      await expect(first.ds.saveChanges()).rejects.toThrow('original response lost')
+      http.saveError = undefined
+      http.queryResults.push(result(refreshed))
+      expect(await first.ds.verifySaveJournal()).toMatchObject({completed: true})
+      expect(http.saveRequests).toHaveLength(1)
+      const recoveredRow = findRow(first.view, 'ROW-1')
+      expect(recoveredRow?.['salary']).toBe(120)
+      expect(first.view.fieldAccess(recoveredRow, 'salary')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(first.view.deleteActionState(recoveredRow)).toBe('hidden')
+      expect(first.view.fieldAccess(findRow(first.view, 'ROW-2'), 'salary').write).toBe('allowed')
+      reopened.view.bindQueryExecutor(first.executor)
+      first.ds.destroy()
+      http.result = result(refreshed, row('ROW-2', 200))
+      await reopened.view.loadFromServer()
+      const reopenedRow = findRow(reopened.view, 'ROW-1')
+      expect(reopenedRow?.['salary']).toBe(120)
+      expect(reopened.view.fieldAccess(reopenedRow, 'salary')).toMatchObject({read: 'visible', write: 'denied'})
+      expect(http.saveRequests).toHaveLength(1)
+    } finally {
+      first.ds.destroy()
+      reopened.ds.destroy()
+    }
+  })
+
+  it.each(['none', 'browser'] as const)('accepts distinct saves from separately owned %s entity reads', async cacheType => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.queryResults.push(
+      result(row('ROW-1', 100, 'FIRST-1'), row('ROW-2', 200, 'FIRST-2')),
+      result(row('ROW-1', 100, 'SECOND-1'), row('ROW-2', 200, 'SECOND-2')),
+    )
+    const first = connectedView(http), second = connectedView(http, false)
+    try {
+      first.view.queryConfig = {cacheType}
+      second.view.queryConfig = {cacheType}
+      second.view.bindQueryExecutor(first.executor)
+      if (cacheType === 'browser') {
+        await first.view.loadFromServer()
+        await second.view.loadFromServer()
+      } else {
+        await Promise.all([first.view.loadFromServer(), second.view.loadFromServer()])
+      }
+      first.view.updateEditingValue('ROW-1', 'salary', 120)
+      expect((await first.ds.saveChanges()).success).toBe(true)
+      second.view.updateEditingValue('ROW-2', 'salary', 220)
+      http.saveResult = {maplistedit: [{physical: [{rowid: 'ROW-2', salary: 220}]}]}
+      expect((await second.ds.saveChanges()).success).toBe(true)
+      expect(http.queryRequests).toHaveLength(2)
+      expect(http.saveRequests).toHaveLength(2)
+      expect(http.saveRequests[0]?.data).toMatchObject([{CrudModel: {Changed: [{rowid: 'ROW-1', lingma_sys_key: 'FIRST-1'}]}}])
+      expect(http.saveRequests[1]?.data).toMatchObject([{CrudModel: {Changed: [{rowid: 'ROW-2', lingma_sys_key: 'SECOND-2'}]}}])
+      expect(first.ds.saveJournal.views).toMatchObject([{state: 'applied', ids: ['ROW-1']}])
+      expect(second.ds.saveJournal.views).toMatchObject([{state: 'applied', ids: ['ROW-2']}])
+    } finally {
+      first.ds.destroy()
+      second.ds.destroy()
+    }
+  })
+
+  it.each([120, 130])('refuses an independent same-key write with value %s while the first receipt is unknown', async nextValue => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = result(row('ROW-1', 100))
+    const first = connectedView(http), second = connectedView(http, false), reopened = connectedView(http, false)
+    try {
+      second.view.bindQueryExecutor(first.executor)
+      reopened.view.bindQueryExecutor(first.executor)
+      await first.view.loadFromServer()
+      await second.view.loadFromServer()
+      first.view.updateEditingValue('ROW-1', 'salary', 120)
+      http.saveError = new Error('original response lost')
+      await expect(first.ds.saveChanges()).rejects.toThrow('original response lost')
+      http.saveError = undefined
+      http.result = result(row('ROW-1', 120))
+      http.saveResult = {maplistedit: [{physical: [{rowid: 'ROW-1', salary: nextValue}]}]}
+      second.view.updateEditingValue('ROW-1', 'salary', nextValue)
+      await expect(second.ds.saveChanges()).rejects.toThrow('SPARK_SAVE_OTHER_RECEIPT_PENDING')
+      expect(http.saveRequests).toHaveLength(1)
+      expect(http.queryRequests).toHaveLength(2)
+      expect(second.view.hasUnconfirmedSave).toBe(false)
+      expect(second.ds.saveJournal.views).toMatchObject([{state: 'not-applied', ids: ['ROW-1']}])
+      expect(first.ds.saveJournal.views).toMatchObject([{state: 'unknown', ids: ['ROW-1']}])
+      expect(await first.ds.verifySaveJournal()).toMatchObject({completed: true})
+      await reopened.view.loadFromServer()
+      expect(findRow(reopened.view, 'ROW-1')?.['salary']).toBe(120)
+      expect(http.queryRequests).toHaveLength(4)
+      expect(http.saveRequests).toHaveLength(1)
+    } finally {
+      first.ds.destroy()
+      second.ds.destroy()
+      reopened.ds.destroy()
+    }
+  })
+
+  it('blocks an independent same-key command already queued before the original response is lost', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = result(row('ROW-1', 100))
+    const first = connectedView(http), second = connectedView(http, false)
+    let release = () => {}
+    try {
+      second.view.bindQueryExecutor(first.executor)
+      await first.view.loadFromServer()
+      await second.view.loadFromServer()
+      first.view.updateEditingValue('ROW-1', 'salary', 120)
+      second.view.updateEditingValue('ROW-1', 'salary', 130)
+      http.saveGate = new Promise<void>(resolve => {release = resolve})
+      const started = new Promise<void>(resolve => {http.saveStarted = resolve})
+      const original = expect(first.ds.saveChanges()).rejects.toThrow('queued response lost')
+      await started
+      const queued = expect(second.ds.saveChanges()).rejects.toThrow('SPARK_SAVE_OTHER_RECEIPT_PENDING')
+      http.saveError = new Error('queued response lost')
+      release()
+      await Promise.all([original, queued])
+      expect(http.saveRequests).toHaveLength(1)
+      expect(http.queryRequests).toHaveLength(2)
+      expect(second.view.hasUnconfirmedSave).toBe(false)
+      expect(first.view.hasUnconfirmedSave).toBe(true)
+    } finally {
+      release()
+      first.ds.destroy()
+      second.ds.destroy()
+    }
+  })
+
+  it('accepts a different formal key in the same model while the first key is still unresolved', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = result(row('ROW-1', 100), row('ROW-2', 200))
+    const first = connectedView(http), second = connectedView(http, false)
+    try {
+      second.view.bindQueryExecutor(first.executor)
+      await first.view.loadFromServer()
+      await second.view.loadFromServer()
+      first.view.updateEditingValue('ROW-1', 'salary', 120)
+      http.saveError = new Error('first response lost')
+      await expect(first.ds.saveChanges()).rejects.toThrow('first response lost')
+      http.saveError = undefined
+      second.view.updateEditingValue('ROW-2', 'salary', 220)
+      http.saveResult = {maplistedit: [{physical: [{rowid: 'ROW-2', salary: 220}]}]}
+      expect((await second.ds.saveChanges()).success).toBe(true)
+      expect(http.saveRequests).toHaveLength(2)
+      expect(http.queryRequests).toHaveLength(2)
+      expect(first.ds.saveJournal.views).toMatchObject([{state: 'unknown', ids: ['ROW-1']}])
+      expect(second.ds.saveJournal.views).toMatchObject([{state: 'applied', ids: ['ROW-2']}])
+    } finally {
+      first.ds.destroy()
+      second.ds.destroy()
+    }
+  })
+
+  it('reuses explicitly cached read-only navigation between independent views', async () => {
+    const http = new DataSpaceFixtureHttpClient()
+    http.result = result(row('ROW-1', 100))
+    const first = connectedView(http), next = connectedView(http, false)
+    try {
+      first.view.queryConfig = {cacheType: 'browser', outputType: 'Navigation'}
+      next.view.queryConfig = {cacheType: 'browser', outputType: 'Navigation'}
+      next.view.bindQueryExecutor(first.executor)
+      await first.view.loadFromServer()
+      await next.view.loadFromServer()
+      expect(http.queryRequests).toHaveLength(1)
+      expect(next.view.rows[0]?.['salary']).toBe(100)
+      expect(next.view.rows[0]).not.toHaveProperty('lingma_sys_key')
+    } finally {
+      first.ds.destroy()
+      next.ds.destroy()
+    }
+  })
+})
+
 
 it('single-record submission preserves an unresolved batch from another view', async () => {
   const http = new DataSpaceFixtureHttpClient()

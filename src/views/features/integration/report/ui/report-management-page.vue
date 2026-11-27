@@ -255,7 +255,7 @@ const remove = (row: DataRow) => guarded(async () => {
     assertReport()
     await info.removeRow(id)
     dispatched = true
-    await commitReportChanges({label: '删除报表', targets: [{view: versions, ids: versionIds}, {view: info, ids: [id]}]})
+    await commitReportChanges({label: '删除报表', kind: 'delete', targets: [{view: versions, ids: versionIds}, {view: info, ids: [id]}]})
   } catch (cause) {
     if (!dispatched) {
       if (info.dirtyTracking.hasPendingChanges()) info.discardPendingChanges([id])

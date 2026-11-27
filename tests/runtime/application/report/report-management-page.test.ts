@@ -408,6 +408,97 @@ describe('报表多记录修改的失败收敛', () => {
     expect(f.wrapper.text()).toContain('目录回读失败')
   })
 
+
+  it('requires a receipt for the exact report deletion after all drafts are withdrawn', async () => {
+    const f=await open()
+    await seed(f)
+    const dataSet=f.info.dataSet
+    if(!dataSet)throw Error('Missing report DataSet')
+    const save=dataSet.saveChanges.bind(dataSet)
+    const withdraw=vi.spyOn(dataSet,'saveChanges').mockImplementationOnce(options=>{
+      for(const target of options?.views??[])dataSet.getView(target.tableName,target.viewId)?.discardPendingChanges(target.ids)
+      return save(options)
+    })
+    try{
+      await rowAction(f,'删除',infoRow(f));await confirmBox(true);await flushPromises()
+      expect(withdraw).toHaveBeenCalledOnce()
+      expect(f.http.saves).toHaveLength(0)
+      expect(f.http.records['Base_ReportInfo']).toHaveLength(1)
+      expect(f.http.records['Base_Report']).toHaveLength(2)
+      expect(f.wrapper.text()).toContain('没有已确认的报表保存回执')
+      expect(document.body.textContent).not.toContain('删除成功')
+    }finally{withdraw.mockRestore()}
+  })
+
+  it('requires a receipt for the exact report activation when only its versions were saved', async () => {
+    const f=await open()
+    await seed(f)
+    await rowAction(f,'历史版本',infoRow(f))
+    const versions=f.runtime.resolveView(`${scenario}@Base_Report@byReport`)
+    const dataSet=f.info.dataSet
+    if(!versions||!dataSet)throw Error('Missing report views')
+    await vi.waitFor(()=>expect(versions.rows).toHaveLength(2))
+    const version=versions.rows.find(row=>row['rowid']==='V2')
+    if(!version)throw Error('Missing version')
+    const previous=f.http.records['Base_ReportInfo']?.[0]?.['version_id']
+    const save=dataSet.saveChanges.bind(dataSet)
+    const withdraw=vi.spyOn(dataSet,'saveChanges').mockImplementationOnce(options=>{
+      const target=options?.views?.find(item=>item.tableName===f.info.tableName)
+      if(target)f.info.discardPendingChanges(target.ids)
+      return save(options)
+    })
+    try{
+      await rowAction(f,'启动',version,1);await flushPromises()
+      expect(withdraw).toHaveBeenCalledOnce()
+      expect(f.http.saves).toHaveLength(1)
+      expect(f.http.records['Base_ReportInfo']?.[0]?.['version_id']).toBe(previous)
+      expect(f.http.records['Base_Report']?.find(row=>row['rowid']==='V2')?.['State']).toBe('1')
+      expect(document.body.textContent).toContain('报表保存仅部分确认')
+      expect(document.body.textContent).not.toContain('已启动版本')
+    }finally{withdraw.mockRestore()}
+  })
+
+
+  it.each(['both','one'] as const)('keeps unchanged report model targets out of the original write (%s)', async scope => {
+    const f=await open()
+    await seed(f)
+    const head=f.http.records['Base_ReportInfo']?.[0]
+    if(!head)throw Error('Missing report')
+    if(scope==='one'){head['version_dataid']='D2';await f.info.refresh()}
+    await rowAction(f,'模型',infoRow(f))
+    const picker=f.runtime.resolveView(`${scenario}@Base_DataSet@picker`)
+    if(!picker)throw Error('Missing model picker')
+    await vi.waitFor(()=>expect(picker.rows).toHaveLength(2))
+    const choose=f.wrapper.findAllComponents(RendererTable).at(1)?.props('onRowClick')
+    const target=picker.rows.find(row=>row['rowid']==='D1')
+    if(!choose||!target)throw Error('Missing original model')
+    await choose(target,undefined,undefined,{cancel:false})
+    await flushPromises()
+    await f.click('确定')
+    if(scope==='both'){
+      expect(document.body.textContent).toContain('当前报表已绑定该模型，无需修改')
+      expect(f.http.saves).toHaveLength(0)
+    }else{
+      expect(f.http.saves).toHaveLength(1)
+      expect(f.http.records['Base_ReportInfo']?.[0]?.['version_dataid']).toBe('D1')
+      expect(f.http.records['Base_Report']?.find(row=>row['rowid']==='V1')?.['DataFormID']).toBe('D1')
+    }
+  })
+
+  it('does not claim the already active version was saved again', async () => {
+    const f=await open()
+    await seed(f)
+    await rowAction(f,'历史版本',infoRow(f))
+    const view=f.runtime.resolveView(`${scenario}@Base_Report@byReport`)
+    if(!view)throw Error('Missing report versions')
+    await vi.waitFor(()=>expect(view.rows).toHaveLength(2))
+    const active=view.rows.find(row=>row['rowid']==='V1')
+    if(!active)throw Error('Missing active version')
+    await rowAction(f,'启动',active,1)
+    expect(f.http.saves).toHaveLength(0)
+    expect(document.body.textContent).toContain('当前版本已启动，无需修改')
+  })
+
   it('删除在写入前被拒绝时撤销本地删除并刷新，可再次删除', async () => {
     const f = await open()
     await seed(f)
@@ -747,7 +838,7 @@ describe('报表保存只沿原SPARK Data日志恢复', () => {
     })
     const discardView = vi.spyOn(f.info, 'discardPendingChanges')
     try {
-      await expect(commitReportChanges({label: '删除报表', targets: [
+      await expect(commitReportChanges({label: '删除报表', kind: 'delete', targets: [
         {view: f.info, ids: ['report-id']}, {view: f.version, ids: ['version-id']},
       ]})).rejects.toThrow('原未生效草稿已保留')
       expect(discardJournal).toHaveBeenCalledOnce()

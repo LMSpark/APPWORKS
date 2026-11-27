@@ -252,7 +252,14 @@ async function remove(): Promise<void> {
   return run(async () => {emit('select', undefined); await view.value?.removeRow(key)})
 }
 async function verify(): Promise<void> {
-  return run(async () => {const result = await props.session.metadataDataSet.saveChanges({views: [{tableName: 'DataViewCascadeDefinition', viewId: 'default'}]}); if (!result.success) throw new Error(result.message)
+  return run(async () => {
+    const target = view.value
+    if (!target?.hasUnconfirmedSave) return
+    const dataSet = props.session.metadataDataSet
+    const {batchId} = dataSet.saveJournal
+    if (!batchId) throw new Error('缺少原保存批次')
+    const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [target], readbackViews: []})
+    if (result.settlement !== 'confirmed') throw result.journal.originalError ?? new Error('原保存未完整确认')
     if (active) {emit('select', undefined); message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存' : '已核验并确认保存结果'}
   })
 }

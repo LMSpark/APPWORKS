@@ -21,7 +21,7 @@ import {getSparkNodeChildren, type DataRow, type DataView, type SparkNode} from 
 import * as Components from '@spark-appworks/spark-component'
 import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
 import {isOn, textOf} from './report-format'
-import {commitReportChanges, reportPendingReason, reportSaveReadback} from './report-save'
+import {commitReportChanges, reportPendingReason, reportSaveReadback, stageReportUpdate} from './report-save'
 const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, DisplayAlert, useSparkComponent} = Components
 const props = defineProps<{infoKey: string; infoId: string | number; tableRule: SparkNode; toolbarRule: SparkNode | undefined; formRule: SparkNode | undefined}>()
 const emit = defineEmits<{close: []}>()
@@ -139,7 +139,7 @@ const remove = (row: DataRow) => guarded(async () => {
   try {
     await versions.removeRow(id)
     dispatched = true
-    await commitReportChanges({label: '删除版本', targets: [{view: versions, ids: [id]}]})
+    await commitReportChanges({label: '删除版本', kind: 'delete', targets: [{view: versions, ids: [id]}]})
   } catch (cause) {
     if (!dispatched && versions.dirtyTracking.hasPendingChanges(id)) versions.discardPendingChanges([id])
     throw cause
@@ -155,22 +155,28 @@ const activate = (row: DataRow) => guarded(async () => {
   const id = captureVersion(versions, row, ['State', 'DataFormID'])
   for (const version of versions.rows) captureVersion(versions, version, ['State'])
   const label = versions.fieldAccess(row, 'Version').read === 'visible' ? textOf(row, 'Version') : ''
-  const ids = [id]
+  const head = info.rows.find(row => info.getPkKey(row) === props.infoId)
+  if (!head) throw new Error('该报表缺少当前正式记录')
+  const ids: Array<string | number> = []
   let dispatched = false
   let readback: string | undefined
   try {
     for (const other of versions.rows) {
       const otherId = versions.getPkKey(other)
       if (otherId !== undefined && otherId !== id && isOn(other['State'])) {
-        ids.push(otherId)
-        versions.updateEditingValue(otherId, 'State', '0')
+        if (stageReportUpdate(versions, other, {State: '0'})) ids.push(otherId)
       }
     }
-    versions.updateEditingValue(id, 'State', '1')
-    info.updateEditingValue(props.infoId, 'version_id', String(id))
-    info.updateEditingValue(props.infoId, 'version_dataid', textOf(row, 'DataFormID'))
+    if (stageReportUpdate(versions, row, {State: '1'})) ids.push(id)
+    const headChanged = stageReportUpdate(info, head, {version_id: String(id), version_dataid: textOf(row, 'DataFormID')})
+    if (!ids.length && !headChanged) {
+      message.value = '当前版本已启动，无需修改'
+      return
+    }
     dispatched = true
-    await commitReportChanges({label: '启动版本', targets: [{view: versions, ids}, {view: info, ids: [props.infoId]}]})
+    await commitReportChanges({label: '启动版本', kind: 'update', targets: [
+      {view: versions, ids}, {view: info, ids: headChanged ? [props.infoId] : []},
+    ]})
   } catch (cause) {
     if (!dispatched) {
       if (versions.hasEditingChanges() || versions.dirtyTracking.hasPendingChanges()) versions.discardPendingChanges(ids)

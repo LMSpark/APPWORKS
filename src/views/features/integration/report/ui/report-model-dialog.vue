@@ -20,7 +20,7 @@ import {computed, onMounted, ref} from 'vue'
 import {getSparkNodeChildren, nodeId, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
 import {isOn, textOf} from './report-format'
-import {commitReportChanges, reportPendingReason} from './report-save'
+import {commitReportChanges, reportPendingReason, stageReportUpdate} from './report-save'
 const {PAGE_RUNTIME, RendererDialog, SparkComponentRenderer, DisplayAlert, useSparkComponent} = Components
 const props = defineProps<{infoKey: string; reportKey: string; tableRule: SparkNode; footerRule: SparkNode | undefined; infoId: string | number}>()
 const emit = defineEmits<{close: []}>()
@@ -95,10 +95,19 @@ async function submit(): Promise<void> {
     try { assertSelection() }
     catch (cause) { selectedId.value = ''; selectedName.value = ''; assertSelection = undefined; throw new Error(`${failure(cause)}；请选择当前查询中的模型`) }
     versionId = originalVersion.id
-    info.updateEditingValue(props.infoId, 'version_dataid', selectedId.value)
-    report.updateEditingValue(versionId, 'DataFormID', selectedId.value)
+    const head = info.rows.find(row => info.getPkKey(row) === props.infoId)
+    const version = report.rows.find(row => String(report.getPkKey(row)) === versionId)
+    if (!head || !version) throw new Error('报表头或原启用版本已失效')
+    const headChanged = stageReportUpdate(info, head, {version_dataid: selectedId.value})
+    const versionChanged = stageReportUpdate(report, version, {DataFormID: selectedId.value})
+    if (!headChanged && !versionChanged) {
+      message.value = '当前报表已绑定该模型，无需修改'
+      return
+    }
     dispatched = true
-    await commitReportChanges({label: '绑定模型', targets: [{view: info, ids: [props.infoId]}, {view: report, ids: [versionId]}]})
+    await commitReportChanges({label: '绑定模型', kind: 'update', targets: [
+      {view: info, ids: headChanged ? [props.infoId] : []}, {view: report, ids: versionChanged ? [versionId] : []},
+    ]})
     emit('close')
   } catch (cause) {
     message.value = failure(cause)

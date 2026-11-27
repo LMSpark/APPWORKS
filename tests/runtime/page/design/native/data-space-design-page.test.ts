@@ -4354,7 +4354,7 @@ describe('native data-space design entry', () => {
     expect(f.fileWrites).toHaveLength(save?1:0);expect(writes(f)).toHaveLength(0)
   })
 
-  it.each([false, true])('shows remaining native relation edits after a stored receipt (unknown=%s)', async unknown => {
+  it.each([[false, false], [true, false], [true, true]])('shows remaining native relation edits after a stored receipt (unknown=%s, graph failure=%s)', async (unknown, graphFailure) => {
     const f = fixture(); await f.open('A')
     const config = JSON.parse(f.stored.get('A')!)
     config.resourceRelations = [{relationId: 'R', parentTable: 'CustomersAlias', childTable: 'OrdersAlias', filterExpression: {field: 'parentId', operator: 'eq', value: 'C'}}]
@@ -4371,12 +4371,20 @@ describe('native data-space design entry', () => {
       definitions.updateEditingValue(key, 'relationId', 'next-edge')
       release(); await flushPromises()
       if (unknown) {
-        await sourceButton(wrapper, 'verify-relations').trigger('click'); await flushPromises()
+        const ordinarySave = vi.spyOn(definitions.dataSet!, 'saveChanges')
+        const graphRead = graphFailure
+          ? vi.spyOn(f.sessions.at(-1)!, 'loadGraphRelations').mockRejectedValueOnce(new Error('画布隔离读取失败'))
+          : undefined
+        try {
+          await sourceButton(wrapper, 'verify-relations').trigger('click'); await flushPromises()
+          expect(ordinarySave).not.toHaveBeenCalled()
+          if (graphFailure) expect(wrapper.text()).toContain('已核验并确认保存结果，画布回读失败：画布隔离读取失败')
+        } finally {ordinarySave.mockRestore(); graphRead?.mockRestore()}
       }
       expect(f.fileWrites).toHaveLength(1)
       expect(definitions.getEditingRow(key)?.['relationId']).toBe('next-edge')
       expect(instance.isDirty).toBe(true)
-      expect(wrapper.get('[aria-label="模型关系编辑"]').text()).toContain('仍有修改待保存')
+      if (!graphFailure) expect(wrapper.get('[aria-label="模型关系编辑"]').text()).toContain('仍有修改待保存')
       expect(sourceButton(wrapper, 'save-relations').attributes('disabled')).toBeUndefined()
       expect((await f.open('A')).definitionDataSet!.resourceRelations?.map(item => item.relationId)).toEqual(['captured-edge'])
       await sourceButton(wrapper, 'save-relations').trigger('click'); await flushPromises()
@@ -5064,7 +5072,11 @@ describe('native data-space design entry', () => {
     expect(editor.text()).toContain('文件提交结果未知')
     expect(instance.isDirty).toBe(true)
     expect(f.fileWrites).toHaveLength(1)
-    await editor.get('[data-action="verify-cascades"]').trigger('click'); await flushPromises()
+    const ordinarySave = vi.spyOn(definitions.dataSet!, 'saveChanges')
+    try {
+      await editor.get('[data-action="verify-cascades"]').trigger('click'); await flushPromises()
+      expect(ordinarySave).not.toHaveBeenCalled()
+    } finally {ordinarySave.mockRestore()}
     expect(editor.text()).toContain('已核验并确认保存结果')
     expect(instance.isDirty).toBe(false)
     expect(f.fileWrites).toHaveLength(1)

@@ -50,6 +50,12 @@
         "label": {
           "type": "string"
         },
+        "kind": {
+          "enum": [
+            "delete",
+            "update"
+          ]
+        },
         "targets": {
           "type": "array",
           "items": {
@@ -59,12 +65,13 @@
       },
       "required": [
         "label",
+        "kind",
         "targets"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-26T20:51:27.532Z",
+  "generatedAt": "2026-11-27T11:49:31.584Z",
   "models": {
     "ReportSaveTarget": {
       "name": "ReportSaveTarget",
@@ -100,11 +107,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    label: string;\n    targets: readonly ReportSaveTarget[];\n}>",
+        "declarationTypeText": "Readonly<{\n    label: string;\n    kind: 'delete' | 'update';\n    targets: readonly ReportSaveTarget[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    label: string;\n    targets: readonly ReportSaveTarget[];\n}>",
+            "typeText": "Readonly<{\n    label: string;\n    kind: 'delete' | 'update';\n    targets: readonly ReportSaveTarget[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -112,6 +119,11 @@
           "attributes": [
             {
               "name": "label",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
               "readable": true,
               "writable": false
             },

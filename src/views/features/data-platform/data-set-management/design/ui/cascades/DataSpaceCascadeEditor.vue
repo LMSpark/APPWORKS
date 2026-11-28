@@ -217,14 +217,22 @@ function selectIdentity(id: unknown, previousKey?: string | number): void {
   emit('select', previousKey !== undefined && keys.includes(previousKey) ? previousKey : keys[0])
 }
 async function save(): Promise<void> {
-  if (blocked.value || newId.value || editingClear.value || incomplete.value) return
+  const target = view.value
+  if (!target || blocked.value || newId.value || editingClear.value || incomplete.value) return
   const id = row.value?.['cascadeId'], key = props.rowKey
   return run(async () => {
     emit('select', undefined)
-    try {const saved = await props.session.metadataDataSet.saveChanges({views: [{tableName: 'DataViewCascadeDefinition', viewId: 'default'}]}); if (!saved.success) throw new Error(saved.message)
+    try {
+      const outcome = await props.session.metadataDataSet.saveView(target)
+      if (outcome.state === 'not-submitted') throw new Error('本次未提交级联修改')
+      if (outcome.state === 'partial') throw new Error(`部分级联修改已确认：${outcome.error.message}`, {cause: outcome.error})
+      if (outcome.state === 'follow-up-failed') {
+        if (active) message.value = `本轮保存已确认，后续操作失败：${outcome.error.message}`
+        return
+      }
+      if (outcome.state !== 'confirmed') throw outcome.error
       if (active) message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存' : '级联配置已保存并回读确认'
-    }
-    finally {if (active) selectIdentity(id, key)}
+    } finally {if (active) selectIdentity(id, key)}
   })
 }
 function discard(): void {

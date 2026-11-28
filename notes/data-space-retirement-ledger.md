@@ -164,6 +164,12 @@ AW-07 按「正式操作 × 缺失能力」核对后引用业务验收项。跨�
 
 **AW-03 · 关系保存的零派发回执，工程已验待实服。** 原入口只检查 `saveChanges.success`。实际设计页的隔离反例在保存收集前撤回本地改动，文件和数据库均零写入，独立实例读回原关系 `R`，旧版页面仍显示「关系配置已保存并回读确认」，定向退出 1。关系编辑器已改用公共 `DataSet.saveView` 区分未提交、失败、部分确认、未知及已确认后的操作失败。收到已确认结果后才进入画布回读，未知继续核原 DataSet 批次。主仓改前类型、改后定向 ESLint、实际关系定向 11 项、根 `pnpm run verify` 均退出 0。根 `pnpm run test:run` 分为原生设计 392 项和其余 781 套 12,830 项，两段均退出 0，共 782 套、13,222 项。两份本批工程输入的 SHA-256 前后一致，日志在 `artifacts/aw03-relation-save-receipt`。第 04 包的正式项目、原关系键、文件回执和独立重开继续待实服验收，写入须另行批准。 [关系编辑器](../src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue) [挂载回归](../tests/runtime/page/design/native/data-space-design-page.test.ts)
 
+**AW-03 · 关系保存已推送。** 主仓本地批次为 `adef35f60`。收口期间主仓先出现 AW-05 Plan v2 提交 `7df78e88b`，因此从当时的远端 `4f5c927ec` 建立只含已验 AW-03 源码、回归及两条台账记录的四文件提交 `3dcb61756`。两份工程文件与本地批次逐字节相同，已回读核对 `origin/main`。本地分支与远端保留各自历史，AW-05 仍待发布。
+
+<a id="aw03-cascade-save-no-dispatch"></a>
+
+**AW-03 · 数据空间级联配置普通保存，工程已验待实服。** 关系、级联的显式核验已有共同的原 DataSet 批次合同。实际级联编辑器在保存收集前撤回变更时，文件和数据库均零写入，独立实例读到原级联，旧版仍显示保存确认。改前定向退出 1。普通保存已复用 `DataSet.saveView`，按实际回执显示未提交、失败、部分确认、未知或已确认，未知只沿原批次核验。改后关系及级联定向 14 项通过，含一次写入、原批次核验、后续草稿和独立重开。主仓改前类型、改后目标 ESLint、根 `pnpm run verify` 均退出 0。根全仓两段各退出 0，原生设计 393 项，其余 781 套 12,830 项，共 782 套、13,223 项。两份改动工程输入前后指纹一致，日志在 `artifacts/aw03-cascade-save-receipt`。本地改动待收口，第 04 包正式应用、原级联文件回执与独立重开待实服，写入另行批准。 [保存方案](plan-spark-data-save-batch-recovery.md#第一阶段-公共保存编排与核验) [级联编辑器](../src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.vue) [实际挂载](../tests/runtime/page/design/native/data-space-design-page.test.ts)
+
 <a id="aw03-file-resource-registration-20261128"></a>
 
 **AW-03 · 第 04 包文件资源注册。** 沿实际新增入口注册 `AgentWorkflowFiles`。改前四组分别在绑定或命名视图回读故障时丢失确认，或在缺回执及部分回执时仍进入后置回读。独立净版又复现注册期间另一份命名视图草稿使旧入口写入零次。修订逐行捕获本次新增键，一次 DataSet 提交仅携带这些键。收到完整新增分项后才即时读取，核对资源、列及命名视图身份，保留回执已确认与后置失败两项事实。回归证明旁支 `OrdersAlias@laterNamed` 保留在本实例且未入持久定义，新会话能读到 `AgentWorkflowFiles@definition`。净版和主仓受影响入口各 10 项通过，包含原未知不重发。 [文件资源注册](../src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue#L805) [实际挂载](../tests/runtime/page/design/native/data-space-design-page.test.ts#L8100)

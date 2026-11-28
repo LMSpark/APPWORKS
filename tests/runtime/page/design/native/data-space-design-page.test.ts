@@ -5201,6 +5201,34 @@ describe('native data-space design entry', () => {
     expect(writes(f)).toHaveLength(0)
   })
 
+  it('does not confirm a native cascade save when no change reached the file owner', async () => {
+    const f = fixture()
+    await f.open('A')
+    const config = JSON.parse(f.stored.get('A')!)
+    const query = {parentTable: 'OrdersAlias', parentViewId: 'shared', childTable: 'CustomersAlias', childViewId: 'default', filterBindings: [{targetField: 'parentId'}]}
+    f.stored.set('A', JSON.stringify({...config, viewCascades: [query]}))
+    const {wrapper} = await page()
+    await select(wrapper, 'OrdersAlias@shared → CustomersAlias@default')
+    const editor = wrapper.getComponent(DataSpaceCascadeEditor)
+    await chooseBound(editor, '自动加载子查询', 0)
+    const dataSet = f.sessions.at(-1)!.metadataDataSet
+    const definitions = dataSet.getView('DataViewCascadeDefinition')!
+    const save = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      definitions.discardPendingChanges()
+      return save(options)
+    })
+
+    await editor.get('[data-action="save-cascades"]').trigger('click')
+    await flushPromises()
+
+    expect(f.fileWrites).toHaveLength(0)
+    expect(writes(f)).toHaveLength(0)
+    expect((await f.open('A')).definitionDataSet!.viewCascades).toEqual([query])
+    expect(editor.text()).not.toContain('级联配置已保存并回读确认')
+    expect(editor.get('[role="alert"]').text()).toContain('本次未提交级联修改')
+  })
+
   it.each([false, true])('shows remaining native cascade edits after a stored receipt (unknown=%s)', async unknown => {
     const f = fixture(); await f.open('A')
     const config = JSON.parse(f.stored.get('A')!)

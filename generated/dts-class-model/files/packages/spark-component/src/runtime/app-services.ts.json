@@ -79,10 +79,10 @@
         },
         "type": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "width": {
@@ -783,7 +783,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-26T15:32:59.780Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "PageMessageType": {
       "name": "PageMessageType",

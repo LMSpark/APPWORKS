@@ -93,32 +93,32 @@
         },
         "content": {
           "enum": [
-            null,
             "UNCHANGED",
             "CURRENT_ONLY",
             "CANDIDATE_ONLY",
             "SAME_CHANGE",
-            "DIVERGED"
+            "DIVERGED",
+            null
           ]
         },
         "parent": {
           "enum": [
-            null,
             "UNCHANGED",
             "CURRENT_ONLY",
             "CANDIDATE_ONLY",
             "SAME_CHANGE",
-            "DIVERGED"
+            "DIVERGED",
+            null
           ]
         },
         "position": {
           "enum": [
-            null,
             "UNCHANGED",
             "CURRENT_ONLY",
             "CANDIDATE_ONLY",
             "SAME_CHANGE",
-            "DIVERGED"
+            "DIVERGED",
+            null
           ]
         },
         "conflicts": {
@@ -170,7 +170,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.881Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "ContentVersionDelta": {
       "name": "ContentVersionDelta",

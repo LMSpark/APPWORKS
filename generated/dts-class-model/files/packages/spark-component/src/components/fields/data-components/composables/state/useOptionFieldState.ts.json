@@ -186,8 +186,8 @@
         },
         "valueMode": {
           "enum": [
-            "array",
             "auto",
+            "array",
             "separated-string"
           ]
         },
@@ -286,7 +286,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.856Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "OptionFieldStateProps": {
       "name": "OptionFieldStateProps",

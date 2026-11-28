@@ -71,10 +71,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -380,10 +380,10 @@
         },
         "messageType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         }
       },
@@ -470,10 +470,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "onConfirm": {
@@ -1041,10 +1041,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -1186,10 +1186,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -1308,10 +1308,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -1442,10 +1442,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -1592,10 +1592,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -1623,10 +1623,10 @@
         },
         "messageType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         }
       },
@@ -1731,10 +1731,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -1846,10 +1846,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -1961,10 +1961,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -2082,10 +2082,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -2222,10 +2222,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -2343,10 +2343,10 @@
         },
         "confirmType": {
           "enum": [
-            "info",
+            "success",
             "error",
             "warning",
-            "success"
+            "info"
           ]
         },
         "disabledWhenRow": {
@@ -2567,7 +2567,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.942Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "ActionUiDecorator": {
       "name": "ActionUiDecorator",

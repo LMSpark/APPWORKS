@@ -53,14 +53,6 @@
       "type": "object",
       "title": "WorkflowQueryModelCreateHandle",
       "properties": {
-        "save": {
-          "type": "object",
-          "title": "() => Promise<string>"
-        },
-        "preview": {
-          "type": "object",
-          "title": "(source: Readonly<{ type: PageDataSpaceModelSourceType; id: string; name: string; description: string; dbid: string; databaseName: string; providerId: string; routeSpec?: unknown; outputPath?: string; }>) => Promise<void>"
-        },
         "getState": {
           "type": "object",
           "title": "() => ReturnType<typeof modelCreateGetState>"
@@ -69,9 +61,17 @@
           "type": "object",
           "title": "(name: string) => void"
         },
+        "preview": {
+          "type": "object",
+          "title": "(source: Readonly<{ type: PageDataSpaceModelSourceType; id: string; name: string; description: string; dbid: string; databaseName: string; providerId: string; routeSpec?: unknown; outputPath?: string; }>) => Promise<void>"
+        },
         "discard": {
           "type": "object",
           "title": "() => void"
+        },
+        "save": {
+          "type": "object",
+          "title": "() => Promise<string>"
         },
         "verify": {
           "type": "object",
@@ -87,11 +87,11 @@
         }
       },
       "required": [
-        "save",
-        "preview",
         "getState",
         "setName",
+        "preview",
         "discard",
+        "save",
         "verify",
         "abandonNotApplied",
         "discardLocalChanges"
@@ -99,7 +99,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T08:02:15.451Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "WorkflowQueryModelCreateInput": {
       "name": "WorkflowQueryModelCreateInput",
@@ -184,16 +184,6 @@
         "members": {
           "attributes": [
             {
-              "name": "save",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "preview",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "getState",
               "readable": true,
               "writable": true
@@ -204,7 +194,17 @@
               "writable": true
             },
             {
+              "name": "preview",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "discard",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "save",
               "readable": true,
               "writable": true
             },

@@ -127,16 +127,10 @@
       "type": "object",
       "title": "VuePageOption",
       "properties": {
-        "hidden": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "title": {
+        "path": {
           "type": "string"
         },
-        "path": {
+        "title": {
           "type": "string"
         },
         "icon": {
@@ -145,16 +139,22 @@
         "description": {
           "type": "string"
         },
-        "order": {
-          "type": "number"
-        },
         "scope": {
           "$ref": "#/$defs/PageScope"
         },
-        "dataSpaceId": {
-          "type": "string"
+        "hidden": {
+          "enum": [
+            false,
+            true
+          ]
         },
         "group": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        },
+        "dataSpaceId": {
           "type": "string"
         },
         "navigationId": {
@@ -165,15 +165,15 @@
         }
       },
       "required": [
-        "title",
         "path",
+        "title",
         "scope",
         "source"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.857Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "PageScope": {
       "name": "PageScope",

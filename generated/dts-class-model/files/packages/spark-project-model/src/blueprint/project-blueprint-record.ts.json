@@ -96,6 +96,15 @@
       "type": "object",
       "title": "ProjectBlueprintRecord",
       "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
+        },
         "kind": {
           "enum": [
             "module",
@@ -105,15 +114,6 @@
             "content",
             "unknown"
           ]
-        },
-        "projectId": {
-          "type": "string"
-        },
-        "nodeId": {
-          "type": "string"
-        },
-        "parentNodeId": {
-          "type": "string"
         },
         "capability": {
           "type": "object",
@@ -366,17 +366,17 @@
         }
       },
       "required": [
-        "kind",
-        "projectId",
         "nodeId",
         "parentNodeId",
+        "projectId",
+        "kind",
         "capability",
         "source"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T07:55:02.362Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "BlueprintIdentity": {
       "name": "BlueprintIdentity",

@@ -150,34 +150,38 @@ export class ClassModelDeclarationSchema {
     return result.length === branches.length ? result : branches
   }
 
-  private declaredLiteralValues(node: ts.TypeNode, omitUniqueSymbols = false): DeclarationLiteral[] | undefined {
-    if (ts.isParenthesizedTypeNode(node)) return this.declaredLiteralValues(node.type, omitUniqueSymbols)
+  private declaredLiteralValues(
+    node: ts.TypeNode, omitUniqueSymbols = false, visited = new Set<ts.TypeAliasDeclaration>(),
+  ): DeclarationLiteral[] | undefined {
+    if (ts.isParenthesizedTypeNode(node)) return this.declaredLiteralValues(node.type, omitUniqueSymbols, visited)
     if (node.kind === ts.SyntaxKind.UndefinedKeyword || node.kind === ts.SyntaxKind.VoidKeyword) return []
     if (ts.isUnionTypeNode(node)) {
       const values: DeclarationLiteral[] = []
       for (const part of node.types) {
-        const group = this.declaredLiteralValues(part, omitUniqueSymbols)
+        const group = this.declaredLiteralValues(part, omitUniqueSymbols, visited)
         if (group === undefined) return undefined
         values.push(...group)
       }
       return values
     }
     if (omitUniqueSymbols && this.checker.getTypeFromTypeNode(node).flags & ts.TypeFlags.UniqueESSymbol) return []
+    if (ts.isIndexedAccessTypeNode(node)) return this.declaredIndexedValues(node, visited)
     if (ts.isTemplateLiteralTypeNode(node)) {
       const [span] = node.templateSpans
       if (node.head.text !== '' || node.templateSpans.length !== 1 || span?.literal.text !== '') return undefined
-      return this.declaredLiteralValues(span.type)?.map(String)
+      return this.declaredLiteralValues(span.type, omitUniqueSymbols, visited)?.map(String)
     }
     if (ts.isTypeReferenceNode(node)) {
-      const binding = this.checker.getSymbolAtLocation(node.typeName)
-      const symbol = binding !== undefined && binding.flags & ts.SymbolFlags.Alias ? this.checker.getAliasedSymbol(binding) : binding
-      const declarations = symbol?.declarations
+      const declarations = this.typeReferenceSymbol(node)?.declarations
       if (declarations?.length !== 1) return undefined
       const [decl] = declarations
       if (decl === undefined) return undefined
       if (ts.isEnumMember(decl)) {
         const value = this.checker.getConstantValue(decl)
         return value === undefined ? undefined : [value]
+      }
+      if (ts.isTypeAliasDeclaration(decl) && !decl.typeParameters?.length && !visited.has(decl)) {
+        return this.declaredLiteralValues(decl.type, omitUniqueSymbols, new Set([...visited, decl]))
       }
       if (!ts.isEnumDeclaration(decl)) return undefined
       const values: DeclarationLiteral[] = []
@@ -194,6 +198,72 @@ export class ClassModelDeclarationSchema {
     if (node.literal.kind === ts.SyntaxKind.FalseKeyword) return [false]
     const value = this.checker.getTypeFromTypeNode(node)
     return value.isStringLiteral() || value.isNumberLiteral() ? [value.value] : undefined
+  }
+
+  /** 从原元组或常量对象读取索引值顺序，避免使用编译器折叠后的联合类型顺序。 */
+  private declaredIndexedValues(
+    node: ts.IndexedAccessTypeNode, visited: Set<ts.TypeAliasDeclaration>,
+  ): DeclarationLiteral[] | undefined {
+    const objectType = this.checker.getTypeFromTypeNode(node.objectType)
+    const index = node.indexType
+    if (ts.isLiteralTypeNode(index) && ts.isStringLiteral(index.literal)) {
+      return this.declaredIndexedPropertyValues(node.objectType, index.literal.text, visited)
+    }
+    const values = index.kind === ts.SyntaxKind.NumberKeyword && this.isTuple(objectType)
+      ? this.checker.getTypeArguments(objectType)
+      : this.declaredObjectValueTypes(node, objectType)
+    return values === undefined ? undefined : this.literalsFromTypes(values)
+  }
+
+  /** 按联合对象声明顺序读取同名判别字段，实际值仍由编译器解析。 */
+  private declaredIndexedPropertyValues(
+    node: ts.TypeNode, key: string, visited: Set<ts.TypeAliasDeclaration>,
+  ): DeclarationLiteral[] | undefined {
+    if (ts.isParenthesizedTypeNode(node)) return this.declaredIndexedPropertyValues(node.type, key, visited)
+    if (ts.isUnionTypeNode(node)) {
+      const values: DeclarationLiteral[] = []
+      for (const branch of node.types) {
+        const branchValues = this.declaredIndexedPropertyValues(branch, key, visited)
+        if (branchValues === undefined) return undefined
+        values.push(...branchValues)
+      }
+      return values
+    }
+    if (ts.isTypeReferenceNode(node)) {
+      const declaration = this.typeReferenceSymbol(node)?.declarations?.[0]
+      if (declaration !== undefined && ts.isTypeAliasDeclaration(declaration) && !declaration.typeParameters?.length) {
+        if (visited.has(declaration)) return undefined
+        return this.declaredIndexedPropertyValues(declaration.type, key, new Set([...visited, declaration]))
+      }
+    }
+    const property = this.checker.getPropertyOfType(this.checker.getTypeFromTypeNode(node), key)
+    if (property === undefined) return undefined
+    const value = this.checker.getTypeOfSymbolAtLocation(property, node)
+    const defined = value.isUnion()
+      ? value.types.filter(part => !(part.flags & (ts.TypeFlags.Undefined | ts.TypeFlags.Void)))
+      : [value]
+    return defined.length === 1 ? this.literalsFromTypes(defined) : undefined
+  }
+
+  private literalsFromTypes(values: readonly ts.Type[]): DeclarationLiteral[] | undefined {
+    const literals: DeclarationLiteral[] = []
+    for (const value of values) {
+      if (value.isStringLiteral() || value.isNumberLiteral()) literals.push(value.value)
+      else if (value.flags & ts.TypeFlags.BooleanLiteral) literals.push(this.checker.typeToString(value) === 'true')
+      else if (value.flags & ts.TypeFlags.Null) literals.push(null)
+      else return undefined
+    }
+    return literals
+  }
+
+  private declaredObjectValueTypes(node: ts.IndexedAccessTypeNode, objectType: ts.Type): ts.Type[] | undefined {
+    const index = node.indexType
+    if (!ts.isTypeQueryNode(node.objectType) || !ts.isTypeOperatorNode(index)
+      || index.operator !== ts.SyntaxKind.KeyOfKeyword || !ts.isTypeQueryNode(index.type)
+      || this.checker.getIndexInfosOfType(objectType).length > 0) return undefined
+    const objectSymbol = this.checker.getSymbolAtLocation(node.objectType.exprName)
+    if (objectSymbol === undefined || objectSymbol !== this.checker.getSymbolAtLocation(index.type.exprName)) return undefined
+    return this.checker.getPropertiesOfType(objectType).map(property => this.checker.getTypeOfSymbolAtLocation(property, node))
   }
 
   private declaredAlias(type: ts.Type, site: ts.Node): JsonSchemaObject | undefined {
@@ -259,34 +329,47 @@ export class ClassModelDeclarationSchema {
     return {type: 'object', properties: orderedProperties, ...(required.length === 0 ? {} : {required}), additionalProperties}
   }
 
-  /** 有显式键集合时，以声明为准，避免 checker 复用的联合顺序影响对象输出。 */
-  private declaredObjectKeyOrder(node: ts.TypeNode): string[] | undefined {
-    if (ts.isParenthesizedTypeNode(node)) return this.declaredObjectKeyOrder(node.type)
+  /** 能沿正式声明追到键时沿用声明顺序，交叉对象按各部分的声明先后合并。 */
+  private declaredObjectKeyOrder(node: ts.TypeNode, visited = new Set<ts.TypeAliasDeclaration>()): string[] | undefined {
+    if (ts.isParenthesizedTypeNode(node)) return this.declaredObjectKeyOrder(node.type, visited)
+    if (ts.isTypeLiteralNode(node)) return this.objectPropertyNames(node)
     if (ts.isIntersectionTypeNode(node)) {
-      const parts = node.types.map(part => this.declaredObjectKeyOrder(part))
+      const parts = node.types.map(part => this.declaredObjectKeyOrder(part, visited))
       if (parts.every(keys => keys === undefined)) return undefined
-      return [...new Set(node.types.flatMap((part, index) => parts[index] ??
-        this.checker.getPropertiesOfType(this.checker.getTypeFromTypeNode(part)).map(property => property.name)))]
+      return [...new Set(node.types.flatMap((part, index) => parts[index] ?? this.objectPropertyNames(part)))]
     }
+    if (ts.isMappedTypeNode(node) && node.nameType === undefined) return this.literalObjectKeys(node.typeParameter.constraint)
+    if (!ts.isTypeReferenceNode(node)) return undefined
+    const symbol = this.typeReferenceSymbol(node)
+    const declaration = symbol?.declarations?.[0]
+    if (symbol === undefined || declaration === undefined) return undefined
+    if (!this.program.isSourceFileDefaultLibrary(declaration.getSourceFile())) {
+      if (!ts.isTypeAliasDeclaration(declaration) || declaration.typeParameters?.length || visited.has(declaration)) return undefined
+      return this.declaredObjectKeyOrder(declaration.type, new Set([...visited, declaration]))
+    }
+    if (symbol.name === 'Pick') return this.literalObjectKeys(node.typeArguments?.[1])
+    if (symbol.name === 'Record') return this.literalObjectKeys(node.typeArguments?.[0])
+    const source = node.typeArguments?.[0]
+    if (source === undefined || !['Partial', 'Readonly', 'Required', 'Omit'].includes(symbol.name)) return undefined
+    const keys = this.declaredObjectKeyOrder(source, visited)
+    if (symbol.name !== 'Omit' || keys === undefined) return keys
+    const omittedType = this.checker.getTypeFromTypeNode(node)
+    return keys.filter(key => this.checker.getPropertyOfType(omittedType, key) !== undefined)
+  }
 
-    const keys = this.explicitObjectKeys(node)
-    const values = keys === undefined ? undefined : this.declaredLiteralValues(keys, true)
+  private typeReferenceSymbol(node: ts.TypeReferenceNode): ts.Symbol | undefined {
+    const binding = this.checker.getSymbolAtLocation(node.typeName)
+    return binding !== undefined && binding.flags & ts.SymbolFlags.Alias ? this.checker.getAliasedSymbol(binding) : binding
+  }
+
+  private objectPropertyNames(node: ts.TypeNode): string[] {
+    return this.checker.getPropertiesOfType(this.checker.getTypeFromTypeNode(node)).map(property => property.name)
+  }
+
+  private literalObjectKeys(node: ts.TypeNode | undefined): string[] | undefined {
+    const values = node === undefined ? undefined : this.declaredLiteralValues(node, true)
     return values?.every(value => typeof value === 'string' || typeof value === 'number')
       ? [...new Set(values.map(String))]
       : undefined
-  }
-
-  private explicitObjectKeys(node: ts.TypeNode): ts.TypeNode | undefined {
-    if (ts.isMappedTypeNode(node) && node.nameType === undefined) return node.typeParameter.constraint
-    if (!ts.isTypeReferenceNode(node)) return undefined
-    const binding = this.checker.getSymbolAtLocation(node.typeName)
-    const symbol = binding !== undefined && binding.flags & ts.SymbolFlags.Alias
-      ? this.checker.getAliasedSymbol(binding) : binding
-    if (!symbol?.declarations?.some(declaration => this.program.isSourceFileDefaultLibrary(declaration.getSourceFile()))) {
-      return undefined
-    }
-    if (symbol.name === 'Pick') return node.typeArguments?.[1]
-    if (symbol.name === 'Record') return node.typeArguments?.[0]
-    return undefined
   }
 }

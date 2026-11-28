@@ -40,10 +40,10 @@
         },
         "defaultPosition": {
           "enum": [
-            "left",
-            "right",
             "top",
-            "bottom"
+            "bottom",
+            "left",
+            "right"
           ]
         }
       },
@@ -136,7 +136,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.728Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "ToolbarPosition": {
       "name": "ToolbarPosition",

@@ -90,11 +90,11 @@
         },
         "itemKind": {
           "enum": [
-            "module",
-            "page",
             "system-directory",
+            "module",
             "system-page",
             "system-action",
+            "page",
             "link",
             "ref"
           ]
@@ -324,7 +324,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.534Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "RuntimeNavigationContextState": {
       "name": "RuntimeNavigationContextState",

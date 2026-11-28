@@ -59,8 +59,14 @@
       "type": "object",
       "title": "BlueprintNodeFormData",
       "properties": {
-        "source": {
-          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/BlueprintSource"
+        "nodeId": {
+          "type": "string"
+        },
+        "parentNodeId": {
+          "type": "string"
+        },
+        "projectId": {
+          "type": "string"
         },
         "kind": {
           "enum": [
@@ -72,14 +78,8 @@
             "unknown"
           ]
         },
-        "projectId": {
-          "type": "string"
-        },
-        "nodeId": {
-          "type": "string"
-        },
-        "parentNodeId": {
-          "type": "string"
+        "source": {
+          "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/BlueprintSource"
         },
         "children": {
           "type": "array",
@@ -101,11 +101,11 @@
         }
       },
       "required": [
-        "source",
-        "kind",
-        "projectId",
         "nodeId",
         "parentNodeId",
+        "projectId",
+        "kind",
+        "source",
         "capability"
       ],
       "additionalProperties": false
@@ -1007,7 +1007,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T01:25:45.970Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "SelectedNodeSaveProgress": {
       "name": "SelectedNodeSaveProgress",

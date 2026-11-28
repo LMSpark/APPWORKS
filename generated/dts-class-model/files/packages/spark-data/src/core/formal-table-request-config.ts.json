@@ -29,6 +29,9 @@
       "type": "object",
       "title": "FormalTableRequestEndpoints",
       "properties": {
+        "list": {
+          "$ref": "../types.ts.json#/$defs/HttpEndpoint"
+        },
         "create": {
           "$ref": "../types.ts.json#/$defs/HttpEndpoint"
         },
@@ -36,9 +39,6 @@
           "$ref": "../types.ts.json#/$defs/HttpEndpoint"
         },
         "delete": {
-          "$ref": "../types.ts.json#/$defs/HttpEndpoint"
-        },
-        "list": {
           "$ref": "../types.ts.json#/$defs/HttpEndpoint"
         }
       },
@@ -81,7 +81,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.004Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "FormalTableRequestInput": {
       "name": "FormalTableRequestInput",
@@ -128,6 +128,11 @@
         "members": {
           "attributes": [
             {
+              "name": "list",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "create",
               "readable": true,
               "writable": false
@@ -139,11 +144,6 @@
             },
             {
               "name": "delete",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "list",
               "readable": true,
               "writable": false
             }

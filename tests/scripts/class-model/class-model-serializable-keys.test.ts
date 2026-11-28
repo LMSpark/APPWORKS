@@ -77,6 +77,9 @@ describe('declared object key order', () => {
     'export type Context = { ready: boolean } & Pick<Runtime, "getDataSet" | "resolveView"> & { end: string };',
     'export type ReverseContext = { ready: boolean } & Pick<Runtime, "resolveView" | "getDataSet"> & { end: string };',
     'export type Direct = Pick<Runtime, "getDataSet" | "resolveView">;',
+    'type RuntimeKeys = Omit<Runtime, typeof opaque>;',
+    'export type Wrapped = Readonly<Partial<Pick<RuntimeKeys, "getDataSet" | "resolveView">> & { ready: boolean }>;',
+    'export type Omitted = Omit<RuntimeKeys, "getDataSet"> & { ready: boolean; getDataSet: string };',
     'export type Mapped = { [K in "getDataSet" | "resolveView"]?: boolean };',
     'export type RecordKeys = Record<"getDataSet" | "resolveView", boolean>;',
     'export type SymbolPicked = Pick<Runtime, typeof opaque | "getDataSet" | "resolveView">;',
@@ -105,14 +108,54 @@ describe('declared object key order', () => {
     {name: 'Context', keys: ['ready', 'getDataSet', 'resolveView', 'end']},
     {name: 'ReverseContext', keys: ['ready', 'resolveView', 'getDataSet', 'end']},
     {name: 'Direct', keys: ['getDataSet', 'resolveView']},
+    {name: 'Wrapped', keys: ['getDataSet', 'resolveView', 'ready'], required: ['ready']},
+    {name: 'Omitted', keys: ['resolveView', 'ready', 'getDataSet']},
     {name: 'Mapped', keys: ['getDataSet', 'resolveView'], optional: true},
     {name: 'RecordKeys', keys: ['getDataSet', 'resolveView']},
     {name: 'SymbolPicked', keys: ['getDataSet', 'resolveView'], mixed: true},
-  ])('projects $name in declared order with either checker key order', ({name, keys, optional, mixed}) => {
+  ])('projects $name in declared order with either checker key order', ({name, keys, optional, mixed, required}) => {
     const first = projectInFreshProgram(mixed === true ? 'MixedSource' : 'SourceOrder', name)
     const second = projectInFreshProgram(mixed === true ? 'MixedReverse' : 'ReverseOrder', name)
     expect(first.json).toBe(second.json)
     expect(first.keys).toEqual(keys)
-    expect(first.required).toEqual(optional === true ? undefined : keys)
+    expect(first.required).toEqual(optional === true ? undefined : required ?? keys)
+  })
+})
+
+/** Indexed values must follow the declared constant even if unrelated types seed the same union. */
+describe('indexed declaration value order', () => {
+  it.each([
+    ['Tuple', 'typeof values[number]', false],
+    ['Object', 'typeof operators[keyof typeof operators]', false],
+    ['Optional alias', 'Partial<Options>', true],
+    ['Optional discriminant', '{ operator?: Variants["operator"] }', true],
+  ])('projects %s values in constant declaration order', (_kind, targetType, nested) => {
+    const root = process.cwd()
+    const emit = resolve(root, 'class-model-emit')
+    const input = resolve(emit, 'src/value-order.d.ts')
+    for (const seed of ['"contains" | "in" | "eq"', '"in" | "eq" | "contains"']) {
+      const source = [
+        `type Seed = ${seed};`,
+        'declare const values: readonly ["eq", "contains", "in", "eq"];',
+        'declare const operators: { readonly eq: "eq"; readonly contains: "contains"; readonly in: "in" };',
+        'type Declared = "eq" | "contains" | "in";',
+        'type Options = { operator: Declared };',
+        'type Variants = { operator?: "eq" } | { operator: "contains" } | { operator: "in" };',
+        `export type Target = ${targetType};`,
+      ].join('\n')
+      const host = createInMemoryDeclarationCompilerHost({
+        files: new Map([[input, source]]),
+        sourceOptions: {rootDir: root, baseUrl: root, outDir: emit},
+      })
+      const program = ClassModelDeclarationSchema.createProgram([input], host)
+      const aliases = program.getSourceFile(input)?.statements.filter(ts.isTypeAliasDeclaration) ?? []
+      const prior = aliases.find(node => node.name.text === 'Seed')
+      const target = aliases.find(node => node.name.text === 'Target')
+      if (prior === undefined || target === undefined) throw new Error('Missing indexed value fixture')
+      program.getTypeChecker().getTypeFromTypeNode(prior.type)
+      const schema = new ClassModelDeclarationSchema(program).project(target)
+      const result = nested === true && typeof schema === 'object' ? schema.properties?.['operator'] : schema
+      expect(result).toEqual({enum: ['eq', 'contains', 'in']})
+    }
   })
 })

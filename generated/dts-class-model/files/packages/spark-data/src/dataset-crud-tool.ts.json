@@ -2905,6 +2905,25 @@
             "queryConfig": {
               "type": "object",
               "properties": {
+                "parentResult": {
+                  "type": "object",
+                  "properties": {
+                    "dataViewKey": {
+                      "type": "string"
+                    },
+                    "childModelName": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "dataViewKey",
+                    "childModelName"
+                  ],
+                  "additionalProperties": false
+                },
+                "outputType": {
+                  "type": "string"
+                },
                 "tree": {
                   "type": "object",
                   "properties": {
@@ -2934,42 +2953,11 @@
                   ],
                   "additionalProperties": false
                 },
-                "children": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "types.ts.json#/$defs/DataViewQueryChild"
-                  }
-                },
-                "fields": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
                 "pagination": {
                   "enum": [
                     "paged",
                     "none"
                   ]
-                },
-                "parentResult": {
-                  "type": "object",
-                  "properties": {
-                    "dataViewKey": {
-                      "type": "string"
-                    },
-                    "childModelName": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "dataViewKey",
-                    "childModelName"
-                  ],
-                  "additionalProperties": false
-                },
-                "outputType": {
-                  "type": "string"
                 },
                 "allPages": {
                   "enum": [
@@ -2985,6 +2973,18 @@
                 },
                 "maxRows": {
                   "type": "number"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "children": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "types.ts.json#/$defs/DataViewQueryChild"
+                  }
                 },
                 "sourceInputMode": {
                   "enum": [
@@ -3329,10 +3329,10 @@
             "type": {
               "enum": [
                 "sum",
+                "count",
                 "avg",
                 "min",
                 "max",
-                "count",
                 "join"
               ]
             },
@@ -3966,6 +3966,9 @@
         {
           "type": "object",
           "properties": {
+            "cascadeId": {
+              "type": "string"
+            },
             "parentTable": {
               "type": "string"
             },
@@ -3976,9 +3979,6 @@
               "type": "string"
             },
             "childViewId": {
-              "type": "string"
-            },
-            "cascadeId": {
               "type": "string"
             },
             "updates": {
@@ -4980,7 +4980,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T03:39:49.681Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "DataSetCrudToolCreateTableOptions": {
       "name": "DataSetCrudToolCreateTableOptions",

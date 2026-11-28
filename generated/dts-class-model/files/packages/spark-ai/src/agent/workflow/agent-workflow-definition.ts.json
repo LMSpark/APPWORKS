@@ -1054,8 +1054,8 @@
       "title": "AgentWorkflowGraphNodeType",
       "enum": [
         "start",
-        "output",
-        "node"
+        "node",
+        "output"
       ]
     },
     "AgentWorkflowLineBranch": {
@@ -1278,7 +1278,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.424Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "AgentWorkflowJsonRecord": {
       "name": "AgentWorkflowJsonRecord",

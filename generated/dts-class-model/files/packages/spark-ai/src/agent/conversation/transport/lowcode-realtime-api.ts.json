@@ -307,10 +307,10 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "LowcodeNotificationMessageType",
       "enum": [
-        "TIP",
-        "USER_MESSAGE",
         "SYSTEM_NOTIFICATION",
-        "SYSTEM_ERROR"
+        "TIP",
+        "SYSTEM_ERROR",
+        "USER_MESSAGE"
       ]
     },
     "LowcodeNotificationMessage": {
@@ -612,7 +612,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T07:04:03.680Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "LowcodeRealtimeEvent": {
       "name": "LowcodeRealtimeEvent",

@@ -144,13 +144,6 @@
       "type": "object",
       "title": "ContentTextSelection",
       "properties": {
-        "object": true,
-        "mode": {
-          "enum": [
-            "TEXT",
-            "INSERTION"
-          ]
-        },
         "projectId": {
           "type": "string"
         },
@@ -159,6 +152,13 @@
         },
         "owner": {
           "$ref": "#/$defs/ContentTextOwner"
+        },
+        "object": true,
+        "mode": {
+          "enum": [
+            "TEXT",
+            "INSERTION"
+          ]
         },
         "path": {
           "type": "string"
@@ -171,11 +171,11 @@
         }
       },
       "required": [
-        "object",
-        "mode",
         "projectId",
         "revisionId",
         "owner",
+        "object",
+        "mode",
         "path",
         "start",
         "end"
@@ -223,7 +223,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.898Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "ContentTextOwner": {
       "name": "ContentTextOwner",

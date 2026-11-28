@@ -43,9 +43,9 @@
       "properties": {
         "initialMode": {
           "enum": [
-            "auto",
             "light",
-            "dark"
+            "dark",
+            "auto"
           ]
         },
         "storageKey": {
@@ -114,7 +114,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.553Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "AppThemeCapability": {
       "name": "AppThemeCapability",

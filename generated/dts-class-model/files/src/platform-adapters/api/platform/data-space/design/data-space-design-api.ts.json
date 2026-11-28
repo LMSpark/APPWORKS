@@ -141,12 +141,6 @@
         "sourceRelationId": {
           "type": "string"
         },
-        "cascadeDelete": {
-          "enum": [
-            false,
-            true
-          ]
-        },
         "dataSpaceId": {
           "type": "string"
         },
@@ -165,19 +159,25 @@
         "dependencyType": {
           "type": "string"
         },
+        "cascadeDelete": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "filterExpression": {
           "$ref": "../../../../../../packages/spark-data/src/query/filter/data-view-filter.ts.json#/$defs/DataViewFilter"
         }
       },
       "required": [
         "sourceRelationId",
-        "cascadeDelete",
         "dataSpaceId",
         "parentModelId",
         "childModelId",
         "parentResourceName",
         "childResourceName",
         "dependencyType",
+        "cascadeDelete",
         "filterExpression"
       ],
       "additionalProperties": false
@@ -569,7 +569,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-23T09:26:21.615Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "DataSpaceFormalRow": {
       "name": "DataSpaceFormalRow",

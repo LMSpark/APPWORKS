@@ -22,10 +22,6 @@
       "type": "object",
       "title": "ContentCandidateFactBinding",
       "properties": {
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
-        },
         "baselineDataViewKey": {
           "type": "string"
         },
@@ -41,16 +37,20 @@
         "requiresUseCheck": {
           "const": true
         },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "requiresRevisionMatchCheck": {
           "const": false
         }
       },
       "required": [
-        "assertCurrent",
         "baselineDataViewKey",
         "factDataViewKey",
         "baselineMembershipVerified",
         "requiresUseCheck",
+        "assertCurrent",
         "requiresRevisionMatchCheck"
       ],
       "additionalProperties": false
@@ -60,15 +60,8 @@
       "type": "object",
       "title": "ContentCandidateRequirementPinsBinding",
       "properties": {
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
-        },
         "baselineDataViewKey": {
           "type": "string"
-        },
-        "requiresUseCheck": {
-          "const": true
         },
         "issues": {
           "type": "array",
@@ -76,15 +69,22 @@
             "$ref": "../../../../../../services/smart-bid/content/references/baseline-requirement-members.ts.json#/$defs/BaselineRequirementPinIssue"
           }
         },
+        "requiresUseCheck": {
+          "const": true
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        },
         "requiresRevisionMatchCheck": {
           "const": false
         }
       },
       "required": [
-        "assertCurrent",
         "baselineDataViewKey",
-        "requiresUseCheck",
         "issues",
+        "requiresUseCheck",
+        "assertCurrent",
         "requiresRevisionMatchCheck"
       ],
       "additionalProperties": false
@@ -857,11 +857,11 @@
       "type": "object",
       "title": "NodeTextCoordinates",
       "properties": {
-        "start": {
-          "type": "number"
-        },
         "path": {
           "type": "string"
+        },
+        "start": {
+          "type": "number"
         },
         "end": {
           "type": "number"
@@ -871,8 +871,8 @@
         }
       },
       "required": [
-        "start",
         "path",
+        "start",
         "end",
         "nodeId"
       ],
@@ -1677,7 +1677,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:33.073Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "ContentCandidateFactBinding": {
       "name": "ContentCandidateFactBinding",
@@ -2369,12 +2369,12 @@
         "members": {
           "attributes": [
             {
-              "name": "start",
+              "name": "path",
               "readable": true,
               "writable": true
             },
             {
-              "name": "path",
+              "name": "start",
               "readable": true,
               "writable": true
             },

@@ -65,13 +65,13 @@
         "sourceRelationId": {
           "type": "string"
         },
-        "relationName": {
-          "type": "string"
-        },
         "parentTable": {
           "type": "string"
         },
         "childTable": {
+          "type": "string"
+        },
+        "relationName": {
           "type": "string"
         },
         "cascadeUpdate": {
@@ -319,7 +319,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.441Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "ScenarioConfigObject": {
       "name": "ScenarioConfigObject",

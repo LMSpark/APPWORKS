@@ -210,10 +210,10 @@
         },
         "position": {
           "enum": [
-            "left",
-            "right",
             "top",
-            "bottom"
+            "bottom",
+            "left",
+            "right"
           ]
         },
         "width": {
@@ -233,7 +233,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.749Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "REditorProps": {
       "name": "REditorProps",

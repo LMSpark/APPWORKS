@@ -134,8 +134,8 @@
         },
         "valueMode": {
           "enum": [
-            "array",
             "auto",
+            "array",
             "separated-string"
           ]
         },
@@ -401,8 +401,8 @@
             },
             "valueMode": {
               "enum": [
-                "array",
                 "auto",
+                "array",
                 "separated-string"
               ]
             },
@@ -507,7 +507,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-21T08:39:24.080Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",

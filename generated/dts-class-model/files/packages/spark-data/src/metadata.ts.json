@@ -17,42 +17,6 @@
       "type": "object",
       "title": "TableMetadataLike",
       "properties": {
-        "api": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "$ref": "types.ts.json#/$defs/CrudApi"
-            }
-          ]
-        },
-        "crudConfig": {
-          "$ref": "types.ts.json#/$defs/CrudOperationConfig"
-        },
-        "columns": {
-          "type": "array",
-          "items": {
-            "$ref": "types.ts.json#/$defs/DataColumn"
-          }
-        },
-        "views": {
-          "type": "object",
-          "properties": {
-            "default": {
-              "$ref": "types.ts.json#/$defs/ViewMetadata"
-            }
-          },
-          "required": [
-            "default"
-          ],
-          "additionalProperties": {
-            "$ref": "types.ts.json#/$defs/ViewMetadata"
-          }
-        },
         "resourceType": {
           "anyOf": [
             {
@@ -598,6 +562,42 @@
             }
           ]
         },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "types.ts.json#/$defs/DataColumn"
+          }
+        },
+        "api": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "types.ts.json#/$defs/CrudApi"
+            }
+          ]
+        },
+        "crudConfig": {
+          "$ref": "types.ts.json#/$defs/CrudOperationConfig"
+        },
+        "views": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "$ref": "types.ts.json#/$defs/ViewMetadata"
+            }
+          },
+          "required": [
+            "default"
+          ],
+          "additionalProperties": {
+            "$ref": "types.ts.json#/$defs/ViewMetadata"
+          }
+        },
         "tableName": {
           "type": "string"
         }
@@ -609,7 +609,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.018Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "TableMetadataLike": {
       "name": "TableMetadataLike",

@@ -50,12 +50,12 @@
       "title": "OperationNodeType",
       "enum": [
         "route",
-        "task",
         "phase",
         "sequence",
         "parallel",
         "choice",
-        "call"
+        "call",
+        "task"
       ]
     },
     "OperationTreeStructureInput": {
@@ -95,7 +95,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.984Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "OperationStructureNode": {
       "name": "OperationStructureNode",

@@ -234,8 +234,8 @@
         },
         "valueMode": {
           "enum": [
-            "array",
             "auto",
+            "array",
             "separated-string"
           ]
         },
@@ -267,7 +267,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.845Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "RRadioProps": {
       "name": "RRadioProps",

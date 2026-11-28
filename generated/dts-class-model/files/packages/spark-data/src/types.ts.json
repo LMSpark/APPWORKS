@@ -3368,9 +3368,9 @@
         },
         "sortDirection": {
           "enum": [
-            null,
             "asc",
-            "desc"
+            "desc",
+            null
           ]
         },
         "group": {
@@ -3483,6 +3483,25 @@
         "queryConfig": {
           "type": "object",
           "properties": {
+            "parentResult": {
+              "type": "object",
+              "properties": {
+                "dataViewKey": {
+                  "type": "string"
+                },
+                "childModelName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "dataViewKey",
+                "childModelName"
+              ],
+              "additionalProperties": false
+            },
+            "outputType": {
+              "type": "string"
+            },
             "tree": {
               "type": "object",
               "properties": {
@@ -3512,42 +3531,11 @@
               ],
               "additionalProperties": false
             },
-            "children": {
-              "type": "array",
-              "items": {
-                "$ref": "#/$defs/DataViewQueryChild"
-              }
-            },
-            "fields": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
             "pagination": {
               "enum": [
                 "paged",
                 "none"
               ]
-            },
-            "parentResult": {
-              "type": "object",
-              "properties": {
-                "dataViewKey": {
-                  "type": "string"
-                },
-                "childModelName": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "dataViewKey",
-                "childModelName"
-              ],
-              "additionalProperties": false
-            },
-            "outputType": {
-              "type": "string"
             },
             "allPages": {
               "enum": [
@@ -3563,6 +3551,18 @@
             },
             "maxRows": {
               "type": "number"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQueryChild"
+              }
             },
             "sourceInputMode": {
               "enum": [
@@ -7498,7 +7498,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-27T14:05:50.000Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",

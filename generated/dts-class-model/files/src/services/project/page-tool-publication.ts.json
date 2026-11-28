@@ -474,13 +474,13 @@
             "schemaVersion": {
               "const": 2
             },
+            "pagedata": false,
             "dataset": {
               "type": "array",
               "items": {
                 "$ref": "#/$defs/PageToolPublicationDatasetSnapshot"
               }
-            },
-            "pagedata": false
+            }
           },
           "required": [
             "format",
@@ -661,7 +661,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-26T01:48:26.913Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "Progress": {
       "name": "Progress",

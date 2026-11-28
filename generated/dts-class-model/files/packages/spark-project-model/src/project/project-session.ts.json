@@ -40,9 +40,9 @@
         },
         "blueprintDirtyScope": {
           "enum": [
-            null,
             "node",
-            "root"
+            "root",
+            null
           ]
         }
       },
@@ -230,7 +230,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.434Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "ProjectSessionState": {
       "name": "ProjectSessionState",

@@ -82,10 +82,10 @@
         },
         "position": {
           "enum": [
-            "left",
-            "right",
             "top",
-            "bottom"
+            "bottom",
+            "left",
+            "right"
           ]
         },
         "wrap": {
@@ -120,16 +120,16 @@
         "align": {
           "enum": [
             "start",
-            "end",
             "center",
+            "end",
             "stretch"
           ]
         },
         "justify": {
           "enum": [
             "start",
-            "end",
             "center",
+            "end",
             "space-between"
           ]
         }
@@ -147,7 +147,7 @@
       ]
     }
   },
-  "generatedAt": "2026-11-26T06:57:32.889Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "RToolbarProps": {
       "name": "RToolbarProps",

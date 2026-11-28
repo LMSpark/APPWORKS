@@ -63,13 +63,6 @@
       "type": "object",
       "title": "EntryInput",
       "properties": {
-        "kind": {
-          "type": "string"
-        },
-        "assertCurrent": {
-          "type": "object",
-          "title": "() => void"
-        },
         "guideRef": {
           "type": "string"
         },
@@ -77,6 +70,9 @@
           "type": "string"
         },
         "guideDigest": {
+          "type": "string"
+        },
+        "kind": {
           "type": "string"
         },
         "actionName": {
@@ -93,22 +89,26 @@
           "items": {
             "type": "string"
           }
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
         }
       },
       "required": [
-        "kind",
-        "assertCurrent",
         "guideRef",
         "versionRef",
         "guideDigest",
+        "kind",
         "actionName",
         "pathRefs",
-        "materialRefs"
+        "materialRefs",
+        "assertCurrent"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T02:23:56.471Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "Entry": {
       "name": "Entry",
@@ -195,16 +195,6 @@
         "members": {
           "attributes": [
             {
-              "name": "kind",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "assertCurrent",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "guideRef",
               "readable": true,
               "writable": true
@@ -220,6 +210,11 @@
               "writable": true
             },
             {
+              "name": "kind",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "actionName",
               "readable": true,
               "writable": true
@@ -231,6 +226,11 @@
             },
             {
               "name": "materialRefs",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "assertCurrent",
               "readable": true,
               "writable": true
             }

@@ -275,13 +275,13 @@
             "schemaVersion": {
               "const": 2
             },
+            "pagedata": false,
             "dataset": {
               "type": "array",
               "items": {
                 "$ref": "#/$defs/RuntimePagePublicationDataset"
               }
-            },
-            "pagedata": false
+            }
           },
           "required": [
             "pageId",
@@ -677,7 +677,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T20:15:10.699Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "RuntimeScenarioLoadCommand": {
       "name": "RuntimeScenarioLoadCommand",

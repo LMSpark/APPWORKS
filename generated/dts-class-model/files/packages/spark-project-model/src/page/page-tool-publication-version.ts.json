@@ -39,6 +39,12 @@
       "type": "object",
       "title": "PageToolPublicationVersions",
       "properties": {
+        "rule": {
+          "type": [
+            "null",
+            "number"
+          ]
+        },
         "script": {
           "type": [
             "null",
@@ -46,12 +52,6 @@
           ]
         },
         "style": {
-          "type": [
-            "null",
-            "number"
-          ]
-        },
-        "rule": {
           "type": [
             "null",
             "number"
@@ -65,15 +65,15 @@
         }
       },
       "required": [
+        "rule",
         "script",
         "style",
-        "rule",
         "manifest"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T07:48:56.517Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "PageToolPublicationFileName": {
       "name": "PageToolPublicationFileName",
@@ -127,17 +127,17 @@
         "members": {
           "attributes": [
             {
+              "name": "rule",
+              "readable": true,
+              "writable": true
+            },
+            {
               "name": "script",
               "readable": true,
               "writable": true
             },
             {
               "name": "style",
-              "readable": true,
-              "writable": true
-            },
-            {
-              "name": "rule",
               "readable": true,
               "writable": true
             },

@@ -228,9 +228,6 @@
       "type": "object",
       "title": "DataSetCommitSnapshotOptions",
       "properties": {
-        "timestamp": {
-          "type": "number"
-        },
         "dataSetName": {
           "type": "string"
         },
@@ -267,6 +264,9 @@
           "properties": {},
           "additionalProperties": true
         },
+        "timestamp": {
+          "type": "number"
+        },
         "bumpVersion": {
           "enum": [
             false,
@@ -277,7 +277,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.015Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "DataSetHistoryStorageAdapter": {
       "name": "DataSetHistoryStorageAdapter",

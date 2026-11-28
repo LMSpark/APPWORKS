@@ -490,21 +490,21 @@
         "tableName": {
           "type": "string"
         },
-        "viewId": {
-          "type": "string"
-        },
         "modelId": {
           "type": "string"
         },
         "modelName": {
           "type": "string"
+        },
+        "viewId": {
+          "type": "string"
         }
       },
       "required": [
         "tableName",
-        "viewId",
         "modelId",
-        "modelName"
+        "modelName",
+        "viewId"
       ],
       "additionalProperties": false
     },
@@ -619,21 +619,21 @@
             "tableName": {
               "type": "string"
             },
+            "expectedText": {
+              "type": "string"
+            },
             "modelId": {
               "type": "string"
             },
             "modelName": {
               "type": "string"
-            },
-            "expectedText": {
-              "type": "string"
             }
           },
           "required": [
             "tableName",
+            "expectedText",
             "modelId",
-            "modelName",
-            "expectedText"
+            "modelName"
           ],
           "additionalProperties": false
         },
@@ -643,17 +643,17 @@
             "tableName": {
               "type": "string"
             },
-            "resourceId": {
+            "expectedText": {
               "type": "string"
             },
-            "expectedText": {
+            "resourceId": {
               "type": "string"
             }
           },
           "required": [
             "tableName",
-            "resourceId",
-            "expectedText"
+            "expectedText",
+            "resourceId"
           ],
           "additionalProperties": false
         }
@@ -1659,7 +1659,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-27T13:46:41.000Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "RuntimeDataSetPlanStatus": {
       "name": "RuntimeDataSetPlanStatus",
@@ -2180,17 +2180,17 @@
               "writable": true
             },
             {
-              "name": "viewId",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "modelId",
               "readable": true,
               "writable": true
             },
             {
               "name": "modelName",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "viewId",
               "readable": true,
               "writable": true
             }

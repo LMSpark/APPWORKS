@@ -305,14 +305,14 @@
         },
         "type": {
           "enum": [
-            "MOBILE",
-            "EMAIL",
-            "FACE",
             "WECHAT_MINIAPP",
             "WECHAT_WEB",
             "WECHAT_CORP_WEB",
             "DINGTALK_WEB",
+            "MOBILE",
+            "EMAIL",
             "PASSWORD",
+            "FACE",
             "SSO",
             "CODE",
             "TICKET"
@@ -1849,7 +1849,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-23T08:03:43.047Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "WireJsonObject": {
       "name": "WireJsonObject",

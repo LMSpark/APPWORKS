@@ -381,12 +381,12 @@
       "type": "object",
       "title": "AiAgentTaskChatOptions",
       "properties": {
+        "turn": {
+          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
+        },
         "signal": {
           "type": "object",
           "title": "AbortSignal"
-        },
-        "turn": {
-          "$ref": "../conversation/chat/chat-types.ts.json#/$defs/AiAgentTurnMeta"
         },
         "onReasoning": {
           "type": "object",
@@ -489,7 +489,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:31.392Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "AiAgentOrchestrationPlan": {
       "name": "AiAgentOrchestrationPlan",

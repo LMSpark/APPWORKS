@@ -121,13 +121,13 @@
       "type": "object",
       "title": "Scope",
       "properties": {
-        "projectId": {
-          "type": "string"
-        },
         "sourceEnterpriseId": {
           "type": "string"
         },
         "recipientEnterpriseId": {
+          "type": "string"
+        },
+        "projectId": {
           "type": "string"
         },
         "applicationRef": {
@@ -141,9 +141,9 @@
         }
       },
       "required": [
-        "projectId",
         "sourceEnterpriseId",
         "recipientEnterpriseId",
+        "projectId",
         "applicationRef",
         "resourceVersionId",
         "decisionChainId"
@@ -233,7 +233,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-20T20:59:32.926Z",
+  "generatedAt": "2026-11-27T23:47:42.000Z",
   "models": {
     "Decision": {
       "name": "Decision",
@@ -343,17 +343,17 @@
         "members": {
           "attributes": [
             {
-              "name": "projectId",
-              "readable": true,
-              "writable": true
-            },
-            {
               "name": "sourceEnterpriseId",
               "readable": true,
               "writable": true
             },
             {
               "name": "recipientEnterpriseId",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "projectId",
               "readable": true,
               "writable": true
             },

@@ -240,13 +240,21 @@ async function readGraphAfterConfirmation(confirmation: string): Promise<boolean
   return true
 }
 async function save(): Promise<void> {
-  if (blocked.value || editingFilter.value || newId.value) return
+  const target = view.value
+  if (!target || blocked.value || editingFilter.value || newId.value) return
   const id = row.value?.['relationId'], sourceId = row.value?.['sourceRelationId'], key = props.rowKey
   return run(async () => {
     // 提交期间保留集合入口；删除当前定义不能卸载接收回执的编辑器。
     emit('select', undefined)
     try {
-      const saved = await dataSet.saveChanges({views: [{tableName: 'DataResourceRelationDefinition', viewId: 'default'}]}); if (!saved.success) throw new Error(saved.message)
+      const outcome = await dataSet.saveView(target)
+      if (outcome.state === 'not-submitted') throw new Error('本次未提交关系修改')
+      if (outcome.state === 'partial') throw new Error(`部分关系修改已确认：${outcome.error.message}`, {cause: outcome.error})
+      if (outcome.state === 'follow-up-failed') {
+        if (active) message.value = `本轮保存已确认，后续操作失败：${outcome.error.message}`
+        return
+      }
+      if (outcome.state !== 'confirmed') throw outcome.error
       if (await readGraphAfterConfirmation('本轮保存已确认') && active) {
         message.value = localDirty.value ? '本轮保存已确认，仍有修改待保存' : '关系配置已保存并回读确认'
       }

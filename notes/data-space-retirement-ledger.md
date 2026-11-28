@@ -160,6 +160,10 @@ AW-07 按「正式操作 × 缺失能力」核对后引用业务验收项。跨�
 
 **工程入库。** 根 `pnpm run verify` 退出 0。全仓分为原生设计单套 383 项和其余 781 套 12,692 项，两段均退出 0，共 782 套 13,075 项。4,430 份工程输入的指纹一致。净版四组关系定向、611 个端点与 243 个消费者合同、ClassModel 导引及静态构建通过，关系组件分片仅生成时间变化。两文件提交 `8258422ba`，树 `6a827af5f1f3d9e2815df062246ba031a29e0282` 与已验候选一致。 [AI 度量](ai-code-metrics.md#2026-11-28-aw-03-关系保存与画布后置读取)
 
+<a id="aw03-relation-save-no-dispatch-20261128"></a>
+
+**AW-03 · 关系保存的零派发回执，工程已验待实服。** 原入口只检查 `saveChanges.success`。实际设计页的隔离反例在保存收集前撤回本地改动，文件和数据库均零写入，独立实例读回原关系 `R`，旧版页面仍显示「关系配置已保存并回读确认」，定向退出 1。关系编辑器已改用公共 `DataSet.saveView` 区分未提交、失败、部分确认、未知及已确认后的操作失败。收到已确认结果后才进入画布回读，未知继续核原 DataSet 批次。主仓改前类型、改后定向 ESLint、实际关系定向 11 项、根 `pnpm run verify` 均退出 0。根 `pnpm run test:run` 分为原生设计 392 项和其余 781 套 12,830 项，两段均退出 0，共 782 套、13,222 项。两份本批工程输入的 SHA-256 前后一致，日志在 `artifacts/aw03-relation-save-receipt`。第 04 包的正式项目、原关系键、文件回执和独立重开继续待实服验收，写入须另行批准。 [关系编辑器](../src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue) [挂载回归](../tests/runtime/page/design/native/data-space-design-page.test.ts)
+
 <a id="aw03-file-resource-registration-20261128"></a>
 
 **AW-03 · 第 04 包文件资源注册。** 沿实际新增入口注册 `AgentWorkflowFiles`。改前四组分别在绑定或命名视图回读故障时丢失确认，或在缺回执及部分回执时仍进入后置回读。独立净版又复现注册期间另一份命名视图草稿使旧入口写入零次。修订逐行捕获本次新增键，一次 DataSet 提交仅携带这些键。收到完整新增分项后才即时读取，核对资源、列及命名视图身份，保留回执已确认与后置失败两项事实。回归证明旁支 `OrdersAlias@laterNamed` 保留在本实例且未入持久定义，新会话能读到 `AgentWorkflowFiles@definition`。净版和主仓受影响入口各 10 项通过，包含原未知不重发。 [文件资源注册](../src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue#L805) [实际挂载](../tests/runtime/page/design/native/data-space-design-page.test.ts#L8100)

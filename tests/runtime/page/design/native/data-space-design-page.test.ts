@@ -4426,6 +4426,37 @@ describe('native data-space design entry', () => {
     expect(f.fileWrites).toHaveLength(save?1:0);expect(writes(f)).toHaveLength(0)
   })
 
+  it('does not confirm a native relation save when no change reached the file owner', async () => {
+    const f = fixture()
+    await f.open('A')
+    const config = JSON.parse(f.stored.get('A')!)
+    config.resourceRelations = [{relationId: 'R', parentTable: 'CustomersAlias', childTable: 'OrdersAlias', filterExpression: {field: 'parentId', operator: 'eq', value: 'C'}}]
+    f.stored.set('A', JSON.stringify(config))
+    const {wrapper} = await page()
+    const flow = wrapper.getComponent(VueFlow)
+    flow.vm.$emit('edgeDoubleClick', {edge: flow.props('edges')![0]})
+    await flushPromises()
+    await writeBound(wrapper, 'relationId', 'not-submitted')
+    const session = f.sessions.at(-1)!
+    const dataSet = session.metadataDataSet
+    const definitions = dataSet.getView('DataResourceRelationDefinition')!
+    const save = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      definitions.discardPendingChanges()
+      return save(options)
+    })
+
+    await sourceButton(wrapper, 'save-relations').trigger('click')
+    await flushPromises()
+
+    expect(f.fileWrites).toHaveLength(0)
+    expect(writes(f)).toHaveLength(0)
+    expect((await f.open('A')).definitionDataSet!.resourceRelations?.map(item => item.relationId)).toEqual(['R'])
+    const editor = wrapper.get('[aria-label="模型关系编辑"]')
+    expect(editor.text()).not.toContain('关系配置已保存并回读确认')
+    expect(editor.get('[role="alert"]').text()).toContain('本次未提交关系修改')
+  })
+
   it.each([[false, false], [false, true], [true, false], [true, true]])('shows remaining native relation edits after a stored receipt (unknown=%s, graph failure=%s)', async (unknown, graphFailure) => {
     const f = fixture(); await f.open('A')
     const config = JSON.parse(f.stored.get('A')!)

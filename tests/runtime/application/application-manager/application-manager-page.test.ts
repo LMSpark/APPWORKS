@@ -11,6 +11,10 @@ import * as Fixture from './application-manager.fixture'
 import {pagedata} from '../../page/api-provider/api-provider.fixture'
 import applicationScenario from '../../../../config/pages/application/application-manager/pagedata.json'
 
+import menuScenario from '../../../../config/pages/application/data-menu/pagedata.json?raw'
+
+const menuScenarioId = '2CA968B3513084BA2537BB0C85AE945E'
+const menuPath = '/features/application/data-menu/ui/data-menu-page'
 const {api, APPLICATION_MANAGER_PATH, APPLICATION_MANAGER_SCENARIO: SCENARIO, OWNER_ROLE, resetApplicationManagerFixture} = Fixture
 const confirmBox = vi.hoisted(() => vi.fn<(message: string, title: string) => Promise<string>>())
 const pageUi = vi.hoisted(() => ({showMessage: vi.fn<(message: string, type?: string) => void>()}))
@@ -86,7 +90,7 @@ async function settle(): Promise<void> {
   for (let index = 0; index < 6; index++) await flushPromises()
 }
 
-async function open(wait = true, entry: 'manager' | 'relations' = 'manager') {
+async function open(wait = true, entry: 'manager' | 'relations' | 'menu' = 'manager') {
   const observed = new Set<PageRuntime>()
   const load = PageRuntime.prototype.load
   vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function(this: PageRuntime) {
@@ -104,7 +108,12 @@ async function open(wait = true, entry: 'manager' | 'relations' = 'manager') {
     component: () => import('@/views/features/application/application-context/ui/application-database-relations-page.vue'),
     meta: {blueprintScenarioId: Fixture.DATABASE_RELATIONS_SCENARIO, nodeId: Fixture.DATABASE_RELATIONS_SCENARIO, systemPageIdentityState: 'resolved'},
   })
-  await router.push(entry === 'relations'
+  if (entry === 'menu') router.addRoute({
+    path: `/apps/:projectId${menuPath}`,
+    component: () => import('@/views/features/application/data-menu/ui/data-menu-page.vue'),
+    meta: {blueprintScenarioId: menuScenarioId, nodeId: menuScenarioId, systemPageIdentityState: 'resolved'},
+  })
+  await router.push(entry === 'menu' ? `/apps/APP${menuPath}` : entry === 'relations'
     ? '/apps/APP-1/features/application/application-context/ui/application-database-relations-page'
     : `/apps/APP${APPLICATION_MANAGER_PATH}`)
   await router.isReady()
@@ -631,6 +640,75 @@ describe('application manager restored with standard components and formal DataV
     expect(http.saves).toHaveLength(1)
     expect(target.rows.some(item => item['rowid'] === 'RELATION-1')).toBe(false)
     expect(bodyText()).toContain('原关联提交已确认')
+  })
+
+  it.each(['zero dispatch', 'confirmed', 'original receipt lost', 'readback failure'] as const)
+  ('settles a standalone navigation host delete with %s', async mode => {
+    pagedata[menuScenarioId] = menuScenario
+    http.records['Base_DataMenu'] = [{rowid: 'MENU-HOST-PROBE', Name: 'navigation host probe', DataType: 'Table'}]
+    const {wrapper, observed, router} = await open(true, 'menu')
+    await vi.waitFor(() => expect(bodyText()).toContain('navigation host probe'))
+    const runtime = [...observed].find(item => !item.destroyed && item.getDataSet(menuScenarioId))
+    const dataSet = runtime?.getDataSet(menuScenarioId), target = dataSet?.getView('Base_DataMenu')
+    const row = target?.rows.find(item => item['rowid'] === 'MENU-HOST-PROBE')
+    if (!dataSet || !target || !row) throw new Error('missing navigation host model or row')
+    target.setCurrentRow(row)
+    target.setSelectedRows([row])
+    await settle()
+    expect(target.deleteActionState(row)).toBe('enabled')
+    const renderedDelete = wrapper.findAllComponents(RendererButton).find(component => component.props('label') === '删除')
+    expect(target.currentRow).toBe(row)
+    expect(renderedDelete?.props('disabled'), 'Page-level disabled prop after original current row changes').toBe(false)
+    await vi.waitFor(() => expect(button('删除').disabled).toBe(false))
+    const readsBefore = http.reads.length
+    const isExactKey = (query: unknown) => {
+      const wire = JSON.stringify(query) ?? ''
+      return wire.includes('"Field":"rowid"') && wire.includes('"Value":"MENU-HOST-PROBE"')
+    }
+    const subsequentReads = () => http.reads.slice(readsBefore).filter(call => call.table === 'Base_DataMenu')
+    const save = dataSet.saveChanges.bind(dataSet)
+    const dispatch = vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      if (mode === 'zero dispatch') target.discardPendingChanges()
+      if (mode === 'original receipt lost') http.failAfterWrite = true
+      const result = await save(options)
+      if (mode === 'readback failure') {
+        http.beforeDefinitionRead = async table => {
+          if (table === 'Base_DataMenu' && !isExactKey(http.reads.at(-1)?.data)) http.failNextTable = table
+        }
+      }
+      return result
+    })
+    await click('删除')
+    await vi.waitFor(() => expect(dispatch).toHaveBeenCalledOnce())
+    if (mode === 'zero dispatch') {
+      expect(http.saves).toHaveLength(0)
+      expect(http.records['Base_DataMenu']).toHaveLength(1)
+      expect(bodyText()).not.toContain('删除成功')
+      return
+    }
+    expect(http.saves).toHaveLength(1)
+    expect(http.records['Base_DataMenu']).toHaveLength(0)
+    if (mode === 'readback failure' || mode === 'confirmed') {
+      const expected = mode === 'confirmed' ? '删除成功' : '删除已确认，回读失败'
+      await vi.waitFor(() => expect(bodyText()).toContain(expected))
+      expect(subsequentReads().map(call => isExactKey(call.data))).toEqual([true, false])
+      return
+    }
+    await vi.waitFor(() => expect(target.hasUnconfirmedSave).toBe(true))
+    const batchId = dataSet.saveJournal.batchId
+    const verify = vi.spyOn(dataSet, 'verifySaveJournalAndRead')
+    expect(button('删除').disabled).toBe(true)
+    const originalRoute = router.currentRoute.value.fullPath
+    await router.push('/apps/OTHER/unrelated')
+    expect(router.currentRoute.value.fullPath).toBe(originalRoute)
+    expect(bodyText()).toContain('原删除结果待核验，请处理后再离开')
+    await click('核验原提交')
+    await vi.waitFor(() => expect(target.hasUnconfirmedSave).toBe(false))
+    expect(verify).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({batchId, receiptViews: [target]}))
+    await vi.waitFor(() => expect(bodyText()).toContain('删除成功'))
+    expect(subsequentReads().some(call => isExactKey(call.data))).toBe(true)
+    expect(http.saves).toHaveLength(1)
+    expect(target.rows).toHaveLength(0)
   })
 
   it('enters project management through the guarded application route', async () => {

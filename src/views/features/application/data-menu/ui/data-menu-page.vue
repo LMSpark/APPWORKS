@@ -11,6 +11,7 @@ AI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源
       <RendererButton label="重试" @click="loadCurrentRoute" />
     </template>
     <template v-if="ready" #header-actions>
+      <RendererButton v-if="deleteReceipt" label="核验原提交" :disabled="busy" @click="verifyOriginal" />
       <RendererButton label="新增" button-type="primary" icon="Plus" :data-view-key="viewKey" perm-action="create"
         :disabled="headerDisabled || !catalogView || catalogView.addActionState() !== 'enabled'" @click="create" />
       <RendererButton label="编辑" icon="Edit" :data-view-key="viewKey" perm-action="edit"
@@ -37,7 +38,7 @@ AI用途：迁移导航宿主时核对宿主记录写入字段、空间→资源
 
 <script setup lang="ts">
 import {computed, defineAsyncComponent, onBeforeUnmount, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
+import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type {RFilterProps, RToolbarProps} from '@spark-appworks/spark-component'
@@ -98,10 +99,24 @@ const filter: RFilterProps = {
   children: [{type: 'r-text', props: {field: 'Name', label: '宿主名称', placeholder: '请输入宿主名称', filterTrim: true}}],
 }
 const catalogView = computed(() => {revision.value; return ready.value ? view(viewKey.value) : undefined})
-const current = computed(() => catalogView.value?.currentRow ?? null)
-const headerDisabled = computed(() => busy.value || !!editing.value || !!designId.value)
+const current = computed(() => {revision.value; return catalogView.value?.currentRow ?? null})
+const headerDisabled = computed(() => {
+  revision.value
+  const target = catalogView.value
+  return busy.value || !!editing.value || !!designId.value || target?.hasUnconfirmedSave === true || target?.mutating === true
+})
+const deleteReceipt = computed(() => {
+  revision.value
+  const target = catalogView.value, journal = target?.dataSet?.saveJournal
+  const [record] = journal?.views ?? []
+  const [id] = record?.ids ?? []
+  return target?.hasUnconfirmedSave && journal?.currentRecoverableAction === 'verify-original-receipt'
+    && journal.views.length === 1 && record?.state === 'unknown' && record.ids.length === 1
+    && record.tableName === target.tableName && record.viewId === target.viewId
+    && id !== undefined && target.dirtyTracking.isPendingDelete(id) && journal.batchId ? {batchId: journal.batchId, id} : null
+})
 const actions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '设计', link: true, buttonType: 'primary', disabled: busy.value,
+  label: '设计', link: true, buttonType: 'primary', disabled: headerDisabled.value,
   onClick: (row: DataRow) => {
     const id = text(row, 'dataSetId')
     if (id) designId.value = id
@@ -113,7 +128,7 @@ let stops: (() => void)[] = []
 function unbind(): void { for (const stop of stops) stop(); stops = [] }
 function listen(target: DataView): void {
   const bump = () => {revision.value++}
-  for (const event of ['currentRowChanged', 'rowsChanged', 'cleared'] as const) {
+  for (const event of ['currentRowChanged', 'rowsChanged', 'cleared', 'mutatingChanged'] as const) {
     target.events.on(event, bump); stops.push(() => target.events.off(event, bump))
   }
 }
@@ -131,6 +146,16 @@ watch(ready, isReady => {
   void loadDataSets()
 })
 onBeforeUnmount(unbind)
+
+function keepOriginalSave(): boolean {
+  const target = catalogView.value
+  if (!busy.value && !target?.mutating && !target?.hasUnconfirmedSave) return true
+  message.value = target?.hasUnconfirmedSave ? '原删除结果待核验，请处理后再离开' : '导航宿主操作正在处理'
+  return false
+}
+
+onBeforeRouteLeave(keepOriginalSave)
+onBeforeRouteUpdate(keepOriginalSave)
 
 async function create(): Promise<void> {
   const target = view(viewKey.value)
@@ -153,25 +178,80 @@ async function closeEdit(): Promise<void> {
   editing.value = undefined
   await view(viewKey.value).refresh()
 }
-async function remove(): Promise<void> {
-  const target = view(viewKey.value), row = target.currentRow
-  const id = row ? target.getPkKey(row) : undefined
-  if (busy.value || !row || id === undefined || target.deleteActionState(row) !== 'enabled') return
-  const confirmed = await pageService.showConfirm(`确定删除导航宿主"${text(row, 'Name')}"吗？`, '删除确认', {type: 'warning'})
-    .then(() => true, () => false)
-  if (!confirmed) return
-  busy.value = true; message.value = ''
+/** 通过原模型派生一次只读查询，按原正式键核对删除，再刷新当前列表。 */
+async function reportDeleteReadback(target: DataView, id: string | number): Promise<void> {
+  if (catalogView.value !== target || target.destroyed) return
+  let verification: DataView | undefined
   try {
-    await target.removeRow(id)
-    const result = await target.dataSet?.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId, ids: [id]}]})
-    if (!result) throw new Error('导航宿主视图缺少DataSet')
-    if (!result.success) {
-      if (!target.hasUnconfirmedSave) target.discardPendingChanges([id])
-      throw new Error(result.error?.message ?? '删除结果未确认，请刷新核验')
+    const fields = target.effectivePkFields
+    const [field] = fields
+    if (fields.length !== 1 || !field || field === '_pk') throw new Error('缺少可按键回读的正式主键')
+    verification = target.createQueryView(`navigationHostDelete_${crypto.randomUUID()}`)
+    verification.queryConfig = {...verification.queryConfig, cacheType: 'none', fields}
+    const exact = await verification.loadFromServer({page: 1, pageSize: 1, filter: {field, operator: 'eq', value: id}})
+    if (!exact.success || verification.countReported !== true || verification.total !== 0 || verification.rows.length !== 0) {
+      throw new Error(exact.message ?? '原记录删除未通过精确回读')
     }
-    message.value = '删除成功'
-    await target.refresh()
-  } catch (cause) { message.value = `删除导航宿主失败：${failure(cause)}` } finally { busy.value = false }
+    if (catalogView.value !== target || target.destroyed) return
+    const result = await target.requestRefresh({defer: false})
+    if (result.refreshStatus !== 'read') throw new Error(result.message ?? '列表未完成读取')
+    if (catalogView.value === target) message.value = '删除成功'
+  } catch (cause) {
+    if (catalogView.value === target) message.value = `删除已确认，回读失败：${failure(cause)}`
+  } finally {
+    if (verification && !verification.destroyed) verification.dataTable?.destroyView(verification.viewId)
+  }
+}
+
+async function verifyOriginal(): Promise<void> {
+  const target = catalogView.value, dataSet = target?.dataSet, receipt = deleteReceipt.value
+  if (!target || !dataSet || !receipt || busy.value) return
+  const {batchId, id} = receipt
+  busy.value = true
+  try {
+    const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [target], readbackViews: [], discardNotApplied: true})
+    if (catalogView.value !== target || target.destroyed) return
+    if (result.settlement === 'confirmed') await reportDeleteReadback(target, id)
+    else if (result.settlement === 'not-applied') {
+      message.value = result.draftCleanup === 'discarded' ? '原删除未生效，已撤销原草稿' : '原删除未生效，草稿仍保留'
+    } else message.value = result.verificationError ? `原删除仍待核验：${result.verificationError.message}` : '原删除仍待核验'
+  } catch (cause) {
+    if (catalogView.value === target) message.value = `原删除核验失败：${failure(cause)}`
+  } finally {
+    busy.value = false
+    revision.value++
+  }
+}
+
+async function remove(): Promise<void> {
+  const target = catalogView.value, row = target?.currentRow, dataSet = target?.dataSet
+  const id = row ? target?.getPkKey(row) : undefined
+  if (headerDisabled.value || !target || !dataSet || !row || id === undefined || target.deleteActionState(row) !== 'enabled') return
+  busy.value = true
+  message.value = ''
+  try {
+    const original = target.captureReadRow(row, target.effectivePkFields)
+    const confirmed = await pageService.showConfirm(`确定删除导航宿主"${text(row, 'Name')}"吗？`, '删除确认', {type: 'warning'})
+    if (!confirmed || catalogView.value !== target || target.destroyed) return
+    original()
+    await target.removeRow(id)
+    try {
+      const receipt = await dataSet.saveRecord(target, id)
+      if (receipt.followUpError) {
+        if (catalogView.value === target) message.value = `删除已确认，后续处理失败：${receipt.followUpError.message}`
+        return
+      }
+    } catch (cause) {
+      if (!target.hasUnconfirmedSave && !target.destroyed) target.discardPendingChanges([id])
+      throw cause
+    }
+    await reportDeleteReadback(target, id)
+  } catch (cause) {
+    if (catalogView.value === target) message.value = target.hasUnconfirmedSave ? '删除结果未知，原提交待核验' : `删除导航宿主失败：${failure(cause)}`
+  } finally {
+    busy.value = false
+    revision.value++
+  }
 }
 </script>
 

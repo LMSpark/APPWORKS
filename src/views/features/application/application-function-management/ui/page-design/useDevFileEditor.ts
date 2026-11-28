@@ -56,6 +56,16 @@ export function useDevFileEditor(state: DevState, activeFile: Readonly<Ref<PageT
     state.pageIoBusy.value = true
     try {
       const recovered=await state.savePageToolFile({pageId,fileName,reportUnconfirmed:true})
+      if(recovered?.state==='follow-up-failed'){
+        retryableUnconfirmed.value=false
+        state.addStatus(`页面 ${pageId}/${fileName} 提交已确认，后续处理失败：${recovered.message}`, 'warning')
+        return
+      }
+      if(recovered?.state==='not-submitted'){
+        retryableUnconfirmed.value=false
+        state.addStatus(`页面 ${pageId}/${fileName} 本轮未提交更改`, 'warning')
+        return
+      }
       if(recovered?.state==='unknown'||recovered?.state==='idle'){
         retryableUnconfirmed.value=recovered.retryable===true
         if(recovered.state==='unknown'){

@@ -251,6 +251,9 @@ export function useDevState() {
     if(!row||id===null||id===undefined||row['pageId']!==pageId||row['fileName']!==fileName)throw new Error('PAGE_TOOL_FILE_VIEW_ROW: 当前文件 DataView 尚未按目标身份加载')
     return {view,row,id,dirty:view.dirtyTracking.hasPendingChanges(id)||view.hasEditingChanges(id),unconfirmed:view.hasUnconfirmedSave}
   }
+  type PageToolSaveOutcome = DataViewSourceWriteAttemptStatus
+    | Readonly<{state: 'not-submitted'}>
+    | Readonly<{state: 'follow-up-failed'; message: string}>
   type PendingPageToolFileTarget=Readonly<{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;text:unknown}>
   function pendingPageToolFileTargets(dataSet:DataSet|undefined):PendingPageToolFileTarget[]{
     const table=dataSet?.getTable(PAGE_FILE_TABLE)
@@ -278,13 +281,27 @@ export function useDevState() {
       if(unknown)throw unknown.originalError??new Error('PAGE_TOOL_FILE_UNKNOWN: 原文件 DataView 回执仍待核验')
       return
     }
-    for(const view of table.viewList){
-      if(view.viewId==='default'||!view.dirtyTracking.hasPendingChanges()&&!view.hasEditingChanges()&&!view.hasUnconfirmedSave)continue
-      const result=await dataSet.saveChanges({views:[{tableName:PAGE_FILE_TABLE,viewId:view.viewId}]})
-      assertLease()
-      if(!result.success)throw result.error??new Error(result.message??'ProjectToolFile DataView 保存失败')
-      if(view.hasUnconfirmedSave)throw new Error('PAGE_TOOL_FILE_UNKNOWN: 文件 DataView 回执仍待核验')
+    let confirmed = 0
+    try {
+      for (const view of table.viewList) {
+        if (view.viewId === 'default' || !view.dirtyTracking.hasPendingChanges() && !view.hasEditingChanges() && !view.hasUnconfirmedSave) continue
+        const result = await dataSet.saveChanges({views: [{tableName: PAGE_FILE_TABLE, viewId: view.viewId}]})
+        assertLease()
+        if (!result.success) throw result.error ?? new Error(result.message ?? 'ProjectToolFile DataView 保存失败')
+        if (view.hasUnconfirmedSave) throw new Error('PAGE_TOOL_FILE_UNKNOWN: 文件 DataView 回执仍待核验')
+        const receipt = result.data?.viewResults.find(item => item.tableName === PAGE_FILE_TABLE && item.viewId === view.viewId)
+        if (!receipt || receipt.createdCount + receipt.savedCount + receipt.deletedCount === 0
+          || receipt.failedCount > 0 || receipt.failedEditingRows > 0) {
+          throw new Error(`工具工作文件 ${view.viewId} 本轮未取得有效提交回执`)
+        }
+        confirmed++
+        if (result.data?.followUpError) throw result.data.followUpError
+      }
+    } catch (cause) {
+      if (confirmed > 0) addStatus(`已确认 ${confirmed} 个工具工作文件视图的提交`, 'info')
+      throw cause
     }
+    if (confirmed > 0) addStatus('工具工作文件本轮提交已确认', 'success')
   }
   function releaseBlueprintWorkspaceDataView():void{
     blueprintWorkspaceLoadRevision++
@@ -490,7 +507,7 @@ export function useDevState() {
     }
     return sourceText
   }
-  async function savePageToolFile(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;submittedText?:string;requireActive?:boolean;reportUnconfirmed?:boolean}):Promise<DataViewSourceWriteAttemptStatus|undefined>{
+  async function savePageToolFile(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;submittedText?:string;requireActive?:boolean;reportUnconfirmed?:boolean}):Promise<PageToolSaveOutcome | undefined>{
     const {pageId,fileName,submittedText,requireActive=true,reportUnconfirmed=false}=input
     const workspace=currentEditor.value,scope=currentScopeKey()
     await loadBlueprintWorkspaceDataView()
@@ -502,7 +519,8 @@ export function useDevState() {
     const view=await loadPageToolFileDataView({pageId,fileName});assertCurrent()
     const row=view.currentRow,id=row&&view.getPkKey(row)
     if(!row||id===null||id===undefined||row['pageId']!==pageId||row['fileName']!==fileName||typeof row['text']!=='string')throw new Error('PAGE_TOOL_FILE_SAVE_ROW: 查询没有返回目标文件行')
-    if(view.hasUnconfirmedSave){const recovered=await view.verifySourceWriteAttempt();assertCurrent()
+    const recovering=view.hasUnconfirmedSave
+    if(recovering){const recovered=await view.verifySourceWriteAttempt();assertCurrent()
       if(recovered.state==='unknown'||recovered.state==='idle'){
         if(reportUnconfirmed)return recovered
         throw new Error('PAGE_TOOL_FILE_SAVE_UNKNOWN: 原文件提交仍无法核验')
@@ -517,10 +535,23 @@ export function useDevState() {
     const text=submittedText??edited['text']
     if(typeof text!=='string')throw new Error('PAGE_TOOL_FILE_SAVE_ROW: DataView目标文件文本无效')
     if(edited['text']!==text){if(view.dirtyTracking.hasPendingChanges(currentId))throw new Error('PAGE_TOOL_FILE_SAVE_DRAFT: DataView草稿与提交文本不一致');await view.editRowById(currentId,{text})}
-    if(!view.hasUnconfirmedSave&&!view.hasEditingChanges(currentId)&&!view.dirtyTracking.hasPendingChanges(currentId))return
+    if(!view.hasUnconfirmedSave&&!view.hasEditingChanges(currentId)&&!view.dirtyTracking.hasPendingChanges(currentId)){
+      return recovering?undefined:{state:'not-submitted'}
+    }
     assertCurrent()
-    const receipt=await view.dataSet?.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId,ids:[currentId]}]})
-    assertCurrent();if(!receipt?.success)throw receipt?.error??new Error(receipt?.message??'文件 DataView 保存未确认')
+    const dataSet=view.dataSet
+    if(!dataSet)throw new Error('文件视图缺少原 DataSet')
+    if(!recovering){
+      const receipt = await dataSet.saveRecord(view, currentId)
+      assertCurrent()
+      if (receipt.followUpError) {
+        if (reportUnconfirmed) return {state: 'follow-up-failed', message: receipt.followUpError.message}
+        throw new Error(`文件已确认保存，后续处理失败：${receipt.followUpError.message}`, {cause: receipt.followUpError})
+      }
+      return
+    }
+    const receipt=await dataSet.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId,ids:[currentId]}]})
+    assertCurrent();if(!receipt.success)throw receipt.error??new Error(receipt.message??'文件 DataView 保存未确认')
     return undefined
   }
   async function loadPageToolFileDataView(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;discardPending?:boolean;forceReload?:boolean}):Promise<DataView>{
@@ -1874,10 +1905,12 @@ export function useDevState() {
         const captured=capturedTargets.get(`${target.pageId}/${target.fileName}`)
         return captured!==undefined&&Object.is(captured.text,target.text)
       })
-      const hadFiles=fileTargetsBeforeExternalSave.length>0||dirtyTargets.length>0
-      for(const target of dirtyTargets){await savePageToolFile({pageId:target.pageId,fileName:target.fileName,requireActive:false});assertCurrent()}
-      assertCurrent()
-      if (hadFiles) addStatus('工具工作文件本轮提交已确认', 'success')
+      for (const target of dirtyTargets) {
+        const result = await savePageToolFile({pageId: target.pageId, fileName: target.fileName, requireActive: false})
+        assertCurrent()
+        if (result?.state === 'not-submitted') throw new Error(`工具工作文件 ${target.pageId}/${target.fileName} 本轮未提交`)
+        addStatus(`工具工作文件 ${target.pageId}/${target.fileName} 提交已确认`, 'success')
+      }
       stage = '场景定义'
       await workspace.saveDirtyScenarioDefinitions(); assertCurrent()
       scenarioDefinitionRevision.value++

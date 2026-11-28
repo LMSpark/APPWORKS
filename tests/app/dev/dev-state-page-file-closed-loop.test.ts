@@ -2604,6 +2604,116 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+  it('rejects zero dispatch as confirmation in the working file editor', async () => {
+    const root = blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture = createBlueprintRuntimeDataSet('APP-A', root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope = effectScope(), state = scope.run(() => useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]')
+      pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','before')
+      pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view = await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row = view.currentRow, id = row && view.getPkKey(row)
+      if (id === null || id === undefined || !view.dataSet) throw new Error('missing original working file')
+      await view.editRowById(id,{text:'submitted'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'submitted'})
+      const dataSet = view.dataSet
+      const originalSave = dataSet.saveChanges.bind(dataSet)
+      const save = vi.spyOn(dataSet,'saveChanges').mockImplementationOnce(options => {
+        view.discardPendingChanges([id])
+        return originalSave(options)
+      })
+      await expect(useDevFileEditor(state,ref('script.js')).save()).rejects.toThrow('原记录没有已确认的保存回执')
+      expect(save).toHaveBeenCalledOnce()
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(pageFiles.files.get('demo/script.js')).toBe('before')
+      const editor = useDevFileEditor(state,ref('script.js'))
+      expect(state.statusMessages.value.map(item=>item.text).join('\n')).not.toContain('本轮提交已确认')
+      await editor.save()
+      expect(save).toHaveBeenCalledOnce()
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(state.statusMessages.value.map(item=>item.text).join('\n')).toContain('本轮未提交更改')
+      await view.editRowById(id,{text:'next draft'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'next draft'})
+      await editor.save()
+      expect(pageFiles.upload).toHaveBeenCalledOnce()
+      expect(pageFiles.files.get('demo/script.js')).toBe('next draft')
+      expect(state.statusMessages.value.map(item=>item.text).join('\n')).toContain('本轮提交已确认')
+    } finally {scope.stop()}
+  })
+
+  it('reports the confirmed file and failed completion as separate outcomes', async () => {
+    const root = blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture = createBlueprintRuntimeDataSet('APP-A', root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope = effectScope(), state = scope.run(() => useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]')
+      pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','before')
+      pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view = await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row = view.currentRow, id = row && view.getPkKey(row)
+      if (id === null || id === undefined || !view.dataSet) throw new Error('missing original working file')
+      await view.editRowById(id,{text:'submitted'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'submitted'})
+      view.dataSet.setSaveCompletionHandler(() => {throw new Error('隔离后续处理失败')})
+      await useDevFileEditor(state,ref('script.js')).save()
+      expect(pageFiles.upload).toHaveBeenCalledOnce()
+      expect(pageFiles.files.get('demo/script.js')).toBe('submitted')
+      expect(state.statusMessages.value[0]?.text).toContain('提交已确认，后续处理失败：隔离后续处理失败')
+    } finally {scope.stop()}
+  })
+
+  it('does not confirm skipped working files during save all', async () => {
+    const root = blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture = createBlueprintRuntimeDataSet('APP-A', root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope = effectScope(), state = scope.run(() => useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]')
+      pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','before')
+      pageFiles.files.set('demo/style.css','')
+      await ensureDevStateActivePageLoaded(state)
+      const view = await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row = view.currentRow, id = row && view.getPkKey(row)
+      if (id === null || id === undefined) throw new Error('missing original working file')
+      await view.editRowById(id,{text:'first draft'})
+      state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'first draft'})
+      const laterEdit = vi.fn(async () => {
+        await view.editRowById(id,{text:'later draft'})
+        state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'later draft'})
+      })
+      const dataSet = view.dataSet
+      if (!dataSet) throw new Error('missing working file DataSet')
+      const save = dataSet.saveChanges.bind(dataSet)
+      const first = vi.spyOn(dataSet,'saveChanges').mockImplementationOnce(async options => {
+        view.discardPendingChanges([id])
+        const result = await save(options)
+        await laterEdit()
+        return result
+      })
+      await state.saveAll()
+      expect(laterEdit).toHaveBeenCalledOnce()
+      expect(first).toHaveBeenCalledOnce()
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(pageFiles.files.get('demo/script.js')).toBe('before')
+      expect(view.getEditingRow(id)?.['text']).toBe('later draft')
+      expect(state.statusMessages.value.map(item=>item.text).join('\n')).not.toContain('工具工作文件本轮提交已确认')
+    } finally {scope.stop()}
+  })
+
   it('uses the DataView and DataSet save chain without a PageTool file owner facade',async()=>{
     const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
     const fixture=createBlueprintRuntimeDataSet('APP-A',root)

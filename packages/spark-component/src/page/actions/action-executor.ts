@@ -68,9 +68,11 @@ import {
 // ── UI 类动作执行器（不涉及数据变更） ─────────────────────────────────────
 
 /** 展示消息通知，不阻塞，直接返回。 */
-function executeShowMessage(desc: ShowMessageAction, ctx: ActionExecutionContext): void {
+function executeShowMessage(desc: ShowMessageAction, ctx: ActionExecutionContext): boolean {
   const ps = ctx.getPageService()
-  if (ps) ps.showMessage(desc.message, desc.messageType ?? 'info')
+  if (!ps) return false
+  ps.showMessage(desc.message, desc.messageType ?? 'info')
+  return true
 }
 
 type HostCommandInputContext=Readonly<{
@@ -135,9 +137,11 @@ async function callHostCommandResultMethod(result:unknown,methodPath:string,args
 }
 
 /** 展示 Alert 弹窗（异步阻塞，只有确认按钮）。 */
-async function executeAlert(desc: ShowAlertAction, ctx: ActionExecutionContext): Promise<void> {
+async function executeAlert(desc: ShowAlertAction, ctx: ActionExecutionContext): Promise<boolean> {
   const ps = ctx.getPageService()
-  if (ps) await ps.showAlert(desc.message, desc.title, {})
+  if (!ps) return false
+  await ps.showAlert(desc.message, desc.title, {})
+  return true
 }
 
 /**
@@ -145,24 +149,23 @@ async function executeAlert(desc: ShowAlertAction, ctx: ActionExecutionContext):
  *
  * - 确认 → 执行 desc.onConfirm（若存在）
  * - 取消 → 执行 desc.onCancel（若存在）
- * - 子动作使用 runChild 回调以支持递归链式（避免循环依赖）
+ * - 确认分支的结果决定外层成功续接。取消分支独立执行。
  */
-async function executeConfirm(input: ConfirmExecutionInput): Promise<void> {
-  const { desc, ctx, scope, eventArgs, control, runChild } = input
+async function executeConfirm(input: ConfirmExecutionInput): Promise<boolean> {
+  const { desc, ctx, scope, eventArgs, control } = input
   const ps = ctx.getPageService()
-  if (!ps) return
+  if (!ps) return false
 
   const opts: { type?: PageMessageType } = {}
   if (desc.confirmType) opts.type = desc.confirmType
 
   const confirmed = await ps.showConfirm(desc.message, desc.title ?? '确认', opts)
-  const nestedControl = control ?? extractActionExecutionControl(eventArgs)
-
-  if (confirmed && desc.onConfirm) {
-    await runChild(desc.onConfirm, ctx, childActionOptions(scope, eventArgs, nestedControl))
-  } else if (!confirmed && desc.onCancel) {
-    await runChild(desc.onCancel, ctx, childActionOptions(scope, eventArgs, nestedControl))
+  const options = childActionOptions(scope, eventArgs, control)
+  if (confirmed) {
+    return desc.onConfirm ? runActionDescriptor(desc.onConfirm, ctx, options) : true
   }
+  if (desc.onCancel) await runActionDescriptor(desc.onCancel, ctx, options)
+  return false
 }
 
 /**
@@ -192,17 +195,18 @@ type NavigateExecutionInput = Readonly<{
   eventArgs?: unknown[] | undefined
 }>
 
-function executeNavigate(input: NavigateExecutionInput): void {
+async function executeNavigate(input: NavigateExecutionInput): Promise<boolean> {
   const { desc, ctx, scope, eventArgs } = input
   const router = ctx.getRouter()
-  if (!router) return
+  if (!router) return false
 
   let path = desc.path
   if (path.includes('{')) {
     path = interpolate(path, {}, resolveNavigateRow(ctx, scope, eventArgs))
   }
 
-  void router.push(path)
+  await router.push(path)
+  return true
 }
 
 /**
@@ -227,19 +231,13 @@ export type ActionExecutionOptions = {
   /** 执行作用域（行内动作注入的当前行 + formApi 等） */
   scope?: ActionExecutionScope}
 
-type ChildActionRunner = (
-  next: ActionDescriptor,
-  ctx: ActionExecutionContext,
-  options: ActionExecutionOptions,
-) => Promise<void>
-
 type ConfirmExecutionInput = {
   desc: ShowConfirmAction
   ctx: ActionExecutionContext
   scope: ActionExecutionScope | undefined
   eventArgs: unknown[] | undefined
   control: ActionExecutionControl | undefined
-  runChild: ChildActionRunner}
+}
 
 type DispatchActionInput = {
   descriptor: ActionDescriptor
@@ -265,34 +263,36 @@ export async function executeActionDescriptor(
   ctx: ActionExecutionContext,
   options: ActionExecutionOptions = {},
 ): Promise<void> {
-  const eventArgs = options.eventArgs
+  await runActionDescriptor(descriptor, ctx, options)
+}
+
+async function runActionDescriptor(
+  descriptor: ActionDescriptor,
+  ctx: ActionExecutionContext,
+  options: ActionExecutionOptions,
+): Promise<boolean> {
+  const { eventArgs, scope } = options
   const control = options.control ?? extractActionExecutionControl(eventArgs)
-  const effectiveScope = options.scope
 
   try {
-  if (!isActionExecutionPermitted(descriptor, ctx, effectiveScope)) {
-    if (control) control.cancel = true
-    ctx.getPageService()?.showMessage(`后端权限不允许执行 ${descriptor.action}`, 'warning')
-    return
-  }
+    if (!isActionExecutionPermitted(descriptor, ctx, scope)) {
+      if (control) control.cancel = true
+      ctx.getPageService()?.showMessage(`后端权限不允许执行 ${descriptor.action}`, 'warning')
+      return false
+    }
 
-  if (descriptor.cancelDefault && control) {
-    control.cancel = true
-  }
+    if (descriptor.cancelDefault && control) control.cancel = true
 
-    await dispatchAction({ descriptor, ctx, scope: effectiveScope, eventArgs, control })
+    const completed = await dispatchAction({ descriptor, ctx, scope, eventArgs, control })
+    if (!completed) return false
   } catch (error) {
     handleTopLevelError(descriptor, ctx, error)
-    return
+    return false
   }
 
-  if (descriptor.then) {
-    const opts: ActionExecutionOptions = {}
-    if (eventArgs !== undefined) opts.eventArgs = eventArgs
-    if (control !== undefined) opts.control = control
-    if (effectiveScope !== undefined) opts.scope = effectiveScope
-    await executeActionDescriptor(descriptor.then, ctx, opts)
-  }
+  return descriptor.then
+    ? runActionDescriptor(descriptor.then, ctx, childActionOptions(scope, eventArgs, control))
+    : true
 }
 
 function isActionExecutionPermitted(
@@ -448,66 +448,42 @@ function handleTopLevelError(
  * switch 覆盖所有 ActionDescriptorActionName，default 分支做 never 穷举检查。
  * 新增动作类型时：1) 在 action-types.ts 添加类型；2) 在此处添加 case；3) 在 action-data.ts 实现执行器。
  */
-async function dispatchAction(input: DispatchActionInput): Promise<void> {
+async function dispatchAction(input: DispatchActionInput): Promise<boolean> {
   const { descriptor, ctx, scope, eventArgs, control } = input
   switch (descriptor.action) {
     case 'show-message':
-      executeShowMessage(descriptor, ctx)
-      return
+      return executeShowMessage(descriptor, ctx)
     case 'confirm':
-      await executeConfirm({
-        desc: descriptor,
-        ctx,
-        scope,
-        eventArgs,
-        control,
-        runChild: async (next, childCtx, childOptions) => {
-          await executeActionDescriptor(next, childCtx, childOptions)
-        },
-      })
-      return
+      return executeConfirm({ desc: descriptor, ctx, scope, eventArgs, control })
     case 'alert':
-      await executeAlert(descriptor, ctx)
-      return
+      return executeAlert(descriptor, ctx)
     case 'navigate':
-      executeNavigate({ desc: descriptor, ctx, scope, eventArgs })
-      return
+      return executeNavigate({ desc: descriptor, ctx, scope, eventArgs })
     case 'open':
       executeOpen(descriptor)
-      return
+      return true
     case 'set-field':
-      await executeSetField(descriptor, ctx)
-      return
+      return executeSetField(descriptor, ctx)
     case 'append-row':
-      await executeAppendRow(descriptor, ctx, scope)
-      return
+      return executeAppendRow(descriptor, ctx, scope)
     case 'delete':
-      await executeDelete(descriptor, ctx, scope)
-      return
+      return executeDelete(descriptor, ctx, scope)
     case 'patch':
-      await executePatch(descriptor, ctx, scope)
-      return
+      return executePatch(descriptor, ctx, scope)
     case 'move':
-      await executeMove(descriptor, ctx, scope)
-      return
+      return executeMove(descriptor, ctx, scope)
     case 'message-row':
-      executeMessageRow(descriptor, ctx, scope)
-      return
+      return executeMessageRow(descriptor, ctx, scope)
     case 'refresh':
-      await executeRefresh(descriptor, ctx)
-      return
+      return executeRefresh(descriptor, ctx)
     case 'clear-rows':
-      await executeClearRows(descriptor, ctx)
-      return
+      return executeClearRows(descriptor, ctx)
     case 'submit-current-form':
-      await executeSubmitCurrentForm(descriptor, ctx, scope)
-      return
+      return executeSubmitCurrentForm(descriptor, ctx, scope)
     case 'save-dataset':
-      await executeSaveDataSet(descriptor, ctx)
-      return
+      return executeSaveDataSet(descriptor, ctx)
     case 'discard-changes':
-      executeDiscardChanges(descriptor, ctx)
-      return
+      return executeDiscardChanges(descriptor, ctx)
     case 'host-command': {
       if(!descriptor.command.trim()||!ctx.invokeHostCommand)throw Error('host-command 缺少命令宿主')
       const resultBinding = descriptor.resultDataViewKey
@@ -523,7 +499,7 @@ async function dispatchAction(input: DispatchActionInput): Promise<void> {
       const promptValue=descriptor.prompt
         ? await pageService?.showPrompt(descriptor.prompt.message,descriptor.prompt.title??'输入')
         : undefined
-      if(descriptor.prompt&&!promptValue)return
+      if (descriptor.prompt && !promptValue) return false
       const inputContext:HostCommandInputContext={
        query:querySnapshotSource,scope,
        dataSource:ctx.getDataSource?.()??null,
@@ -570,11 +546,12 @@ async function dispatchAction(input: DispatchActionInput): Promise<void> {
        await ctx.getPageService()?.showAlert(text,descriptor.resultAlertTitle,{})
       }
       if(descriptor.successMessage)ctx.getPageService()?.showMessage(descriptor.successMessage,'success')
-      return
+      return true
     }
     default: {
       const exhaustive: never = descriptor
       logger.warn(`未知 action 类型: ${readUnknownActionName(exhaustive)}`)
+      return false
     }
   }
 }

@@ -160,17 +160,17 @@ export async function executeAppendRow(
   desc: AppendRowAction,
   ctx: ActionExecutionContext,
   scope: ActionExecutionScope | undefined,
-): Promise<void> {
+): Promise<boolean> {
   const notifier = createActionNotifier(ctx, desc)
   const view = ensureView(desc, ctx, notifier)
-  if (!view) return
+  if (!view) return false
 
   const idField = desc.idField ?? view.primaryKey
 
   // prompt 模式：弹窗输入字段值后再追加
   if (desc.prompt) {
     const ps = ctx.getPageService()
-    if (!ps) return
+    if (!ps) return false
     const promptOpts: { defaultValue?: string; placeholder?: string } = {}
     if (desc.prompt.defaultValue !== undefined) promptOpts.defaultValue = desc.prompt.defaultValue
     if (desc.prompt.placeholder !== undefined) promptOpts.placeholder = desc.prompt.placeholder
@@ -179,7 +179,7 @@ export async function executeAppendRow(
       desc.prompt.title ?? '新增',
       promptOpts,
     )
-    if (result === null) return
+    if (result === null) return false
 
     const payload = applyInheritFields({
       payload: { ...(desc.appendPayload ?? {}) },
@@ -188,8 +188,7 @@ export async function executeAppendRow(
       inheritFieldMap: desc.inheritFieldMap,
     })
     payload[desc.prompt.field] = result
-    await doAppend({ view, payload, idField, desc, notifier })
-    return
+    return doAppend({ view, payload, idField, desc, notifier })
   }
 
   const payload = applyInheritFields({
@@ -198,14 +197,14 @@ export async function executeAppendRow(
     inheritFields: desc.inheritFields,
     inheritFieldMap: desc.inheritFieldMap,
   })
-  await doAppend({ view, payload, idField, desc, notifier })
+  return doAppend({ view, payload, idField, desc, notifier })
 }
 
 /**
  * doAppend 内部实现：补充 idField + 调用 view.addRow() + 处理结果。
  * 从 executeAppendRow 中分离，方便 prompt 模式和普通模式复用。
  */
-async function doAppend(operation: AppendOperation): Promise<void> {
+async function doAppend(operation: AppendOperation): Promise<boolean> {
   const { view, payload, idField, desc, notifier } = operation
   if (view.dataSet?.scenarioId === undefined && (!(idField in payload) || payload[idField] === undefined || payload[idField] === null)) {
     payload[idField] = inferNextRowId(view, idField)
@@ -231,7 +230,7 @@ async function doAppend(operation: AppendOperation): Promise<void> {
     notifier.notify('warning', desc.failureMessage
       ? interpolate(desc.failureMessage, {}, null)
       : getCrudErrorMessage(result, '新增失败'))
-    return
+    return false
   }
 
   const created = resolveCreatedRow(result)
@@ -241,6 +240,7 @@ async function doAppend(operation: AppendOperation): Promise<void> {
     else view.setCurrentRow(created)
   }
   notifier.notify('success', desc.successMessage ?? '新增成功')
+  return true
 }
 
 // ── delete 执行器 ────────────────────────────────────────────────────────
@@ -256,15 +256,15 @@ export async function executeDelete(
   desc: DeleteAction,
   ctx: ActionExecutionContext,
   scope: ActionExecutionScope | undefined,
-): Promise<void> {
+): Promise<boolean> {
   const notifier = createActionNotifier(ctx, desc)
   const view = ensureView(desc, ctx, notifier)
-  if (!view) return
+  if (!view) return false
 
   const { rows, primary } = resolveActionTargetRows(view, desc.target, scope)
   if (rows.length === 0) {
     notifier.notify('warning', targetEmptyFallback(desc.target))
-    return
+    return false
   }
 
   const idField = desc.idField ?? view.primaryKey
@@ -279,7 +279,7 @@ export async function executeDelete(
       fallbackMessage: `确认删除已选择的 ${count} 条记录吗？`,
       fallbackTitle: desc.confirmTitle ?? '批量删除确认',
     })
-    if (!allowed) return
+    if (!allowed) return false
 
     let removed = 0
     for (const row of rows) {
@@ -290,36 +290,36 @@ export async function executeDelete(
     }
     if (removed > 0) {
       notifier.notify(
-        'success',
-        desc.successMessage
-          ? interpolate(desc.successMessage, { count: removed }, null)
-          : `已删除 ${removed} 条记录`,
+        removed === count ? 'success' : 'warning',
+        removed === count
+          ? interpolate(desc.successMessage ?? '已删除 {count} 条记录', { count: removed }, null)
+          : `已删除 ${removed}/${count} 条记录，其余未确认`,
       )
     } else {
       notifier.notify('warning', desc.failureMessage ?? '未删除任何记录')
     }
-    return
+    return removed === count
   }
 
   // single row (scope / current)
   const row = primary
-  if (!row) return
+  if (!row) return false
   const label = resolveRowLabel(row, idField)
   const allowed = await confirmIfNeeded(ctx, desc, {
     fallbackMessage: `确认删除 ${label} 吗？`,
     fallbackTitle: desc.confirmTitle ?? '删除确认',
   })
-  if (!allowed) return
+  if (!allowed) return false
 
   const id = resolveRowId(row, idField)
   if (id === null) {
     notifier.notifyError(`当前行缺少主键字段: ${idField}`)
-    return
+    return false
   }
   const result = await view.removeRow(id)
   if (isCrudSuccess(result)) {
     notifier.notify('success', desc.successMessage ?? `已删除 ${label}`)
-    return
+    return true
   }
   notifier.notify(
     'warning',
@@ -327,6 +327,7 @@ export async function executeDelete(
       ? getCrudErrorMessage(result, desc.failureMessage ?? '删除失败：记录不存在或已删除')
       : (desc.failureMessage ?? '删除失败：记录不存在或已删除'),
   )
+  return false
 }
 
 // ── patch 执行器 ─────────────────────────────────────────────────────────
@@ -350,15 +351,15 @@ export async function executePatch(
   desc: PatchAction,
   ctx: ActionExecutionContext,
   scope: ActionExecutionScope | undefined,
-): Promise<void> {
+): Promise<boolean> {
   const notifier = createActionNotifier(ctx, desc)
   const view = ensureView(desc, ctx, notifier)
-  if (!view) return
+  if (!view) return false
 
   const { rows, primary } = resolveActionTargetRows(view, desc.target, scope)
   if (rows.length === 0) {
     notifier.notify('warning', targetEmptyFallback(desc.target))
-    return
+    return false
   }
 
   const idField = desc.idField ?? view.primaryKey
@@ -367,16 +368,16 @@ export async function executePatch(
   if (desc.prompt) {
     if (desc.target === 'selected') {
       notifier.notifyError('prompt 模式不支持 selected target')
-      return
+      return false
     }
     const row = primary
-    if (!row) return
+    if (!row) return false
     const ps = ctx.getPageService()
-    if (!ps) return
+    if (!ps) return false
     const id = resolveRowId(row, idField)
     if (id === null) {
       notifier.notifyError(`当前行缺少主键字段: ${idField}`)
-      return
+      return false
     }
     const currentVal = row[desc.prompt.field]
     const defaultVal = typeof currentVal === 'string'
@@ -389,8 +390,8 @@ export async function executePatch(
       desc.prompt.title ?? '编辑',
       promptOpts,
     )
-    if (result === null) return
-    await doUpdate({
+    if (result === null) return false
+    return doUpdate({
       view,
       id,
       patch: { [desc.prompt.field]: result },
@@ -399,13 +400,12 @@ export async function executePatch(
       successFallback: '更新成功',
       failureFallback: '更新失败',
     })
-    return
   }
 
   const patch = resolveStaticPatch(desc)
   if (Object.keys(patch).length === 0) {
     notifier.notify('warning', '缺少 patch/field 配置，无法更新')
-    return
+    return false
   }
 
   if (desc.target === 'selected') {
@@ -418,25 +418,25 @@ export async function executePatch(
     }
     if (updated > 0) {
       notifier.notify(
-        'success',
-        desc.successMessage
-          ? interpolate(desc.successMessage, { count: updated }, null)
-          : `已更新 ${updated} 条记录`,
+        updated === rows.length ? 'success' : 'warning',
+        updated === rows.length
+          ? interpolate(desc.successMessage ?? '已更新 {count} 条记录', { count: updated }, null)
+          : `已更新 ${updated}/${rows.length} 条记录，其余未确认`,
       )
     } else {
       notifier.notify('warning', desc.failureMessage ?? '未更新任何记录')
     }
-    return
+    return updated === rows.length
   }
 
   const row = primary
-  if (!row) return
+  if (!row) return false
   const id = resolveRowId(row, idField)
   if (id === null) {
     notifier.notifyError(`当前行缺少主键字段: ${idField}`)
-    return
+    return false
   }
-  await doUpdate({
+  return doUpdate({
     view,
     id,
     patch,
@@ -448,12 +448,12 @@ export async function executePatch(
 }
 
 /** doUpdate 内部实现：调用 editRowById 并统一处理成功/失败消息。 */
-async function doUpdate(operation: UpdateOperation): Promise<void> {
+async function doUpdate(operation: UpdateOperation): Promise<boolean> {
   const { view, id, patch, decorator, notifier, successFallback, failureFallback } = operation
   const result = await view.editRowById(id, patch)
   if (isCrudSuccess(result)) {
     notifier.notify('success', decorator.successMessage ?? successFallback)
-    return
+    return true
   }
   notifier.notify(
     'warning',
@@ -461,6 +461,7 @@ async function doUpdate(operation: UpdateOperation): Promise<void> {
       ? getCrudErrorMessage(result, decorator.failureMessage ?? failureFallback)
       : (decorator.failureMessage ?? failureFallback),
   )
+  return false
 }
 
 // ── move 执行器（树节点移动） ─────────────────────────────────────────────
@@ -511,27 +512,28 @@ export async function executeMove(
   desc: MoveAction,
   ctx: ActionExecutionContext,
   scope: ActionExecutionScope | undefined,
-): Promise<void> {
+): Promise<boolean> {
   const notifier = createActionNotifier(ctx, desc)
   const view = ensureView(desc, ctx, notifier)
-  if (!view) return
+  if (!view) return false
 
   const row = desc.target === 'scope' ? scope?.row : view.currentRow
   if (!row) {
     notifier.notify('warning', targetEmptyFallback(desc.target))
-    return
+    return false
   }
 
   const idField = desc.idField ?? view.primaryKey
   const id = resolveRowId(row, idField)
   if (id === null) {
     notifier.notifyError(`当前行缺少主键字段: ${idField}`)
-    return
+    return false
   }
 
   const newParentId = resolveMoveTargetParentId({ view, desc, scope, idField })
-  await view.moveTreeNode(id, newParentId, desc.index)
+  if (!await view.moveTreeNode(id, newParentId, desc.index)) return false
   notifier.notify('success', desc.successMessage ?? '移动成功')
+  return true
 }
 
 // ── message-row 执行器 ───────────────────────────────────────────────────
@@ -548,22 +550,23 @@ export function executeMessageRow(
   desc: MessageRowAction,
   ctx: ActionExecutionContext,
   scope: ActionExecutionScope | undefined,
-): void {
+): boolean {
   const notifier = createActionNotifier(ctx, desc)
   const { dataSource } = resolveActionDataCapabilities(desc.dataViewKey, ctx)
   if (!dataSource) {
     if (desc.emptyMessage) notifier.notify('warning', desc.emptyMessage)
-    return
+    return false
   }
 
   const row = desc.target === 'scope' ? scope?.row : dataSource.currentRow
   if (!row) {
     notifier.notify('warning', targetEmptyFallback(desc.target))
-    return
+    return false
   }
 
   const text = formatRowMessage(dataSource, row, desc)
   notifier.notify(desc.messageType ?? 'info', text)
+  return true
 }
 
 function formatRowMessage(view: DataView, row: DataRow, desc: MessageRowAction): string {
@@ -608,14 +611,17 @@ function permissionSafeMessageRow(view: DataView, row: DataRow): DataRow {
 export async function executeRefresh(
   desc: RefreshAction,
   ctx: ActionExecutionContext,
-): Promise<void> {
+): Promise<boolean> {
   const notifier = createActionNotifier(ctx, desc)
   const view = ensureView(desc, ctx, notifier)
-  if (!view) return
+  if (!view) return false
 
-  await view.refresh()
-  if (view.loadingError) throw view.loadingError
+  const result = await view.requestRefresh({ defer: false })
+  if (result.refreshStatus !== 'read' || !result.success) {
+    throw result.error ?? new Error(result.message ?? '刷新未完成')
+  }
   notifier.notify('success', desc.successMessage ?? '刷新完成')
+  return true
 }
 
 /**
@@ -625,21 +631,22 @@ export async function executeRefresh(
 export async function executeClearRows(
   desc: ClearRowsAction,
   ctx: ActionExecutionContext,
-): Promise<void> {
+): Promise<boolean> {
   const notifier = createActionNotifier(ctx, desc)
   const view = ensureView(desc, ctx, notifier)
-  if (!view) return
+  if (!view) return false
 
   const allowed = await confirmIfNeeded(ctx, desc, {
     fallbackMessage: '确认清空当前列表吗？',
     fallbackTitle: desc.confirmTitle ?? '清空确认',
   })
-  if (!allowed) return
+  if (!allowed) return false
 
   view.replaceRows([])
   view.selection.setCurrentRow(null)
   view.selection.clearSelectedRows()
   notifier.notify('success', desc.successMessage ?? '已清空当前列表')
+  return true
 }
 
 // ── set-field 执行器（静默字段赋值） ────────────────────────────────────
@@ -651,13 +658,13 @@ export async function executeClearRows(
  * 适用于表单字段变化时自动更新其他字段的零代码交互。
  * 操作失败（无 currentRow 或无 idField）时静默返回，不上报错误。
  */
-export async function executeSetField(desc: SetFieldAction, ctx: ActionExecutionContext): Promise<void> {
+export async function executeSetField(desc: SetFieldAction, ctx: ActionExecutionContext): Promise<boolean> {
   const { dataSource, currentRow } = resolveActionDataCapabilities(desc.dataViewKey, ctx)
-  if (!dataSource || !currentRow) return
+  if (!dataSource || !currentRow) return false
   const idField = desc.idField ?? dataSource.primaryKey
   const id = resolveRowId(currentRow, idField)
-  if (id === null) return
-  await dataSource.editRowById(id, { [desc.field]: desc.value })
+  if (id === null) return false
+  return isCrudSuccess(await dataSource.editRowById(id, { [desc.field]: desc.value }))
 }
 
 // ── submit-current-form 执行器 ───────────────────────────────────────────
@@ -677,18 +684,18 @@ export async function executeSubmitCurrentForm(
   desc: SubmitCurrentFormAction,
   ctx: ActionExecutionContext,
   scope: ActionExecutionScope | undefined,
-): Promise<void> {
+): Promise<boolean> {
   const notifier = createActionNotifier(ctx, desc)
   const formApi = scope?.formApi
   if (!formApi) {
     notifier.notify('warning', desc.emptyMessage ?? '表单 API 未就绪')
-    return
+    return false
   }
 
   const { dataSource } = resolveActionDataCapabilities(desc.dataViewKey, ctx)
   if (!dataSource) {
     notifier.notify('warning', desc.emptyMessage ?? '数据视图未就绪')
-    return
+    return false
   }
 
   const idField = desc.idField ?? dataSource.primaryKey
@@ -696,32 +703,32 @@ export async function executeSubmitCurrentForm(
   const targetRow = formRow ?? dataSource.currentRow
   if (!targetRow) {
     notifier.notify('warning', '请先选择当前行')
-    return
+    return false
   }
   const id = resolveRowId(targetRow, idField)
   if (id === null) {
     notifier.notifyError(`当前行缺少主键字段: ${idField}`)
-    return
+    return false
   }
 
   if (typeof formApi.validate === 'function') {
     const valid = await formApi.validate()
     if (!valid) {
       notifier.notify('warning', desc.validateMessage ?? '请先修正表单校验错误')
-      return
+      return false
     }
   }
 
   const draft = asRecord(formApi.getFormData())
   if (!draft) {
     notifier.notify('warning', '当前表单数据不可用')
-    return
+    return false
   }
 
   const result = await dataSource.editRowById(id, draft)
   if (isCrudSuccess(result)) {
     notifier.notify('success', desc.successMessage ?? '保存成功')
-    return
+    return true
   }
   notifier.notify(
     'warning',
@@ -729,6 +736,7 @@ export async function executeSubmitCurrentForm(
       ? getCrudErrorMessage(result, desc.failureMessage ?? '保存失败')
       : (desc.failureMessage ?? '保存失败'),
   )
+  return false
 }
 
 function createAutoRequestId(): string {
@@ -741,13 +749,13 @@ function createAutoRequestId(): string {
 export async function executeSaveDataSet(
   desc: SaveDataSetAction,
   ctx: ActionExecutionContext,
-): Promise<void> {
+): Promise<boolean> {
   const notifier = createActionNotifier(ctx, desc)
   if (!desc.scenarioId.trim()) throw new Error('save-dataset 必须指定场景 scenarioId')
   const dataSet = ctx.getDataSet(desc.scenarioId)
   if (!dataSet) {
     notifier.notify('warning', desc.emptyMessage ?? 'DataSet 未就绪')
-    return
+    return false
   }
 
   const options: DataSetSaveChangesOptions = {}
@@ -779,7 +787,7 @@ export async function executeSaveDataSet(
   if (result.success && receipt?.failedCount === 0 && receipt.failedEditingRows === 0) {
     if (targets.some(({view}) => view.hasUnconfirmedSave)) {
       notifier.notify('warning', '目标范围仍有提交结果待核验，请先核验原提交')
-      return
+      return false
     }
     const hasRemainingChanges = targets.some(({view, ids}) => ids === undefined
       ? view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()
@@ -787,41 +795,43 @@ export async function executeSaveDataSet(
     if (confirmed === 0) {
       if (hasRemainingChanges) notifier.notify('warning', '本轮未提交，目标范围仍有修改待保存')
       else notifier.notify('info', desc.emptyMessage ?? '本轮未提交更改')
-      return
+      return false
     }
     if (receipt.followUpError) {
       notifier.notify('warning', `本轮保存已确认，后续处理失败：${receipt.followUpError.message}`)
-      return
+      return false
     }
     if (hasRemainingChanges) {
       notifier.notify('warning', '本轮保存已确认，目标范围仍有修改待保存')
-      return
+      return false
     }
     notifier.notify('success', desc.successMessage ?? result.message ?? '保存成功')
-    return
+    return true
   }
   const message = desc.failureMessage ?? result.error?.message ?? result.message ?? '保存失败'
   notifier.notify('warning', confirmed > 0 ? `已确认 ${confirmed} 条变更，其他变更未全部确认：${message}` : message)
+  return false
 }
 
 export function executeDiscardChanges(
   desc: DiscardChangesAction,
   ctx: ActionExecutionContext,
-): void {
+): boolean {
   const notifier = createActionNotifier(ctx, desc)
   const { dataSource } = resolveActionDataCapabilities(desc.dataViewKey, ctx)
   if (!dataSource) {
     notifier.notify('warning', desc.emptyMessage ?? '数据视图未就绪')
-    return
+    return false
   }
   const currentRow=desc.target==='current'?dataSource.currentRow:null
   const currentKey=currentRow===null?undefined:dataSource.getPkKey(currentRow)
   if (desc.target === 'current' && currentKey === undefined) {
     notifier.notify('warning', desc.emptyMessage ?? '请先选择当前行')
-    return
+    return false
   }
   const discarded = currentKey === undefined
     ? dataSource.discardPendingChanges()
     : dataSource.discardPendingChanges([currentKey])
   notifier.notify('success', desc.successMessage ?? (discarded > 0 ? '已取消本次修改' : '当前没有待取消修改'))
+  return discarded > 0
 }

@@ -577,6 +577,63 @@ describe('action descriptor — then 链式执行', () => {
     expect(pageService.showMessage).toHaveBeenNthCalledWith(2, 'second', 'success')
   })
 
+  it('runs only the cancel branch when confirmation is declined', async () => {
+    const service = createPageService({ showConfirm: vi.fn(async () => false) })
+    await executeActionDescriptor({
+      action: 'confirm',
+      message: 'Proceed?',
+      onCancel: { action: 'show-message', message: 'cancelled' },
+      then: { action: 'show-message', message: 'confirmed-only' },
+    }, createActionContext({ getPageService: () => service }))
+
+    expect(service.showMessage).toHaveBeenCalledExactlyOnceWith('cancelled', 'info')
+  })
+
+  it('stops the parent continuation when a confirmed child is cancelled', async () => {
+    const showConfirm = vi.fn(async () => true).mockResolvedValueOnce(true).mockResolvedValueOnce(false)
+    const service = createPageService({ showConfirm })
+    await executeActionDescriptor({
+      action: 'confirm',
+      message: 'Parent?',
+      onConfirm: {
+        action: 'confirm',
+        message: 'Child?',
+        then: { action: 'show-message', message: 'child completed' },
+      },
+      then: { action: 'show-message', message: 'parent completed' },
+    }, createActionContext({ getPageService: () => service }))
+
+    expect(showConfirm).toHaveBeenCalledTimes(2)
+    expect(service.showMessage).not.toHaveBeenCalled()
+  })
+
+  it.each([false, true])('delete confirmation %s gates the continuation', async confirmed => {
+    const ds = createInlineDataSet('Users', [{ id: 1, name: 'Alice' }])
+    try {
+      const view = ds.getView('Users', 'default')
+      const row = view?.rows[0]
+      if (!view || !row) throw new Error('Expected original view and row')
+      view.selection.setCurrentRow(row)
+      vi.spyOn(view, 'deleteActionState').mockReturnValue('enabled')
+      const remove = vi.spyOn(view, 'removeRow').mockResolvedValue(true)
+      const service = createPageService({ showConfirm: vi.fn(async () => confirmed) })
+      const ctx = createActionContext({ getDataSource: () => view, getPageService: () => service })
+
+      await executeActionDescriptor({
+        action: 'delete',
+        target: 'current',
+        then: { action: 'show-message', message: 'confirmed-only' },
+      }, ctx)
+
+      expect(service.showConfirm).toHaveBeenCalledOnce()
+      expect(remove).toHaveBeenCalledTimes(confirmed ? 1 : 0)
+      const messages = vi.mocked(service.showMessage).mock.calls.map(([message]) => message)
+      expect(messages.includes('confirmed-only')).toBe(confirmed)
+    } finally {
+      ds.destroy()
+    }
+  })
+
   it('propagates control through then chain', async () => {
     const control = { cancel: false }
     const actionCtx = createActionContext({ getPageService: () => createPageService() })

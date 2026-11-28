@@ -96,13 +96,14 @@ describe('RendererLink 权限作用域', () => {
           { id: 2, name: '拒绝行', lingma_sys_params: { e: [], d: false, c: false } },
         ], Count: 2,
       } } }) })
-    view.bindQueryExecutor({ executeQuery: async () => {
+    const executeQuery = vi.fn(async () => {
       if (fail) throw new Error('query failed')
       return context
-    } })
+    })
+    view.bindQueryExecutor({ executeQuery })
     await view.loadFromServer()
     view.setCurrentRowById(1)
-    return { dataSet, view, failQuery: () => { fail = true }, recoverQuery: () => { fail = false } }
+    return { dataSet, view, executeQuery, failQuery: () => { fail = true }, recoverQuery: () => { fail = false } }
   }
 
   it('beforeRender consumes DataView and receives no public permission snapshot', async () => {
@@ -134,17 +135,17 @@ describe('RendererLink 权限作用域', () => {
     const runtime = new PageRuntime({pageId: 'buttons', scenarioIds: ['SCENE', 'TARGET'],
       loadScenario: async id => id === 'SCENE' ? inherited.dataSet : target.dataSet})
     await runtime.load()
-    const inheritedRefresh = vi.spyOn(inherited.view, 'refresh')
-    const targetRefresh = vi.spyOn(target.view, 'refresh')
     const refresh = mountRendererLinkWithDataSource(inherited.view, {type: 'r-button', action: 'refresh',
       dataViewKey: 'TARGET@Users@default', silent: true}, RendererButton, runtime)
     const createProps = reactive({type: 'r-button', permAction: 'create', dataViewKey: 'TARGET@Users@default'})
     const create = mountRendererLinkWithDataSource(inherited.view, createProps, RendererButton, runtime)
     try {
       expect(create.get('.el-link-stub').attributes('data-disabled')).toBe('true')
+      const inheritedReads = inherited.executeQuery.mock.calls.length
+      const targetReads = target.executeQuery.mock.calls.length
       await refresh.get('.el-link-stub').trigger('click'); await flushPromises()
-      expect(targetRefresh).toHaveBeenCalledTimes(1)
-      expect(inheritedRefresh).not.toHaveBeenCalled()
+      expect(target.executeQuery).toHaveBeenCalledTimes(targetReads + 1)
+      expect(inherited.executeQuery).toHaveBeenCalledTimes(inheritedReads)
       createProps.dataViewKey = 'SCENE@Users@default'; await nextTick()
       expect(create.get('.el-link-stub').attributes('data-disabled')).toBe('false')
     } finally {refresh.unmount(); create.unmount(); runtime.dispose()}

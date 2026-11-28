@@ -6,6 +6,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {PageRuntime, ProjectWorkspace, ScenarioDefinitionResource} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, PAGE_SERVICE, RendererButton, Spark, useSparkComponent} from '@spark-appworks/spark-component'
 import {executeSaveDataSet} from '../../../packages/spark-component/src/page/actions/action-data'
+import {executeActionDescriptor} from '../../../packages/spark-component/src/page/actions/action-executor'
 import type {ActionExecutionContext, SaveDataSetAction} from '../../../packages/spark-component/src/page/actions/action-types'
 
 async function fixture() {
@@ -55,7 +56,11 @@ async function fixture() {
   }
   const desc: SaveDataSetAction = {action: 'save-dataset', scenarioId: 'META',
     views: [{tableName: 'DataViewDefinition', ids: [key('one')]}], successMessage: '全部保存成功'}
-  return {dataSet, view, key, desc, ctx, messages, pageService, writes,
+  const saveAndContinue = (action: SaveDataSetAction = desc) => executeActionDescriptor({
+    ...action,
+    then: {action: 'show-message', message: 'confirmed-only'},
+  }, ctx)
+  return {dataSet, view, key, desc, ctx, messages, pageService, writes, saveAndContinue,
     read: () => JSON.parse(stored), loseResponse: () => {lose = true}, gate: (value: Promise<void>) => {gate = value},
     dispose: () => {dataSet.destroy(); workspace.dispose()},
     loseFirstSave: async () => {
@@ -77,7 +82,7 @@ describe('save-dataset target completion after real source receipts', () => {
         f.view.discardPendingChanges([id])
         return save(options)
       })
-      await executeSaveDataSet(f.desc, f.ctx)
+      await f.saveAndContinue()
       expect(f.writes).toHaveLength(0)
       expect(f.read().tables.Parents.views.one.pageSize).toBe(10)
       expect(f.messages).toEqual([{type: 'info', message: '本轮未提交更改'}])
@@ -89,7 +94,7 @@ describe('save-dataset target completion after real source receipts', () => {
     try {
       f.dataSet.setSaveCompletionHandler(() => {throw new Error('Plan unavailable')})
       f.view.updateEditingValue(f.key('one'), 'pageSize', 43)
-      await executeSaveDataSet(f.desc, f.ctx)
+      await f.saveAndContinue()
       expect(f.writes).toHaveLength(1)
       expect(f.read().tables.Parents.views.one.pageSize).toBe(43)
       expect(f.messages).toEqual([{type: 'warning', message: '本轮保存已确认，后续处理失败：Plan unavailable'}])
@@ -109,10 +114,10 @@ describe('save-dataset target completion after real source receipts', () => {
         data: {appliedCount: 0, failedCount: 1, failedIds: [secondId],
           failedErrors: {[String(secondId)]: 'Fields were rejected'}},
       })
-      await executeSaveDataSet({...f.desc, views: [
+      await f.saveAndContinue({...f.desc, views: [
         {tableName: 'DataViewDefinition', ids: [f.key('one')]},
         {tableName: 'DataViewDefinition', viewId: 'other', ids: [secondId]},
-      ]}, f.ctx)
+      ]})
       expect(f.writes).toHaveLength(1)
       expect(f.read().tables.Parents.views).toMatchObject({one: {pageSize: 43}, two: {pageSize: 20}})
       expect(other.getEditingRow(secondId)?.['pageSize']).toBe(63)
@@ -126,7 +131,7 @@ describe('save-dataset target completion after real source receipts', () => {
       await f.loseFirstSave()
       f.view.updateEditingValue(f.key('one'), 'pageSize', 58)
       if (state === 'staged') await f.view.applyEditingRows([f.key('one')])
-      await executeSaveDataSet(f.desc, f.ctx)
+      await f.saveAndContinue()
       expect(f.writes).toHaveLength(1)
       expect(f.read().tables.Parents.views.one.pageSize).toBe(43)
       expect(f.view.getEditingRow(f.key('one'))?.['pageSize']
@@ -134,10 +139,13 @@ describe('save-dataset target completion after real source receipts', () => {
       expect(f.view.hasUnconfirmedSave).toBe(false)
       expect(f.messages).toEqual([{type: 'warning', message: expect.stringMatching(/待保存|剩余修改/)}])
       expect(f.messages[0]?.message).not.toContain('全部保存成功')
-      await executeSaveDataSet(f.desc, f.ctx)
+      await f.saveAndContinue()
       expect(f.writes).toHaveLength(2)
       expect(f.read().tables.Parents.views.one.pageSize).toBe(58)
-      expect(f.messages.at(-1)).toEqual({type: 'success', message: '全部保存成功'})
+      expect(f.messages.slice(-2)).toEqual([
+        {type: 'success', message: '全部保存成功'},
+        {type: 'info', message: 'confirmed-only'},
+      ])
     } finally {f.dispose()}
   })
 

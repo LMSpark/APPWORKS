@@ -86,7 +86,7 @@ async function settle(): Promise<void> {
   for (let index = 0; index < 6; index++) await flushPromises()
 }
 
-async function open(wait = true) {
+async function open(wait = true, entry: 'manager' | 'relations' = 'manager') {
   const observed = new Set<PageRuntime>()
   const load = PageRuntime.prototype.load
   vi.spyOn(PageRuntime.prototype, 'load').mockImplementation(function(this: PageRuntime) {
@@ -98,7 +98,15 @@ async function open(wait = true) {
       meta: {blueprintScenarioId: SCENARIO, nodeId: SCENARIO, systemPageIdentityState: 'resolved'}},
     {path: '/:pathMatch(.*)*', component: defineComponent({setup: () => () => h('div')})},
   ]})
-  await router.push(`/apps/APP${APPLICATION_MANAGER_PATH}`)
+  if (entry === 'relations') api.service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP-1'}})
+  if (entry === 'relations') router.addRoute({
+    path: '/apps/:projectId/features/application/application-context/ui/application-database-relations-page',
+    component: () => import('@/views/features/application/application-context/ui/application-database-relations-page.vue'),
+    meta: {blueprintScenarioId: Fixture.DATABASE_RELATIONS_SCENARIO, nodeId: Fixture.DATABASE_RELATIONS_SCENARIO, systemPageIdentityState: 'resolved'},
+  })
+  await router.push(entry === 'relations'
+    ? '/apps/APP-1/features/application/application-context/ui/application-database-relations-page'
+    : `/apps/APP${APPLICATION_MANAGER_PATH}`)
   await router.isReady()
   const pageService: PageServiceCapability = {
     copyText: async () => {},
@@ -552,6 +560,77 @@ describe('application manager restored with standard components and formal DataV
     expect(bodyText()).toContain('关联数据库 - needle description')
     await vi.waitFor(async () => { await settle(); expect(bodyText()).toContain('server 1') })
     expect(http.saves).toHaveLength(0)
+  })
+
+  it.each(['zero dispatch', 'failed readback'] as const)('settles the original relation delete with %s', async mode => {
+    http.records['Base_AppAndSource_Relation']![0]!['isRef'] = 1
+    const {wrapper, observed} = await open()
+    rowButtonFor(wrapper, 'needle description', '关联数据库').click()
+    await vi.waitFor(() => expect(bodyText()).toContain('server 1'))
+    const dataSet = [...observed].find(runtime => runtime.getDataSet(Fixture.DATABASE_RELATIONS_SCENARIO))?.getDataSet(Fixture.DATABASE_RELATIONS_SCENARIO)
+    const target = dataSet?.getView('Base_AppAndSource_Relation')
+    const row = target?.rows.find(item => item['rowid'] === 'RELATION-1')
+    if (!dataSet || !target || !row) throw new Error('missing original relation owner or row')
+    target.setCurrentRow(row)
+    await settle()
+    const remove = [...document.body.querySelectorAll<HTMLButtonElement>('.database-relations-content button')]
+      .find(item => item.textContent?.trim() === '删除')
+    if (!remove || remove.disabled) throw new Error('delete not enabled')
+    const save = dataSet.saveChanges.bind(dataSet)
+    vi.spyOn(dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      if (mode === 'zero dispatch') target.discardPendingChanges()
+      const result = await save(options)
+      if (mode === 'failed readback') http.failNextTable = 'Base_AppAndSource_Relation'
+      return result
+    })
+    confirmBox.mockResolvedValueOnce('confirm')
+    remove.click()
+    await vi.waitFor(() => expect(dataSet.saveChanges).toHaveBeenCalledOnce())
+    await settle()
+    expect(http.saves).toHaveLength(mode === 'zero dispatch' ? 0 : 1)
+    if (mode === 'failed readback') expect(bodyText()).toContain('删除已确认，关联列表回读失败')
+    else expect(bodyText()).toContain('原记录没有已确认的保存回执')
+    expect(bodyText()).not.toContain('删除成功')
+  })
+
+  it.each(['manager', 'relations'] as const)('verifies the original relation deletion from the %s entry', async entry => {
+    http.records['Base_AppAndSource_Relation']![0]!['isRef'] = 1
+    const {wrapper, observed} = await open(true, entry)
+    if (entry === 'manager') rowButtonFor(wrapper, 'needle description', '关联数据库').click()
+    await vi.waitFor(() => expect(bodyText()).toContain('server 1'))
+    const scenarioId = Fixture.DATABASE_RELATIONS_SCENARIO
+    const dataSet = [...observed].find(runtime => runtime.getDataSet(scenarioId))?.getDataSet(scenarioId)
+    const target = dataSet?.getView('Base_AppAndSource_Relation')
+    const row = target?.rows.find(item => item['rowid'] === 'RELATION-1')
+    if (!dataSet || !target || !row) throw new Error('missing original relation owner or row')
+    target.setCurrentRow(row)
+    await settle()
+    const remove = [...document.body.querySelectorAll<HTMLButtonElement>('.database-relations-content button')]
+      .find(item => item.textContent?.trim() === '删除')
+    if (!remove || remove.disabled) throw new Error('delete not enabled')
+    http.failAfterWrite = true
+    remove.click()
+    await vi.waitFor(() => expect(target.hasUnconfirmedSave).toBe(true))
+    expect(http.saves).toHaveLength(1)
+    const batchId = dataSet.saveJournal.batchId
+    const verify = vi.spyOn(dataSet, 'verifySaveJournalAndRead')
+    if (entry === 'manager') {
+      await click('关闭')
+      rowButtonFor(wrapper, 'fixture record 3', '关联数据库').click()
+      await settle()
+      expect(target.queryContext['sysid']).toBe('APP-1')
+      expect(bodyText()).toContain('请返回原应用核验关联提交')
+      expect(buttons('核验原提交')).toHaveLength(0)
+      await click('关闭')
+      rowButtonFor(wrapper, 'needle description', '关联数据库').click()
+    }
+    await vi.waitFor(() => expect(buttons('核验原提交')).toHaveLength(1))
+    await click('核验原提交')
+    await vi.waitFor(() => expect(target.hasUnconfirmedSave).toBe(false))
+    expect(verify).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({batchId, receiptViews: [target]}))
+    expect(http.saves).toHaveLength(1)
+    expect(target.rows.some(item => item['rowid'] === 'RELATION-1')).toBe(false)
+    expect(bodyText()).toContain('原关联提交已确认')
   })
 
   it('enters project management through the guarded application route', async () => {

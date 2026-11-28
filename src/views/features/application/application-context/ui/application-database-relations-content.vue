@@ -7,7 +7,8 @@ AI用途：关联数据库页与应用管理弹窗复用本组件；迁移时核
 <template>
   <div class="database-relations-content">
     <p v-if="message" role="alert">{{ message }}</p>
-    <RendererTable :data-view-key="relationKey" :children="relationFields" :toolbar="toolbar" :stripe="true"
+    <RendererButton v-if="receiptBatch" label="核验原提交" :disabled="busy" @click="verifyOriginal" />
+    <RendererTable v-if="currentTarget" :data-view-key="relationKey" :children="relationFields" :toolbar="toolbar" :stripe="true"
       :highlight-current-row="true" :show-data-view-meta="false" />
     <RendererDialog v-if="choosing" :model-value="true" title="选择数据库" width="min(1200px, 94vw)" :append-to-body="true"
       :close-disabled="busy" @update:model-value="choosing = false">
@@ -62,29 +63,58 @@ const candidateFields: SparkNode[] = [candidateText('Name', '数据库名', 180)
   candidateText('Port', '端口', 100), candidateText('Type', '类型', 100)]
 
 const current = computed(() => {revision.value; return view(relationKey).currentRow})
+let active = true
+
+function isCurrentTarget(relations: DataView, sysid = props.sysid): boolean {
+  return active && !relations.destroyed && !!sysid && props.sysid === sysid && relations.queryContext['sysid'] === sysid
+}
+
+const currentTarget = computed(() => {revision.value; return isCurrentTarget(view(relationKey))})
+const writeBlocked = computed(() => {
+  revision.value
+  const relations = view(relationKey)
+  return busy.value || relations.mutating || relations.hasUnconfirmedSave || !currentTarget.value
+})
+const receiptBatch = computed(() => {
+  revision.value
+  const relations = view(relationKey), journal = relations.dataSet?.saveJournal
+  const [record] = journal?.views ?? []
+  return currentTarget.value && relations.hasUnconfirmedSave && journal?.currentRecoverableAction === 'verify-original-receipt'
+    && journal.views.length === 1 && record?.state === 'unknown' && record.ids.length === 1
+    && record.tableName === relations.tableName && record.viewId === relations.viewId ? journal.batchId : null
+})
 const toolbar = computed<RToolbarProps>(() => ({children: [
-  {type: 'r-button', props: {label: '添加', buttonType: 'primary', disabled: busy.value || !props.sysid, onClick: openChoose}},
+  {type: 'r-button', props: {label: '添加', buttonType: 'primary', disabled: writeBlocked.value, onClick: openChoose}},
   {type: 'r-button', props: {label: '删除', buttonType: 'danger', onClick: remove,
-    disabled: busy.value || !current.value || Number(current.value['isRef']) === 0}},
+    disabled: writeBlocked.value || !current.value || Number(current.value['isRef']) === 0}},
 ]}))
 const candidateActions = computed<RToolbarProps>(() => ({children: [{type: 'r-button', props: {
-  label: '选择', buttonType: 'primary', link: true, disabled: busy.value, onClick: choose}}]}))
+  label: '选择', buttonType: 'primary', link: true, disabled: writeBlocked.value, onClick: choose}}]}))
 
 let stops: (() => void)[] = []
 function unbind(): void { for (const stop of stops) stop(); stops = [] }
 function listen(target: DataView): void {
   const bump = () => {revision.value++}
-  for (const event of ['currentRowChanged', 'rowsChanged', 'cleared'] as const) {
+  for (const event of ['currentRowChanged', 'rowsChanged', 'cleared', 'configChanged', 'mutatingChanged'] as const) {
     target.events.on(event, bump); stops.push(() => target.events.off(event, bump))
   }
 }
 async function loadRelations(): Promise<void> {
-  const relations = view(relationKey)
+  const relations = view(relationKey), sysid = props.sysid
   message.value = ''
-  if (!props.sysid) { message.value = '缺少应用系统身份，无法读取关联数据库'; return }
-  relations.queryContext = {sysid: props.sysid}
-  await relations.refresh()
-  if (relations.loadingError) message.value = `获取已关联数据库列表失败：${relations.loadingError.message}`
+  if (!sysid) { message.value = '缺少应用系统身份，无法读取关联数据库'; return }
+  if (busy.value || relations.mutating || relations.hasUnconfirmedSave) {
+    message.value = !isCurrentTarget(relations) ? '请返回原应用核验关联提交'
+      : relations.hasUnconfirmedSave ? '原关联提交结果未知，待核验' : '原关联提交正在处理'
+    return
+  }
+  relations.queryContext = {sysid}
+  try {
+    await relations.refresh()
+    if (isCurrentTarget(relations, sysid) && relations.loadingError) throw relations.loadingError
+  } catch (cause) {
+    if (isCurrentTarget(relations, sysid)) message.value = `获取已关联数据库列表失败：${failure(cause)}`
+  }
 }
 /** 嵌入其他页时宿主未装载数据库信息，首次使用时读取；已装载则复用。 */
 async function loadDatabases(): Promise<void> {
@@ -100,10 +130,14 @@ onMounted(() => {
     void loadRelations()
   } catch (cause) { message.value = failure(cause) }
 })
-watch(() => props.sysid, () => void loadRelations())
-onBeforeUnmount(unbind)
+watch(() => props.sysid, () => {
+  choosing.value = false
+  void loadRelations()
+})
+onBeforeUnmount(() => {active = false; unbind()})
 
 async function openChoose(): Promise<void> {
+  if (writeBlocked.value) return
   const candidates = view(candidateKey)
   const conids = view(relationKey).rows.map(row => text(row, 'conid')).filter(Boolean)
   candidates.queryContext = {conidsArray: conids, database: 'database', sysid: props.sysid}
@@ -112,49 +146,91 @@ async function openChoose(): Promise<void> {
 }
 
 /** 一次关联记录提交：保存范围仅本记录，失败且结果明确时丢弃本地变更。 */
-async function commit(id: string | number, discard: () => void): Promise<void> {
-  const relations = view(relationKey)
-  const result = await relations.dataSet?.saveChanges({views: [{tableName: relations.tableName, viewId: relations.viewId, ids: [id]}]})
-  if (!result) throw new Error('关联视图缺少DataSet')
-  if (!result.success) {
-    if (!relations.hasUnconfirmedSave) discard()
-    throw new Error(result.error?.message ?? '保存未确认，请刷新核验')
+async function commit(relations: DataView, id: string | number): Promise<void> {
+  const dataSet = relations.dataSet
+  if (!dataSet) throw new Error('关联视图缺少DataSet')
+  try {
+    await dataSet.saveRecord(relations, id)
+  } catch (cause) {
+    if (!relations.hasUnconfirmedSave) relations.discardPendingChanges([id])
+    throw cause
+  }
+}
+
+async function reportReadback(relations: DataView, operation: '关联' | '删除' | '原关联提交', sysid: string): Promise<void> {
+  if (!isCurrentTarget(relations, sysid)) return
+  try {
+    const result = await relations.requestRefresh({defer: false})
+    if (result.refreshStatus !== 'read') throw new Error(result.message ?? '目录未完成读取')
+    if (isCurrentTarget(relations, sysid)) message.value = operation === '原关联提交' ? '原关联提交已确认' : `${operation}成功`
+  } catch (cause) {
+    if (isCurrentTarget(relations, sysid)) message.value = `${operation}已确认，关联列表回读失败：${failure(cause)}`
+  }
+}
+
+async function verifyOriginal(): Promise<void> {
+  const relations = view(relationKey), dataSet = relations.dataSet
+  const batchId = receiptBatch.value, sysid = props.sysid
+  if (busy.value || !dataSet || !batchId || !isCurrentTarget(relations, sysid)) return
+  busy.value = true
+  try {
+    const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [relations], readbackViews: [], discardNotApplied: true})
+    if (!isCurrentTarget(relations, sysid)) return
+    if (result.settlement === 'confirmed') await reportReadback(relations, '原关联提交', sysid)
+    else if (result.settlement === 'not-applied') {
+      message.value = result.draftCleanup === 'discarded' ? '原关联提交未生效，已撤销原草稿' : '原关联提交未生效，草稿仍保留'
+    } else message.value = result.verificationError ? `原关联提交仍待核验：${result.verificationError.message}` : '原关联提交仍待核验'
+  } catch (cause) {
+    if (isCurrentTarget(relations, sysid)) message.value = `原关联提交核验失败：${failure(cause)}`
+  } finally {
+    busy.value = false
+    revision.value++
   }
 }
 
 async function choose(row: DataRow): Promise<void> {
-  const relations = view(relationKey), conid = text(row, 'Id')
-  if (busy.value || !conid) return
+  const relations = view(relationKey), conid = text(row, 'Id'), sysid = props.sysid
+  if (writeBlocked.value || !conid) return
   if (relations.addActionState() !== 'enabled') { message.value = '当前无新增数据库关联的权限'; return }
   busy.value = true; message.value = ''
   try {
-    const created = await relations.addRow({conid, type: 'database', sysid: props.sysid,
+    const created = await relations.addRow({conid, type: 'database', sysid,
       conName: text(row, 'Name'), cnName: text(row, 'Remark'), isRef: 1})
     const pk = relations.getPkKey(created)
     if (pk === undefined) throw new Error('关联记录新增缺少正式行身份')
-    await commit(pk, () => relations.discardPendingChanges([pk]))
+    await commit(relations, pk)
     choosing.value = false
-    message.value = '关联成功'
-    await relations.refresh()
-  } catch (cause) { message.value = `添加数据库关联失败：${failure(cause)}` } finally { busy.value = false }
+    await reportReadback(relations, '关联', sysid)
+  } catch (cause) {
+    if (relations.hasUnconfirmedSave) choosing.value = false
+    if (isCurrentTarget(relations, sysid)) message.value = relations.hasUnconfirmedSave ? '关联结果未知，原提交待核验' : `添加数据库关联失败：${failure(cause)}`
+  } finally {
+    busy.value = false
+    revision.value++
+  }
 }
 
 async function remove(): Promise<void> {
-  const relations = view(relationKey), row = relations.currentRow
+  const relations = view(relationKey), row = relations.currentRow, sysid = props.sysid
   const id = row ? relations.getPkKey(row) : undefined
-  if (busy.value || !row || id === undefined) return
+  if (writeBlocked.value || !row || id === undefined) return
   if (Number(row['isRef']) === 0) { message.value = '默认数据库不可删除'; return }
   if (relations.deleteActionState(row) !== 'enabled') { message.value = '当前无删除该关联的权限'; return }
-  const confirmed = await pageService.showConfirm(`确定要删除数据库关联"${text(row, 'conName')}"吗？`, '删除确认', {type: 'warning'})
-    .then(() => true, () => false)
-  if (!confirmed) return
   busy.value = true; message.value = ''
   try {
+    const originalRead = relations.captureReadRow(row, ['sysid', 'isRef'])
+    const confirmed = await pageService.showConfirm(`确定要删除数据库关联"${text(row, 'conName')}"吗？`, '删除确认', {type: 'warning'})
+    if (!confirmed || !isCurrentTarget(relations, sysid)) return
+    originalRead()
     await relations.removeRow(id)
-    await commit(id, () => relations.discardPendingChanges([id]))
-    message.value = '删除成功'
-    await relations.refresh()
-  } catch (cause) { message.value = `删除数据库关联失败：${failure(cause)}` } finally { busy.value = false }
+    await commit(relations, id)
+    await reportReadback(relations, '删除', sysid)
+  } catch (cause) {
+    if (isCurrentTarget(relations, sysid)) message.value = relations.hasUnconfirmedSave ? '删除结果未知，原提交待核验' : `删除数据库关联失败：${failure(cause)}`
+  } finally {
+    busy.value = false
+    revision.value++
+  }
 }
 </script>
 

@@ -31,6 +31,7 @@ const {sparkConsume, sparkProvide} = useSparkComponent({type: 'ai-data-entry-dia
 const busy = ref(false), error = ref(''), revision = ref(0), saved = ref(false)
 const host = shallowRef<AiDataEntryHost>()
 let target: DataView | undefined, dataSet: DataSet | undefined
+let receiptBatchId: string | undefined
 let unsubscribeHost: (() => void) | undefined, unsubscribeView: (() => void) | undefined
 
 const changed = () => {revision.value++}
@@ -66,16 +67,41 @@ async function act(action: () => Promise<void>): Promise<void> {
 }
 function save(): Promise<void> {
   return act(async () => {
-    if (!target || !dataSet) return
-    const result = await dataSet.saveChanges({views: [{tableName: target.tableName, viewId: target.viewId}]})
-    if (!result.success) throw new Error(result.message ?? 'AI新增结果未确认，请重读核验')
-    saved.value = true
+    const view = target, owner = dataSet
+    if (!view || !owner) return
+    const originalBatch = owner.saveJournal.batchId
+    const pendingCreates = new Set(view.dirtyTracking.pendingCreateIds)
+    const outcome = await owner.saveView(view)
+    if (outcome.state === 'unknown') {
+      const journal = owner.saveJournal
+      const captured = journal.views.find(item => item.tableName === view.tableName && item.viewId === view.viewId)
+      if (journal.batchId && journal.batchId !== originalBatch && captured?.state === 'unknown'
+        && captured.ids.some(id => pendingCreates.has(id))) receiptBatchId = journal.batchId
+      throw new Error('AI新增结果未知，请核验原提交', {cause: outcome.error})
+    }
+    if ('receipt' in outcome && outcome.receipt.createdCount > 0) saved.value = true
+    if (outcome.state === 'not-submitted') throw new Error('本次未提交新增')
+    if (outcome.state === 'partial') throw new Error(`部分变更已确认：${outcome.error.message}`, {cause: outcome.error})
+    if (outcome.state === 'follow-up-failed') throw new Error(`保存已确认，后续操作失败：${outcome.error.message}`, {cause: outcome.error})
+    if (outcome.state === 'failed') throw outcome.error
   })
 }
 function verify(): Promise<void> {
   return act(async () => {
-    if (!target || !dataSet) return
-    await dataSet.discardAndReload({views: [{tableName: target.tableName, viewId: target.viewId}]})
+    const view = target, owner = dataSet, batchId = receiptBatchId
+    if (!view || !owner || !batchId) throw new Error('当前对话框没有可核验的原新增批次')
+    const result = await owner.verifySaveJournalAndRead({batchId, receiptViews: [view], readbackViews: []})
+    const original = result.journal.views.find(item => item.tableName === view.tableName && item.viewId === view.viewId)
+    if (original?.state === 'applied') {
+      saved.value = true
+      receiptBatchId = undefined
+      return
+    }
+    if (original?.state === 'not-applied') {
+      receiptBatchId = undefined
+      throw new Error('原新增已明确未应用，保留草稿')
+    }
+    throw result.verificationError ?? new Error('原新增结果仍待核验')
   })
 }
 function discard(): void {

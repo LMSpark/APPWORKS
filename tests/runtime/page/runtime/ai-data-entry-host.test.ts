@@ -1,3 +1,8 @@
+import {flushPromises, mount} from '@vue/test-utils'
+import {defineComponent, h} from 'vue'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {PAGE_RUNTIME, Spark, useSparkComponent} from '@spark-appworks/spark-component'
+import Dialog from '@/views/features/shared/ai/ai-data-entry-dialog.vue'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, type DataView} from '@spark-appworks/spark-data'
 import {AiDataEntryHost} from '@/platform-adapters/resources/shared/ai-data-entry-host'
@@ -345,5 +350,106 @@ describe('AiDataEntryHost persistent owner and attachments', () => {
     expect(attachment.session.targetView).toBe(f.target)
     expect(f.dataSet.getTable('AiDataEntryInput')).toBeDefined()
     expect(f.dataSet.getTable('AiDataEntryCandidates')).toBeDefined()
+  })
+})
+
+
+async function mountEntryDialog(simulateLostReceipt = false) {
+  const scenarioId = 'AI-ENTRY-RECEIPT'
+  const dataSet = DataSet.fromJson({scenarioId,tables:{Rows:{
+    modelBinding:{modelId:'AI-ENTRY-MODEL',modelName:'Items'},
+    columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'name',type:'string',allowAIAdd:true}],
+    views:{default:{commitMode:'staged',autoLoad:false}},
+  }}})
+  const target = dataSet.getView('Rows','default')!
+  let unknown = false
+  let stored: readonly Record<string,unknown>[] = []
+  const result = () => ({
+    rows:stored,total:stored.length,assertIdentity:()=>{},rowKey:(row:Record<string,unknown>)=>row['rowid'],
+    prepareNewRow:(row:Record<string,unknown>)=>({...row,rowid:'new-row'}),
+    fieldAccess:()=>({read:'visible' as const,write:'allowed' as const,required:false,component:'editable' as const,writeMode:'editable' as const}),
+    readFieldAccess:()=> 'visible' as const,
+    addActionState:()=> 'enabled' as const,editActionState:()=> 'enabled' as const,deleteActionState:()=> 'enabled' as const,
+    createChildActionState:()=> 'enabled' as const,viewActionState:()=> 'enabled' as const,
+  })
+  const read = vi.fn(async () => result())
+  const dispatch = vi.fn()
+  const verifyOriginal = vi.fn()
+  type SaveCommand = Parameters<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>>[0]
+  async function save(command: SaveCommand) {
+    if (unknown) {
+      verifyOriginal(command.changes.map(change=>change.changes.added))
+      unknown = false
+    } else {
+      dispatch()
+      stored = command.changes.flatMap(change=>change.changes.added ?? [])
+      if(simulateLostReceipt){unknown=true;throw new Error('fixture acceptance response lost')}
+    }
+    return command.changes.map(change=>({metaName:change.identity.metaName,added:stored,changed:[],deleted:[],changedFields:[],context:result()}))
+  }
+  target.bindQueryExecutor({executeQuery:read,save,hasUnconfirmedSave:()=>unknown})
+  const runtime = new PageRuntime({pageId:'ai-entry-receipt',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
+  await runtime.load()
+  await target.refresh()
+  const closed = vi.fn()
+  const wrapper = mount(defineComponent({setup(){
+    useSparkComponent({type:'ai-entry-receipt-fixture'}).sparkProvide(PAGE_RUNTIME,runtime)
+    return ()=>h(Dialog,{dataViewKey:`${scenarioId}@Items@default`,onClose:closed})
+  }}),{global:{plugins:[Spark.createPlugin()],stubs:{SparkAiDataEntry:{inheritAttrs:false,template:'<span/>'},
+    RendererDialog:{template:'<div><slot/><slot name="footer"/></div>'},
+    RendererButton:{props:['label','disabled'],template:'<button :disabled="disabled">{{label}}</button>'},
+    DisplayAlert:{props:['title'],template:'<p role="alert">{{title}}</p>'},
+  }}})
+  await target.addRow({name:'AI candidate'})
+  await flushPromises()
+  const click = async (label:string) => {
+    const button=wrapper.findAll('button').find(item=>item.text()===label)
+    if(!button)throw new Error(`Missing dialog button ${label}`)
+    await button.trigger('click');await flushPromises()
+  }
+  return {dataSet,target,runtime,wrapper,click,closed,dispatch,verifyOriginal}
+}
+
+describe('actual AI entry dialog settlement', () => {
+  it('reports confirmed new rows on an ordinary save', async () => {
+    const f=await mountEntryDialog()
+    try {
+      await f.click('保存新增'); await f.click('关闭')
+      expect(f.dispatch).toHaveBeenCalledOnce()
+      expect(f.verifyOriginal).not.toHaveBeenCalled()
+      expect(f.closed).toHaveBeenCalledExactlyOnceWith(true)
+    } finally {f.wrapper.unmount(); f.runtime.dispose()}
+  })
+
+  it('does not report saved to its parent when the draft disappears before DataSet dispatch', async () => {
+    const f=await mountEntryDialog()
+    const save=f.dataSet.saveChanges.bind(f.dataSet)
+    vi.spyOn(f.dataSet,'saveChanges').mockImplementationOnce(options=>{f.target.discardPendingChanges();return save(options)})
+    try {
+      await f.click('保存新增'); await f.click('关闭')
+      expect(f.dispatch).not.toHaveBeenCalled()
+      expect(f.closed).toHaveBeenCalledExactlyOnceWith(false)
+    } finally {f.wrapper.unmount(); f.runtime.dispose()}
+  })
+
+  it('verifies the original receipt without abandoning or repeating the write and reports saved', async () => {
+    const f=await mountEntryDialog(true)
+    try {
+      await f.click('保存新增')
+      expect(f.dispatch).toHaveBeenCalledOnce()
+      expect(f.target.hasUnconfirmedSave).toBe(true)
+      const batch=f.dataSet.saveJournal.batchId
+      const verification=vi.spyOn(f.dataSet,'verifySaveJournalAndRead')
+      const abandon=vi.spyOn(f.dataSet,'discardAndReload')
+      await f.click('重读核验')
+      expect(abandon).not.toHaveBeenCalled()
+      expect(verification).toHaveBeenCalledExactlyOnceWith({batchId:batch,receiptViews:[f.target],readbackViews:[]})
+      expect(f.verifyOriginal).toHaveBeenCalledOnce()
+      expect(f.target.hasUnconfirmedSave).toBe(false)
+      expect(f.target.rows).toMatchObject([{rowid:'new-row',name:'AI candidate'}])
+      expect(f.dispatch).toHaveBeenCalledOnce()
+      await f.click('关闭')
+      expect(f.closed).toHaveBeenCalledExactlyOnceWith(true)
+    } finally {f.wrapper.unmount(); f.runtime.dispose()}
   })
 })

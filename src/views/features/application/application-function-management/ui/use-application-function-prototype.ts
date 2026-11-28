@@ -1,8 +1,8 @@
 /**
  * @module app:views/features/application/application-function-management/ui/use-application-function-prototype
  * 职责：项目蓝图页“需求原型”页签：htmlDesc 富文本保存（上传中/上传失败阻断、统一清洗）、清洗后预览，以及 Base_Navigation_Desc_Version 版本的列举、新增、应用与删除。
- * 边界：原型正文只经 owner 的 Base_NavigationInfo DataView 编辑与保存；版本只经同 PageRuntime 的版本 DataView（staged）+ DataSet.saveChanges 提交并回读核验。
- *   结果未知时只重提原命令，不新增第二条；切换节点或上下文后旧版本请求结果丢弃。
+ * 边界：原型正文只经 owner 的 Base_NavigationInfo DataView 编辑与保存；版本只经同 PageRuntime 的版本 DataView（staged）+ DataSet.saveRecord 提交并回读核验。
+ *   结果未知时核验原批次；切换节点或上下文后旧版本请求结果丢弃。
  * AI用途：修改需求原型或版本行为时，在此处保持“清洗→提交→回读核验”与代次校验，不得旁路 DataView。
  */
 import {computed, ref, shallowRef, watch, type Ref} from 'vue'
@@ -14,7 +14,8 @@ import {blueprintEditingFields, buildPrototypeVersionName, readBlueprintCurrentT
 const VERSION_MODEL = 'Base_Navigation_Desc_Version'
 
 type VersionTarget = Readonly<{contextKey: string; nodeId: string; versionId: string; versionName: string}>
-type PendingVersionCommand = Readonly<{contextKey: string; nodeId: string; ids: ReadonlyArray<string | number>}>
+type VersionCommit = Readonly<{id: string | number; expected?: Readonly<{prowid: string; VersionName: string; desc: string}>}>
+type PendingVersionCommand = VersionCommit & Readonly<{contextKey: string; nodeId: string; view: DataView; batchId: string}>
 
 /** 页面向原型流程提供的上下文与保存入口。 */
 export type ApplicationFunctionPrototypeInput = Readonly<{
@@ -59,9 +60,17 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
   const versionBusy = ref(false)
   const versionRevision = ref(0)
   let versionRequest = 0
-  let pendingCommand: PendingVersionCommand | undefined
+  const pendingCommand = shallowRef<PendingVersionCommand>()
+
+  const versionCommitPending = computed(() => !!pendingCommand.value && !pendingCommand.value.view.destroyed)
+  const canVerifyOriginalVersion = computed(() => {
+    const pending = pendingCommand.value
+    return !!pending && pending.contextKey === input.context()?.key && pending.nodeId === input.selectedNodeId.value
+      && !pending.view.destroyed
+  })
 
   const versionViewKey = computed(() => {
+    if (versionCommitPending.value && !canVerifyOriginalVersion.value) return ''
     const scenarioId = input.context()?.owner.dataSet.scenarioId
     return typeof scenarioId === 'string' ? buildDataViewKey(VERSION_MODEL, 'default', scenarioId) : ''
   })
@@ -148,23 +157,26 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
   }
 
   /** 按当前节点读取全部版本；迟到结果（节点或上下文已变化、被更新请求取代）丢弃。 */
-  async function loadVersions(): Promise<void> {
+  async function loadVersions(): Promise<boolean> {
     const context = input.context()
     const nodeId = input.selectedNodeId.value
     const request = ++versionRequest
     selectedVersionId.value = ''
-    if (!context || !nodeId) return
+    if (!context || !nodeId) return false
     try {
       const view = versionView(context)
+      if (view.hasUnconfirmedSave) return false
       view.queryConfig = {...view.queryConfig, allPages: true}
       view.filterExpression = DataViewFilter.condition({field: 'prowid', operator: 'eq', value: nodeId}).toJSON()
-      await view.refresh()
-      if (request !== versionRequest || !input.isLive(context, nodeId)) return
-      if (view.loadingError) throw view.loadingError
-      if (view.total !== view.rows.length) throw new Error('需求原型版本读取不完整')
+      const readback = await view.requestRefresh({defer: false})
+      if (request !== versionRequest || !input.isLive(context, nodeId)) return false
+      if (readback.refreshStatus !== 'read') throw new Error(readback.message ?? '原版本读取未完成')
+      if (view.countReported !== true || view.total !== view.rows.length) throw new Error('需求原型版本读取不完整')
       if (view.rows.some(row => String(row['prowid'] ?? '') !== nodeId)) throw new Error('需求原型版本读取结果含其他节点')
+      return true
     } catch (cause) {
       if (request === versionRequest && input.isLive(context, nodeId)) input.error.value = `需求原型版本读取失败：${describe(cause)}`
+      return false
     } finally {
       if (request === versionRequest) versionRevision.value++
     }
@@ -188,45 +200,67 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
     return typeof name === 'string' ? name : ''
   }
 
-  /** 提交版本命令行并回读；结果未知时保留原命令，下一次只重提原命令。 */
-  async function commitVersion(context: BlueprintTreeContext, nodeId: string, ids: ReadonlyArray<string | number>): Promise<void> {
-    const view = versionView(context)
-    pendingCommand = {contextKey: context.key, nodeId, ids}
-    let saved
-    try {
-      saved = await context.owner.dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [...ids]}]})
-    } catch (cause) {
-      if (!view.hasUnconfirmedSave) {
-        view.discardPendingChanges([...ids])
-        pendingCommand = undefined
-      }
-      throw cause
-    }
-    if (!saved.success) {
-      if (!view.hasUnconfirmedSave) {
-        view.discardPendingChanges([...ids])
-        pendingCommand = undefined
-      }
-      throw saved.error ?? new Error(saved.message ?? '需求原型版本提交未确认')
-    }
-    pendingCommand = undefined
+  /** 使用当前节点完整读取的正式主键及实际可读字段核对原操作。 */
+  function versionReadbackError(view: DataView, original: VersionCommit): string {
+    const row = view.rows.find(candidate => view.getPkKey(candidate) === original.id)
+    if (!original.expected) return row ? '需求原型版本删除后仍可读取' : ''
+    return row && Object.entries(original.expected).every(([field, value]) =>
+      view.fieldAccess(row, field).read === 'visible' && row[field] === value)
+      ? '' : '需求原型版本新增后按正式键回读未确认'
   }
 
-  /** 存在结果未知的原版本命令时先只核验它；返回 true 表示已处理（本次不再发新命令）。 */
-  async function verifyPendingCommand(context: BlueprintTreeContext, nodeId: string): Promise<boolean> {
-    const pending = pendingCommand
-    if (!pending) return false
-    if (pending.contextKey !== context.key || pending.nodeId !== nodeId) {
-      throw new Error('另一节点的需求原型版本提交结果待核验，请回到原节点处理')
+  /** 只接受原记录实际回执。结果未知时只保留本次批次身份供显式核验。 */
+  async function commitVersion(context: BlueprintTreeContext, nodeId: string, original: VersionCommit) {
+    const {id} = original
+    const view = versionView(context), dataSet = context.owner.dataSet
+    const priorBatch = dataSet.saveJournal.batchId
+    const submission = dataSet.saveRecord(view, id)
+    const batchId = dataSet.saveJournal.batchId
+    try {
+      return await submission
+    } catch (cause) {
+      const journal = dataSet.saveJournal
+      const owned = journal.views.some(record => record.tableName === view.tableName && record.viewId === view.viewId
+        && record.state === 'unknown' && record.ids.length === 1 && record.ids[0] === id)
+      if (batchId && batchId !== priorBatch && journal.batchId === batchId && owned) {
+        pendingCommand.value = {...original, contextKey: context.key, nodeId, view, batchId}
+      } else if (!view.hasUnconfirmedSave && !view.destroyed) view.discardPendingChanges([id])
+      throw cause
     }
-    await commitVersion(context, nodeId, pending.ids)
-    await loadVersions()
-    input.notice.value = '已核验原需求原型版本提交'
-    return true
+  }
+
+  /** 原提交核验不依赖新版本输入，也不发普通保存。 */
+  async function verifyOriginalVersion(): Promise<void> {
+    const context = input.context(), pending = pendingCommand.value
+    if (!pending || !context || versionBusy.value || !canVerifyOriginalVersion.value) return
+    const {view, nodeId, batchId} = pending
+    if (!input.isLive(context, nodeId)) return
+    versionBusy.value = true
+    try {
+      if (versionView(context) !== view) throw new Error('原版本视图已变化')
+      const dataSet = context.owner.dataSet
+      const journal = dataSet.saveJournal
+      const original = journal.views.find(record => record.tableName === view.tableName && record.viewId === view.viewId
+        && record.state === 'unknown' && record.ids.length === 1 && record.ids[0] === pending.id)
+      if (journal.batchId !== batchId || !original) throw new Error('原版本批次或记录已变化')
+      const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [view], readbackViews: [], discardNotApplied: true})
+      if (result.settlement === 'confirmed' || result.settlement === 'not-applied') pendingCommand.value = undefined
+      if (!input.isLive(context, nodeId)) return
+      if (result.settlement === 'confirmed') {
+        input.notice.value = '原需求原型版本提交已确认'
+        if (await loadVersions() && input.isLive(context, nodeId)) {
+          input.error.value = versionReadbackError(view, pending)
+        }
+      } else if (result.settlement === 'not-applied') {
+        input.error.value = result.draftCleanup === 'discarded' ? '原版本提交未生效，已撤销原草稿' : '原版本提交未生效，草稿仍保留'
+      } else input.error.value = result.verificationError?.message ?? '原版本提交仍待核验'
+    } catch (cause) {
+      if (input.isLive(context, nodeId)) input.error.value = `原版本提交核验失败：${describe(cause)}`
+    } finally { versionBusy.value = false }
   }
 
   function beginCreateVersion(): void {
-    if (!input.context() || !input.selectedNodeId.value) return
+    if (!input.context() || !input.selectedNodeId.value || versionCommitPending.value) return
     input.resetInput('versionDescription')
     versionDialogOpen.value = true
   }
@@ -240,7 +274,7 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
     const context = input.context()
     const nodeId = input.selectedNodeId.value
     const description = input.readInput('versionDescription').trim()
-    if (!context || !nodeId || versionBusy.value) return
+    if (!context || !nodeId || versionBusy.value || versionCommitPending.value) return
     if (!description) {
       input.error.value = '请输入版本描述'
       return
@@ -248,10 +282,6 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
     if (!assertUploadsSettled()) return
     versionBusy.value = true
     try {
-      if (await verifyPendingCommand(context, nodeId)) {
-        versionDialogOpen.value = false
-        return
-      }
       const fields = blueprintEditingFields(context.owner)
       if (fields === undefined || fields.some(field => field !== 'htmlDesc')) throw new Error('请先保存或取消基本信息的其他修改')
       if (fields.length > 0) {
@@ -266,17 +296,22 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
       const created = await view.addRow(expected)
       const id = view.getPkKey(created)
       if (id === undefined) throw new Error('需求原型版本未生成行身份')
-      await commitVersion(context, nodeId, [id])
-      await loadVersions()
-      const confirmed = view.rows.find(row => view.getPkKey(row) === id)
-      if (!confirmed || Object.entries(expected).some(([field, value]) => confirmed[field] !== value)) {
-        throw new Error('需求原型版本新增后回读不一致')
-      }
+      const receipt = await commitVersion(context, nodeId, {id, expected})
+      if (!input.isLive(context, nodeId)) return
+      const savedId = receipt.viewResults[0]?.createdIdentities?.find(item => item.submittedId === id)?.savedId
       versionDialogOpen.value = false
-      input.error.value = ''
-      input.notice.value = '历史版本保存成功'
+      if (receipt.followUpError || savedId === undefined || !await loadVersions()) {
+        if (!input.isLive(context, nodeId)) return
+        input.notice.value = '历史版本新增已确认'
+        if (receipt.followUpError || savedId === undefined) input.error.value = receipt.followUpError?.message ?? '回执未提供正式版本键'
+        return
+      }
+      if (!input.isLive(context, nodeId)) return
+      input.error.value = versionReadbackError(view, {id: savedId, expected})
+      input.notice.value = input.error.value ? '历史版本新增已确认' : '历史版本保存成功'
     } catch (cause) {
-      input.error.value = `保存历史版本失败：${describe(cause)}`
+      if (pendingCommand.value) versionDialogOpen.value = false
+      if (input.isLive(context, nodeId)) input.error.value = pendingCommand.value ? '版本新增结果未知，请核验原提交' : `保存历史版本失败：${describe(cause)}`
     } finally {
       versionBusy.value = false
     }
@@ -286,7 +321,7 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
   async function applySelectedVersion(): Promise<void> {
     const context = input.context()
     const version = selectedVersion.value
-    if (!context || !version || versionBusy.value) return
+    if (!context || !version || versionBusy.value || versionCommitPending.value) return
     const fields = blueprintEditingFields(context.owner)
     if (fields === undefined || fields.length > 0) {
       input.error.value = '请先保存或取消当前修改后再设置版本'
@@ -308,7 +343,7 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
     const context = input.context()
     const version = selectedVersion.value
     const nodeId = input.selectedNodeId.value
-    if (!context || !version || !nodeId) return
+    if (!context || !version || !nodeId || pendingCommand.value) return
     const name = version['VersionName']
     deletingVersion.value = {contextKey: context.key, nodeId, versionId: rowId(version), versionName: typeof name === 'string' ? name : ''}
   }
@@ -321,33 +356,39 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
     const target = deletingVersion.value
     const context = input.context()
     deletingVersion.value = undefined
-    if (!target || !context || versionBusy.value) return
+    if (!target || !context || versionBusy.value || versionCommitPending.value) return
     if (target.contextKey !== context.key || !input.isLive(context, target.nodeId)) {
       input.error.value = '蓝图上下文或选中节点已变化，版本未删除'
       return
     }
     versionBusy.value = true
     try {
-      if (await verifyPendingCommand(context, target.nodeId)) return
       const view = versionView(context)
       const row = view.rows.find(candidate => rowId(candidate) === target.versionId)
       const id = row ? view.getPkKey(row) : undefined
       if (!row || id === undefined || String(row['prowid'] ?? '') !== target.nodeId) throw new Error('未找到当前蓝图节点的唯一需求原型版本')
       if (view.deleteActionState(row) !== 'enabled') throw new Error('当前 DataView 不允许删除该版本')
       await view.removeRow(id)
-      await commitVersion(context, target.nodeId, [id])
-      await loadVersions()
-      if (view.rows.some(candidate => view.getPkKey(candidate) === id)) throw new Error('需求原型版本删除后仍可读取')
-      input.error.value = ''
-      input.notice.value = '删除成功'
+      const receipt = await commitVersion(context, target.nodeId, {id})
+      if (!input.isLive(context, target.nodeId)) return
+      if (receipt.followUpError || !await loadVersions()) {
+        if (!input.isLive(context, target.nodeId)) return
+        input.notice.value = '删除已确认'
+        if (receipt.followUpError) input.error.value = receipt.followUpError.message
+        return
+      }
+      if (!input.isLive(context, target.nodeId)) return
+      input.error.value = versionReadbackError(view, {id})
+      input.notice.value = input.error.value ? '删除已确认' : '删除成功'
     } catch (cause) {
-      input.error.value = `删除历史版本失败：${describe(cause)}`
+      if (input.isLive(context, target.nodeId)) input.error.value = pendingCommand.value ? '版本删除结果未知，请核验原提交' : `删除历史版本失败：${describe(cause)}`
     } finally {
       versionBusy.value = false
     }
   }
 
   watch(() => [input.active.value, input.selectedNodeId.value, input.context()?.key], () => {
+    if (pendingCommand.value?.view.destroyed) pendingCommand.value = undefined
     previewHtml.value = undefined
     versionDialogOpen.value = false
     deletingVersion.value = undefined
@@ -370,6 +411,9 @@ export function useApplicationFunctionPrototype(input: ApplicationFunctionProtot
     selectedVersion,
     deletingVersion,
     versionBusy,
+    versionCommitPending,
+    canVerifyOriginalVersion,
+    verifyOriginalVersion,
     onImageUploadState,
     imageUploader,
     savePrototype,

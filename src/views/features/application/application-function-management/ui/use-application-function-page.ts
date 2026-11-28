@@ -908,9 +908,11 @@ export function useApplicationFunctionPage() {
     }
   }
 
-  useSystemPageDirtySource({ get isDirty() { return state.hasAnyDirty.value || toolLeaveGuard?.() === true } })
+  const hasPendingChanges = () => state.hasAnyDirty.value || toolLeaveGuard?.() === true
+    || prototype.versionBusy.value || prototype.versionCommitPending.value
+  useSystemPageDirtySource({ get isDirty() { return hasPendingChanges() } })
   const guardPendingChanges = () => {
-    if (!state.hasAnyDirty.value && !toolLeaveGuard?.()) return true
+    if (!hasPendingChanges()) return true
     error.value = '蓝图存在未保存修改或待核验提交，处理完成后才能离开'
     return false
   }

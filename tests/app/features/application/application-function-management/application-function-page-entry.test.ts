@@ -37,7 +37,7 @@ vi.mock('@/views/features/application/application-function-management/ui/use-app
   }}
 })
 type BlueprintReceiptFixture = {hostRows:DataRow[];desktopRows:DataRow[];readDesktop?:()=>DataRow[];remapHost?:boolean;loseDesktop?:boolean}
-const fixtureState = vi.hoisted(() => ({desktopReceipt:undefined as BlueprintReceiptFixture|undefined,current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled',
+const fixtureState = vi.hoisted(() => ({failVersionRead:false,loseVersionReply:false,remapVersionKey:false,desktopReceipt:undefined as BlueprintReceiptFixture|undefined,current: undefined as unknown, execution: 'EXECUTION', createChild: 'disabled' as 'enabled' | 'disabled',
   patchRows: undefined as undefined | ((rows: DataRow[]) => void), dimension: undefined as undefined | (() => Promise<DataSet>),
   catalogModels: [] as DataRow[], catalogFields: [] as DataRow[], ledgerRows: [] as DataRow[], applications: undefined as DataRow[] | undefined}))
 const aiRunner = vi.hoisted(() => ({run: vi.fn<(message: string, signal?: AbortSignal) => Promise<string>>()}))
@@ -103,7 +103,7 @@ afterEach(() => {
   disposals.splice(0).forEach(dispose => dispose())
   datasets.splice(0).forEach(dataSet => {if (!dataSet.destroyed) dataSet.destroy()})
 })
-beforeEach(() => {fixtureState.desktopReceipt=undefined;fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; fixtureState.catalogModels = []; fixtureState.catalogFields = []; fixtureState.ledgerRows = []; fixtureState.applications = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
+beforeEach(() => {fixtureState.failVersionRead=false;fixtureState.loseVersionReply=false;fixtureState.remapVersionKey=false;fixtureState.desktopReceipt=undefined;fixtureState.execution = 'EXECUTION'; fixtureState.createChild = 'disabled'; fixtureState.patchRows = undefined; fixtureState.dimension = undefined; fixtureState.catalogModels = []; fixtureState.catalogFields = []; fixtureState.ledgerRows = []; fixtureState.applications = undefined; vi.mocked(loadLowcodeRuntimeScenario).mockReset(); aiRunner.run.mockReset()})
 
 function matches(row: DataRow, filter: unknown, context: Readonly<Record<string, unknown>> = {}): boolean {
   if (!isDataRow(filter)) return true
@@ -175,7 +175,7 @@ function catalogDataSet(numericFlags = false) {
   return dataSet
 }
 
-function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: readonly string[]; crud?: boolean; omitOutput?: readonly string[]; readRows?:()=>DataRow[];remapAdded?:boolean;loseReply?:boolean}> = {}) {
+function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: readonly string[]; crud?: boolean; omitOutput?: readonly string[]; readRows?:()=>DataRow[];remapAdded?:boolean|string;loseReply?:boolean}> = {}) {
   const hidden = options.hidden ?? []
   const crud = options.crud ? 'enabled' as const : 'disabled' as const
   const result = (selected: DataRow[]) => ({
@@ -205,7 +205,7 @@ function bindRows(view: DataView, rows: DataRow[], options: Readonly<{hidden?: r
     if(lostReply)return lostReply
     const receipts=command.changes.map(change => {
       const changed = change.changes.changed ?? [], deleted = change.changes.deleted ?? []
-      const added = (change.changes.added ?? []).map(row=>options.remapAdded?{...row,rowid:'FORMAL-HOST'}:row)
+      const added = (change.changes.added ?? []).map(row=>options.remapAdded?{...row,rowid:typeof options.remapAdded==='string'?options.remapAdded:'FORMAL-HOST'}:row)
       for (const patch of changed) {
         const row = rows.find(candidate => candidate['rowid'] === patch['rowid'])
         if (!row) throw new Error('test save target missing')
@@ -280,7 +280,12 @@ async function setup(query: Record<string, string | string[] | undefined> = {}, 
     {rowid: 'VER-1', prowid: 'NODE-1', VersionName: 'Tester[2024-01-01 00:00:00] first', desc: '<p>v1<script>x()</script></p>'},
     {rowid: 'VER-OTHER', prowid: 'NODE-2', VersionName: 'other', desc: '<p>other</p>'},
   ]
-  const versionSave = bindRows(ownerDataSet.getView('Base_Navigation_Desc_Version')!, versionRows, {crud: true})
+  const versionSave = bindRows(ownerDataSet.getView('Base_Navigation_Desc_Version')!, versionRows, {
+    crud: true, loseReply: fixtureState.loseVersionReply, remapAdded: fixtureState.remapVersionKey ? 'FORMAL-VERSION' : false, readRows: () => {
+      if (fixtureState.failVersionRead) throw new Error('隔离版本列表回读故障')
+      return versionRows
+    },
+  })
   const owner = new BlueprintWorkspaceDataView(ownerDataSet, TARGET, () => {
     if (fixtureState.execution !== 'EXECUTION') throw new Error('owner执行应用已切换')
   })
@@ -906,6 +911,80 @@ describe('application function page AI and prototype', () => {
     expect(rows[0]?.['htmlDesc']).toBe(sanitizeRichTextHtml(raw))
     expect(rows[0]?.['htmlDesc']).not.toMatch(/script|onclick/)
     expect(page.notice.value).toBe('需求原型已保存')
+  })
+
+  it('retains version deletion confirmation separately when the subsequent read fails', async () => {
+    const {page, state, versionRows, versionSave} = await setup({nodeId: 'NODE-1', blueprintTab: 'prototype'})
+    await flushPromises()
+    const view = state.blueprintPageRuntime.value.resolveView(page.prototype.versionViewKey.value)
+    expect(view?.rows.map(row => row['rowid'])).toEqual(['VER-1'])
+    page.prototype.selectVersion({rowid: 'VER-1'})
+    page.prototype.beginDeleteVersion()
+    fixtureState.failVersionRead = true
+    await page.prototype.confirmDeleteVersion()
+    expect(versionSave).toHaveBeenCalledOnce()
+    expect(versionRows.map(row => row['rowid'])).toEqual(['VER-OTHER'])
+    expect(view?.loadingError?.message).toContain('隔离版本列表回读故障')
+    expect(page.notice.value).not.toBe('删除成功')
+    expect(page.error.value).toContain('隔离版本列表回读故障')
+  })
+
+  it('verifies the captured version delete without a new save or input', async () => {
+    fixtureState.loseVersionReply = true
+    const {page, state, versionRows, versionSave, router, wrapper} = await setup({nodeId: 'NODE-1', blueprintTab: 'prototype'})
+    await flushPromises()
+    const view = state.blueprintPageRuntime.value.resolveView(page.prototype.versionViewKey.value)
+    const dataSet = view?.dataSet
+    if (!view || !dataSet) throw new Error('missing version view or DataSet')
+    const save = vi.spyOn(dataSet, 'saveChanges')
+    const verify = vi.spyOn(dataSet, 'verifySaveJournalAndRead')
+    page.prototype.selectVersion({rowid: 'VER-1'})
+    page.prototype.beginDeleteVersion()
+    await page.prototype.confirmDeleteVersion()
+    expect(versionSave).toHaveBeenCalledOnce()
+    expect(versionRows.map(row => row['rowid'])).toEqual(['VER-OTHER'])
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(page.prototype.canVerifyOriginalVersion.value).toBe(true)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('核验原版本提交'))
+    const originalRoute = router.currentRoute.value.fullPath
+    await router.push(originalRoute.replace('/apps/EXECUTION/', '/apps/OTHER/'))
+    expect(router.currentRoute.value.fullPath).toBe(originalRoute)
+    const batchId = dataSet.saveJournal.batchId
+    const originalFilter = structuredClone(view.filterExpression)
+    page.onNodeClick({rowid: 'NODE-2'})
+    await vi.waitFor(() => expect(page.selectedNodeId.value).toBe('NODE-2'))
+    expect(page.prototype.versionViewKey.value).toBe('')
+    expect(page.prototype.canVerifyOriginalVersion.value).toBe(false)
+    expect(wrapper.text()).not.toContain('核验原版本提交')
+    expect(view.filterExpression).toEqual(originalFilter)
+    await page.prototype.verifyOriginalVersion()
+    expect(verify).not.toHaveBeenCalled()
+    expect(save).toHaveBeenCalledOnce()
+    page.onNodeClick({rowid: 'NODE-1'})
+    await vi.waitFor(() => expect(page.prototype.canVerifyOriginalVersion.value).toBe(true))
+    await page.prototype.verifyOriginalVersion()
+    expect(save).toHaveBeenCalledOnce()
+    expect(verify).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({batchId, receiptViews: [view]}))
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(page.prototype.canVerifyOriginalVersion.value).toBe(false)
+    expect(page.notice.value).toBe('原需求原型版本提交已确认')
+    expect(versionRows.map(row => row['rowid'])).toEqual(['VER-OTHER'])
+  })
+
+  it('reads the formal version key when the create receipt remaps it', async () => {
+    fixtureState.remapVersionKey = true
+    const ctx = await setup({nodeId: 'NODE-1', blueprintTab: 'prototype'})
+    await flushPromises()
+    const {page, state, versionRows, versionSave} = ctx
+    page.prototype.beginCreateVersion()
+    typeInput(ctx, 'versionDescription', 'remapped')
+    await page.prototype.confirmCreateVersion()
+    expect(versionSave).toHaveBeenCalledOnce()
+    expect(versionRows.find(row => row['rowid'] === 'FORMAL-VERSION')).toMatchObject({prowid: 'NODE-1', VersionName: expect.stringContaining('remapped')})
+    const view = state.blueprintPageRuntime.value.resolveView(page.prototype.versionViewKey.value)
+    expect(view?.rows.map(row => row['rowid'])).toContain('FORMAL-VERSION')
+    expect(page.notice.value).toBe('历史版本保存成功')
+    expect(page.error.value).toBe('')
   })
 
   it('lists, previews, applies, creates and deletes versions of the selected node only', async () => {

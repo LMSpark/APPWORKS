@@ -147,8 +147,10 @@
             <h2>需求原型</h2>
             <RendererButton label="保存原型" button-type="primary" :disabled="!canSavePrototype || uploadBlocked" @click="savePrototype" />
             <RendererButton label="预览" @click="openPreview" />
-            <RendererButton label="保存为历史版本" :disabled="versionBusy || uploadBlocked" @click="beginCreateVersion" />
+            <RendererButton label="保存为历史版本" :disabled="versionBusy || uploadBlocked || versionCommitPending" @click="beginCreateVersion" />
+            <RendererButton v-if="canVerifyOriginalVersion" label="核验原版本提交" :disabled="versionBusy" @click="verifyOriginalVersion" />
           </div>
+          <DisplayAlert v-if="versionCommitPending && !canVerifyOriginalVersion" description="请返回原节点核验版本提交" alert-type="warning" />
           <DisplayAlert v-if="uploadState.pending > 0" description="图片正在上传，完成前不能保存或切换节点" alert-type="info" />
           <DisplayAlert v-else-if="uploadState.error" :description="`图片上传失败：${uploadState.error}`" alert-type="error" />
           <RendererForm v-bind="treeBinding" context-data-member="currentRow" :auto-columns="false"
@@ -182,8 +184,8 @@
               </template>
             </RendererList>
             <div class="application-function-page__details-toolbar">
-              <RendererButton label="设为当前版本" :disabled="!selectedVersion || versionBusy" @click="applySelectedVersion" />
-              <RendererButton label="删除版本" button-type="danger" :disabled="!selectedVersion || versionBusy" @click="beginDeleteVersion" />
+              <RendererButton label="设为当前版本" :disabled="!selectedVersion || versionBusy || versionCommitPending" @click="applySelectedVersion" />
+              <RendererButton label="删除版本" button-type="danger" :disabled="!selectedVersion || versionBusy || versionCommitPending" @click="beginDeleteVersion" />
             </div>
           </div>
         </template>
@@ -383,7 +385,8 @@ const {
 } = ai
 const {
   uploadState, uploadBlocked, canSavePrototype, previewHtml, versionViewKey, versionDialogOpen, selectedVersion,
-  deletingVersion, versionBusy, onImageUploadState, imageUploader, savePrototype, openPreview, closePreview, selectVersion,
+  deletingVersion, versionBusy, versionCommitPending, canVerifyOriginalVersion, verifyOriginalVersion,
+  onImageUploadState, imageUploader, savePrototype, openPreview, closePreview, selectVersion,
   isSelectedVersion, versionLabel, beginCreateVersion, cancelCreateVersion, confirmCreateVersion, applySelectedVersion, beginDeleteVersion, cancelDeleteVersion,
   confirmDeleteVersion,
 } = prototype

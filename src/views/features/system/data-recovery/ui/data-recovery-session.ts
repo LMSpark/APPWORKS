@@ -11,6 +11,7 @@ type RecoveryCommit = Readonly<{
   discard: () => void
   done: string
 }>
+type PendingRecoveryReceipt = Readonly<{batchId: string; operation: RecoveryCommit}>
 export type DataRecoverySessionInput = Readonly<{
   target: DataView
   source: DataView
@@ -33,7 +34,7 @@ function failure(cause: unknown): string {
 /** 数据恢复提交会话：记录变更仍只由绑定的恢复记录DataView暂存、提交和核验。 */
 export class DataRecoverySession {
   private readonly busyState = ref(false)
-  private readonly pendingState = shallowRef<RecoveryCommit>()
+  private readonly pendingState = shallowRef<PendingRecoveryReceipt>()
   private readonly messageState = ref('')
   private readonly noticeState = ref('')
 
@@ -164,24 +165,33 @@ export class DataRecoverySession {
   }
 
   public async verify(): Promise<void> {
-    const operation = this.pendingState.value
-    if (!operation || this.busy) return
+    const pending = this.pendingState.value
+    if (!pending || this.busy) return
     this.busyState.value = true
     this.messageState.value = ''
     try {
       this.input.assertCurrent()
-      if (this.input.target.destroyed || !this.input.target.hasUnconfirmedSaveFor([operation.id])) {
+      const {target} = this.input
+      const {batchId, operation} = pending
+      const dataSet = target.dataSet
+      if (!dataSet || target.destroyed || dataSet.saveJournal.batchId !== batchId
+        || !target.hasUnconfirmedSaveFor([operation.id])) {
         throw new Error('原保存查询已失效，不能重新派发恢复操作')
       }
-      const result = await this.input.target.saveChanges([operation.id])
-      if (!result.success) {
-        this.settleFailure(operation)
-        throw new Error(result.message ?? '原保存结果尚未核定')
+      const result = await dataSet.verifySaveJournalAndRead({
+        batchId, receiptViews: [target], readbackViews: [], discardNotApplied: true,
+      })
+      if (result.settlement === 'confirmed') {
+        this.pendingState.value = undefined
+        await this.refreshAfterCommit(operation)
+      } else if (result.settlement === 'not-applied') {
+        this.pendingState.value = undefined
+        this.messageState.value = result.draftCleanup === 'discarded'
+          ? '原恢复登记未生效，原草稿已撤销' : '原恢复登记未生效，草稿保留'
+      } else {
+        this.messageState.value = result.verificationError?.message ?? '原保存结果尚未核定'
       }
-      this.pendingState.value = undefined
-      await this.refreshAfterCommit(operation)
     } catch (cause) {
-      this.settleFailure(operation)
       this.messageState.value = failure(cause)
     } finally {
       this.busyState.value = false
@@ -208,43 +218,42 @@ export class DataRecoverySession {
   }
 
   private async commit(operation: RecoveryCommit): Promise<void> {
-    this.input.assertCurrent()
-    const dataSet = this.input.target.dataSet
-    if (!dataSet) {
-      this.settleFailure(operation)
-      throw new Error('恢复记录视图缺少DataSet')
-    }
+    const {target} = this.input
+    const dataSet = target.dataSet
+    const previousBatch = dataSet?.saveJournal.batchId
+    let followUpError: Error | undefined
     try {
-      const result = await dataSet.saveChanges({views: [{
-        tableName: this.input.target.tableName, viewId: this.input.target.viewId, ids: [operation.id],
-      }]})
-      if (!result.success) throw new Error(result.error?.message ?? '保存未确认，请刷新核验')
+      this.input.assertOperationCurrent()
+      if (!this.input.isCurrentTable(operation.tableId)) throw new Error('恢复对象已变化，请重新选择')
+      if (!dataSet) throw new Error('恢复记录视图缺少DataSet')
+      followUpError = (await dataSet.saveRecord(target, operation.id)).followUpError
     } catch (cause) {
-      this.settleFailure(operation)
+      const journal = dataSet?.saveJournal
+      const original = journal?.views[0]
+      if (journal?.batchId && journal.batchId !== previousBatch && journal.views.length === 1
+        && original?.tableName === target.tableName && original.viewId === target.viewId
+        && original.state === 'unknown' && original.ids.length === 1 && original.ids[0] === operation.id) {
+        this.pendingState.value = {batchId: journal.batchId, operation}
+      } else if (!target.destroyed && !target.hasUnconfirmedSaveFor([operation.id])) {
+        operation.discard()
+      }
       throw cause
     }
-    this.pendingState.value = undefined
-    await this.refreshAfterCommit(operation)
+    await this.refreshAfterCommit(operation, followUpError)
   }
 
-  private settleFailure(operation: RecoveryCommit): void {
-    if (this.input.target.hasUnconfirmedSaveFor([operation.id])) {
-      this.pendingState.value = operation
-      return
-    }
-    if (this.pendingState.value === operation) this.pendingState.value = undefined
-    if (!this.input.target.destroyed) operation.discard()
-  }
-
-  private async refreshAfterCommit(operation: RecoveryCommit): Promise<void> {
+  private async refreshAfterCommit(operation: RecoveryCommit, followUpError?: Error): Promise<void> {
     if (!this.input.isCurrentTable(operation.tableId)) return
     this.noticeState.value = operation.done
     const views = [this.input.source, this.input.target]
-    let readError:unknown
-    try{await Promise.all(views.map(view=>view.refresh()))}
-    catch(cause){readError=cause}
+    const reads = await Promise.allSettled(views.map(view => view.requestRefresh({defer: false})))
     if (!this.input.isCurrentTable(operation.tableId)) return
-    readError??=views.find(view=>view.loadingError)?.loadingError
-    if(readError!==undefined&&readError!==null)this.messageState.value=`恢复记录已确认，列表回读失败：${failure(readError)}`
+    const failed = reads.find(read => read.status === 'rejected' || read.value.refreshStatus !== 'read')
+    if (failed) {
+      const reason = failed.status === 'rejected' ? failure(failed.reason) : failed.value.message ?? '列表未完成读取'
+      this.messageState.value = `恢复记录已确认，列表回读失败：${reason}`
+    } else if (followUpError) {
+      this.messageState.value = `恢复记录已确认，后续处理失败：${followUpError.message}`
+    }
   }
 }

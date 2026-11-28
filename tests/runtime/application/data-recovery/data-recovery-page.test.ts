@@ -16,15 +16,22 @@ vi.mock('@/views/features/system/data-recovery/ui/tool/style.css?raw', async () 
   return {default: readFileSync('src/views/features/system/data-recovery/ui/tool/style.css', 'utf8')}
 })
 
+type RecoveryQueryResult = Awaited<ReturnType<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>
+
 async function bindRecoveryRows(view: DataView, rows: readonly DataRow[], options: Readonly<{
   allowAdd?: boolean
   editableFields?: readonly string[]
   rejectSave?: boolean
-}> = {}): Promise<void> {
+}> = {}) {
   const editable = new Set(options.editableFields ?? [])
   let next = 0
-  view.bindQueryExecutor({executeQuery: async () => ({
-    rows, total: rows.length, resultPrimaryKey: 'rowid', countReported: true,
+  const stored = structuredClone([...rows])
+  let pending = false
+  let loseReceipt = false
+  const writes = vi.fn()
+  const verify = vi.fn()
+  const query = (): RecoveryQueryResult => ({
+    rows: structuredClone(stored), total: stored.length, resultPrimaryKey: 'rowid', countReported: true,
     assertIdentity: () => undefined,
     rowKey: row => row['rowid'],
     fieldAccess: (_key, field) => ({
@@ -43,11 +50,40 @@ async function bindRecoveryRows(view: DataView, rows: readonly DataRow[], option
     deleteActionState: () => 'disabled' as const,
     createChildActionState: () => 'disabled' as const,
     viewActionState: () => 'enabled' as const,
-  }),
-  ...(options.rejectSave?{save:async()=>{throw new Error('owner rejected undo')}}:{})
+  })
+  view.bindQueryExecutor({
+    executeQuery: async () => query(),
+    ...(options.allowAdd ? {
+      hasUnconfirmedSave: () => pending,
+      save: async command => {
+        if (options.rejectSave) throw new Error('owner rejected undo')
+        const change = command.changes[0]
+        if (!change || command.changes.length !== 1) throw new Error('expected one recovery capture')
+        const {added = [], changed = [], deleted = []} = change.changes
+        if (pending) verify(change)
+        else {
+          writes(change)
+          stored.push(...structuredClone(added))
+          for (const patch of changed) {
+            const row = stored.find(item => item['rowid'] === patch['rowid'])
+            if (!row) throw new Error('missing recovery row')
+            Object.assign(row, patch)
+          }
+          if (loseReceipt) {
+            loseReceipt = false
+            pending = true
+            throw new Error('receipt lost')
+          }
+        }
+        pending = false
+        return [{metaName: view.tableName, added, changed, deleted,
+          changedFields: changed.map(row => Object.keys(row).filter(field => field !== 'rowid')), context: query()}]
+      },
+    } : {}),
   })
   await view.refresh()
   if (view.loadingError) throw view.loadingError
+  return {writes, verify, loseNextReceipt: () => {loseReceipt = true}}
 }
 
 async function recoverySessionFixture(confirm: (message:string)=>Promise<boolean>=async()=>true,rejectTargetSave=false) {
@@ -61,7 +97,7 @@ async function recoverySessionFixture(confirm: (message:string)=>Promise<boolean
   const dataSet = DataSet.fromJson({scenarioId: 'RECOVERY-SESSION', tables: Object.fromEntries(
     Object.entries(models).map(([modelName, columns]) => [modelName, {
       modelBinding: {modelId: modelName, modelName},
-      columns: columns.map(name => ({name, type: 'string', isPrimaryKey: name === 'rowid'})),
+      columns: columns.map(name => ({name, type: name === 'status' ? 'number' : 'string', isPrimaryKey: name === 'rowid'})),
       views: {default: {autoLoad: false, autoCurrentFirst: false}},
     }]),
   )})
@@ -75,13 +111,13 @@ async function recoverySessionFixture(confirm: (message:string)=>Promise<boolean
   const table = view('_Base_TblList')
   const source = view('获取软删除的数据')
   const target = view('Base_TableData_Recovery')
-  await Promise.all([
+  const [owner] = await Promise.all([
+    bindRecoveryRows(target, [{rowid: 'REC-1', sys_id: 'APP-1', db_id: 'DB-1', data_id: 'DATA-2',
+      table_id: 'T-1', status: 0}], {allowAdd: true, editableFields: ['status'], rejectSave: rejectTargetSave}),
     bindRecoveryRows(application, [{rowid: 'APP-1'}]),
     bindRecoveryRows(database, [{rowid: 'DB-ROW', conid: 'DB-1'}]),
     bindRecoveryRows(table, [{rowid: 'T-1', tblname: 'Example'}]),
     bindRecoveryRows(source, [{rowid: 'DATA-1', data: 'deleted'}], {editableFields: ['data']}),
-    bindRecoveryRows(target, [{rowid: 'REC-1', sys_id: 'APP-1', db_id: 'DB-1', data_id: 'DATA-2',
-      table_id: 'T-1', status: 0}], {allowAdd: true, editableFields: ['status'], rejectSave: rejectTargetSave}),
   ])
   application.setCurrentRowById('APP-1')
   database.setCurrentRowById('DB-ROW')
@@ -93,15 +129,7 @@ async function recoverySessionFixture(confirm: (message:string)=>Promise<boolean
     target, source, owners: {table, database, application}, confirm: confirmation,
     assertCurrent, assertOperationCurrent: assertCurrent, isCurrentTable,
   })
-  return {dataSet, session, source, target, application, database, table, confirmation}
-}
-
-function successfulSaveResult() {
-  return {
-    success: true as const, message: 'saved',
-    data: {viewCount: 1, appliedEditingRows: 0, failedEditingRows: 0, createdCount: 1, savedCount: 0,
-      deletedCount: 0, failedCount: 0, failedViews: [], viewResults: []},
-  }
+  return {dataSet, session, source, target, application, database, table, confirmation, owner}
 }
 
 it('renders only the selected recovery table fields while the next field result is pending', async () => {
@@ -252,9 +280,9 @@ it('captures the exact deleted row and selected owners before a confirmed restor
     vi.spyOn(fixture.database, 'captureReadRow').mockReturnValue(databaseCheck)
     vi.spyOn(fixture.application, 'captureReadRow').mockReturnValue(applicationCheck)
     const add = vi.spyOn(fixture.target, 'addRow')
-    vi.spyOn(fixture.dataSet, 'saveChanges').mockResolvedValue(successfulSaveResult())
-    const sourceRefresh = vi.spyOn(fixture.source, 'refresh').mockResolvedValue(undefined)
-    const targetRefresh = vi.spyOn(fixture.target, 'refresh').mockResolvedValue(undefined)
+    vi.spyOn(fixture.dataSet, 'saveChanges')
+    const sourceRefresh = vi.spyOn(fixture.source, 'requestRefresh')
+    const targetRefresh = vi.spyOn(fixture.target, 'requestRefresh')
 
     await fixture.session.restore(deleted)
 
@@ -275,6 +303,8 @@ it('captures the exact deleted row and selected owners before a confirmed restor
     }]})
     expect(sourceRefresh).toHaveBeenCalledOnce()
     expect(targetRefresh).toHaveBeenCalledOnce()
+    expect(fixture.owner.writes).toHaveBeenCalledOnce()
+    expect(fixture.target.rows).toContainEqual(expect.objectContaining({data_id: 'DATA-1', table_id: 'T-1'}))
     expect(fixture.session.notice).toBe('恢复登记已确认')
   } finally {
     fixture.dataSet.destroy()
@@ -295,40 +325,36 @@ it('does not stage a restore when its confirmation is cancelled', async () => {
   }
 })
 
-it('retains a lost restore receipt and verifies the original capture without replay', async () => {
+it.each(['restore', 'undo'] as const)('verifies a lost %s receipt without replay', async action => {
   const fixture = await recoverySessionFixture()
   try {
-    let unknown = false
-    const discard = vi.spyOn(fixture.target, 'discardPendingChanges')
-    vi.spyOn(fixture.target, 'hasUnconfirmedSave', 'get').mockImplementation(() => unknown)
-    vi.spyOn(fixture.target, 'hasUnconfirmedSaveFor').mockImplementation(ids =>
-      unknown && ids.length === 1)
-    const save = vi.spyOn(fixture.dataSet, 'saveChanges').mockImplementation(async () => {
-      unknown = true
-      throw new Error('receipt lost')
-    })
-    const verify = vi.spyOn(fixture.target, 'saveChanges').mockImplementation(async ids => {
-      expect(ids).toHaveLength(1)
-      unknown = false
-      return {success: true, message: 'verified', data: {createdCount: 1, savedCount: 0, deletedCount: 0,
-        failedCount: 0, failedIds: [], failedErrors: {}}}
-    })
-    const sourceRefresh = vi.spyOn(fixture.source, 'refresh').mockResolvedValue(undefined)
-    const targetRefresh = vi.spyOn(fixture.target, 'refresh').mockResolvedValue(undefined)
+    fixture.owner.loseNextReceipt()
+    const save = vi.spyOn(fixture.dataSet, 'saveChanges')
+    const verify = vi.spyOn(fixture.dataSet, 'verifySaveJournalAndRead')
+    const sourceRefresh = vi.spyOn(fixture.source, 'requestRefresh')
+    const view = action === 'restore' ? fixture.source : fixture.target
 
-    await fixture.session.restore(fixture.source.rows[0]!)
+    await fixture.session[action](view.rows[0]!)
+    expect(fixture.session.message).toContain('receipt lost')
+    const {batchId} = fixture.dataSet.saveJournal
+    expect(batchId).toEqual(expect.any(String))
     expect(fixture.session.pendingVerification).toBe(true)
     expect(fixture.session.verification()).toEqual({visible: true, disabled: false})
-    expect(save).toHaveBeenCalledTimes(1)
-    expect(discard).not.toHaveBeenCalled()
+    expect(fixture.owner.writes).toHaveBeenCalledOnce()
+    expect(fixture.owner.verify).not.toHaveBeenCalled()
     expect(sourceRefresh).not.toHaveBeenCalled()
 
     await fixture.session.verify()
-    expect(save).toHaveBeenCalledTimes(1)
-    expect(verify).toHaveBeenCalledTimes(1)
+    expect(save).toHaveBeenCalledOnce()
+    expect(verify).toHaveBeenCalledExactlyOnceWith({
+      batchId, receiptViews: [fixture.target], readbackViews: [], discardNotApplied: true,
+    })
+    expect(fixture.owner.verify).toHaveBeenCalledOnce()
+    expect(fixture.owner.writes).toHaveBeenCalledOnce()
     expect(fixture.session.pendingVerification).toBe(false)
-    expect(sourceRefresh).toHaveBeenCalledOnce()
-    expect(targetRefresh).toHaveBeenCalledOnce()
+    expect(sourceRefresh).toHaveBeenCalledExactlyOnceWith({defer: false})
+    expect(fixture.target.rows).toContainEqual(expect.objectContaining(action === 'restore'
+      ? {data_id: 'DATA-1', table_id: 'T-1'} : {rowid: 'REC-1', status: 1}))
   } finally {
     fixture.dataSet.destroy()
   }
@@ -341,11 +367,12 @@ it('undoes only the captured recovery status and refreshes after its readback', 
     const original = vi.fn()
     vi.spyOn(fixture.target, 'captureReadRow').mockReturnValue(original)
     const edit = vi.spyOn(fixture.target, 'updateEditingValue')
-    vi.spyOn(fixture.dataSet, 'saveChanges').mockResolvedValue(successfulSaveResult())
-    const sourceRefresh = vi.spyOn(fixture.source, 'refresh').mockResolvedValue(undefined)
-    const targetRefresh = vi.spyOn(fixture.target, 'refresh').mockResolvedValue(undefined)
+    vi.spyOn(fixture.dataSet, 'saveChanges')
+    const sourceRefresh = vi.spyOn(fixture.source, 'requestRefresh')
+    const targetRefresh = vi.spyOn(fixture.target, 'requestRefresh')
 
     await fixture.session.undo(recovered)
+    expect(fixture.session.message).toBe('')
 
     expect(fixture.confirmation).toHaveBeenCalledWith('撤销恢复后，原数据将重新进入回收站。确认继续吗？')
     expect(fixture.target.captureReadRow).toHaveBeenCalledWith(recovered, ['status'])
@@ -356,10 +383,44 @@ it('undoes only the captured recovery status and refreshes after its readback', 
     }]})
     expect(sourceRefresh).toHaveBeenCalledOnce()
     expect(targetRefresh).toHaveBeenCalledOnce()
+    expect(fixture.owner.writes).toHaveBeenCalledOnce()
     expect(fixture.session.notice).toBe('撤销恢复登记已确认')
   } finally {
     fixture.dataSet.destroy()
   }
+})
+
+it.each(['restore','undo'] as const)('does not confirm %s after the original edit is withdrawn', async action => {
+  const fixture = await recoverySessionFixture()
+  try {
+    const save = fixture.dataSet.saveChanges.bind(fixture.dataSet)
+    vi.spyOn(fixture.dataSet, 'saveChanges').mockImplementationOnce(selection => {
+      const ids = selection?.views?.[0]?.ids
+      if (!ids?.length) throw new Error('missing original recovery selection')
+      fixture.target.discardPendingChanges(ids)
+      return save(selection)
+    })
+    const view = action === 'restore' ? fixture.source : fixture.target
+    await fixture.session[action](view.rows[0]!)
+    expect(fixture.owner.writes).not.toHaveBeenCalled()
+    expect(fixture.target.rows).toHaveLength(1)
+    expect(fixture.target.rows[0]).toMatchObject({rowid: 'REC-1', status: 0})
+    expect(fixture.session.notice).toBe('')
+    expect(fixture.session.message).toContain('原记录没有已确认的保存回执')
+  } finally {fixture.dataSet.destroy()}
+})
+
+it('preserves the confirmed recovery registration when its list cannot be read', async () => {
+  const fixture = await recoverySessionFixture()
+  try {
+    vi.spyOn(fixture.source, 'requestRefresh').mockResolvedValueOnce({
+      success: false, refreshStatus: 'failed', message: 'source unavailable',
+    })
+    await fixture.session.restore(fixture.source.rows[0]!)
+    expect(fixture.owner.writes).toHaveBeenCalledOnce()
+    expect(fixture.session.notice).toBe('恢复登记已确认')
+    expect(fixture.session.message).toBe('恢复记录已确认，列表回读失败：source unavailable')
+  } finally {fixture.dataSet.destroy()}
 })
 
 it('clears a definitely rejected undo patch and leaves the recovery session usable',async()=>{
@@ -368,6 +429,7 @@ it('clears a definitely rejected undo patch and leaves the recovery session usab
     const row=fixture.target.rows[0]!
     fixture.source.updateEditingValue('DATA-1','data','unrelated source draft')
     await fixture.session.undo(row)
+    expect(fixture.session.message).toContain('owner rejected undo')
     expect(fixture.target.hasUnconfirmedSave).toBe(false)
     expect(fixture.target.hasEditingChanges('REC-1')).toBe(false)
     expect(fixture.target.dirtyTracking.hasPendingChanges('REC-1')).toBe(false)

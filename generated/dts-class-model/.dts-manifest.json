@@ -9047,8 +9047,8 @@
     "src/views/features/system/data-recovery/ui/data-recovery-session.ts": {
       "sourceFile": "src/views/features/system/data-recovery/ui/data-recovery-session.ts",
       "shardFile": "files/src/views/features/system/data-recovery/ui/data-recovery-session.ts.json",
-      "sourceModifiedAt": "2026-11-28T03:13:15.000Z",
-      "declarationFingerprint": "8bf8b81f52da7d09a438bddc2a55051ac05c72f071e107d5e07ffe26e3c95968"
+      "sourceModifiedAt": "2026-11-28T03:52:34.492Z",
+      "declarationFingerprint": "baf1b612fc912a49e7634502c7f548d293f3bbc5c931eb6a21b3b22e56c965da"
     },
     "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue": {
       "sourceFile": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",

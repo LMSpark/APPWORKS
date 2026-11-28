@@ -114,6 +114,14 @@ AW-07 按「正式操作 × 缺失能力」核对后引用业务验收项。跨�
 
 **第 20 包与平台登录 · 固定版工程结算。** `pnpm run verify`、`pnpm run build:fe` 及两路根全量均退出 0。第一路 391 套 7,318 项，第二路 390 套 5,823 项，合计 781 套 13,141 项，无需单套复跑。最慢约 14 分 15 秒。正式语义报告 9,082 项，忽略声明行号后的条目与上一固定版完全一致。版本恢复及登录等待按本次实验证据结算。实服原回执、独立重开及下游消费仍待验。
 
+**AW-03 · 第 18 包恢复与撤销的空回执。** 以 `fd95d996a` 中的恢复会话、原记录 DataView 和 DataSet 运行两条隔离对照。仅在正式批次收集前撤去对应暂存。恢复及撤销两条均为零实际变更，原登记行和状态不变，会话却分别显示「恢复登记已确认」和「撤销恢复登记已确认」。两例均在确认文案断言失败。首次失效点是共用会话只检查 DataSet 总成功。恢复及撤销成组复用公共单行回执，未决走原批次核验，列表回读单独结算。现有来源主键、所选库表及操作授权继续保留。实服登记前后的业务行及独立重开仍按第 18 包验收。临时探针已移除，产品源码未改。 [原会话](../src/views/features/system/data-recovery/ui/data-recovery-session.ts) [原回归](../tests/runtime/application/data-recovery/data-recovery-page.test.ts)
+
+**AW-03 · 第 18 包恢复和撤销已接入公共回执。** 两条操作使用同一 `DataSet.saveRecord`，批次总成功但零分项时不确认登记。丢回执只接纳本次新批次、原视图及原键，核验调用 `verifySaveJournalAndRead`。各一次实际写入后丢回执的 owner 夹具均核验原捕获一次，写入仍为一次。来源和登记列表只在确认后即时读取，读取失败另报且保留登记确认。撤销的测试字段按数值状态修正，与实际过滤合同一致。类型、定向 ESLint 及数据恢复、应用管理、报表 3 套 86 项通过。正式 ClassModel 重建 1,538 份分片，无有效变化，导引和 52 项验证通过。两份源码与回归已进入 4,491 份输入的固定版，根门禁及两路全量运行中。登记后的业务数据恢复、撤销及冷开仍待实服。 [实际会话](../src/views/features/system/data-recovery/ui/data-recovery-session.ts) [原 owner 回归](../tests/runtime/application/data-recovery/data-recovery-page.test.ts)
+
+**AW-03 · 第 18 包实际配置按钮与独立登记重读。** 在原系统页、真实 SparkPageRenderer 和 Element Plus 表格中选择正式夹具行，点击标准「恢复」。原 owner 写入一次后丢失回执，实际页面未显示登记确认，随后经「核验原保存结果」只核验原捕获一次并显示确认。销毁原页面和 DataSet，重新装配独立 DataSet，从原恢复登记视图读得同一应用、库、表和来源行的登记，重开零写入。初次探针使用全局表格替身，替身未给动作传原行。移除替身后真实挂载用例 1 项通过。探针保留在隔离证据中，未加入固定输入。该证据覆盖登记与界面消费，实际业务行恢复仍待实服。 [配置入口](../src/views/features/system/data-recovery/ui/tool/rule.json) [宿主](../src/views/features/system/data-recovery/ui/data-recovery-page.vue)
+
+**第 18 包 · 恢复登记固定版工程结算。** 根 `verify`、前端生产构建和两路根全量均退出 0，第一路 391 套 7,318 项，第二路 390 套 5,827 项，合计 781 套 13,145 项，最慢约 16 分 37 秒。前端产物包含原登记未生效提示。4,491 份固定输入无变化。另在隔离副本对齐未改源码时间后用正式生成器重建，声明索引仅本会话一条变化，声明指纹、公开分片和报告与固定版全量生成一致，导引及 52 项 ClassModel 复核通过。工作区原有生成差异保留。未操作实服。
+
 <a id="aw03-table-save-consumers-checkout-20261128"></a>
 
 **AW-03 · 单视图保存及原批次核验入库。** 公共表格使用 `DataSet.saveView`，单键删除使用 `saveRecord`。确认为已保存后才读取仍有效的关联视图，读取失败保留保存确认。接口配置和 Excel 使用 `verifySaveJournalAndRead` 核验原批次，Excel 对照保持一次实际写入并保留后来草稿。流程节点授权通过同一工具栏验收。净版 12 套、275 项通过，类型、ESLint、架构、611 个服务端点与 244 个消费者检查通过。复用主仓最近 782 套、13,100 项全量，三处仅 JSDoc 改动的去注释转译字节一致。交付未操作实服。 [共享表格](../src/views/features/shared/table/feature-table-actions.ts) [实际接口回归](../tests/runtime/page/api-provider/api-pages.test.ts) [Excel 回归](../tests/runtime/page/semi-structured/excel-import/transform/ui/pane.test.ts)

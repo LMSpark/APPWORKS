@@ -45,26 +45,12 @@ export async function databaseCatalogFieldBeginCreate(input: Readonly<{fields: D
 }
 
 export function databaseCatalogDesignCanSave(fieldView: DataView, objectView?: DataView, extraViews: readonly DataView[] = []): boolean {
-  if (databaseCatalogStagedViewCanSave(fieldView)) return true
-  if (objectView && databaseCatalogStagedViewCanSave(objectView)) return true
-  return extraViews.some(view => databaseCatalogStagedViewCanSave(view))
-}
-
-async function commit(dataSet: DataSet, view: DataView): Promise<void> {
-  const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId}]})
-  if (!result.success) throw new Error(result.message ?? '字段保存失败')
-  await view.refresh()
-  if (view.loadingError) throw view.loadingError
+  return [fieldView, objectView, ...extraViews].some(view =>
+    view && !view.mutating && (view.hasUnconfirmedSave || databaseCatalogStagedViewCanSave(view)))
 }
 
 export async function databaseCatalogFieldSavePending(dataSet: DataSet, view: DataView): Promise<void> {
-  if (view.mutating) throw new Error('字段保存进行中')
-  if (view.hasUnconfirmedSave) {
-    await commit(dataSet, view)
-    return
-  }
-  if (!databaseCatalogFieldCanSave(view)) return
-  await commit(dataSet, view)
+  await databaseCatalogDesignSavePending({dataSet, fieldView: view})
 }
 
 export type DatabaseCatalogDesignSavePendingInput = Readonly<{
@@ -75,28 +61,39 @@ export type DatabaseCatalogDesignSavePendingInput = Readonly<{
 }>
 
 export async function databaseCatalogDesignSavePending(input: DatabaseCatalogDesignSavePendingInput): Promise<void> {
-  const {dataSet, fieldView, objectView} = input
-  const extraViews = input.extraViews ?? []
-  const stagedExtras = extraViews.filter(view => databaseCatalogStagedViewCanSave(view))
-  if (fieldView.mutating || objectView?.mutating || stagedExtras.some(view => view.mutating)) throw new Error('设计保存进行中')
-  if (fieldView.hasUnconfirmedSave || objectView?.hasUnconfirmedSave || extraViews.some(view => view.hasUnconfirmedSave)) {
-    if (fieldView.hasUnconfirmedSave) await commit(dataSet, fieldView)
-    if (objectView?.hasUnconfirmedSave) await commit(dataSet, objectView)
-    for (const view of extraViews) {
-      if (view.hasUnconfirmedSave) await commit(dataSet, view)
+  const {dataSet, fieldView, objectView, extraViews = []} = input
+  const views = [fieldView, ...(objectView ? [objectView] : []), ...extraViews]
+  if (views.some(view => view.mutating)) throw new Error('设计保存进行中')
+  const receiptViews = views.filter(view => view.hasUnconfirmedSave)
+  if (receiptViews.length > 0) {
+    const {batchId} = dataSet.saveJournal
+    if (!batchId) throw new Error('缺少原设计保存批次')
+    const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews, readbackViews: []})
+    if (result.settlement === 'partial') throw new Error('部分设计修改已确认，其他修改未应用')
+    if (result.settlement !== 'confirmed') {
+      throw result.verificationError ?? result.journal.originalError ?? new Error('原设计保存未完整确认')
     }
     return
   }
-  const targets = [
-    ...(databaseCatalogStagedViewCanSave(fieldView) ? [fieldView] : []),
-    ...(objectView && databaseCatalogStagedViewCanSave(objectView) ? [objectView] : []),
-    ...stagedExtras,
-  ]
+  const targets = views.filter(databaseCatalogStagedViewCanSave)
   if (targets.length === 0) return
   const result = await dataSet.saveChanges({views: targets.map(view => ({tableName: view.tableName, viewId: view.viewId}))})
-  if (!result.success) throw new Error(result.message ?? '设计保存失败')
+  const receipt = result.data
+  if (!receipt) throw result.error ?? new Error(result.message ?? '缺少设计保存回执')
+  const confirmed = receipt.createdCount + receipt.savedCount + receipt.deletedCount
+  const complete = result.success && !receipt.failedCount && !receipt.failedEditingRows && targets.every(view =>
+    receipt.viewResults.some(item => item.tableName === view.tableName && item.viewId === view.viewId
+      && item.createdCount + item.savedCount + item.deletedCount > 0 && !item.failedCount && !item.failedEditingRows))
+  if (!complete) {
+    if (confirmed > 0) throw new Error('部分设计修改已确认，其余视图未取得完整回执')
+    if (result.success && !receipt.failedCount && !receipt.failedEditingRows) throw new Error('本次未提交设计修改')
+    throw result.error ?? new Error(result.message ?? '设计保存失败')
+  }
+  if (receipt.followUpError) throw new Error(`设计修改已确认，后续处理失败：${receipt.followUpError.message}`, {cause: receipt.followUpError})
   for (const view of targets) {
-    await view.refresh()
-    if (view.loadingError) throw view.loadingError
+    const readback = await view.requestRefresh({defer: false})
+    if (readback.refreshStatus !== 'read') {
+      throw new Error(`设计修改已确认，目录回读失败：${readback.error?.message ?? readback.message ?? '未完成本次读取'}`, {cause: readback.error})
+    }
   }
 }

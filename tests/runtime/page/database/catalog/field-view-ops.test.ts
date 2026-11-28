@@ -10,6 +10,7 @@ import {
   LowcodeDatabaseTableView,
 } from '@/platform-adapters/resources/database/catalog/table-view'
 import {
+  databaseCatalogDesignCanSave,
   databaseCatalogDesignSavePending,
   databaseCatalogFieldSavePending,
   databaseCatalogFieldBeginCreate,
@@ -36,6 +37,84 @@ beforeEach(() => {
 })
 
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
+
+describe.each([
+  {model: DATABASE_CATALOG_TABLE_MODEL, objectId: 'T1', property: 'tbldesc', fieldId: 'F1', fieldViewId: DATABASE_CATALOG_FIELD_TABLE_VIEW},
+  {model: DATABASE_CATALOG_VIEW_MODEL, objectId: 'V1', property: 'vewdesc', fieldId: 'F3', fieldViewId: DATABASE_CATALOG_FIELD_VIEW_VIEW},
+] as const)('database design save receipts for $model', ({model, objectId, property, fieldId, fieldViewId}) => {
+  async function stageDesign() {
+    const dataSet = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(dataSet)
+    const database = dataSet.getView('_base_dbInfo')!
+    database.setSelectedRows([database.rows[0]!])
+    const objectView = dataSet.getView(model)!
+    await objectView.refresh()
+    objectView.setSelectedRows([objectView.rows.find(row => objectView.getPkKey(row) === objectId)!])
+    const fieldView = requireDatabaseCatalogFieldView(dataSet, fieldViewId)
+    await fieldView.refresh()
+    objectView.updateEditingValue(objectId, property, '设计说明')
+    fieldView.updateEditingValue(fieldId, 'cnname', '设计字段')
+    return {dataSet, objectView, fieldView}
+  }
+  const writes = () => http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+  const storedHeader = () => http.rows[model]!.find(row => row['rowid'] === objectId)?.[property]
+  const storedField = () => http.rows[DATABASE_CATALOG_FIELD_MODEL]!.find(row => row['rowid'] === fieldId)?.['cnname']
+
+  it.each([false, true])('requires an actual receipt for every staged view (partial=%s)', async partial => {
+    const input = await stageDesign()
+    const save = input.dataSet.saveChanges.bind(input.dataSet)
+    vi.spyOn(input.dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      input.objectView.discardPendingChanges([objectId])
+      if (!partial) input.fieldView.discardPendingChanges([fieldId])
+      return save(options)
+    })
+    const outcome = await databaseCatalogDesignSavePending(input).catch((cause: unknown) => cause)
+    expect(writes()).toHaveLength(partial ? 1 : 0)
+    expect(storedHeader()).not.toBe('设计说明')
+    if (partial) expect(storedField()).toBe('设计字段')
+    else expect(storedField()).not.toBe('设计字段')
+    expect(outcome).toMatchObject({
+      message: expect.stringContaining(partial ? '部分设计修改已确认' : '本次未提交设计修改'),
+    })
+  })
+
+  it('keeps a confirmed batch distinct from its directory read failure', async () => {
+    const input = await stageDesign()
+    const save = input.dataSet.saveChanges.bind(input.dataSet)
+    vi.spyOn(input.dataSet, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await save(options)
+      http.failNextCatalogRead = true
+      return result
+    })
+    const outcome = await databaseCatalogDesignSavePending(input).catch((cause: unknown) => cause)
+    expect(writes()).toHaveLength(1)
+    expect(storedHeader()).toBe('设计说明')
+    expect(storedField()).toBe('设计字段')
+    expect(outcome).toMatchObject({message: expect.stringContaining('设计修改已确认，目录回读失败')})
+  })
+
+  it('verifies the original multi-view batch and keeps later edits pending', async () => {
+    const input = await stageDesign()
+    http.copySaveLostAck = true
+    await expect(databaseCatalogDesignSavePending(input)).rejects.toThrow()
+    expect(writes()).toHaveLength(1)
+    expect(storedHeader()).toBe('设计说明')
+    expect(storedField()).toBe('设计字段')
+    const batchId = input.dataSet.saveJournal.batchId
+    expect(batchId).toBeTruthy()
+    expect(input.fieldView.hasUnconfirmedSave).toBe(true)
+    expect(databaseCatalogDesignCanSave(input.fieldView, input.objectView)).toBe(true)
+    input.fieldView.updateEditingValue(fieldId, 'cnname', '后来修改')
+    const save = vi.spyOn(input.dataSet, 'saveChanges')
+    const outcome = await databaseCatalogDesignSavePending(input).catch((cause: unknown) => cause)
+    expect(save).not.toHaveBeenCalled()
+    expect(outcome).toBeUndefined()
+    expect(input.dataSet.saveJournal.batchId).toBe(batchId)
+    expect(input.fieldView.getEditingRow(fieldId)?.['cnname']).toBe('后来修改')
+    expect(writes()).toHaveLength(1)
+    expect(databaseCatalogDesignCanSave(input.fieldView, input.objectView)).toBe(true)
+  })
+})
 
 describe('database/catalog/table/field-view-ops', () => {
   it('prepares a field under the selected formal table and cancels without a write', async () => {

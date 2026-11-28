@@ -201,6 +201,12 @@ AW-07 按「正式操作 × 缺失能力」核对后引用业务验收项。跨�
 
 **AW-03 · 数据库目录的表、视图和关系删除，工程已验待实服。** 三条生产入口共用 `databaseCatalogDeleteRow`。同一组九项隔离对照中，改前零派发与已确认后目录读取失败各三项失败。原目标分别为表 `T1`、视图 `V1` 和关系 `RL1`。三个丢回执对照保留原 DataSet 批次，核验不产生第二次写入。共同操作改用 `DataSet.saveRecord` 核实际单行删除分项，再用即时 `requestRefresh` 的本次读取状态报告后置目录故障。业务页面仍调用原入口。改前类型、目标 ESLint、数据库目录和实际页面 12 套、328 项及根 `pnpm run verify` 通过。分段全仓两路均退出 0，原生设计 393 项，其余 781 套、12,841 项，共 782 套、13,234 项。两份本批工程文件指纹前后一致。证据在 `artifacts/aw03-database-catalog-delete`。本地改动待收口，正式授权、实际回执和独立重开按原业务键验收，实服写入待另行批准。 [原保存方案](plan-spark-data-save-batch-recovery.md) [共同删除入口](../src/platform-adapters/resources/database/catalog/object-view-ops.ts) [回归矩阵](../tests/runtime/page/database/catalog/table-view-ops.test.ts)
 
+**AW-03 · 数据库目录表、视图和关系删除已推送。** 本地 `4e64fa77d`，远端独立四文件提交 `592035946`。已回读 `origin/main`，两份工程文件与获验批次一致。AW-05 继续待发布。
+
+<a id="aw03-database-design-save-receipts"></a>
+
+**AW-03 · 表设计和视图设计的联合保存，工程已验待实服。** 两条生产入口共用数据库字段设计提交函数。正式 DataView 隔离矩阵在两条入口各复现四项失败：全组零派发、撤去头记录仅字段成功、目录后置读取丢失已确认信息、丢回执后一视图重新进入普通保存。共用编排现逐原视图核实际回执，保留零派发、部分确认及后续失败。未知只调用同一原批次的 `verifySaveJournalAndRead`，保留后来草稿。两个实际页面沿原保存入口核验，各自累计只写一次。改前类型、目标 ESLint、矩阵与页面定向 10 项、数据库目录 12 套 338 项和根 `pnpm run verify` 均通过。分段全仓两路退出 0，原生设计 393 项，其余 781 套、12,851 项，共 782 套、13,244 项。三份本批工程文件指纹前后一致。证据在 `artifacts/aw03-database-design-save-receipts`。本地改动待收口，正式表或视图键、原保存回执和独立重开仍按对应服务合同验收，实服写入另行批准。 [原保存方案](plan-spark-data-save-batch-recovery.md) [共用入口](../src/platform-adapters/resources/database/catalog/table/field-view-ops.ts) [回归矩阵](../tests/runtime/page/database/catalog/field-view-ops.test.ts)
+
 <a id="aw03-file-resource-registration-20261128"></a>
 
 **AW-03 · 第 04 包文件资源注册。** 沿实际新增入口注册 `AgentWorkflowFiles`。改前四组分别在绑定或命名视图回读故障时丢失确认，或在缺回执及部分回执时仍进入后置回读。独立净版又复现注册期间另一份命名视图草稿使旧入口写入零次。修订逐行捕获本次新增键，一次 DataSet 提交仅携带这些键。收到完整新增分项后才即时读取，核对资源、列及命名视图身份，保留回执已确认与后置失败两项事实。回归证明旁支 `OrdersAlias@laterNamed` 保留在本实例且未入持久定义，新会话能读到 `AgentWorkflowFiles@definition`。净版和主仓受影响入口各 10 项通过，包含原未知不重发。 [文件资源注册](../src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue#L805) [实际挂载](../tests/runtime/page/design/native/data-space-design-page.test.ts#L8100)

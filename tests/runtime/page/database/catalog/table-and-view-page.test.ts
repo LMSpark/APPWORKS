@@ -1247,6 +1247,30 @@ describe('table-and-view-page', () => {
     expect((cnInput.element as HTMLInputElement).value).toBe('合计列')
   })
 
+  it.each(['table', 'view'] as const)('uses the same design entry to check a lost %s save receipt', async kind => {
+    const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    const designDialog = kind === 'table'
+      ? await openTableDesignOnTable(wrapper, 'Orders')
+      : await openViewDesignOnView(wrapper, 'OrderView')
+    if (kind === 'view') {
+      const outputTab = wrapper.findAll('.el-tabs__item').find(item => item.text() === '输出模型')
+      await outputTab!.trigger('click')
+      await flushPromises()
+    }
+    await setDesignFieldCnname(designDialog, kind === 'table' ? 'Name' : 'Total', '订单统计字段')
+    http.copySaveLostAck = true
+    await designSaveButton(wrapper, designDialog).trigger('click')
+    const writes = () => http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+    await vi.waitFor(() => {
+      expect(writes()).toHaveLength(1)
+      expect(wrapper.text()).toContain('回执中断')
+      expect(designSaveButton(wrapper, designDialog)).toBeTruthy()
+    })
+    await designSaveButton(wrapper, designDialog).trigger('click')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('已保存'))
+    expect(writes()).toHaveLength(1)
+  })
+
   it('disables workflow design without a selected workflow', async () => {
     const wrapper = await open(DATABASE_TABLE_VIEW_SCENARIO_ID)
     const designDialog = await openTableDesignOnTable(wrapper, 'Orders')

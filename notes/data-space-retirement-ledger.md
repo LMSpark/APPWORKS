@@ -195,6 +195,12 @@ AW-07 按「正式操作 × 缺失能力」核对后引用业务验收项。跨�
 
 **AW-03 · 工具目录清理与创建补偿，工程已验待实服。** 两个正式入口共用原文件 owner。保存收集前撤去首个删除草稿后，旧目录清理仍删除后续 1 份文件，旧补偿仍删除后续 2 份，两个对照均失败。现由同一文件删除函数检查已暂存的原键及 SPARK Data 的单文件删除分项，确认前保留原目标和后续文件，补偿命令也保留未确认目标。首个候选使用 `saveRecord`，旧文件恢复的选择器与已准备批次不一致，明确未应用日志也过早释放。最终沿原精确选择器保留日志和续办合同，在共用文件函数校验分项。改前类型、改后目标 ESLint、三套相关回归 181 项和根 `pnpm run verify` 均通过。分段全仓两路退出 0，原生设计 393 项，其余 781 套、12,832 项，共 782 套、13,225 项。两份本批工程输入的指纹一致。正式工具及文件键、原删除结果、跨工作区的条件删除和共享引用仍按服务合同验收，实服写入另行批准。日志在 `artifacts/aw03-tool-file-delete-receipt`，本地改动待收口。 [工具文件操作](../src/services/project/page-tool-file-operations.ts) [真实文件 owner 回归](../tests/app/dev/page-tool-file-operations.test.ts)
 
+**AW-03 · 工具文件删除及创建补偿已推送。** 本地 `d628e4f2e`，远端独立四文件提交 `aab56a4d6`。已回读 `origin/main`，两份工程文件与获验批次一致。AW-05 继续待发布。
+
+<a id="aw03-database-catalog-delete-receipts"></a>
+
+**AW-03 · 数据库目录的表、视图和关系删除，工程已验待实服。** 三条生产入口共用 `databaseCatalogDeleteRow`。同一组九项隔离对照中，改前零派发与已确认后目录读取失败各三项失败。原目标分别为表 `T1`、视图 `V1` 和关系 `RL1`。三个丢回执对照保留原 DataSet 批次，核验不产生第二次写入。共同操作改用 `DataSet.saveRecord` 核实际单行删除分项，再用即时 `requestRefresh` 的本次读取状态报告后置目录故障。业务页面仍调用原入口。改前类型、目标 ESLint、数据库目录和实际页面 12 套、328 项及根 `pnpm run verify` 通过。分段全仓两路均退出 0，原生设计 393 项，其余 781 套、12,841 项，共 782 套、13,234 项。两份本批工程文件指纹前后一致。证据在 `artifacts/aw03-database-catalog-delete`。本地改动待收口，正式授权、实际回执和独立重开按原业务键验收，实服写入待另行批准。 [原保存方案](plan-spark-data-save-batch-recovery.md) [共同删除入口](../src/platform-adapters/resources/database/catalog/object-view-ops.ts) [回归矩阵](../tests/runtime/page/database/catalog/table-view-ops.test.ts)
+
 <a id="aw03-file-resource-registration-20261128"></a>
 
 **AW-03 · 第 04 包文件资源注册。** 沿实际新增入口注册 `AgentWorkflowFiles`。改前四组分别在绑定或命名视图回读故障时丢失确认，或在缺回执及部分回执时仍进入后置回读。独立净版又复现注册期间另一份命名视图草稿使旧入口写入零次。修订逐行捕获本次新增键，一次 DataSet 提交仅携带这些键。收到完整新增分项后才即时读取，核对资源、列及命名视图身份，保留回执已确认与后置失败两项事实。回归证明旁支 `OrdersAlias@laterNamed` 保留在本实例且未入持久定义，新会话能读到 `AgentWorkflowFiles@definition`。净版和主仓受影响入口各 10 项通过，包含原未知不重发。 [文件资源注册](../src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue#L805) [实际挂载](../tests/runtime/page/design/native/data-space-design-page.test.ts#L8100)

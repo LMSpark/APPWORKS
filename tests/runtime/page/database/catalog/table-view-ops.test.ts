@@ -30,6 +30,7 @@ import {
   databaseCatalogCanDeleteRow,
   databaseCatalogDeleteRow,
 } from '@/platform-adapters/resources/database/catalog/object-view-ops'
+import {databaseCatalogRelationRefreshForTable} from '@/platform-adapters/resources/database/catalog/relation/view-ops'
 import {
   databaseCatalogBeginTableCopy,
   databaseCatalogCancelTableCopy,
@@ -42,6 +43,8 @@ import {
   DATABASE_CATALOG_FIELD_TABLE_VIEW,
   DATABASE_CATALOG_TABLE_MODEL,
   DATABASE_CATALOG_VIEW_MODEL,
+  DATABASE_CATALOG_RELATION_MODEL,
+  DATABASE_CATALOG_RELATION_TABLE_VIEW,
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
   DATABASE_CATALOG_COPY_INPUT_VIEW,
   DATABASE_VIEW_REGISTER_TABLE,
@@ -70,6 +73,69 @@ beforeEach(() => {
 })
 
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
+
+describe.each([
+  {tableName: DATABASE_CATALOG_TABLE_MODEL, viewId: 'default', id: 'T1'},
+  {tableName: DATABASE_CATALOG_VIEW_MODEL, viewId: 'default', id: 'V1'},
+  {tableName: DATABASE_CATALOG_RELATION_MODEL, viewId: DATABASE_CATALOG_RELATION_TABLE_VIEW, id: 'RL1'},
+])('database directory deletion receipt for $tableName', ({tableName, viewId, id}) => {
+  async function openTarget() {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const view = ds.getView(tableName, viewId)
+    if (!view) throw new Error('Missing database catalog view')
+    const database = requireDatabaseCatalogDbViewForTable(ds)
+    database.setSelectedRows([database.rows[0]!])
+    if (tableName === DATABASE_CATALOG_RELATION_MODEL) await databaseCatalogRelationRefreshForTable(view, 'T1')
+    else await view.refresh()
+    expect(databaseCatalogCanDeleteRow(view, id)).toBe(true)
+    return {ds, view}
+  }
+  const writes = () => http.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+  const targetExists = () => http.rows[tableName]!.some(row => row['rowid'] === id)
+
+  it('does not confirm deletion when no change reached the owner', async () => {
+    const {ds, view} = await openTarget()
+    const save = ds.saveChanges.bind(ds)
+    vi.spyOn(ds, 'saveChanges').mockImplementationOnce(async options => {
+      view.discardPendingChanges([id])
+      return save(options)
+    })
+    const outcome = await databaseCatalogDeleteRow(ds, view, id).catch((cause: unknown) => cause)
+    expect(writes()).toHaveLength(0)
+    expect(targetExists()).toBe(true)
+    expect(outcome).toEqual(new Error('原记录没有已确认的保存回执'))
+  })
+
+  it('keeps the confirmed deletion distinct from directory read failure', async () => {
+    const {ds, view} = await openTarget()
+    const save = ds.saveChanges.bind(ds)
+    vi.spyOn(ds, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await save(options)
+      http.failNextCatalogRead = true
+      return result
+    })
+    const outcome = await databaseCatalogDeleteRow(ds, view, id).catch((cause: unknown) => cause)
+    expect(writes()).toHaveLength(1)
+    expect(targetExists()).toBe(false)
+    expect(outcome).toMatchObject({message: expect.stringContaining('删除已确认，目录回读失败')})
+  })
+
+  it('verifies a lost deletion receipt through the original batch without writing again', async () => {
+    const {ds, view} = await openTarget()
+    http.copySaveLostAck = true
+    await expect(databaseCatalogDeleteRow(ds, view, id)).rejects.toThrow()
+    expect(writes()).toHaveLength(1)
+    expect(targetExists()).toBe(false)
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(databaseCatalogCanDeleteRow(view, id)).toBe(false)
+    const {batchId} = ds.saveJournal
+    if (!batchId) throw new Error('Missing original deletion batch')
+    const result = await ds.verifySaveJournalAndRead({batchId, receiptViews: [view], readbackViews: []})
+    expect(result.settlement).toBe('confirmed')
+    expect(writes()).toHaveLength(1)
+  })
+})
 
 async function prepareTableCopy(dataSet: DataSet, name: string): Promise<Readonly<{
   input: ReturnType<DataSet['getView']>

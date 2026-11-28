@@ -20,11 +20,14 @@ export async function databaseCatalogDeleteRow(dataSet: DataSet, view: DataView,
   const target = row(view, id)
   if (!target) throw new Error('删除目标已变化')
   await view.removeRow(id)
-  const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
-  if (!result.success) {
+  if (!view.dirtyTracking.isPendingDelete(id)) throw new Error('原记录未暂存删除')
+  const receipt = await dataSet.saveRecord(view, id).catch((cause: unknown) => {
     if (!view.hasUnconfirmedSave) view.discardPendingChanges([id])
-    throw new Error(result.message ?? '删除失败')
+    throw cause
+  })
+  if (receipt.followUpError) throw new Error(`删除已确认，后续处理失败：${receipt.followUpError.message}`, {cause: receipt.followUpError})
+  const readback = await view.requestRefresh({defer: false})
+  if (readback.refreshStatus !== 'read') {
+    throw new Error(`删除已确认，目录回读失败：${readback.error?.message ?? readback.message ?? '未完成本次读取'}`, {cause: readback.error})
   }
-  await view.refresh()
-  if (view.loadingError) throw view.loadingError
 }

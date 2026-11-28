@@ -1276,3 +1276,32 @@ describe('D99 working Plan navigation admission uses formal node and current aut
     await rejected
   })
 })
+
+it('reads changed working tool and scenario bytes even when lastModified repeats', async () => {
+  const app = 'APP-WORKING-BODY'
+  saveExecutionScope(app)
+  let script = '// first script'
+  let scenario = '{"revision":"first"}'
+  const readTime = vi.spyOn(lowcodeApi.design, 'readFileLastModified').mockResolvedValue('2026-11-28 08:00:00 123')
+  const readText = vi.spyOn(lowcodeApi.design, 'readTextFile').mockImplementation(async locator =>
+    locator.fileName === 'script.js' ? script : scenario)
+  const readSnapshot = vi.spyOn(lowcodeApi.design, 'readFileBytes').mockResolvedValue(new TextEncoder().encode('// published original'))
+  const first = createPageToolFilesIo(app)
+  await expect(first.read(app, 'PAGE', 'script.js')).resolves.toBe(script)
+  await expect(createLowcodeProjectGateways(app).scenarioViews.readText('DYNAMIC-FORM')).resolves.toBe(scenario)
+
+  script = '// second script'
+  scenario = '{"revision":"second"}'
+  const reopened = createPageToolFilesIo(app)
+  const reopenedScript = await reopened.read(app, 'PAGE', 'script.js')
+  const reopenedScenario = await createLowcodeProjectGateways(app).scenarioViews.readText('DYNAMIC-FORM')
+  expect([reopenedScript, reopenedScenario]).toEqual([script, scenario])
+  expect(readText).toHaveBeenCalledTimes(4)
+  expect(readTime).not.toHaveBeenCalled()
+
+  const locator = {appId: app, customPath: `${app}/PAGE`, fileName: 'script.js', version: 2}
+  await expect(first.readVersion(locator)).resolves.toBe('// published original')
+  await expect(reopened.readVersion(locator)).resolves.toBe('// published original')
+  expect(readSnapshot).toHaveBeenCalledTimes(2)
+  expect(readSnapshot).toHaveBeenCalledWith({appType:'designfile',customPath:`${app}/PAGE`,fileName:'2__script.js'})
+})

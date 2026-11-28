@@ -253,9 +253,7 @@ describe('host scenario file request wiring', () => {
     transport.request.mockImplementation(async (config: RequestConfig) => {
       requests.push(config)
       let data: unknown = { Code: 200, Result: text }
-      if (config.url === '/api/File/lastModifiedTime') {
-        data={Code:200,Result:'2026-11-19 15:00:00 000'}
-      } else if (config.url === '/api/File/v2/UploadFile') {
+      if (config.url === '/api/File/v2/UploadFile') {
         if (!(config.data instanceof FormData)) throw new Error('expected multipart')
         const file = config.data.get('file')
         if (!(file instanceof Blob)) throw new Error('expected file')
@@ -274,8 +272,8 @@ describe('host scenario file request wiring', () => {
     await workspace.saveScenarioViews({ scenarioId })
     expect(file.isDirty).toBe(false)
     expect(requests.map(config => config.url)).toEqual([
-      '/api/File/lastModifiedTime', '/api/File/content/text', '/api/File/lastModifiedTime',
-      '/api/File/v2/UploadFile', '/api/File/DownFile', '/api/File/lastModifiedTime', '/api/File/content/text',
+      '/api/File/content/text', '/api/File/content/text',
+      '/api/File/v2/UploadFile', '/api/File/DownFile', '/api/File/content/text',
     ])
     for (const config of requests) {
       expect(config.headers).toMatchObject({ 'X-AppId': 'APP-1', 'tenant-id': 'fixture-tenant', Authorization: 'Bearer fixture-access' })

@@ -414,10 +414,8 @@ describe('ProjectToolFile saves through the host transport', () => {
     const response = (data: unknown): HttpResponse<unknown> => ({ data, status: 200, statusText: 'OK', headers: {} })
     transport.mockImplementation(async ({ url }) => {
       switch (url) {
-        case '/api/File/lastModifiedTime':
-          if (saving && stage === 'before-dispatch') lowcodeApi.session.save({ ...session, accessExpiresAt: 0 })
-          return response({ Code: 200, Result: uploads === 0 ? '2026-11-25 09:00:00 000' : '2026-11-25 09:00:01 000' })
         case '/api/File/content/text':
+          if (saving && stage === 'before-dispatch') lowcodeApi.session.save({ ...session, accessExpiresAt: 0 })
           return response({ Code: 200, Result: fileText })
         case '/api/LoginAuthority/refresh':
           return response({ Code: 503, Message: 'fixture renewal unavailable', Result: null })
@@ -449,7 +447,7 @@ describe('ProjectToolFile saves through the host transport', () => {
         : 'fixture upload acknowledgment lost')
 
       if (stage === 'before-dispatch') {
-        expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/api/File/lastModifiedTime', '/api/LoginAuthority/refresh'])
+        expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/api/File/content/text', '/api/LoginAuthority/refresh'])
         expect(uploads).toBe(0)
         expect(dataSet.saveJournal.views).toMatchObject([{ state: 'not-applied', ids: [id] }])
         expect(view.hasUnconfirmedSave).toBe(false)
@@ -458,7 +456,7 @@ describe('ProjectToolFile saves through the host transport', () => {
         view.discardPendingChanges([id])
         expect(view.rows[0]?.['text']).toBe('baseline')
       } else {
-        expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/api/File/lastModifiedTime', '/api/File/v2/UploadFile'])
+        expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/api/File/content/text', '/api/File/v2/UploadFile'])
         expect(view.hasUnconfirmedSave).toBe(true)
         expect(dataSet.saveJournal.views).toMatchObject([{ state: 'unknown', ids: [id] }])
         expect(await dataSet.verifySaveJournal()).toMatchObject({ completed: true, views: [{ state: 'applied', ids: [id] }] })

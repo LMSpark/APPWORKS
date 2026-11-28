@@ -9005,7 +9005,7 @@
     "src/views/features/shared/runtime/use-feature-page-runtime.ts": {
       "sourceFile": "src/views/features/shared/runtime/use-feature-page-runtime.ts",
       "shardFile": "files/src/views/features/shared/runtime/use-feature-page-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-28T03:13:15.000Z",
+      "sourceModifiedAt": "2026-11-28T06:12:05.981Z",
       "declarationFingerprint": "373ade5116a7479d31291e4f81f83b8bde656ab0a9c8674a22689070728d4c4b"
     },
     "src/views/features/shared/table/feature-table-actions.ts": {

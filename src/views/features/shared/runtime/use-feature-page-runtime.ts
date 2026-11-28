@@ -147,9 +147,10 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
         return option
       })]
       if (context) for (const item of views) item.queryContext = {...item.queryContext, ...context}
-      await Promise.all(views.map(item => item.refresh()))
-      if (!isCurrent(current, own)) return
+      const reads = Promise.all(views.map(item => item.refresh()))
       if (!options.independentInitialReads) {
+        await reads
+        if (!isCurrent(current, own)) return
         const failed = views.find(item => item.loadingError)
         if (failed?.loadingError) throw failed.loadingError
         const incomplete = views.find(item => item.requestState !== RequestState.Loaded)
@@ -157,8 +158,15 @@ export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
       }
       sparkProvide(PAGE_RUNTIME, current)
       ready.value = true
+      if (options.independentInitialReads) {
+        loading.value = false
+        await reads
+      }
     } catch (cause) {
-      if (current && isCurrent(current, own)) session.dispose()
+      if (current && isCurrent(current, own)) {
+        ready.value = false
+        session.dispose()
+      }
       if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)
     } finally {
       if (active && own === generation) loading.value = false

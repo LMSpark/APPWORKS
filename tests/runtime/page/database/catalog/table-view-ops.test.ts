@@ -17,7 +17,6 @@ import {
   databaseCatalogSyncTableMetadata,
 } from '@/platform-adapters/resources/database/catalog/table/sync-view-ops'
 import {requireDatabaseCatalogFieldView} from '@/platform-adapters/resources/database/catalog/table/field-view-ops'
-import {requireDatabaseTableRegisterView} from '@/platform-adapters/resources/database/catalog/table/register-view-ops'
 import {
   databaseCatalogRegisterTables,
   databaseCatalogRegisterViews,
@@ -25,6 +24,8 @@ import {
   databaseCatalogVerifyViewRegistration,
   databaseCatalogBeginRegistrationBatch,
   databaseCatalogDiscardPendingRegistration,
+  requireDatabaseTableRegisterView,
+  requireDatabaseViewRegisterView,
 } from '@/platform-adapters/resources/database/catalog/table/register-view-ops'
 import {
   databaseCatalogCanDeleteRow,
@@ -73,6 +74,74 @@ beforeEach(() => {
 })
 
 afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.clearAllMocks()})
+
+describe.each(['table', 'view'] as const)('physical %s registration receipt', kind => {
+  async function openRegistration() {
+    const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
+    sets.push(ds)
+    const database = requireDatabaseCatalogDbViewForTable(ds)
+    database.setSelectedRows([database.rows[0]!])
+    const table = kind === 'table'
+    const command = table ? requireDatabaseTableRegisterView(ds) : requireDatabaseViewRegisterView(ds)
+    const register = (names: readonly string[]) => table
+      ? databaseCatalogRegisterTables(ds, 'DB1', names.map(tableName => ({tableName, tableComment: '', addDefaultFields: false})))
+      : databaseCatalogRegisterViews(ds, 'DB1', names.map(viewName => ({viewName, viewComment: ''})))
+    const verify = () => table ? databaseCatalogVerifyTableRegistration(ds) : databaseCatalogVerifyViewRegistration(ds)
+    const posts = () => http.requests.filter(request => request.url === (table ? '/api/Table/registerTable/DB1' : '/api/View/registerView/DB1'))
+    const exists = (name: string) => http.rows[table ? DATABASE_CATALOG_TABLE_MODEL : DATABASE_CATALOG_VIEW_MODEL]!
+      .some(row => row[table ? 'tblname' : 'vewname'] === name)
+    return {ds, command, register, verify, posts, exists}
+  }
+
+  it.each([false, true])('requires a receipt before completing each registration (partial=%s)', async partial => {
+    const {ds, command, register, posts, exists} = await openRegistration()
+    const save = ds.saveChanges.bind(ds), intercept = vi.spyOn(ds, 'saveChanges')
+    if (partial) intercept.mockImplementationOnce(save)
+    intercept.mockImplementationOnce(async options => {
+      const id = options?.views?.[0]?.ids?.[0]
+      if (id === undefined) throw new Error('Missing original registration key')
+      command.discardPendingChanges([id])
+      return save(options)
+    })
+    const outcome = await register(partial ? ['FirstRegistration', 'MissingReceipt'] : ['MissingReceipt']).catch((cause: unknown) => cause)
+    expect(posts()).toHaveLength(partial ? 1 : 0)
+    expect(exists('FirstRegistration')).toBe(partial)
+    expect(exists('MissingReceipt')).toBe(false)
+    expect(outcome).toMatchObject({message: expect.stringContaining(partial ? '已确认注册 1 项' : '本次注册未取得原命令回执')})
+  })
+
+  it('keeps a confirmed registration distinct from the later directory read failure', async () => {
+    const {ds, register, posts, exists} = await openRegistration()
+    const save = ds.saveChanges.bind(ds)
+    vi.spyOn(ds, 'saveChanges').mockImplementationOnce(async options => {
+      const result = await save(options)
+      http.failNextCatalogRead = true
+      return result
+    })
+    const outcome = await register(['ConfirmedBeforeReadFailure']).catch((cause: unknown) => cause)
+    expect(posts()).toHaveLength(1)
+    expect(exists('ConfirmedBeforeReadFailure')).toBe(true)
+    expect(outcome).toMatchObject({message: expect.stringContaining('注册已确认，目录回读失败')})
+    await register(['ConfirmedBeforeReadFailure'])
+    expect(posts()).toHaveLength(1)
+  })
+
+  it('verifies the original registration batch without entering ordinary save', async () => {
+    const {ds, command, register, verify, posts, exists} = await openRegistration()
+    const lostAck = kind === 'table' ? http.applyThenFailRegisterTableNames : http.applyThenFailRegisterViewNames
+    lostAck.add('LostRegistrationReceipt')
+    await expect(register(['LostRegistrationReceipt'])).rejects.toThrow()
+    expect(command.hasUnconfirmedSave).toBe(true)
+    expect(exists('LostRegistrationReceipt')).toBe(true)
+    const {batchId} = ds.saveJournal
+    const save = vi.spyOn(ds, 'saveChanges')
+    await verify()
+    expect(save).not.toHaveBeenCalled()
+    expect(ds.saveJournal.batchId).toBe(batchId)
+    expect(command.hasUnconfirmedSave).toBe(false)
+    expect(posts()).toHaveLength(1)
+  })
+})
 
 describe.each([
   {tableName: DATABASE_CATALOG_TABLE_MODEL, viewId: 'default', id: 'T1'},

@@ -41,14 +41,27 @@ function requireCommandInputView(dataSet: DataSet): DataView {
   return view
 }
 
-async function commitCommand(dataSet: DataSet, view: DataView, id?: string): Promise<void> {
-  const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ...(id ? {ids: [id]} : {})}]})
-  if (!result.success) throw new Error(result.message ?? '注册命令提交失败')
+async function commitCommand(dataSet: DataSet, view: DataView, id: string): Promise<void> {
+  const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
+  if (!result.success) throw result.error ?? new Error(result.message ?? '注册命令提交失败')
+  const receipt = result.data
+  const item = receipt?.viewResults[0]
+  if (receipt?.viewResults.length !== 1 || item?.tableName !== view.tableName || item.viewId !== view.viewId
+    || item.createdCount !== 1 || item.savedCount !== 0 || item.deletedCount !== 0
+    || item.failedCount !== 0 || item.failedEditingRows !== 0) {
+    throw new Error('本次注册未取得原命令回执')
+  }
+  if (receipt.followUpError) throw new Error(`注册已确认，后续处理失败：${receipt.followUpError.message}`, {cause: receipt.followUpError})
 }
 
 async function verifyUnknownCommand(dataSet: DataSet, view: DataView): Promise<void> {
   if (!view.hasUnconfirmedSave) throw new Error('没有待核验的注册命令')
-  await commitCommand(dataSet, view)
+  const {batchId} = dataSet.saveJournal
+  if (!batchId) throw new Error('缺少原注册批次')
+  const result = await dataSet.verifySaveJournalAndRead({batchId, receiptViews: [view], readbackViews: []})
+  if (result.settlement !== 'confirmed') {
+    throw result.verificationError ?? result.journal.originalError ?? new Error('原注册命令未完整确认')
+  }
 }
 
 async function submitCommandRow(dataSet: DataSet, view: DataView, id: string): Promise<void> {
@@ -56,7 +69,7 @@ async function submitCommandRow(dataSet: DataSet, view: DataView, id: string): P
   try {
     await commitCommand(dataSet, view, id)
   } catch (error) {
-    if (!view.hasUnconfirmedSave) {
+    if (!view.hasUnconfirmedSave && view.dirtyTracking.isPendingCreate(id)) {
       const requiresNewBatch = error instanceof RegistrationDefaultFieldsNotAppliedError
       view.updateEditingValue(id, 'registrationDisposition', requiresNewBatch ? 'cancel-required' : 'retryable')
       view.updateEditingValue(id, 'registrationStatus', requiresNewBatch
@@ -64,6 +77,19 @@ async function submitCommandRow(dataSet: DataSet, view: DataView, id: string): P
         : '明确失败，可重试')
     }
     throw error
+  }
+}
+
+async function submitRegistrationBatch(dataSet: DataSet, view: DataView, ids: readonly string[]): Promise<void> {
+  let confirmed = 0
+  for (const id of ids) {
+    try {
+      await submitCommandRow(dataSet, view, id)
+    } catch (cause) {
+      if (confirmed === 0) throw cause
+      throw new Error(`已确认注册 ${confirmed} 项，当前项未完成：${cause instanceof Error ? cause.message : String(cause)}`, {cause})
+    }
+    confirmed++
   }
 }
 
@@ -142,8 +168,10 @@ function scalar(value: unknown): string {return value === null || value === unde
 async function refreshCatalog(dataSet: DataSet, model: string): Promise<void> {
   const catalog = dataSet.getView(model, 'default')
   if (!catalog) return
-  await catalog.refresh()
-  if (catalog.loadingError) throw catalog.loadingError
+  const readback = await catalog.requestRefresh({defer: false})
+  if (readback.refreshStatus !== 'read') {
+    throw new Error(`注册已确认，目录回读失败：${readback.error?.message ?? readback.message ?? '未完成本次读取'}`, {cause: readback.error})
+  }
 }
 
 function registrationBatchId(dataSet: DataSet): string {
@@ -192,7 +220,7 @@ export async function databaseCatalogRegisterTables(
     const id = await registerTableItem({dataSet, dbId: db, item, batchKey})
     if (id) ids.push(id)
   }
-  for (const id of ids) await submitCommandRow(dataSet, view, id)
+  await submitRegistrationBatch(dataSet, view, ids)
   await databaseCatalogSettleCommandInput(dataSet)
   await refreshCatalog(dataSet, DATABASE_CATALOG_TABLE_MODEL)
 }
@@ -221,7 +249,7 @@ export async function databaseCatalogRegisterViews(
     const id = await registerViewItem({dataSet, dbId: db, item, batchKey})
     if (id) ids.push(id)
   }
-  for (const id of ids) await submitCommandRow(dataSet, view, id)
+  await submitRegistrationBatch(dataSet, view, ids)
   await databaseCatalogSettleCommandInput(dataSet)
   await refreshCatalog(dataSet, DATABASE_CATALOG_VIEW_MODEL)
 }

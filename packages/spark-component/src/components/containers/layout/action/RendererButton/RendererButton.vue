@@ -52,6 +52,7 @@ import {
   SparkComponentRenderer,
   useSparkPageComponent,
 } from '../../../../internal'
+import { PAGE_HOST_COMMAND_READY } from '../../../../../core/capability-keys'
 import { resolveButtonStyle } from '../../../../../page/actions/index'
 import type { RButtonProps } from './RendererButton.props'
 import { usePermission } from '../../../../../permission'
@@ -123,7 +124,7 @@ function resolvePermissionScopeRows(): DataRow[] {
 }
 
 // ── 三、内置动作运行时（beforeRender → disabled → execute） ─────────────
-const { hasBuiltinAction, hostActionDisabled, executeAction } = useActionButtonRuntime({
+const { hasBuiltinAction, actionDescriptor, hostActionDisabled, executeAction } = useActionButtonRuntime({
   currentNode,
   resolveView: resolveActionView,
   resolveScopedRow,
@@ -167,6 +168,9 @@ const effectiveVisible = computed(() => {
 // 最终禁用态：权限拒绝且策略为 disable 时强制禁用；否则叠加自身与宿主禁用态。
 const effectiveDisabled = computed(() => {
   if (!permissionAllowed.value && permissionDeniedMode.value === 'disable') {
+    return true
+  }
+  if (actionDescriptor.value?.action === 'host-command' && sparkConsume(PAGE_HOST_COMMAND_READY)?.() === false) {
     return true
   }
   return isDisabled.value || resolvedProps.value['disabled'] === true || hostActionDisabled.value

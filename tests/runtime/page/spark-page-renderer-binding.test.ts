@@ -5,7 +5,7 @@ import { defineComponent, h, markRaw, ref, type App, type Component } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import ElementPlus from 'element-plus'
-import { DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, PAGE_RUNTIME_SERVICES, RendererPageHeader, Spark, SparkComponentRenderer, SparkPageRenderer, registerAllRenderers, useSparkComponent, useSparkConsume, type PageRuntimeServicesCapability } from '@spark-appworks/spark-component'
+import { DATA_ROW, DATA_SOURCE, PAGE_HOST_COMMAND, PAGE_RUNTIME, PAGE_RUNTIME_SERVICES, RendererPageHeader, Spark, SparkComponentRenderer, SparkPageRenderer, registerAllRenderers, useSparkComponent, useSparkConsume, type PageRuntimeServicesCapability } from '@spark-appworks/spark-component'
 import { DataSet, RequestState, SparkData, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type SparkNode } from '@spark-appworks/spark-data'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import {
@@ -455,6 +455,50 @@ describe('SparkPageRenderer root props aggregation', () => {
       pageId: 'test-page',
       message: expect.stringContaining('ASYNC_INIT_FAIL'),
     }))
+  })
+
+  it('blocks a pending command and never reopens the retired capability after switching to a page without initialization', async () => {
+    const router = createRouter({history: createMemoryHistory(), routes: [{path: '/', component: defineComponent({render: () => h('div')})}]})
+    await router.push('/')
+    const original = createPageRuntime({
+      ...createPageContentConfig('Original'),
+      script: "async function __init__() { await $page.invokeHostCommand('connect') }",
+    })
+    const replacement = createPageRuntime(createPageContentConfig('Replacement'))
+    let release = () => {}
+    const pending = new Promise<void>(resolve => { release = resolve })
+    const invokeOriginal = vi.fn(() => pending)
+    const invokeReplacement = vi.fn(async () => 'replacement-result')
+    let readCommand: (() => ((name:string,input:unknown)=>Promise<unknown>) | null) | undefined
+    const Probe = defineComponent({setup() {
+      const {sparkConsume} = useSparkConsume()
+      readCommand = () => sparkConsume(PAGE_HOST_COMMAND)
+      return () => h('span')
+    }})
+    const wrapper = mount(SparkPageRenderer, {
+      props: {routeSnapshot, pageRuntime: original, host: {runtime: original, assertCurrent: () => {}, invoke: invokeOriginal}},
+      slots: {content: () => h(Probe)},
+      global: {plugins: [Spark.createPlugin(), router]},
+    })
+    try {
+      await vi.waitFor(() => expect(invokeOriginal).toHaveBeenCalledOnce())
+      const retiredCommand = readCommand?.()
+      if (!retiredCommand) throw new Error('Missing command capability')
+      await expect(retiredCommand('read', undefined)).rejects.toThrow('PAGE_HOST_COMMAND_NOT_READY')
+      await wrapper.setProps({pageRuntime: replacement, host: {runtime: replacement, assertCurrent: () => {}, invoke: invokeReplacement}})
+      await flushPromises()
+      const nextCommand = readCommand?.()
+      if (!nextCommand) throw new Error('Missing replacement command capability')
+      await expect(nextCommand('read', undefined)).resolves.toBe('replacement-result')
+      release()
+      await flushPromises()
+      await expect(retiredCommand('read', undefined)).rejects.toThrow('PAGE_HOST_COMMAND_NOT_READY')
+      expect(invokeOriginal).toHaveBeenCalledExactlyOnceWith('connect', undefined, expect.any(AbortSignal))
+      expect(invokeReplacement).toHaveBeenCalledExactlyOnceWith('read', undefined, expect.any(AbortSignal))
+    } finally {
+      release()
+      wrapper.unmount()
+    }
   })
 
   it.each([false, true])('starts automatic queries only with confirmed initialization (confirmed=%s)', async confirmed => {

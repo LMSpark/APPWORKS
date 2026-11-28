@@ -15,7 +15,7 @@ AI用途：接入页面调用渲染或检查多实例隔离、脚本响应更新
     </slot>
   </div>
   <div v-else>
-    <p v-if="initializationFailed" role="alert">页面初始化失败，部分功能暂不可用。</p>
+    <p v-if="initializationState === 'failed'" role="alert">页面初始化失败，部分功能暂不可用。</p>
     <!-- 动态注入页面样式（自动添加作用域） -->
     <component :is="'style'" v-if="scopedCss">{{ scopedCss }}</component>
 
@@ -38,7 +38,7 @@ import { type DataSet, type SparkNode, getSparkNodeChildren, nodeId, SparkNodeTr
 import { Logger, isCallable } from '@spark-appworks/spark-utils'
 import type { PageRuntime, PageToolDefinition } from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '../../runtime'
-import { PAGE_RUNTIME, PAGE_SERVICE, PAGE_HOST_COMMAND, PAGE_ROUTE_QUERY, PAGE_PERMISSION_MODE, MODULE_CONTEXT, CSS_SCOPE } from '../../core/capability-keys'
+import { PAGE_RUNTIME, PAGE_SERVICE, PAGE_HOST_COMMAND, PAGE_HOST_COMMAND_READY, PAGE_ROUTE_QUERY, PAGE_PERMISSION_MODE, MODULE_CONTEXT, CSS_SCOPE } from '../../core/capability-keys'
 import { useRendererSetup } from './useRendererSetup'
 import { useCssScope } from './useCssScope'
 import { compileFunctions } from '../createSandbox'
@@ -77,7 +77,7 @@ const pageService = buildPageService(router, {messageService:props.messageServic
 sparkProvide(PAGE_SERVICE,pageService)
 sparkProvide(PAGE_PERMISSION_MODE,'masked')
 const currentInstanceId = ref('')
-const initializationFailed = ref(false)
+const initializationState = ref<'waiting' | 'ready' | 'failed'>('waiting')
 const children = shallowRef<SparkNode[]>([])
 const pageContainer = ref<HTMLElement|null>(null)
 const {scopedCss,setScopedCss} = useCssScope({enableScope:props.enableCssScope})
@@ -207,7 +207,7 @@ async function loadConfig():Promise<void> {
  if(activeRuntime!==runtime)release()
  else {controller?.abort();for(const unsubscribe of releaseViewSubscriptions.splice(0))unsubscribe();componentRegistry.clearRenders()}
  activeRuntime=runtime;controller=new AbortController()
- initializationFailed.value=false
+ initializationState.value='waiting'
  const signal=controller.signal
  const alive=()=>token===revision && !signal.aborted && !runtime.destroyed && toRaw(props.pageRuntime)===runtime
  currentInstanceId.value=runtime.instanceId
@@ -240,12 +240,20 @@ async function loadConfig():Promise<void> {
     },
     invoke: (name,input,commandSignal) => host.invoke(name,input,commandSignal),
    }} : {}),getComponentRegistry:()=>componentRegistry,getModuleContext:()=>moduleContext?.getCurrent() ?? null})
-  sparkProvide(PAGE_HOST_COMMAND,pageContext.$page.invokeHostCommand)
   sparkProvide(PAGE_ROUTE_QUERY,()=>({...pageContext?.$route.query}))
   setScopedCss(runtime.instanceId,definition.css ?? '')
   try {functions=compileFunctions(definition.script ?? '',pageContext)}
   catch(errorLike){report('script-compile',runtime,errorLike);throw errorLike}
   const currentFunctions=functions
+  if (!currentFunctions['__init__']) initializationState.value='ready'
+  const invokeHostCommand=pageContext.$page.invokeHostCommand
+  const canInvokeHostCommand=()=>initializationState.value==='ready' && current()
+    && host !== undefined && toRaw(host.runtime)===runtime && toRaw(props.host)===host
+  sparkProvide(PAGE_HOST_COMMAND_READY,canInvokeHostCommand)
+  sparkProvide(PAGE_HOST_COMMAND,async (name,input)=>{
+   if(!canInvokeHostCommand())throw new Error('PAGE_HOST_COMMAND_NOT_READY: 当前页面宿主命令不可用')
+   return invokeHostCommand(name,input)
+  })
   const callFunc=(name:string,...args:unknown[]):unknown=>{
    if(!current())throw new Error('PAGE_RUNTIME_STALE: 页面脚本已失效')
    const fn=currentFunctions[name];if(!fn)return undefined
@@ -319,10 +327,11 @@ async function loadConfig():Promise<void> {
  if(!alive())return
  try {await functions['__init__']?.()}
  catch(errorLike) {
-  if(alive()){initializationFailed.value=true;report('init',runtime,errorLike);invalidate()}
+  if(alive()){initializationState.value='failed';report('init',runtime,errorLike);invalidate()}
   return
  }
  if(!alive())return
+ initializationState.value='ready'
  if(props.autoLoad){
   for(const id of runtime.call.scenarioIds){
    // 按需装配可以早于初始化结束，查询和选择仍由原调用入口负责。

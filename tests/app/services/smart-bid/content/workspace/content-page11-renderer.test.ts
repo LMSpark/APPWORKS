@@ -23,8 +23,9 @@ function draftNodes(draft:unknown):unknown[]{
  return value['nodes']
 }
 
-it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as const)(
- 'renders the three-file tool with edit permission %s, authenticated host %s and primary key %s',async (editable,hasHost,primaryKey)=>{
+it.each([[false,false,'id',true],[false,true,'draftId',true],[true,true,'draftId',true],[false,true,'draftId',false]] as const)(
+ 'renders the three-file tool with edit permission %s, authenticated host %s, primary key %s and initialization %s',
+ async (editable,hasHost,primaryKey,initializes)=>{
  const scenarioId='D3BBA1F0780056C837AC35E9825CAD5A'
  const nodes=[{nodeId:'B',parentId:'P',index:0,type:'document',class:[],value:'',data:{}},
   {nodeId:'C',parentId:'B',index:0,type:'chapter',class:[],value:'',data:{}},
@@ -104,14 +105,23 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
  const previous={...config.global.stubs},stubs={...previous}
  for(const key of ['SparkComponentRenderer','spark-component-renderer','el-table','el-table-column'])delete stubs[key]
  config.global.stubs=stubs
- const errors=vi.fn()
+ const errors=vi.fn(), alert=vi.fn(async()=>undefined)
  let unblock:()=>void=()=>{}
  const pending=new Promise<void>(resolve=>{unblock=resolve})
- const delayedHost=host?{...host,async invoke(...args:Parameters<typeof host.invoke>){
-  await pending
+ const invoke=vi.fn(async (...args:Parameters<NonNullable<typeof host>['invoke']>)=>{
+  if(args[0]==='content.authoring.connect'){
+   await pending
+   if(!initializes)throw Error('PAGE11_INIT_FAILED')
+  }
+  if(!host)throw Error('TEST_HOST_REQUIRED')
+  if(args[0]==='content.authoring.readObligations'){
+   return host.invoke('content.authoring.connect',undefined,args[2]).readVolumePlanningObligations()
+  }
   return host.invoke(...args)
- }}:undefined
+ })
+ const delayedHost=host?{...host,invoke}:undefined
  const wrapper=mount(SparkPageRenderer,{attachTo:document.body,props:{pageRuntime:runtime,...(delayedHost?{host:delayedHost}:{}),
+  confirmService:{confirm:async()=>undefined,alert},
   routeSnapshot:{path:'/',fullPath:path,name:null,params:{},query:hasHost?{projectId:'P',draftId:'D'}:{},hash:''},onError:errors,onRuntimeError:errors},
   global:{plugins:[router,ElementPlus,VXETable,Spark.createPlugin()]}})
  try{
@@ -120,9 +130,34 @@ it.each([[false,false,'id'],[false,true,'draftId'],[true,true,'draftId']] as con
   expect(wrapper.text()).toContain('标书正文编制')
   expect(wrapper.text()).not.toContain('正文内容')
   expect(wrapper.text()).not.toContain('取消本次草稿编辑')
-  unblock()
   if(!hasHost)return
+  await vi.waitFor(()=>expect(invoke).toHaveBeenCalledWith('content.authoring.connect',undefined,expect.any(AbortSignal)))
+  const planningButton=()=>{
+   const button=wrapper.findAll('button').find(item=>item.text()==='查看分册策划依据')
+   if(!button)throw Error('分册策划按钮未渲染')
+   return button
+  }
+  const planningInvocations=()=>invoke.mock.calls.filter(([name])=>name==='content.authoring.readObligations')
+  await planningButton().trigger('click')
+  await flushPromises()
+  expect(planningInvocations()).toHaveLength(0)
+  expect(planningButton().attributes('disabled')).toBeDefined()
+  unblock()
+  if(!initializes){
+   await vi.waitFor(()=>expect(wrapper.get('[role="alert"]').text()).toContain('初始化失败'))
+   expect(errors).toHaveBeenCalledWith(expect.objectContaining({phase:'init',message:expect.stringContaining('PAGE11_INIT_FAILED')}))
+   expect(planningButton().attributes('disabled')).toBeDefined()
+   await planningButton().trigger('click')
+   expect(planningInvocations()).toHaveLength(0)
+   expect(save).not.toHaveBeenCalled()
+   return
+  }
   await vi.waitFor(()=>expect(wrapper.text()).toContain('实施方案'))
+  expect(planningInvocations()).toHaveLength(0)
+  expect(planningButton().attributes('disabled')).toBeUndefined()
+  await planningButton().trigger('click')
+  await vi.waitFor(()=>expect(alert).toHaveBeenCalledWith(expect.stringContaining('ACTIVE'),'分册策划依据'))
+  expect(planningInvocations()).toHaveLength(1)
   expect(view.currentRow?.[primaryKey]).toBe('NEIGHBOR')
   expect(wrapper.text()).toContain('逻辑册');expect(wrapper.text()).toContain('章节');expect(wrapper.text()).toContain('标题')
   if(hasHost&&!editable)expect(wrapper.text()).not.toContain('保存全部')

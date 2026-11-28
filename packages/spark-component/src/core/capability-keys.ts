@@ -220,6 +220,9 @@ export const CSS_SCOPE = defineCapability<PageCssScopeCapability>('spark:capabil
 export const PAGE_SERVICE = defineCapability<PageServiceCapability>('spark:capability:page-service', isPageServiceCapability)
 export const PAGE_HOST_COMMAND = defineCapability<PageHostCommandCapability>('spark:capability:page-host-command',
   (value): value is PageHostCommandCapability => isCallable(value))
+/** 当前渲染调用的声明式宿主命令是否可以接受交互。仅供包内标准按钮使用。 */
+export const PAGE_HOST_COMMAND_READY = defineCapability<() => boolean>('spark:capability:page-host-command-ready',
+  (value): value is () => boolean => isCallable(value))
 export const PAGE_ROUTE_QUERY = defineCapability<PageRouteQueryCapability>('spark:capability:page-route-query',
   (value): value is PageRouteQueryCapability => isCallable(value))
 export const PAGE_PERMISSION_MODE = defineCapability<PermissionMode>('spark:capability:permission-mode', isPermissionMode)

@@ -88,6 +88,11 @@ it.each([
   {label: 'independent sort', config: {sortExpression: [{field: 'region', direction: 'desc'}]}, error: '不支持保存独立 sortExpression'},
   {label: 'explicit query fields', config: {queryConfig: {fields: ['rowid']}}, error: '不支持保存显式 queryConfig.fields'},
   {label: 'a non-default row limit', config: {queryConfig: {allPages: true, maxRows: 1}}, error: '不支持保存非默认 queryConfig.maxRows'},
+  {label: 'a named completion callback', config: {onRequestComplete: 'loadFollowup'}, error: '不支持保存 onRequestComplete'},
+  {label: 'no ordinary create input fields', config: {newRowFields: []}, error: '不支持保存 newRowFields'},
+  {label: 'an auxiliary filter lookup', config: {queryConfig: {filterLookups: [{
+    field: 'region', sourceViewKey: 'CHAIN-TARGET@Choices@default', matchField: 'title', valueField: 'region',
+  }]}}, error: '不支持保存 queryConfig.filterLookups'},
 ])('keeps the confirmed metadata save when $label prevent Plan generation', async ({config, error}) => {
   const f = dataSpaceChainFixture()
   const scenario: unknown = JSON.parse(f.files.get(f.target)!)

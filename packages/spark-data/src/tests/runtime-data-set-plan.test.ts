@@ -233,7 +233,17 @@ describe('runtime data set plan', () => {
       .toThrow('SPACE Orders@default 不支持保存显式 queryConfig.fields')
     expect(() => build({queryConfig: {allPages: true, maxRows: 1}}))
       .toThrow('SPACE Orders@default 不支持保存非默认 queryConfig.maxRows')
-    expect(compileRuntimeDataSetPlan(build({queryContext: {}, sortExpression: [], queryConfig: {fields: []}}))
+    expect(() => build({onRequestComplete: 'loadFollowup'}))
+      .toThrow('SPACE Orders@default 不支持保存 onRequestComplete')
+    for (const newRowFields of [[], ['description']]) {
+      expect(() => build({newRowFields}))
+        .toThrow('SPACE Orders@default 不支持保存 newRowFields')
+    }
+    expect(() => build({queryConfig: {
+      filterLookups: [{field: 'id', sourceViewKey: 'SPACE@Orders@lookup', matchField: 'name', valueField: 'id'}],
+    }})).toThrow('SPACE Orders@default 不支持保存 queryConfig.filterLookups')
+    expect(compileRuntimeDataSetPlan(build({onRequestComplete: '', queryContext: {}, sortExpression: [],
+      queryConfig: {fields: [], filterLookups: []}}))
       .metadata.tables['Orders']?.views['default'])
       .toBeDefined()
     expect(compileRuntimeDataSetPlan(build({queryConfig: {allPages: true, maxRows: 50_000}}))

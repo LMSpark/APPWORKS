@@ -321,8 +321,8 @@ function assertPlanViewDefaults(view: RuntimePlanRecord, viewIdentity: string): 
     const detail = scope ? '不支持同时保存常驻范围和初始过滤' : '不支持保存可替换的初始过滤'
     throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.filterExpression: ${viewIdentity} ${detail}`)
   }
-  const queryConfig = view['queryConfig']
-  if (!isRecord(queryConfig)) return
+  const rawQueryConfig = view['queryConfig']
+  const queryConfig = isRecord(rawQueryConfig) ? rawQueryConfig : {}
   const fields = queryConfig['fields']
   if (Array.isArray(fields) && fields.length > 0) {
     throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.fields: ${viewIdentity} 不支持保存显式 queryConfig.fields`)
@@ -330,6 +330,18 @@ function assertPlanViewDefaults(view: RuntimePlanRecord, viewIdentity: string): 
   const maxRows = queryConfig['maxRows']
   if (maxRows !== undefined && maxRows !== DEFAULT_DATA_VIEW_MAX_ROWS) {
     throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.maxRows: ${viewIdentity} 不支持保存非默认 queryConfig.maxRows`)
+  }
+  const completion = view['onRequestComplete']
+  if (completion !== undefined && completion !== '') {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.onRequestComplete: ${viewIdentity} 不支持保存 onRequestComplete`)
+  }
+  if (view['newRowFields'] !== undefined) {
+    // An empty list restricts ordinary create inputs. Omission leaves field selection to the owner.
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.newRowFields: ${viewIdentity} 不支持保存 newRowFields`)
+  }
+  const lookups = queryConfig['filterLookups']
+  if (lookups !== undefined && (!Array.isArray(lookups) || lookups.length > 0)) {
+    throw new Error(`RUNTIME_DATA_SET_PLAN_BUILD.queryConfig.filterLookups: ${viewIdentity} 不支持保存 queryConfig.filterLookups`)
   }
 }
 

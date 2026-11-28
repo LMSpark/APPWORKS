@@ -921,6 +921,9 @@ describe('tool and shared scenario editing owners',()=>{
    return JSON.stringify(scenario)
   }
   const unsupportedPlanDefaults = [
+   {member:'onRequestComplete',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"onRequestComplete":"loadFollowup"'),error:'不支持保存 onRequestComplete'},
+   {member:'newRowFields',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"newRowFields":[]'),error:'不支持保存 newRowFields'},
+   {member:'queryConfig.filterLookups',working:fixtureText(20).replace('"pageSize":20','"pageSize":20,"queryConfig":{"filterLookups":[{"field":"id","sourceViewKey":"scene@Orders@detail","matchField":"id","valueField":"id"}]}'),error:'不支持保存 queryConfig.filterLookups'},
    {member:'viewCascades input bindings',working:materializeCascade({inputBindings:[{sourceField:'id',target:'queryContext.parentId'}]}),error:'不支持查询输入级联'},
    {member:'viewCascades manual trigger',working:materializeCascade({autoLoad:false}),error:'不支持手动查询级联'},
    {member:'viewCascades text match',working:materializeCascade({filterBindings:[{sourceField:'id',targetField:'id',operator:'contains'}]}),error:'Orders@default.id 不支持 contains'},

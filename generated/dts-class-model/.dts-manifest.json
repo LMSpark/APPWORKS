@@ -3617,7 +3617,7 @@
     "packages/spark-data/src/runtime-data-set-plan/builder.ts": {
       "sourceFile": "packages/spark-data/src/runtime-data-set-plan/builder.ts",
       "shardFile": "files/packages/spark-data/src/runtime-data-set-plan/builder.ts.json",
-      "sourceModifiedAt": "2026-11-28T03:13:15.000Z",
+      "sourceModifiedAt": "2026-11-28T05:42:56.018Z",
       "declarationFingerprint": "0e04922e97581a2ae16404b859f93f331d4739740a94acc66c71bf697c84cbef"
     },
     "packages/spark-data/src/runtime-data-set-plan/compiler.ts": {

@@ -343,6 +343,10 @@ async function restoreVersion(row: DataRow) {
   try {
     const restoredText=await props.state.restorePageToolVersion({projectId,pageId,customPath,fileName,version,assertCurrent})
     assertCurrent()
+    if(restoredText===undefined){
+      props.state.addStatus(`工作文件 ${fileName} 已与快照 v${version} 一致，本轮未提交`,'info')
+      return
+    }
     if(fileEditor.text.value!==restoredText)throw new Error('恢复命令已确认，但当前工具文件尚未同步')
     props.state.addStatus(`页面 ${pageId} 已将 ${fileName} 快照 v${version} 恢复为工作文件`, 'success')
     if (!disposed && pageId === props.state.activePageId.value && fileName === resolvedActiveFile.value && showVersionPanel.value) await loadVersions()

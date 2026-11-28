@@ -2604,6 +2604,52 @@ describe('DevState 页面文件闭环', () => {
     }finally{ownerScope.stop()}
   })
 
+  it.each([
+    {mode:'later draft',error:'PAGE_TOOL_RESTORE_LOCAL_PENDING',visible:'later draft'},
+    {mode:'zero upload',error:'原记录没有已确认的保存回执',visible:'baseline'},
+    {mode:'same content',error:undefined,visible:'baseline'},
+  ])('keeps the working file intact when restoring with $mode', async ({mode,error,visible}) => {
+    const root=blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
+    const fixture=createBlueprintRuntimeDataSet('APP-A',root)
+    mockBlueprintScenarioFixture(fixture.dataSet)
+    const scope=effectScope(),state=scope.run(()=>useDevState())!
+    try {
+      await state.openEditingProject({projectId:'APP-A'},{force:true})
+      await state.selectNode(state.treeData.value[0]!)
+      pageFiles.files.set('demo/rule.json','[]')
+      pageFiles.files.set('demo/pagedata.json','{"dataSetName":"TestDS","tables":{}}')
+      pageFiles.files.set('demo/script.js','baseline')
+      pageFiles.files.set('demo/style.css','')
+      pageFiles.files.set('demo/4__script.js',mode==='same content'?'baseline':'snapshot')
+      await ensureDevStateActivePageLoaded(state)
+      const view=await state.loadPageToolFileDataView({pageId:'demo',fileName:'script.js'})
+      const row=view.currentRow,id=row&&view.getPkKey(row),dataSet=view.dataSet
+      if(id===null||id===undefined||!dataSet)throw new Error('missing original working file')
+      if(mode==='later draft'){
+        const preview=view.previewSourceVersion.bind(view)
+        vi.spyOn(view,'previewSourceVersion').mockImplementationOnce(async version=>{
+          const text=await preview(version)
+          await view.editRowById(id,{text:'later draft'})
+          state.stagePageToolFileDataView({pageId:'demo',fileName:'script.js',text:'later draft'})
+          return text
+        })
+      }
+      if(mode==='zero upload'){
+        const save=dataSet.saveChanges.bind(dataSet)
+        vi.spyOn(dataSet,'saveChanges').mockImplementationOnce(options=>{
+          view.discardPendingChanges([id])
+          return save(options)
+        })
+      }
+      const result=state.restorePageToolVersion({projectId:'APP-A',pageId:'demo',customPath:'APP-A/demo',fileName:'script.js',version:4,assertCurrent:()=>{}})
+      if(error) await expect(result).rejects.toThrow(error)
+      else await expect(result).resolves.toBeUndefined()
+      expect(pageFiles.upload).not.toHaveBeenCalled()
+      expect(pageFiles.files.get('demo/script.js')).toBe('baseline')
+      expect(state.readPageToolFileDataViewText('demo','script.js')).toBe(visible)
+    } finally {scope.stop()}
+  })
+
   it('rejects zero dispatch as confirmation in the working file editor', async () => {
     const root = blueprintRoot([node('demo-node','Demo','cfg:demo','APP-A')],'APP-A')
     const fixture = createBlueprintRuntimeDataSet('APP-A', root)

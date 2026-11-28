@@ -75,12 +75,12 @@ async function open() {
   })
   const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin(), router]}})
   wrappers.push(wrapper)
-  await flushPromises()
   const input = (placeholder: string, scope: ParentNode = document.body) => {
     const found = scope.querySelector<HTMLInputElement>(`input[placeholder="${placeholder}"]`)
     if (!found) throw new Error(`输入框不存在: ${placeholder}`)
     return found
   }
+  await vi.waitFor(() => input('密码', wrapper.element))
   const type = async (placeholder: string, value: string, scopeSelector?: string) => {
     const scope = scopeSelector ? document.body.querySelector(scopeSelector) : document.body
     if (!scope) throw new Error(`区域不存在: ${scopeSelector}`)
@@ -94,7 +94,6 @@ async function open() {
     const found = host.findAllComponents(RendererButton).find(item => item.props('label') === label)
     if (!found) throw new Error(`按钮不存在: ${label}`)
     await found.get('button').trigger('click')
-    await flushPromises()
   }
   return {wrapper, input, type, click, pageService}
 }
@@ -104,6 +103,7 @@ describe('LoginView on the public login scenario', () => {
   it('withholds the sent message and cooldown when the code command was withdrawn', async () => {
     sessionStorage.setItem('spark_login_tab', 'register')
     const f=await open()
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererDrawer)).toHaveLength(1))
     await f.type('企业英文简称','lingma','.el-drawer')
     await f.type('验证邮箱','b@example.com','.el-drawer')
     const view=[...state.dataSets][0]?.getView('VerificationCodeRequest')
@@ -117,13 +117,13 @@ describe('LoginView on the public login scenario', () => {
     })
     try{
       await f.click('发送验证码')
+      await vi.waitFor(() => expect(f.pageService.showMessage).toHaveBeenCalledWith('原记录没有已确认的保存回执','error'))
       expect(drop).toHaveBeenCalledOnce()
       expect(state.sendVerificationCode).not.toHaveBeenCalled()
-      expect(f.pageService.showMessage).toHaveBeenCalledWith('原记录没有已确认的保存回执','error')
       expect(f.pageService.showMessage).not.toHaveBeenCalledWith('验证码已发送','success')
       await f.click('发送验证码')
+      await vi.waitFor(() => expect(f.pageService.showMessage).toHaveBeenCalledWith('验证码已发送','success'))
       expect(state.sendVerificationCode).toHaveBeenCalledOnce()
-      expect(f.pageService.showMessage).toHaveBeenCalledWith('验证码已发送','success')
     }finally{drop.mockRestore()}
   })
 
@@ -134,10 +134,21 @@ describe('LoginView on the public login scenario', () => {
     expect(f.wrapper.findComponent(FieldSelect).props('optionDataViewKey')).toContain('EnterpriseCatalog')
     await f.type('登录账号', 'alice')
     await f.type('密码', 'secret1')
-    await f.click('登 录')
+    let completeLogin: (() => void) | undefined
+    const response = new Promise<Record<string, never>>(resolve => {
+      completeLogin = () => resolve({})
+    })
+    state.login.mockImplementationOnce(() => response)
+    try {
+      await f.click('登 录')
+      await vi.waitFor(() => expect(state.login).toHaveBeenCalledOnce())
+      expect(state.landing).not.toHaveBeenCalled()
+    } finally {
+      completeLogin?.()
+    }
+    await vi.waitFor(() => expect(state.landing).toHaveBeenCalledOnce())
     expect(state.login).toHaveBeenCalledWith({enterpriseName: 'lingma', account: 'alice', password: 'secret1'})
     expect(state.reload).toHaveBeenCalledOnce()
-    expect(state.landing).toHaveBeenCalledOnce()
     expect(localStorage.getItem('spark_login_enterprise')).toBe('lingma')
   })
 
@@ -148,7 +159,7 @@ describe('LoginView on the public login scenario', () => {
     await f.type('登录账号', 'alice')
     await f.type('密码', 'bad')
     await f.click('登 录')
-    expect(f.wrapper.get('[role="alert"]').text()).toContain('账号或密码错误')
+    await vi.waitFor(() => expect(f.wrapper.get('[role="alert"]').text()).toContain('账号或密码错误'))
     expect(state.reload).not.toHaveBeenCalled()
     expect(f.input('登录账号').value).toBe('alice')
     expect(f.input('密码').value).toBe('')
@@ -156,8 +167,8 @@ describe('LoginView on the public login scenario', () => {
     expect(dataSet?.getView('LoginRequest')?.rows).toHaveLength(1)
     await f.type('密码', 'secret1')
     await f.click('登 录')
+    await vi.waitFor(() => expect(state.landing).toHaveBeenCalledOnce())
     expect(state.login).toHaveBeenLastCalledWith({enterpriseName: 'lingma', account: 'alice', password: 'secret1'})
-    expect(state.landing).toHaveBeenCalledOnce()
   })
 
   it('falls back to a text input when the enterprise directory is unavailable', async () => {
@@ -172,32 +183,35 @@ describe('LoginView on the public login scenario', () => {
     sessionStorage.setItem('spark_login_tab', 'register')
     const f = await open()
     expect(sessionStorage.getItem('spark_login_tab')).toBeNull()
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererDrawer)).toHaveLength(1))
     const drawers = f.wrapper.findAllComponents(RendererDrawer)
     expect(drawers).toHaveLength(1)
     expect(drawers[0]?.props('title')).toBe('注册账号')
     expect(f.wrapper.findAllComponents(FieldText).filter(item => item.element.closest('.login-card')).map(item => item.props('field'))).toEqual(['account', 'password'])
     await f.click('注册租户')
-    expect(f.wrapper.findAllComponents(RendererDrawer).map(item => item.props('title'))).toEqual(['注册账号', '注册租户'])
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererDrawer).map(item => item.props('title'))).toEqual(['注册账号', '注册租户']))
   })
 
   it('registers a user from the drawer, sends a code through the command view, and signs in', async () => {
     const f = await open()
     await f.click('注册账号')
     const drawer = '.el-drawer'
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererDrawer)).toHaveLength(1))
     await f.type('企业英文简称', 'lingma', drawer)
     await f.type('登录账号', 'bob', drawer)
     await f.type('显示名称', 'Bob', drawer)
     await f.type('验证邮箱', 'b@example.com', drawer)
     await f.click('发送验证码')
+    await vi.waitFor(() => expect(f.pageService.showMessage).toHaveBeenCalledWith('验证码已发送','success'))
     expect(state.sendVerificationCode).toHaveBeenCalledWith({enterpriseName: 'lingma', channel: 'EMAIL', account: 'b@example.com', scene: 'REGISTER'})
     await f.type('验证码', '123456', drawer)
     await f.type('至少 6 位', 'secret1', drawer)
     await f.type('再次输入密码', 'secret1', drawer)
     await f.click('注册')
+    await vi.waitFor(() => expect(state.landing).toHaveBeenCalledOnce())
     expect(state.registerUser).toHaveBeenCalledWith(expect.objectContaining({enterpriseName: 'lingma', account: 'bob', email: 'b@example.com'}))
     expect(state.login).toHaveBeenCalledWith({enterpriseName: 'lingma', account: 'bob', password: 'secret1'})
-    expect(state.landing).toHaveBeenCalledOnce()
-    expect(f.wrapper.findAllComponents(RendererDrawer)).toHaveLength(0)
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererDrawer)).toHaveLength(0))
   })
 
   it('keeps the tenant drawer open after an explicit rejection with the non-secret inputs and an empty password', async () => {
@@ -205,6 +219,7 @@ describe('LoginView on the public login scenario', () => {
     const f = await open()
     await f.click('注册租户')
     const drawer = '.el-drawer'
+    await vi.waitFor(() => expect(f.wrapper.findAllComponents(RendererDrawer)).toHaveLength(1))
     await f.type('如 NewApp', 'NewApp', drawer)
     await f.type('企业英文名称', 'New App', drawer)
     await f.type('企业中文名称', '新应用', drawer)
@@ -213,10 +228,10 @@ describe('LoginView on the public login scenario', () => {
     await f.type('管理员手机号', '13800000000', drawer)
     await f.type('验证码', '000000', drawer)
     await f.click('注册租户', '注册租户')
+    await vi.waitFor(() => expect(document.body.querySelector(`${drawer} [role="alert"]`)?.textContent).toContain('验证码错误'))
     expect(state.registerEnterprise).toHaveBeenCalledOnce()
     expect(state.login).not.toHaveBeenCalled()
     const scope = document.body.querySelector(drawer) ?? document.body
-    expect(scope.querySelector('[role="alert"]')?.textContent).toContain('验证码错误')
     expect(f.input('如 NewApp', scope).value).toBe('NewApp')
     expect(f.input('管理员手机号', scope).value).toBe('13800000000')
     expect(f.input('至少 6 位', scope).value).toBe('')

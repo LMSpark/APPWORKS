@@ -460,7 +460,7 @@ export function useDevState() {
       if(view.loadingError)throw view.loadingError
     }
   }
-  async function restorePageToolVersion(input:Readonly<{projectId:string;pageId:string;customPath:string;fileName:ProjectBlueprintDomain.PageToolFileName;version:number;assertCurrent:()=>void}>):Promise<string>{
+  async function restorePageToolVersion(input:Readonly<{projectId:string;pageId:string;customPath:string;fileName:ProjectBlueprintDomain.PageToolFileName;version:number;assertCurrent:()=>void}>):Promise<string|undefined>{
     const workspace=currentEditor.value,scope=currentScopeKey()
     await loadBlueprintWorkspaceDataView()
     const page=workspace.project.findPageTool(input.pageId)
@@ -481,10 +481,17 @@ export function useDevState() {
     const sourceRow=sourceView.currentRow
     if(!sourceRow)throw new Error('PAGE_TOOL_RESTORE_LOCAL_PENDING: 当前文件 DataView 没有目标行')
     const sourceId=sourceView.getPkKey(sourceRow)
-    if(sourceRow['pageId']!==input.pageId||sourceRow['fileName']!==input.fileName||sourceId===undefined
-      ||sourceView.hasUnconfirmedSave||sourceView.dirtyTracking.hasPendingChanges(sourceId)||sourceView.hasEditingChanges(sourceId)) {
-      throw new Error('PAGE_TOOL_RESTORE_LOCAL_PENDING: 文件有未保存或未确认修改')
+    const baselineText=sourceRow['text'],dataSet=sourceView.dataSet
+    if(sourceId===undefined||typeof baselineText!=='string'||!dataSet)throw new Error('PAGE_TOOL_RESTORE_LOCAL_PENDING: 当前文件缺少原记录或 DataSet')
+    const assertOriginalFile=()=>{
+      const current=sourceView.currentRow
+      if(!current||sourceView.getPkKey(current)!==sourceId||current['pageId']!==input.pageId||current['fileName']!==input.fileName
+        ||current['text']!==baselineText||sourceView.hasUnconfirmedSave
+        ||sourceView.dirtyTracking.hasPendingChanges(sourceId)||sourceView.hasEditingChanges(sourceId)) {
+        throw new Error('PAGE_TOOL_RESTORE_LOCAL_PENDING: 文件基线已改变，或有未保存或未确认修改')
+      }
     }
+    assertOriginalFile()
     const versions=await sourceView.listSourceVersions()
     assertCurrent()
     const versionedFileName=formatFileSnapshotName(input.version,input.fileName)
@@ -492,11 +499,16 @@ export function useDevState() {
     const sourceText=await sourceView.previewSourceVersion(input.version)
     assertCurrent()
     if(typeof sourceText!=='string')throw new Error('PAGE_TOOL_RESTORE_VERSION_UNREADABLE: 目标版本不是有效文本')
+    assertOriginalFile()
+    if(sourceText===baselineText)return undefined
     await sourceView.editRowById(sourceId,{text:sourceText})
     assertCurrent()
-    const saved=await sourceView.dataSet?.saveChanges({views:[{tableName:sourceView.tableName,viewId:sourceView.viewId,ids:[sourceId]}]})
-    if(!saved?.success)throw saved?.error??new Error(saved?.message??'历史文件 DataView 保存未确认')
+    if(sourceView.getEditingRow(sourceId)?.['text']!==sourceText) {
+      throw new Error('PAGE_TOOL_RESTORE_LOCAL_PENDING: 历史正文暂存后已有其他修改')
+    }
+    const saved=await dataSet.saveRecord(sourceView,sourceId)
     assertCurrent()
+    if(saved.followUpError)throw new Error(`远端恢复已确认，后续处理失败：${saved.followUpError.message}`,{cause:saved.followUpError})
     if(sourceView.dirtyTracking.hasPendingChanges()) {
       throw new Error('PAGE_TOOL_RESTORE_REMOTE_CONFIRMED_LOCAL_CHANGED: 远端恢复已确认，本地 DataView 新修改已保留')
     }

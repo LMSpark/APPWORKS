@@ -122,6 +122,14 @@ AW-07 按「正式操作 × 缺失能力」核对后引用业务验收项。跨�
 
 **第 18 包 · 恢复登记固定版工程结算。** 根 `verify`、前端生产构建和两路根全量均退出 0，第一路 391 套 7,318 项，第二路 390 套 5,827 项，合计 781 套 13,145 项，最慢约 16 分 37 秒。前端产物包含原登记未生效提示。4,491 份固定输入无变化。另在隔离副本对齐未改源码时间后用正式生成器重建，声明索引仅本会话一条变化，声明指纹、公开分片和报告与固定版全量生成一致，导引及 52 项 ClassModel 复核通过。工作区原有生成差异保留。未操作实服。
 
+**AW-03 · 公共记录编辑与声明式保存的零回执。** 在 `2bb1fbab1` 当前责任层通过两套现有真实 owner 夹具复现。标准记录编辑器使用正式模型和 CRUD 传输，在 DataSet 收集前撤去 A 行暂存，零业务写入、原字段不变，仍发出 `saved`，下游可当成确认并关闭窗口。声明式 `save-dataset` 对实际场景文件 owner 做相同对照，文件零写入、原页大小不变，仍采用自定义「全部保存成功」。两个反例均失败于公共消费层。按同一编号成组处理，记录编辑须核本次原视图分项、声明式动作按实际提交数与剩余范围呈现，保留原批次核验及业务消费者的关闭合同。未改产品源码，隔离探针已移除，未操作实服。 [标准记录编辑](../packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts) [声明式动作](../packages/spark-component/src/page/actions/action-data.ts)
+
+**AW-03 · 公共记录及声明式保存已核实际分项。** 标准记录编辑仅在原单视图的单记录结果确认后发出 `saved`，无改动沿关闭合同返回取消，捕获中途撤回提示无回执并保留界面。声明式动作按实际确认数区分零派发、部分失败、后来草稿以及确认后处理失败。原作用域、单记录回执核验和事务选项仍复用既有 DataSet。两组改前红例转绿，空窗口、部分确认和确认后失败补到原套件。记录编辑、场景保存、事务配置、缓存、登录、企业授权和报表 7 套 130 项通过，根类型和定向 ESLint 退出 0。正式重建 1,538 份 ClassModel 分片，无有效变化，导引 Schema 和 52 项通过。4,491 份输入进入固定版根门禁和两路全量，未操作实服。 [动作合同](../docs/guides/SAVE_DATASET_ACTION.md) [标准记录回归](../tests/runtime/component/data-view-record-editing.test.ts) [声明式保存回归](../tests/runtime/page/save-dataset-recovery.test.ts)
+
+**AW-03 · 标准记录的缓存业务消费者。** 在实际缓存管理工具和标准表格中选中原缓存行，打开共用记录确认窗。确认后仅在 DataSet 收集前撤回该命令暂存。实际派发、原结果查询和列表回读均为零，提示原记录没有已确认回执，确认窗仍保留。隔离探针 1 项通过，未改固定输入或访问实服。固定版前端生产构建退出 0，运行分片已含单记录无回执及声明式未提交分支，发布目录 ClassModel 索引与生成文件字节一致。 [缓存入口](../src/views/features/system/cache-management/ui/cache-management-page.vue)
+
+**AW-03 · 公共记录及声明式保存固定版结算。** 根 `verify`、前端生产构建和两路全量均退出 0。第一路 391 套、7,320 项，第二路 390 套、5,830 项，合计 781 套、13,150 项，最慢约 12 分 42 秒。4,491 份固定输入无变化。声明索引只变化两个本次源码条目，正式分片、公开索引及语义报告均无有效变化。现有标准记录直接调用方覆盖登录与注册、缓存命令、流程工具、Excel、企业管理及共用记录窗。未操作实服，业务包按各自正式合同验收。
+
 <a id="aw03-table-save-consumers-checkout-20261128"></a>
 
 **AW-03 · 单视图保存及原批次核验入库。** 公共表格使用 `DataSet.saveView`，单键删除使用 `saveRecord`。确认为已保存后才读取仍有效的关联视图，读取失败保留保存确认。接口配置和 Excel 使用 `verifySaveJournalAndRead` 核验原批次，Excel 对照保持一次实际写入并保留后来草稿。流程节点授权通过同一工具栏验收。净版 12 套、275 项通过，类型、ESLint、架构、611 个服务端点与 244 个消费者检查通过。复用主仓最近 782 套、13,100 项全量，三处仅 JSDoc 改动的去注释转译字节一致。交付未操作实服。 [共享表格](../src/views/features/shared/table/feature-table-actions.ts) [实际接口回归](../tests/runtime/page/api-provider/api-pages.test.ts) [Excel 回归](../tests/runtime/page/semi-structured/excel-import/transform/ui/pane.test.ts)

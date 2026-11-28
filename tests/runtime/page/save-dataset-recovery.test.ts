@@ -67,6 +67,59 @@ async function fixture() {
 }
 
 describe('save-dataset target completion after real source receipts', () => {
+  it('omits its success message when the original edit is withdrawn and nothing is dispatched', async () => {
+    const f = await fixture()
+    try {
+      const id = f.key('one')
+      f.view.updateEditingValue(id, 'pageSize', 43)
+      const save = f.dataSet.saveChanges.bind(f.dataSet)
+      vi.spyOn(f.dataSet, 'saveChanges').mockImplementationOnce(options => {
+        f.view.discardPendingChanges([id])
+        return save(options)
+      })
+      await executeSaveDataSet(f.desc, f.ctx)
+      expect(f.writes).toHaveLength(0)
+      expect(f.read().tables.Parents.views.one.pageSize).toBe(10)
+      expect(f.messages).toEqual([{type: 'info', message: '本轮未提交更改'}])
+    } finally {f.dispose()}
+  })
+
+  it('reports a later completion error without reversing the original confirmed write', async () => {
+    const f = await fixture()
+    try {
+      f.dataSet.setSaveCompletionHandler(() => {throw new Error('Plan unavailable')})
+      f.view.updateEditingValue(f.key('one'), 'pageSize', 43)
+      await executeSaveDataSet(f.desc, f.ctx)
+      expect(f.writes).toHaveLength(1)
+      expect(f.read().tables.Parents.views.one.pageSize).toBe(43)
+      expect(f.messages).toEqual([{type: 'warning', message: '本轮保存已确认，后续处理失败：Plan unavailable'}])
+    } finally {f.dispose()}
+  })
+
+  it('reports the confirmed portion when another selected view cannot apply its edit', async () => {
+    const f = await fixture()
+    try {
+      const other = f.dataSet.getView('DataViewDefinition', 'other')!
+      await other.refresh()
+      const secondId = f.key('two')
+      f.view.updateEditingValue(f.key('one'), 'pageSize', 43)
+      other.updateEditingValue(secondId, 'pageSize', 63)
+      vi.spyOn(other, 'applyEditingRows').mockResolvedValueOnce({
+        success: false, message: 'Fields were rejected',
+        data: {appliedCount: 0, failedCount: 1, failedIds: [secondId],
+          failedErrors: {[String(secondId)]: 'Fields were rejected'}},
+      })
+      await executeSaveDataSet({...f.desc, views: [
+        {tableName: 'DataViewDefinition', ids: [f.key('one')]},
+        {tableName: 'DataViewDefinition', viewId: 'other', ids: [secondId]},
+      ]}, f.ctx)
+      expect(f.writes).toHaveLength(1)
+      expect(f.read().tables.Parents.views).toMatchObject({one: {pageSize: 43}, two: {pageSize: 20}})
+      expect(other.getEditingRow(secondId)?.['pageSize']).toBe(63)
+      expect(f.messages).toEqual([{type: 'warning', message: expect.stringContaining('已确认 1 条变更')}])
+    } finally {f.dispose()}
+  })
+
   it.each(['editing', 'staged'] as const)('reports later %s changes as pending after verifying the original submission', async state => {
     const f = await fixture()
     try {

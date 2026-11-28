@@ -125,6 +125,25 @@ it('submits only its original ID and leaves another row editing untouched',async
  await e.state.save();expect(e.finished).toEqual(['saved']);expect(f.http.saves).toHaveLength(1)
  expect(f.http.saves[0]?.changed).toMatchObject([{rowid:'A',caption:'saved'}]);expect(f.view.hasEditingChanges('B')).toBe(true)
 })
+it('closes an unchanged record without emitting a saved result',async()=>{
+ const f=await fixture(),e=editor(f),save=vi.spyOn(f.ds,'saveChanges')
+ await e.state.save()
+ expect(save).not.toHaveBeenCalled();expect(e.finished).toEqual(['cancelled']);expect(f.http.saves).toHaveLength(0)
+})
+it('keeps the record editor open when the original edit is withdrawn before dispatch',async()=>{
+ const f=await fixture(),e=editor(f)
+ f.view.updateEditingValue('A','caption','original edit')
+ const save=f.ds.saveChanges.bind(f.ds)
+ vi.spyOn(f.ds,'saveChanges').mockImplementationOnce(options=>{
+  f.view.discardPendingChanges(['A'])
+  return save(options)
+ })
+ await e.state.save()
+ expect(f.http.saves).toHaveLength(0)
+ expect(f.http.records['Records']?.[0]?.['caption']).toBe('base')
+ expect(e.finished).toEqual([])
+ expect(e.state.error.value).toBe('原记录没有已确认的保存回执')
+})
 it('saves all original row changes rather than treating checkpoint fields as a write whitelist',async()=>{
  const f=await fixture(),e=editor(f)
  f.view.updateEditingValue('A','caption','saved');f.view.updateEditingValue('A','extra','also saved')

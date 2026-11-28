@@ -197,6 +197,9 @@ export function useDataViewRecordEditing(input:DataViewRecordEditingInput):DataV
    if(permissionsPending.value){await view.refreshSavedRowPermissions();if(sameContext())finish('saved');return}
    if(recovering){if(!failure.value||!view.hasUnconfirmedSaveFor([id],failure.value))return}
    else if(!isCurrent())throw Error('RECORD_EDIT_STALE: 原记录编辑身份已失效，请重新打开')
+   if(!recovering&&mode==='edit'&&!created&&!view.hasEditingChanges(id)&&!view.dirtyTracking.hasPendingChanges(id)){
+    finish('cancelled');return
+   }
    if(!recovering&&mode==='delete'&&!deleteSnapshot){
     if(view.hasEditingChanges(id)||view.dirtyTracking.hasPendingChanges(id)||view.deleteActionState(original)!=='enabled')throw Error('RECORD_EDIT_DELETE: 原记录已变化或不可删除')
     if(await view.removeRow(id)!==true)throw Error('RECORD_EDIT_DELETE: 删除未登记')
@@ -204,10 +207,21 @@ export function useDataViewRecordEditing(input:DataViewRecordEditingInput):DataV
     if(!deleteSnapshot)throw Error('RECORD_EDIT_DELETE: 缺少原删除快照')
     if(!sameContext()||!originalIdentity())throw Error('RECORD_EDIT_STALE: 原删除身份已变化')
    }
+   const deleting=mode==='delete'||view.dirtyTracking.isPendingDelete(id)
    const result=await dataSet.saveChanges({...(recovering||mode!=='edit'?{applyEditingRows:false}:{}),views:[{tableName:view.tableName,viewId:view.viewId,ids:[id]}]})
    if(!sameContext())return
-   if(result.success){confirmedCreation.value=created;if(!(confirmedCreation.value&&view.hasPendingSavedRowPermissions))finish('saved')}
-   else error.value=result.error?.message??'保存未确认，请核验原保存结果'
+   const batch=result.data,receipt=batch?.viewResults[0]
+   if(!result.success||receipt?.failedCount||receipt?.failedEditingRows){
+    error.value=receipt?.failedErrors[String(id)]??result.error?.message??'保存未确认，请核验原保存结果'
+    return
+   }
+   if(batch?.viewCount!==1||batch.viewResults.length!==1||receipt?.tableName!==view.tableName||receipt.viewId!==view.viewId
+    ||receipt.deletedCount!==(deleting?1:0)||receipt.createdCount+receipt.savedCount!==(deleting?0:1)){
+    error.value='原记录没有已确认的保存回执'
+    return
+   }
+   confirmedCreation.value=created
+   if(!(confirmedCreation.value&&view.hasPendingSavedRowPermissions))finish('saved')
   }catch(cause){if(sameInput()){if(cause instanceof Error&&view.hasUnconfirmedSaveFor([id],cause))failure.value=cause;message(cause)}}
   finally{if(isActive()){busy.value=false;changed()}}
  }

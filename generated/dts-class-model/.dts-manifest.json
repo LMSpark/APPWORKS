@@ -1835,7 +1835,7 @@
     "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts.json",
-      "sourceModifiedAt": "2026-11-28T03:13:15.000Z",
+      "sourceModifiedAt": "2026-11-28T04:18:54.325Z",
       "declarationFingerprint": "23377027c2679ea6f974f25e52c2eba332394ad06798d714ba9dcf9782680a03"
     },
     "packages/spark-component/src/components/containers/support/index.ts": {
@@ -3053,7 +3053,7 @@
     "packages/spark-component/src/page/actions/action-data.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
       "shardFile": "files/packages/spark-component/src/page/actions/action-data.ts.json",
-      "sourceModifiedAt": "2026-11-28T03:13:15.000Z",
+      "sourceModifiedAt": "2026-11-28T04:21:11.029Z",
       "declarationFingerprint": "fc05cd0be19eb3e6fd1ffd3576e0702ce44f0e6c91f7d81d8e4a831c3e229f11"
     },
     "packages/spark-component/src/page/actions/action-executor.ts": {

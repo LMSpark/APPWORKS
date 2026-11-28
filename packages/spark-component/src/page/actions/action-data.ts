@@ -774,7 +774,9 @@ export async function executeSaveDataSet(
   }
 
   const result = await dataSet.saveChanges(options)
-  if (result.success) {
+  const receipt = result.data
+  const confirmed = receipt ? receipt.createdCount + receipt.savedCount + receipt.deletedCount : 0
+  if (result.success && receipt?.failedCount === 0 && receipt.failedEditingRows === 0) {
     if (targets.some(({view}) => view.hasUnconfirmedSave)) {
       notifier.notify('warning', '目标范围仍有提交结果待核验，请先核验原提交')
       return
@@ -782,6 +784,15 @@ export async function executeSaveDataSet(
     const hasRemainingChanges = targets.some(({view, ids}) => ids === undefined
       ? view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()
       : ids.some(id => view.dirtyTracking.hasPendingChanges(id) || view.hasEditingChanges(id)))
+    if (confirmed === 0) {
+      if (hasRemainingChanges) notifier.notify('warning', '本轮未提交，目标范围仍有修改待保存')
+      else notifier.notify('info', desc.emptyMessage ?? '本轮未提交更改')
+      return
+    }
+    if (receipt.followUpError) {
+      notifier.notify('warning', `本轮保存已确认，后续处理失败：${receipt.followUpError.message}`)
+      return
+    }
     if (hasRemainingChanges) {
       notifier.notify('warning', '本轮保存已确认，目标范围仍有修改待保存')
       return
@@ -789,7 +800,8 @@ export async function executeSaveDataSet(
     notifier.notify('success', desc.successMessage ?? result.message ?? '保存成功')
     return
   }
-  notifier.notify('warning', desc.failureMessage ?? result.message ?? '保存失败')
+  const message = desc.failureMessage ?? result.error?.message ?? result.message ?? '保存失败'
+  notifier.notify('warning', confirmed > 0 ? `已确认 ${confirmed} 条变更，其他变更未全部确认：${message}` : message)
 }
 
 export function executeDiscardChanges(

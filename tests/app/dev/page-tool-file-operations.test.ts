@@ -157,6 +157,37 @@ describe('PageTool files use the formal ProjectToolFile DataView chain',()=>{
     }finally{scope.dataSet.destroy()}
   })
 
+  it.each(['directory cleanup','creation compensation'])('stops %s if the first deletion has no confirmed receipt',async mode=>{
+    const files=new Map([['PAGE/rule.json','{}'],['PAGE/script.js','script']])
+    const remove=vi.fn(async(_app:string,pageId:string,fileName:string)=>{files.delete(`${pageId}/${fileName}`)})
+    const scope=createScope(files,remove)
+    try{
+      const creation=mode==='creation compensation'?beginPageToolFileCreation(scope):undefined
+      if(creation){files.clear();await createPageToolFiles(scope,creation)}
+      const original=[...files]
+      const cleanup=()=>creation?compensatePageToolFiles(scope,creation):deletePageToolFiles(scope)
+      const save=scope.dataSet.saveChanges.bind(scope.dataSet)
+      vi.spyOn(scope.dataSet,'saveChanges').mockImplementationOnce(async options=>{
+        const target=options?.views?.[0]
+        const id=target?.ids?.[0]
+        const view=target&&scope.dataSet.getView(target.tableName,target.viewId)
+        if(!view||id===undefined)throw new Error('Missing formal deletion target')
+        view.discardPendingChanges([id])
+        return save(options)
+      })
+
+      const error=await cleanup().catch((cause:unknown)=>cause)
+
+      expect(remove).not.toHaveBeenCalled()
+      expect([...files]).toEqual(original)
+      expect(error).toEqual(new Error('原记录没有已确认的保存回执'))
+      if(creation)expect([...creation.created.keys()]).toEqual(original.map(([path])=>path.slice('PAGE/'.length)))
+      await cleanup()
+      expect(remove).toHaveBeenCalledTimes(original.length)
+      expect(files.size).toBe(0)
+    }finally{scope.dataSet.destroy()}
+  })
+
   it('keeps a confirmed first removal and resumes after a later explicit rejection',async()=>{
     const files=new Map([['PAGE/rule.json','{}'],['PAGE/script.js','script']]),remove=vi.fn(async(_app:string,pageId:string,fileName:string)=>{files.delete(`${pageId}/${fileName}`)})
     remove.mockImplementationOnce(async(_app,pageId,fileName)=>{files.delete(`${pageId}/${fileName}`)})

@@ -1,4 +1,4 @@
-import {listDetachedFileResourceDeletionTargets, listPendingFileResourceHistoryTargets, verifyDetachedFileResourceDeletion, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {listDetachedFileResourceDeletionTargets, listPendingFileResourceHistoryTargets, verifyDetachedFileResourceDeletion, type DataSet, type DataSetSaveChangesResult, type DataView} from '@spark-appworks/spark-data'
 import {PageTool, PAGE_TOOL_FILE_NAMES, ProjectToolResource, type PageToolFileName} from '@spark-appworks/spark-project-model'
 import {createPageFileDirectoryEntryView, createPageFileDirectoryView, createPageFileResourceTarget, createPageFileResourceView, isSafePageToolFileBasename,
   isValidPageToolFilePageId,pageFileResourceViewId,type PageToolFileBindingScope} from '@/services/project/page-tool-file-dataview'
@@ -65,16 +65,31 @@ function fileView(input:PageFileOperationScope,fileName:string):DataView{
   if(fileName==='rule.json'||fileName==='script.js'||fileName==='style.css')return createPageFileResourceView({...target,fileName})
   return createPageFileDirectoryEntryView(target)
 }
-async function commitFileView(input:PageFileOperationScope,view:DataView,id?:string|number):Promise<void>{
+async function commitFileView(input:PageFileOperationScope,view:DataView,id?:string|number):Promise<DataSetSaveChangesResult|undefined>{
   assertPageTarget(input)
   const result=await input.dataSet.saveChanges({views:[{tableName:TABLE,viewId:view.viewId,...(id===undefined?{}:{ids:[id]})}]})
   assertPageTarget(input)
   if(!result.success)throw result.error??new Error(result.message??'ProjectToolFile DataView 保存未确认')
   if(view.hasUnconfirmedSave)throw new Error('PAGE_TOOL_FILE_UNKNOWN: 文件 DataView 回执仍待核验')
+  return result.data
 }
 async function settleFileView(input:PageFileOperationScope,view:DataView):Promise<void>{
   if(view.hasUnconfirmedSave||view.dirtyTracking.hasPendingChanges()||view.hasEditingChanges())await commitFileView(input,view)
   if(view.hasUnconfirmedSave)throw new Error('PAGE_TOOL_FILE_UNKNOWN: 文件 DataView 原回执仍待核验')
+}
+async function deleteFileRecord(input:PageFileOperationScope,view:DataView,id:string|number):Promise<void>{
+  assertPageToolFileDeletionReady(input)
+  await view.removeRow(id)
+  assertPageToolFileDeletionReady(input)
+  if(!view.dirtyTracking.isPendingDelete(id))throw new Error('PAGE_TOOL_FILE_DELETE: 未暂存原文件删除')
+  // Keep the original deletion journal available to directory resume and shared-tool retention.
+  const receipt=await commitFileView(input,view,id)
+  const item=receipt?.viewResults[0]
+  if(receipt?.viewResults.length!==1||item?.tableName!==TABLE||item.viewId!==view.viewId||item.deletedCount!==1
+    ||item.createdCount!==0||item.savedCount!==0||item.failedCount!==0||item.failedEditingRows!==0){
+    throw new Error('原记录没有已确认的保存回执')
+  }
+  if(receipt.followUpError)throw receipt.followUpError
 }
 function rowFor(view:DataView,pageId:string,fileName:string){
   return view.rows.find(row=>row['pageId']===pageId&&row['fileName']===fileName)
@@ -193,10 +208,7 @@ export async function compensatePageToolFiles(input:PageFileOperationScope,creat
     assertFileCreateTarget(input,creation)
     const row=rowFor(view,input.pageId,fileName)
     if(row?.['text']===texts[fileName]&&view.getPkKey(row)===id){
-      assertPageToolFileDeletionReady(input)
-      await view.removeRow(id)
-      assertPageToolFileDeletionReady(input)
-      await commitFileView(input,view,id)
+      await deleteFileRecord(input,view,id)
     }
     creation.created.delete(fileName)
   }
@@ -292,10 +304,7 @@ export async function deletePageToolFiles(input:PageFileOperationScope):Promise<
     if(!row)continue
     const id=view.getPkKey(row)
     if(id===undefined)throw new Error('PAGE_TOOL_FILE_DELETE: 文件行缺少正式身份')
-    assertPageToolFileDeletionReady(input)
-    await view.removeRow(id)
-    assertPageToolFileDeletionReady(input)
-    await commitFileView(input,view,id)
+    await deleteFileRecord(input,view,id)
   }
   const remaining=await listPageToolFileNames(input)
   if(remaining.length)throw new Error(`PAGE_TOOL_FILE_DELETE_UNCONFIRMED: 目录仍有文件：${remaining.join(', ')}`)

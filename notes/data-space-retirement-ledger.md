@@ -170,6 +170,31 @@ AW-07 按「正式操作 × 缺失能力」核对后引用业务验收项。跨�
 
 **AW-03 · 数据空间级联配置普通保存，工程已验待实服。** 关系、级联的显式核验已有共同的原 DataSet 批次合同。实际级联编辑器在保存收集前撤回变更时，文件和数据库均零写入，独立实例读到原级联，旧版仍显示保存确认。改前定向退出 1。普通保存已复用 `DataSet.saveView`，按实际回执显示未提交、失败、部分确认、未知或已确认，未知只沿原批次核验。改后关系及级联定向 14 项通过，含一次写入、原批次核验、后续草稿和独立重开。主仓改前类型、改后目标 ESLint、根 `pnpm run verify` 均退出 0。根全仓两段各退出 0，原生设计 393 项，其余 781 套 12,830 项，共 782 套、13,223 项。两份改动工程输入前后指纹一致，日志在 `artifacts/aw03-cascade-save-receipt`。本地改动待收口，第 04 包正式应用、原级联文件回执与独立重开待实服，写入另行批准。 [保存方案](plan-spark-data-save-batch-recovery.md#第一阶段-公共保存编排与核验) [级联编辑器](../src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.vue) [实际挂载](../tests/runtime/page/design/native/data-space-design-page.test.ts)
 
+**AW-03 · 级联保存已推送。** 本地提交 `d818547b2`，从远端基线独立承接的四文件批次为 `bd3ecaf12`。两份工程输入与本地获验版本一致，已回读核对 `origin/main`。AW-05 Plan v2 继续待发布。
+
+<a id="aw03-save-consumer-inventory"></a>
+
+#### AW-03 保存调用盘点与分组验收
+
+以 `d818547b2` 的浏览器宿主为基线，扫描 `src`、`config`、SPARK Component 和 SPARK App 的生产 Vue、TS 和 JS。共 53 个文件、88 行出现 `saveChanges(`，包含声明或转发。同时定位到 10 处 `saveView`、16 处 `saveRecord`、19 处 `verifySaveJournalAndRead`。这些数字是静态定位结果。缺陷须以真实 owner、实际派发计数、页面或后续流程结算共同确认。
+
+| 合同组 | 生产入口和当前证据 | 成组验收条件 |
+| --- | --- | --- |
+| 公共组件与声明式动作 | 标准记录、表格、字段保存及 action-data。标准记录、表格、声明式续接已有回执回归，字段保存另有自己的单行合同 | 同组固定零派发、明确拒绝、原键错配、部分确认及后续处理失败，核原实例、回调和派发计数 |
+| 单记录目录与设计 | 应用及原生导航、逻辑视图目录与共享设计宿主、维度目录、数据库目录／表／字段／关系、数据空间目录及模型改名。应用、原生导航及逻辑视图原批次已有先前证据，逻辑视图目录、维度目录及数据库工具仍需按其操作核对分项与可见结算 | 用现有 `saveRecord` 核单键行动。锁定新增、修改、删除各自实际分项，未知保持同批次。无改动的动作按明确无需修改处理 |
+| 单视图文件和规则 | 数据空间关系、级联及画布已有证据。PDF 规则、通用文件管理、Excel 子配置、JSON 正文等仍可见总结果判断，须先对照是否真的推进流程或提示成功 | 共享 `saveView` 的分项语义，区分有回执才进入后续处理、空变更、部分与未知。使用原文件及正式视图独立重开 |
+| 工具文件创建、删除及补偿 | `page-tool-file-operations` 的创建带原批次分项核验，目录清理与默认文件补偿共用提交入口。工作台正文、版本恢复和发布清单分别已有独立证据 | 先验证目录清理和创建失败补偿同一首个正式删除目标。零实际删除时保留目标和后续文件，收到单键回执才继续。已派发未知继续只核原件 |
+| 多视图与分阶段写入 | 报表、维度、蓝图、应用多目标、数据空间定义与参数、Excel 方案和模板、JSON 正文与目录、工作流设计稿及字段、编码规则、数据库复制与字段同步、内联交付 | 保留按来源及先后顺序的分项。已确认项不重发。普通无改动、待派发、部分确认、回读失败独立验收。不能将批量契约替换成单视图 |
+| 命令和带发布版本的文件 | 审批、PDF 上传与执行、Excel 模板、富文本上传、数据库注册／同步、工作流首次发布、PageTool 发布清单及 Plan | 原命令键、文件目标或版本键必须与分项证明吻合。服务缺原请求、条件提交或正式终态的部分继续归 AW-07。AW-05 发布仍独立等部署前置 |
+
+在每组现有真实入口夹具复用同一组失败条件。先区分调用处的回执检查、调用方后续结算与现有核验证据，建立同一责任层的修订批次。无真实失败的入口只登记证据。此次下一阶段限已批准的工具文件删除及补偿公共入口。 [公共批次方案](plan-spark-data-save-batch-recovery.md) [工具文件方案](plan-project-tool-file-owner.md)
+
+**应优先共验的调用形状。** 单视图文件组中，正式登记的通用文件管理直接消费 `DataView.saveChanges` 的总结果后刷新并提示成功。多阶段组中，JSON 新建正文成功标记、Excel 普通设计的字段目录刷新、工作流文件设计稿的成功提示和数据库复制进入回读都依赖各自的总结果或本地草稿状态，须验零派发与跨阶段回执，不能用同一替换覆盖。命令组中，审批及 PDF 初始化按原命令上下文分开取证。同一保存入口的完整源码定位输出在 `artifacts/aw03-tool-file-delete-receipt/save-call-sites.txt`。 [文件管理正式登记](../config/navigation/vue-pages.json) [目录文件入口](../src/views/FileDataManager/FileManager/index.vue) [JSON 正文与目录](../src/views/features/data-platform/semi-structured/json-data/ui/json-data-script-host.ts)
+
+<a id="aw03-tool-file-delete-receipt"></a>
+
+**AW-03 · 工具目录清理与创建补偿，工程已验待实服。** 两个正式入口共用原文件 owner。保存收集前撤去首个删除草稿后，旧目录清理仍删除后续 1 份文件，旧补偿仍删除后续 2 份，两个对照均失败。现由同一文件删除函数检查已暂存的原键及 SPARK Data 的单文件删除分项，确认前保留原目标和后续文件，补偿命令也保留未确认目标。首个候选使用 `saveRecord`，旧文件恢复的选择器与已准备批次不一致，明确未应用日志也过早释放。最终沿原精确选择器保留日志和续办合同，在共用文件函数校验分项。改前类型、改后目标 ESLint、三套相关回归 181 项和根 `pnpm run verify` 均通过。分段全仓两路退出 0，原生设计 393 项，其余 781 套、12,832 项，共 782 套、13,225 项。两份本批工程输入的指纹一致。正式工具及文件键、原删除结果、跨工作区的条件删除和共享引用仍按服务合同验收，实服写入另行批准。日志在 `artifacts/aw03-tool-file-delete-receipt`，本地改动待收口。 [工具文件操作](../src/services/project/page-tool-file-operations.ts) [真实文件 owner 回归](../tests/app/dev/page-tool-file-operations.test.ts)
+
 <a id="aw03-file-resource-registration-20261128"></a>
 
 **AW-03 · 第 04 包文件资源注册。** 沿实际新增入口注册 `AgentWorkflowFiles`。改前四组分别在绑定或命名视图回读故障时丢失确认，或在缺回执及部分回执时仍进入后置回读。独立净版又复现注册期间另一份命名视图草稿使旧入口写入零次。修订逐行捕获本次新增键，一次 DataSet 提交仅携带这些键。收到完整新增分项后才即时读取，核对资源、列及命名视图身份，保留回执已确认与后置失败两项事实。回归证明旁支 `OrdersAlias@laterNamed` 保留在本实例且未入持久定义，新会话能读到 `AgentWorkflowFiles@definition`。净版和主仓受影响入口各 10 项通过，包含原未知不重发。 [文件资源注册](../src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue#L805) [实际挂载](../tests/runtime/page/design/native/data-space-design-page.test.ts#L8100)

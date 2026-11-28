@@ -130,6 +130,8 @@ AW-07 按「正式操作 × 缺失能力」核对后引用业务验收项。跨�
 
 **AW-03 · 公共记录及声明式保存固定版结算。** 根 `verify`、前端生产构建和两路全量均退出 0。第一路 391 套、7,320 项，第二路 390 套、5,830 项，合计 781 套、13,150 项，最慢约 12 分 42 秒。4,491 份固定输入无变化。声明索引只变化两个本次源码条目，正式分片、公开索引及语义报告均无有效变化。现有标准记录直接调用方覆盖登录与注册、缓存命令、流程工具、Excel、企业管理及共用记录窗。未操作实服，业务包按各自正式合同验收。
 
+**公共动作续接 · S2 待实施。** 在 `c6acf567b` 隔离复现两条已登记的成功传播反例。取消确认时，`onCancel` 和顶层 `then` 均执行。撤去场景文件暂存后，`save-dataset` 零写入并提示未提交，顶层 `then` 仍提示确认成功。删除探针止于确认弹窗未触发，取消删除仍待有效复现。责任点为公共执行器在派发正常返回后直接执行 `then`。后续由公共执行器与动作处理器按既有成功合同成组收敛，回归确认分支、正式保存结果及消费配置。探针未入库，产品源码未改，未访问实服。 [公共执行器](../packages/spark-component/src/page/actions/action-executor.ts)
+
 <a id="aw03-table-save-consumers-checkout-20261128"></a>
 
 **AW-03 · 单视图保存及原批次核验入库。** 公共表格使用 `DataSet.saveView`，单键删除使用 `saveRecord`。确认为已保存后才读取仍有效的关联视图，读取失败保留保存确认。接口配置和 Excel 使用 `verifySaveJournalAndRead` 核验原批次，Excel 对照保持一次实际写入并保留后来草稿。流程节点授权通过同一工具栏验收。净版 12 套、275 项通过，类型、ESLint、架构、611 个服务端点与 244 个消费者检查通过。复用主仓最近 782 套、13,100 项全量，三处仅 JSDoc 改动的去注释转译字节一致。交付未操作实服。 [共享表格](../src/views/features/shared/table/feature-table-actions.ts) [实际接口回归](../tests/runtime/page/api-provider/api-pages.test.ts) [Excel 回归](../tests/runtime/page/semi-structured/excel-import/transform/ui/pane.test.ts)
